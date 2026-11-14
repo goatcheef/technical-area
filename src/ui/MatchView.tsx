@@ -24,6 +24,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
 
   const [mode, setMode] = useState<'full' | 'key'>('full')
   const [talk, setTalk] = useState<string | null>(null)
+  const [riv, setRiv] = useState<number | null>(null)
   const dur = useRef(TICK)
 
   useEffect(() => {
@@ -99,9 +100,16 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
               const v = tab === 'team' ? mine : theirs
               return (<>
                 <table><tbody>{v.on.map(o => { const p = g.players[o.pid]; return (
-                  <tr key={o.pid} className={tab === 'team' ? 'click' : ''} style={out === o.pid ? { outline: '2px solid var(--accent)' } : undefined} onClick={() => tab === 'team' && !sim.finished && setOut(out === o.pid ? null : o.pid)}>
-                    <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
+                  <tr key={o.pid} className="click" style={(tab === 'team' ? out : riv) === o.pid ? { outline: '2px solid var(--accent)' } : undefined} onClick={() => { if (sim.finished) return; if (tab === 'team') setOut(out === o.pid ? null : o.pid); else setRiv(riv === o.pid ? null : o.pid) }}>
+                    <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{tab === 'rival' && (mine.tactic.oppo?.[o.pid]?.tight || mine.tactic.oppo?.[o.pid]?.hard || mine.tactic.oppo?.[o.pid]?.press || mine.tactic.manMark?.target === o.pid) ? <span className="acc"> ◎</span> : ''}{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
                     <td><Cond v={o.cond} /></td><td className={`r num ${ratClass(o.rating)}`}><b>{o.rating.toFixed(1)}</b></td></tr>) })}</tbody></table>
+                {tab === 'rival' && !sim.finished && (riv != null && g.players[riv] ? (() => { const oo = mine.tactic.oppo?.[riv] ?? {}, mm = mine.tactic.manMark; return (
+                  <div className="col" style={{ marginTop: 12, gap: 8 }}><h3>Órdenes sobre {g.players[riv].name}</h3>
+                    <div className="row wrap">{([['tight', 'Marcarlo encima', 'Lo anula si no tiene cambio de ritmo. Un rápido se saca la marca y queda solo. Cansa a tu marcador.'], ['hard', 'Entrarle fuerte', 'Le cuesta más pasar, pero vas a cometer más faltas y arriesgás tarjetas.'], ['press', 'Presionarlo en la salida', 'Complica al rival cuando la jugada empieza o pasa por él.']] as const).map(([k, l, h]) => (
+                      <button key={k} title={h} className={`btn sm ${oo[k] ? 'on' : ''}`} onClick={() => { sim.toggleOppo(us, riv, k); bump() }}>{oo[k] ? '✓ ' : ''}{l}</button>))}</div>
+                    <label className="f" title="Uno de los tuyos lo sigue por toda la cancha: lo marca mejor, pero se desgasta más.">Marca personal a cargo de<select value={mm?.target === riv ? mm.by : 0} onChange={e => { sim.setManMark(us, Number(e.target.value), riv); bump() }}>
+                      <option value={0}>Nadie</option>{mine.on.filter(x => x.pos !== 'GK').map(x => <option key={x.pid} value={x.pid}>{g.players[x.pid].name} ({POS_LABEL[x.pos]})</option>)}</select></label></div>) })()
+                  : <div className="dim sm" style={{ marginTop: 10 }}>Tocá un rival para darle órdenes puntuales a tu equipo: marcarlo encima, entrarle fuerte, presionarlo o ponerle marca personal.</div>)}
                 {tab === 'team' && out != null && (() => { const o = v.on.find(x => x.pid === out); return o && rolesFor(o.pos).length > 1 ? (
                   <div style={{ marginTop: 10 }}><div className="dim" style={{ fontSize: '.76rem', marginBottom: 3 }}>Rol de {g.players[out].name}</div>
                     <div className="seg">{rolesFor(o.pos).map(r => <button key={r.id} title={r.desc} className={o.role === r.id ? 'on' : ''} onClick={() => { sim.setRole(us, out, r.id); bump() }}>{r.name}</button>)}</div></div>) : null })()}

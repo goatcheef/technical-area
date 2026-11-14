@@ -132,21 +132,24 @@ const PMETA = load('../data/players_meta.json') as Record<string, { ok: boolean;
 const OVERRIDES = load('../data/overrides.json') as Record<string, { ca?: number; pos?: Pos; prospect?: number }>
 /** Juveniles convocados a selecciones juveniles (tools/prospects.py). Clave: 'título wiki del club|Nombre'. */
 const PROSPECTS = load('../data/prospects.json') as Record<string, { score: number; sel: string[] }>
-const POS_RX: [RegExp, Pos | 'WING' | 'FB'][] = [
+const POS_RX: [RegExp, Pos | 'WING' | 'FB' | 'FWG' | 'MFG'][] = [
   [/arquer|guardamet|porter/, 'GK'], [/lateral derech|carrilero derech|lateral por (la )?derecha/, 'DR'], [/lateral izquierd|carrilero izquierd|lateral por (la )?izquierda/, 'DL'], [/lateral|carrilero/, 'FB'],
   [/mediocentro|volante central|pivote|contenci[oó]n|(mediocamp\w*|centrocamp\w*|volante) defensivo|volante tap[oó]n/, 'DM'], [/central|zaguer|l[ií]bero|defens/, 'DC'],
   [/mediapunta|media punta|enganche|ofensivo|creativo|segundo delantero/, 'AMC'], [/extremo derech|puntero derech/, 'AMR'], [/extremo izquierd|puntero izquierd/, 'AML'], [/extremo|puntero|wing/, 'WING'],
   [/(volante|interior|mediocampista|centrocampista) (por )?(la )?derech/, 'MR'], [/(volante|interior|mediocampista|centrocampista) (por )?(la )?izquierd/, 'ML'],
-  [/delanter|atacante|ariete|punta|goleador/, 'ST'], [/mediocamp|centrocamp|volante|interior/, 'MC'],
+  [/centrodelanter|delantero centro|delantero de [aá]rea|ariete|\bnueve\b|goleador/, 'ST'], [/delanter|atacante|punta/, 'FWG'], [/mediocamp|centrocamp|volante|interior/, 'MFG'],
 ]
 let alt = 0
+/** 'delantero' o 'mediocampista' a secas no dicen el puesto: se reparten entre los puestos de esa línea. */
+const GEN_FW: Pos[] = ['ST', 'AMR', 'ST', 'AML', 'ST', 'AMR', 'AML'], GEN_MF: Pos[] = ['MC', 'DM', 'MC', 'AMC', 'MC', 'MR', 'DM', 'ML', 'AMC']
+let gf = 0, gm = 0
 function parsePositions(text: string | undefined): Pos[] {
   if (!text) return []
   const out: Pos[] = []
   for (const seg of text.split(/\/|,| o | y |;|<br/)) {
     const hit = POS_RX.find(([rx]) => rx.test(seg))
     if (!hit) continue
-    const pos: Pos = hit[1] === 'WING' ? (alt++ % 2 ? 'AML' : 'AMR') : hit[1] === 'FB' ? (alt++ % 2 ? 'DL' : 'DR') : hit[1]
+    const pos: Pos = hit[1] === 'WING' ? (alt++ % 2 ? 'AML' : 'AMR') : hit[1] === 'FB' ? (alt++ % 2 ? 'DL' : 'DR') : hit[1] === 'FWG' ? GEN_FW[gf++ % GEN_FW.length] : hit[1] === 'MFG' ? GEN_MF[gm++ % GEN_MF.length] : hit[1]
     if (!out.includes(pos)) out.push(pos)
   }
   return out.slice(0, 3)

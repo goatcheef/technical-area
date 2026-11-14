@@ -25,6 +25,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 - El usuario pidió nombres, clubes y escudos reales.
 - La interfaz es un diseño propio: moderna, del género, sin copiar la de Football Manager.
 - Foto de jugadores: la silueta genérica que eligió el usuario (`src/assets/player.webp`). El DT usa el avatar ilustrado. No usar fotos reales.
+- En las fichas de Wikipedia, "delantero" o "mediocampista" a secas no dicen el puesto: `tools/build-db.ts` los reparte entre los puestos de la línea. Solo "centrodelantero", "extremo", "enganche", etc. se toman literales.
 - La valoración sale de la reputación del club, la edad y la trayectoria real (`data/players_meta.json`: puesto, debut, selección, exterior, notoriedad). No dice quién es titular hoy: eso se corrige en `data/overrides.json` (clave `Club corto|Nombre`) y después `npm run db`.
 - Juveniles con proyección: `tools/prospects.py` cruza los planteles con las listas de selecciones juveniles de Wikipedia (`data/raw/sel/`, sub-15 a sub-23) y genera `data/prospects.json`; suben habilidad y potencial. Los que el usuario conoce y no figuran ahí se cargan en `data/overrides.json` con `prospect` (1 a 6).
 - No se usan datos de Football Manager ni de sitios que los republican: es una base propietaria. El usuario lo pidió y se le explicó que no.
@@ -36,14 +37,14 @@ Alrededor de 2,2 a 2,4 goles por partido, 40-42 % de triunfos locales, 27 % de e
 
 ## Plan de jugabilidad (acordado con el usuario)
 
-1. **El partido como centro.** Hecho: motor por jugadas, roles, instrucciones con pelota / sin pelota / transiciones, pateadores, familiaridad táctica (`club.fam`), ritmo más lento con modos "partido completo" y "jugadas clave", charla del entretiempo. Falta: marcas individuales, rutinas de pelota parada, instrucciones al rival.
+1. **El partido como centro.** Hecho: motor por jugadas, roles, instrucciones con pelota / sin pelota / transiciones, pateadores, rutinas de córner, órdenes sobre rivales puntuales y marca personal (solo durante el partido, `tactic.oppo` y `tactic.manMark`), familiaridad táctica (`club.fam`), ritmo más lento con modos "partido completo" y "jugadas clave", charla del entretiempo.
 2. **La semana:** avance día por día con calendario, entrenamiento, informe del rival, charlas y prensa, cuerpo técnico.
 3. **El plantel como grupo:** personalidades, promesas de minutos, ojeo con rangos en vez de números exactos, negociación de contratos, reserva.
 4. **El mundo:** copas, tercera categoría, economía, ofertas de trabajo.
 
 ## Pendiente (en orden sugerido)
 
-1. Los delanteros centro concentran demasiados goles (cerca del 54 %); repartir más hacia extremos y volantes.
+1. Etapa 2 del plan: la semana.
 2. Corregir puestos y calidad de los jugadores más conocidos.
 3. Ajustar la economía: los clubes grandes acumulan demasiada caja con los años.
 4. Copa Argentina, Libertadores y Sudamericana.

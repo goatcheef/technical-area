@@ -88,6 +88,8 @@ export class MatchSim {
     for (const a of as) s += at(x.p, a)
     return (s / as.length) * x.eff
   }
+  /** ¿El rival tiene una orden puntual sobre este jugador? */
+  private oi(O: Side, x: OnPitch, k: 'tight' | 'hard' | 'press'): boolean { return !!O.tactic.oppo?.[x.p.id]?.[k] }
   private grp(xs: OnPitch[], ...as: Attr[]): number {
     if (!xs.length) return 8
     let s = 0
@@ -199,7 +201,7 @@ export class MatchSim {
       } else {
         const press = O.on.filter(x => POS_LINE[x.pos] === 'FW' || x.pos === 'AMC')
         const pSkill = this.grp(press, 'wor', 'sta', 'agg', 'acc')
-        const p1 = 0.93 + (this.sk(builder, 'pas', 'com', 'dec') - 11) * 0.012 - ot.pressing * (0.035 + (pSkill - 11) * 0.006) + (t.passing === 0 ? 0.02 : 0.035) - (t.tempo - 1) * 0.015
+        const p1 = 0.93 - (this.oi(O, builder, 'press') ? 0.06 : 0) + (this.sk(builder, 'pas', 'com', 'dec') - 11) * 0.012 - ot.pressing * (0.035 + (pSkill - 11) * 0.006) + (t.passing === 0 ? 0.02 : 0.035) - (t.tempo - 1) * 0.015
         if (!r.chance(clamp(p1, 0.5, 0.99))) {
           const w = press.length ? r.pick(press) : O.on[0]
           w.acc += 0.1; builder.acc -= 0.12
@@ -213,7 +215,7 @@ export class MatchSim {
         fr.route.push(link.p.id)
         const p2 = 0.6 + (this.grp(mids, 'pas', 'fto', 'dec', 'vis') - this.grp(stop, 'tck', 'pos', 'wor', 'mar')) * 0.035 + 0.025 * (t.mentality - 2)
           - 0.04 * (ot.line - 1) - 0.03 * (t.tempo - 1) + (t.passing === 0 ? 0.02 : 0) + bTac * 2 + this.home(si)
-          + (S.on.length - O.on.length) * 0.05
+          + (S.on.length - O.on.length) * 0.05 - (this.oi(O, link, 'press') ? 0.05 : 0)
         if (!r.chance(clamp(p2, 0.2, 0.9))) {
           const w = r.weighted(stop, x => at(x.p, 'tck') + at(x.p, 'pos'))
           w.acc += 0.06; link.acc -= 0.03
@@ -227,16 +229,28 @@ export class MatchSim {
     const atts = this.inCh(S, ch, x => POS_LINE[x.pos] !== 'DF' || x.role.id === 'wb' || x.role.id === 'fb')
     const cre = r.weighted(atts, x => (ZONE_W[x.pos][2] * x.role.z[2] + 0.15) * x.role.create * (at(x.p, 'dri') + at(x.p, 'vis')) * (x.pos === 'ST' ? 0.4 : 1))
     const defs = this.inCh(O, och, x => POS_LINE[x.pos] === 'DF' || x.pos === 'DM')
-    const mk = r.weighted(defs, x => ZONE_W[x.pos][0] * x.role.z[0] * (ch !== 1 && (x.pos === 'DR' || x.pos === 'DL') ? 3 : 1))
+    let mk = r.weighted(defs, x => ZONE_W[x.pos][0] * x.role.z[0] * (ch !== 1 && (x.pos === 'DR' || x.pos === 'DL') ? 3 : 1))
+    // marca personal: el encargado lo sigue adonde vaya
+    const mm = ot.manMark, shadow = mm && mm.target === cre.p.id ? O.on.find(x => x.p.id === mm.by && x.pos !== 'GK') : undefined
+    if (shadow) { mk = shadow; shadow.cond = Math.max(15, shadow.cond - 0.35) }
     if (fr.route[fr.route.length - 1] !== cre.p.id) fr.route.push(cre.p.id)
     const wide = ch !== 1
-    const a3 = wide ? this.sk(cre, 'dri', 'pac', 'acc', 'cro') : this.sk(cre, 'vis', 'pas', 'fto', 'dri')
-    const d3 = wide ? this.sk(mk, 'tck', 'pac', 'pos', 'mar') : this.sk(mk, 'mar', 'pos', 'dec', 'tck')
-    const p3 = 0.315 + (a3 - d3) * 0.035 + bonus3 + 0.02 * (t.mentality - 2) + 0.025 * (t.tempo - 1) + (ot.line === 0 ? -0.05 : ot.line === 2 ? 0.02 : 0)
+    let a3 = wide ? this.sk(cre, 'dri', 'pac', 'acc', 'cro') : this.sk(cre, 'vis', 'pas', 'fto', 'dri')
+    let d3 = wide ? this.sk(mk, 'tck', 'pac', 'pos', 'mar') : this.sk(mk, 'mar', 'pos', 'dec', 'tck')
+    if (shadow) d3 *= 1.06
+    const tight = this.oi(O, cre, 'tight'), hard = this.oi(O, cre, 'hard')
+    if (tight) {
+      // marcar encima anula al que no tiene cambio de ritmo, pero un rápido se saca la marca y queda solo
+      const quick = this.sk(cre, 'pac', 'acc') - this.sk(mk, 'pac', 'acc')
+      a3 *= quick > 2 ? 1.04 : 0.93
+      mk.cond = Math.max(15, mk.cond - 0.25)
+    }
+    if (hard) a3 *= 0.96
+    const p3 = 0.352 + (a3 - d3) * 0.035 + bonus3 + 0.02 * (t.mentality - 2) + 0.025 * (t.tempo - 1) + (ot.line === 0 ? -0.05 : ot.line === 2 ? 0.02 : 0)
       + (mk.role.id === 'stp' ? -0.02 : 0) + bAtt * 2.5 - bDef * 2.5 + this.home(si) + (S.on.length - O.on.length) * 0.04
     if (!r.chance(clamp(p3, 0.12, 0.85))) {
       mk.acc += 0.07; cre.acc -= 0.02
-      const u = r.next(), foulP = 0.15 * [0.75, 1, 1.35][ot.tackling] * (0.6 + at(mk.p, 'agg') / 25) * (mk.role.id === 'stp' ? 1.25 : 1)
+      const u = r.next(), foulP = (hard ? 1.6 : 1) * 0.15 * [0.75, 1, 1.35][ot.tackling] * (0.6 + at(mk.p, 'agg') / 25) * (mk.role.id === 'stp' ? 1.25 : 1)
       if (u < foulP) return this.attackFoul(si, min, cre, mk)
       if (u < foulP + 0.1) return this.corner(si, min)
       if (!wide && u < foulP + 0.1 + 0.11 * (1 + 0.8 * (ot.line - 1))) { this.stats.offs[si]++; return }
@@ -250,7 +264,7 @@ export class MatchSim {
   private chance(si: 0 | 1, min: number, cre: OnPitch, mk: OnPitch, wide: boolean, counter: boolean) {
     const S = this.sides[si], O = this.sides[1 - si], r = this.rng, t = S.tactic, fr = this.frame
     const box = S.on.filter(x => x !== cre && x.pos !== 'GK' && POS_LINE[x.pos] !== 'DF' && x.role.id !== 'anc')
-    const bw = (x: OnPitch) => (x.pos === 'ST' ? 0.5 : x.pos === 'AMC' || x.pos === 'AMR' || x.pos === 'AML' ? 0.62 : x.pos === 'DM' ? 0.14 : 0.42) * x.role.shoot
+    const bw = (x: OnPitch) => (x.pos === 'ST' ? 0.72 : x.pos === 'AMC' || x.pos === 'AMR' || x.pos === 'AML' ? 0.62 : x.pos === 'DM' ? 0.14 : 0.42) * x.role.shoot
     const dcs = O.on.filter(x => x.pos === 'DC')
     const dc = dcs.length ? r.pick(dcs) : mk
     const side = CH_NAME[fr.channel]
@@ -317,30 +331,41 @@ export class MatchSim {
     if (chosen) return chosen
     return best(out.length ? out : S.on, x => (kind === 'pen' ? at(x.p, 'fin') + at(x.p, 'com') + at(x.p, 'set') * 0.5 : kind === 'fk' ? at(x.p, 'set') * 2 + at(x.p, 'lsh') : at(x.p, 'set') + at(x.p, 'cro')))
   }
-  private aerial(si: 0 | 1, min: number, tk: OnPitch, base: number, intro: string) {
+  private aerial(si: 0 | 1, min: number, tk: OnPitch, base: number, intro: string, plan = 0) {
     const S = this.sides[si], O = this.sides[1 - si], r = this.rng
     const tall = S.on.filter(x => x !== tk && x.pos !== 'GK')
     if (!tall.length) return
-    const tg = r.weighted(tall, x => (at(x.p, 'hea') + at(x.p, 'jmp')) * (x.pos === 'DC' ? 1.4 : x.pos === 'ST' ? 1.15 : 1))
+    // primer palo premia al que anticipa; segundo palo, al que salta y aguanta
+    const fav = S.tactic.cornerTarget ? tall.find(x => x.p.id === S.tactic.cornerTarget) : undefined
+    const tg = fav && r.chance(0.6) ? fav : r.weighted(tall, x => (plan === 1 ? at(x.p, 'acc') + at(x.p, 'otb') + at(x.p, 'hea') : plan === 2 ? at(x.p, 'jmp') + at(x.p, 'str') + at(x.p, 'hea') : (at(x.p, 'hea') + at(x.p, 'jmp')) * 1.5) * (x.pos === 'DC' ? 1.4 : x.pos === 'ST' ? 1.15 : 1))
     const dd = O.on.filter(x => x.pos !== 'GK')
     const mk = dd.length ? best(dd, x => this.sk(x, 'hea', 'jmp', 'mar') + r.next() * 4) : O.on[0]
     this.frame.route = [tk.p.id, tg.p.id]
     const p = base + (this.sk(tk, 'cro', 'set') - 11) * 0.012 + (this.sk(tg, 'hea', 'jmp', 'str') - this.sk(mk, 'hea', 'jmp', 'mar')) * 0.03
     if (!r.chance(clamp(p, 0.06, 0.6))) { mk.acc += 0.05; return }
-    this.shot(si, min, 'head', tg, 0.095, (at(tg.p, 'hea') * 2 + at(tg.p, 'jmp')) / 60, tk, intro)
+    this.shot(si, min, 'head', tg, plan === 1 ? 0.08 : plan === 2 ? 0.105 : 0.095, (at(tg.p, 'hea') * 2 + at(tg.p, 'jmp')) / 60, tk, intro)
   }
   private corner(si: 0 | 1, min: number) {
+    const S = this.sides[si], O = this.sides[1 - si], r = this.rng
     this.stats.corners[si]++
     this.frame.kind = 'corner'; this.frame.poss = si
-    const tk = this.taker(this.sides[si], 'corner')
-    this.aerial(si, min, tk, 0.15, `Córner de ${this.nm(tk)} al corazón del área`)
+    const tk = this.taker(S, 'corner'), plan = S.tactic.cornerPlan ?? 0
+    if (plan === 3) {
+      // jugada corta: se juega con un compañero y se busca el desborde
+      const dd = O.on.filter(x => x.pos !== 'GK')
+      this.frame.route = [tk.p.id]
+      if (dd.length && r.chance(0.42)) this.chance(si, min, tk, r.pick(dd), true, false)
+      return
+    }
+    const how = plan === 1 ? 'al primer palo' : plan === 2 ? 'al segundo palo' : 'al corazón del área'
+    this.aerial(si, min, tk, plan === 1 ? 0.175 : plan === 2 ? 0.14 : 0.15, `Córner de ${this.nm(tk)} ${how}`, plan)
   }
   private attackFoul(si: 0 | 1, min: number, victim: OnPitch, f: OnPitch) {
     const S = this.sides[si], r = this.rng
     this.stats.fouls[(1 - si) as 0 | 1]++
     this.card((1 - si) as 0 | 1, f, min, 1.05)
     this.frame.poss = si
-    if (r.chance(0.075)) {
+    if (r.chance(0.034)) {
       const tk = this.taker(S, 'pen')
       this.frame.kind = 'pen'; this.frame.route = [tk.p.id]
       this.ev(min, 'info', si, `¡Penal para ${S.club.short}! Falta de ${this.nm(f)} sobre ${this.nm(victim)}.`)
@@ -348,23 +373,24 @@ export class MatchSim {
     }
     const tk = this.taker(S, 'fk')
     this.frame.kind = 'fk'
-    if (r.chance(0.38)) { this.frame.route = [tk.p.id]; return this.shot(si, min, 'fk', tk, 0.068, (at(tk.p, 'set') * 2 + at(tk.p, 'lsh')) / 60, undefined, `Tiro libre peligroso por la falta de ${this.nm(f)}`) }
+    if (r.chance(0.16)) { this.frame.route = [tk.p.id]; return this.shot(si, min, 'fk', tk, 0.068, (at(tk.p, 'set') * 2 + at(tk.p, 'lsh')) / 60, undefined, `Tiro libre peligroso por la falta de ${this.nm(f)}`) }
     this.aerial(si, min, tk, 0.13, `Tiro libre de ${this.nm(tk)} al área`)
   }
 
   // ---------- definición ----------
-  private shot(si: 0 | 1, min: number, kind: 'open' | 'long' | 'head' | 'one' | 'fk' | 'pen', sh: OnPitch, base: number, sk: number, as?: OnPitch, intro?: string) {
+  private shot(si: 0 | 1, min: number, kind: 'open' | 'long' | 'head' | 'one' | 'fk' | 'pen', sh: OnPitch, base: number, sk: number, as?: OnPitch, intro?: string): void {
     const S = this.sides[si], O = this.sides[1 - si], r = this.rng
     const gk = O.on.find(x => x.pos === 'GK')
     const gkQ = gk ? (posRating(gk.p, 'GK') / 100) * (gk.eff / Math.max(0.5, roleFit(gk.p, gk.role))) : 0.3
     const xg = kind === 'pen' ? base : base * (0.54 + 0.72 * r.next())
-    const pGoal = clamp(xg * (0.44 + 0.86 * sk) * sh.role.shoot ** 0.25 * (1.62 - 0.9 * gkQ) * (kind === 'long' && gk?.role.id === 'sk' ? 1.2 : 1), 0.008, 0.95)
+    if (this.oi(O, sh, 'tight') && kind !== 'pen' && kind !== 'fk') sk *= 0.94
+    const pGoal = clamp(xg * (0.49 + 0.92 * sk) * sh.role.shoot ** 0.25 * (1.62 - 0.9 * gkQ) * (kind === 'long' && gk?.role.id === 'sk' ? 1.2 : 1), 0.008, 0.95)
     this.stats.shots[si]++; this.stats.xg[si] += xg
     sh.line.shots++
     const n = this.nm(sh), club = S.club.short
     const far = kind === 'long' ? 24 + r.next() * 10 : kind === 'fk' ? 20 + r.next() * 8 : kind === 'pen' ? 11 : 4 + r.next() * 12
     const lat = this.frame.channel === 1 || kind === 'head' || kind === 'one' ? 50 + r.gauss() * 9 : this.frame.channel === 0 ? 30 + r.gauss() * 8 : 70 + r.gauss() * 8
-    const log: Shot = { min, side: si, pid: sh.p.id, xg, out: 'off', x: kind === 'pen' ? 50 : clamp(si === 0 ? lat : 100 - lat, 12, 88), y: far, ast: as?.p.id }
+    const log: Shot = { kind, min, side: si, pid: sh.p.id, xg, out: 'off', x: kind === 'pen' ? 50 : clamp(si === 0 ? lat : 100 - lat, 12, 88), y: far, ast: as?.p.id }
     this.shots.push(log); this.frame.shot = log
     const pre = intro ? `${intro}. ` : ''
     if (r.chance(pGoal)) {
@@ -539,6 +565,14 @@ export class MatchSim {
     if (patch.formation && patch.formation !== oldF) { this.reshape(S); S.fam = Math.max(0.9, S.fam - 0.02) } // cambiar el dibujo en pleno partido cuesta
     this.dirty = true
   }
+  /** Orden sobre un rival puntual. */
+  toggleOppo(si: 0 | 1, pid: number, k: 'tight' | 'hard' | 'press') {
+    const t = this.sides[si].tactic
+    t.oppo ??= {}
+    const o = (t.oppo[pid] ??= {})
+    o[k] = !o[k]
+  }
+  setManMark(si: 0 | 1, by: number, target: number) { this.sides[si].tactic.manMark = by && target ? { by, target } : null }
   /** Charla del entretiempo: 0 calma, 1 exigir, 2 felicitar. */
   teamTalk(si: 0 | 1, kind: 0 | 1 | 2): string {
     const S = this.sides[si], d = S.goals - this.sides[1 - si].goals

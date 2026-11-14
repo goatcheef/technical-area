@@ -85,6 +85,12 @@ export interface Tactic {
   onWin: number // al recuperarla: 0 asegurar, 1 contraatacar
   roles: string[] // rol de cada puesto, en el orden de la formación
   takers: { pen: number; fk: number; corner: number } // 0 = automático
+  cornerPlan?: number // 0 mixto, 1 primer palo, 2 segundo palo, 3 jugada corta
+  cornerTarget?: number // a quién buscar en los córners (0 = automático)
+  /** Órdenes sobre rivales puntuales (solo durante el partido). Clave: id del rival. */
+  oppo?: Record<number, { tight?: boolean; hard?: boolean; press?: boolean }>
+  /** Marca personal: uno de los tuyos sigue a un rival por toda la cancha. */
+  manMark?: { by: number; target: number } | null
   lineup: number[] // 11 ids en el orden de los puestos de la formación
   bench: number[]
 }
@@ -139,7 +145,7 @@ export interface Transfer { date: string; pid: number; name: string; from: strin
 export type PlayKind = 'open' | 'cross' | 'through' | 'long' | 'corner' | 'fk' | 'pen' | 'counter' | 'aerial'
 /** Lo que pasó en el último minuto, para dibujarlo en la cancha. */
 export interface Frame { poss: 0 | 1; route: number[]; shot: Shot | null; kind: PlayKind; channel: 0 | 1 | 2; lostTo?: number }
-export interface Shot { min: number; side: 0 | 1; pid: number; xg: number; out: 'goal' | 'saved' | 'off' | 'block' | 'post'; x: number; y: number; ast?: number }
+export interface Shot { min: number; side: 0 | 1; pid: number; xg: number; out: 'goal' | 'saved' | 'off' | 'block' | 'post'; x: number; y: number; ast?: number; kind?: string }
 
 export interface MatchStats {
   poss: [number, number]; shots: [number, number]; sot: [number, number]

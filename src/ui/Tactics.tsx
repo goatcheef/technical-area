@@ -120,7 +120,11 @@ export function Tactics() {
                   <span className="dim sm" style={{ lineHeight: 1.4 }}>{r.desc}</span></button>) })}
               <div className="dim sm">Para cambiar al jugador, tocá uno de la lista. Para intercambiar dos puestos, tocá otro puesto.</div></div>
           ) : <div className="dim sm">Tocá un puesto para elegir su rol y quién lo ocupa.</div>}
-          <div className="card col"><h3>Pelota parada</h3><div className="grid3" style={{ gap: 10 }}>{taker('pen', 'Penales')}{taker('fk', 'Tiros libres')}{taker('corner', 'Córners')}</div></div>
+          <div className="card col"><h3>Pelota parada</h3><div className="grid3" style={{ gap: 10 }}>{taker('pen', 'Penales')}{taker('fk', 'Tiros libres')}{taker('corner', 'Córners')}</div>
+            <div title="Primer palo: más cabezazos ganados pero menos peligrosos; rinde con jugadores rápidos y que anticipan. Segundo palo: menos ganados pero más claros; rinde con los altos y fuertes. Jugada corta: evita el duelo aéreo y busca un desborde."><div className="dim" style={{ fontSize: '.76rem', marginBottom: 3 }}>Córners a favor</div>
+              <Seg value={t.cornerPlan ?? 0} options={['Mixto', 'Primer palo', 'Segundo palo', 'Jugada corta']} onChange={v => { t.cornerPlan = v; done() }} /></div>
+            <label className="f">Buscar en los córners a<select value={t.cornerTarget ?? 0} onChange={e => { t.cornerTarget = Number(e.target.value); done() }}>
+              <option value={0}>El mejor ubicado</option>{xiPlayers.filter(p => p.line !== 'GK').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label></div>
         </div>
         <div className="card"><TacticControls tactic={t} onChange={p => { Object.assign(t, p); done() }} /></div>
         <div className="card scroll-x">
