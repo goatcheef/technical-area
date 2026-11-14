@@ -7,6 +7,7 @@ import { Club } from './Club'
 import { Badge, Face, ManagerFace, PosPill, Val, clubTheme } from './common'
 import { ClubPage, CommandPalette, HoverCard, SettingsModal, ShortcutsHelp } from './Nav'
 import { PlayerPage } from './PlayerPage'
+import { PostMatch } from './MatchPanels'
 import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
 import { Home } from './Home'
 import { Market } from './Market'
@@ -67,6 +68,7 @@ export function App() {
   const [match, setMatch] = useState<Fixture | null>(null)
   const [q, setQ] = useState('')
   const [press, setPress] = useState(false)
+  const [post, setPost] = useState<number | null>(null)
   const [busy, setBusy] = useState<null | { done: number; total: number }>(null)
   const stopRef = useRef(false)
   const [, refresh] = useReducer((x: number) => x + 1, 0)
@@ -84,7 +86,7 @@ export function App() {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOverlay('palette'); return }
     if (e.key === 'Escape' && busy) { stopRef.current = true; return }
     if (e.key === 'Escape') { if (overlay) setOverlay(null); else if (!typing && (page === 'player' || page === 'clubv') && !document.querySelector('.modal')) back(); return }
-    if (typing || match || overlay || document.querySelector('.modal')) return
+    if (typing || match || post != null || overlay || document.querySelector('.modal')) return
     if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); back(); return }
     if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); fwd(); return }
     if (e.key === '/') { e.preventDefault(); setOverlay('palette'); return }
@@ -142,7 +144,7 @@ export function App() {
   return (
     <GameCtx.Provider value={ctx}>
       <div className={settings.density === 'compact' ? 'dense' : ''} style={{ height: '100%', ...theme }}>
-        {match ? <MatchView fixture={match} onDone={() => { setMatch(null); setPage('home'); saveGame(g); if (g.press) setPress(true); refresh() }} /> : (
+        {match ? <MatchView fixture={match} onDone={id => { setMatch(null); saveGame(g); setPost(id); refresh() }} /> : post != null ? <PostMatch fixtureId={post} onDone={() => { setPost(null); setPage('home'); saveGame(g); refresh() }} /> : (
           <div className="shell">
             <aside className="side">
               <div className="brand">TECHNICAL <i>AREA</i></div>
