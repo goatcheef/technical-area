@@ -1,0 +1,92 @@
+# Plan de UI/UX: ser la referencia del género
+
+Investigación de noviembre de 2026. El objetivo es que Technical Area se juegue mejor que Football Manager, no que se le parezca: diseño propio, con las lecciones de los aciertos y errores del género.
+
+## Lo que enseña la competencia
+
+**Football Manager 26 (nov. 2025).** Pasó a Unity y reemplazó la barra lateral y las vistas densas por un sistema de "mosaicos y tarjetas" pensado para pantallas táctiles y consolas. La crítica elogió el motor de partido y castigó la interfaz:
+
+- Navegar se volvió una búsqueda: funciones básicas a varios clics, paneles poco intuitivos.
+- Menos información por pantalla, más espacio vacío, texto más chico; un diseño de tablet que rompe el uso de escritorio.
+- Se perdieron cosas útiles: el calendario en la pantalla de inicio, una pantalla propia para los contratos.
+- Transiciones lentas.
+- Fue la entrega peor puntuada de la serie y llegó a tener reseñas mayormente negativas en Steam.
+- Lo que sí se valoró: el día de partido, más limpio.
+
+**Football Manager 27 (anunciado para nov. 2026).** Corrige en parte:
+
+- Los mosaicos pasan a ser solo informativos y la navegación vuelve a un menú fijo.
+- Menos ventanas emergentes, más pantallas completas.
+- Atajos remapeables, marcadores y mosaicos intercambiables.
+- Tablas que muestran todo lo posible sin desplazamiento horizontal y aprovechan las pantallas grandes.
+
+La comunidad sigue comparándolo con FM24, que considera la referencia.
+
+**FM24 y anteriores.** Lo que los jugadores extrañan: la barra lateral siempre visible, las vistas de tabla personalizables (columnas a elección, sin desplazamiento horizontal), mucha información por pantalla y pocos clics para todo.
+
+**Out of the Park Baseball.** La referencia de densidad en juegos de gestión: el jugador elige cuánta información ve y con qué profundidad, y al pasar el mouse sobre un nombre aparece una ficha breve. Se elogia la función por encima de la estética.
+
+**Juegos para celular (Top Eleven, Soccer Manager).** Priorizan la simplicidad y el ritmo, con menos profundidad.
+
+## Principios
+
+1. **Escritorio primero y denso.** Mucha información legible por pantalla; nada de diseño de tablet en una computadora. El celular tiene su propio diseño, no una versión estirada.
+2. **Todo a uno o dos clics.** Barra lateral fija (ya la tenemos), historial con atrás y adelante, atajos de teclado, buscador universal, favoritos.
+3. **Nada de ventanas sobre ventanas.** Las fichas (jugador, club, rival) son páginas con pestañas; las ventanas emergentes quedan solo para decisiones cortas.
+4. **La información viene a vos.** Bandeja de entrada única con acciones directas; el botón de continuar muestra qué está pendiente.
+5. **El mouse informa.** Ficha breve al pasar sobre cualquier jugador o club, en cualquier pantalla.
+6. **El jugador decide cuánto ver.** Columnas, filtros y vistas guardadas en las tablas; densidad y tamaño de texto ajustables.
+7. **Rápido siempre.** Cambios de pantalla instantáneos; el avance de días no congela la interfaz y muestra progreso.
+8. **Cada decisión se entiende.** Toda táctica, rol o instrucción explica su efecto y el juego muestra la consecuencia (ayudante, análisis).
+
+## Etapas
+
+### Etapa 1: navegación y densidad (base de todo lo demás)
+- Rutas con historial: atrás y adelante (botones, teclado y mouse).
+- Ficha de jugador como página con pestañas: resumen, atributos, estadísticas, contrato, historial, informes de ojeo.
+- Ficha de club como página: plantel, partidos, finanzas, historia.
+- Ficha breve al pasar el mouse sobre cualquier nombre de jugador o club.
+- Barra de comandos (Ctrl+K): buscar jugadores, clubes y pantallas, y ejecutar acciones ("ir a tácticas", "continuar").
+- Atajos de teclado para lo frecuente (continuar, pantallas principales, pausar el partido).
+- Ajustes: densidad (cómoda, compacta), tamaño de texto, velocidad de partido por defecto.
+- Favoritos: fijar jugadores, clubes o pantallas en la barra lateral.
+
+### Etapa 2: bandeja de entrada y ritmo
+- Bandeja única que reemplaza las noticias sueltas: ofertas, prensa, informes, avisos del cuerpo técnico, pedidos de jugadores, con botones de acción en el mismo mensaje.
+- Continuar con bloqueos visibles: "Tenés una oferta y una conferencia pendientes".
+- Avance de días en segundo plano (web worker) con indicador de progreso.
+- Inicio configurable: mosaicos que el jugador elige y ordena, que informan pero no esconden la navegación.
+
+### Etapa 3: tablas profesionales
+- Componente de tabla único para todo el juego: columnas elegibles, orden por varias columnas, filtros, vistas guardadas (General, Físico, Contrato, Ojeo, Estadísticas).
+- Sin desplazamiento horizontal: las columnas se adaptan al ancho.
+- Comparador de jugadores lado a lado (radar, atributos, estadísticas, contrato).
+- Selección múltiple con acciones (al banco, a la reserva, transferibles, ojear).
+
+### Etapa 4: día de partido
+- Disposición configurable: cancha grande, paneles a elección (estadísticas, ayudante, relato, mi equipo).
+- Resultados en vivo de los otros partidos y tabla en vivo.
+- Atajos (pausa, velocidad, cambios) y modo de resúmenes.
+- Flujo posterior ordenado: resultado, análisis, conferencia.
+
+### Etapa 5: centro de datos
+- Gráficos de rendimiento del equipo por partido y temporada: xG a favor y en contra, forma, peligro por sector.
+- Rendimiento por jugador y por rol; minutos y desgaste del plantel.
+- Análisis de rivales y de la liga.
+
+### Etapa 6: pulido
+- Microinteracciones y transiciones cortas, consistencia visual con un sistema de componentes.
+- Primera partida guiada con ayudas contextuales.
+- Accesibilidad: contraste, colores aptos para daltonismo en las escalas, teclado completo, movimiento reducido.
+- Diseño propio para celular.
+
+## Cómo medimos que somos mejores
+
+- **Clics para las tareas frecuentes** (medidos antes y después de cada etapa):
+  - Ver el contrato de un jugador: 0 (ficha breve).
+  - Cambiar a un titular: 2.
+  - Responder una oferta: 1 desde la bandeja.
+  - Ir a cualquier pantalla: 1, o el teclado.
+- **Velocidad:** cambio de pantalla en menos de 100 ms; una semana de juego sin congelar la interfaz.
+- **Densidad:** el plantel completo visible sin desplazamiento horizontal en una pantalla de 1440 px.
+- **Pruebas automáticas en el navegador** para cada flujo principal en cada etapa.

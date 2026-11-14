@@ -52,6 +52,10 @@ Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 
 3. **El plantel como grupo.** Hecho: personalidades con efecto en juego (presión en partidos grandes, temperamento y tarjetas, ambición y lealtad en la conformidad y los contratos), roles en el plantel con minutos esperados, conformidad, pedidos para irse, promesas que se cumplen o se rompen, charlas individuales, armonía y referentes, reserva semanal, ojeo con rangos y conocimiento progresivo, negociación de contratos con representantes (sueldo, años, rol, cláusula, prima) y cláusulas que los rivales pueden pagar. Falta: préstamos de juveniles a otros clubes y que los planteles rivales también tengan conflictos.
 4. **El mundo.** Hecho: tercera categoría con ascensos y descensos con la Primera Nacional, Copa Argentina, Libertadores y Sudamericana con clasificación según la temporada anterior, premios, mercado de entrenadores (los clubes que andan mal echan al DT y, si tu prestigio alcanza, te llaman) y ofertas de fin de temporada, economía con gastos de funcionamiento y reinversión de la IA. Falta: descensos desde la tercera categoría (no hay cuarta), Supercopa y Trofeo de Campeones.
 
+## Plan de UI/UX (acordado con el usuario)
+
+Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa.
+
 ## Pendiente (en orden sugerido)
 
 1. Seguir corrigiendo a mano lo que el usuario detecte (`data/overrides.json`). Unos 20 jugadores con ficha quedaron sin estadísticas por rechazos de Wikipedia: `python3 tools/fetch_stats.py` los completa.
