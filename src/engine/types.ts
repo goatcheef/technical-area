@@ -293,4 +293,6 @@ export interface Game {
   jobOffers?: { clubId: number; until: string }[]
   /** Próximo id de jugador. Va aparte de nextId para que los ids de jugadores sean consecutivos (la lista de jugadores se mantiene rápida). */
   nextPid?: number
+  /** Favoritos fijados en la barra lateral. */
+  favs?: { k: 'p' | 'c'; id: number }[]
 }

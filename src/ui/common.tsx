@@ -3,7 +3,6 @@ import crestsJson from '../data/crests.json'
 import { PLAYER_PHOTO } from '../data/playerPhoto'
 import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
 import { STATUS, fmtRange, knowOf, minutesShare, persLabels, scout, shown } from '../engine/squad'
-import { NegotiationModal, TalkModal } from './Locker'
 import { fmtDate } from '../engine/game'
 import { sab } from '../engine/week'
 import { POS_LABEL, POS_NAME, ageOn, bestRating, posRating } from '../engine/positions'
@@ -31,9 +30,9 @@ export function clubTheme(c: { colors: [string, string] }): Record<string, strin
 // ---------- identidad ----------
 export function Badge({ club, size = 28 }: { club: ClubLike; size?: number }) {
   const src = club.id != null ? CRESTS[club.id] : undefined
-  if (src) return <img className="crest" src={src} alt={club.short} title={club.short} width={size} height={size} style={{ width: size, height: size }} />
+  if (src) return <img className="crest" data-cid={club.id} src={src} alt={club.short} width={size} height={size} style={{ width: size, height: size }} />
   const [a, b] = club.colors
-  return <span className="badge" title={club.short} style={{ width: size, height: size, background: a, borderColor: b, color: ink(a), fontSize: size * 0.3 }}>{(club.code ?? club.short).slice(0, 3).toUpperCase()}</span>
+  return <span className="badge" data-cid={club.id ?? undefined} title={club.short} style={{ width: size, height: size, background: a, borderColor: b, color: ink(a), fontSize: size * 0.3 }}>{(club.code ?? club.short).slice(0, 3).toUpperCase()}</span>
 }
 const SKIN = ['#f3d2b3', '#e2b48c', '#c98f62', '#a06a43', '#6e4428']
 const HAIR = ['#1c1410', '#3b2a1d', '#6b4a2b', '#b98a4a', '#9aa0a6', '#d9d9d9']
@@ -177,97 +176,6 @@ export function duoColors(h: Club, a: Club): [string, string] {
 }
 
 // ---------- ficha del jugador ----------
-function StatLine({ s, label }: { s: SeasonStats; label: string }) {
-  return (
-    <tr><td>{label}</td><td className="r num">{s.apps}{s.subs ? ` (${s.subs})` : ''}</td><td className="r num">{s.mins}</td><td className="r num">{s.goals}</td>
-      <td className="r num">{s.ast}</td><td className="r num">{s.yc}</td><td className="r num">{s.rc}</td><td className="r num">{s.motm}</td><td className="r num">{avgRat(s)}</td></tr>
-  )
-}
-export function PlayerModal({ id, onClose }: { id: number; onClose: () => void }) {
-  const { g, refresh, save } = useGame()
-  const p = g.players[id]
-  const [fee, setFee] = useState(() => (p ? askingPrice(g, p) : 0))
-  const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null)
-  const [neg, setNeg] = useState<null | { mode: 'buy' | 'renew'; fee: number }>(null)
-  const [talkOpen, setTalkOpen] = useState(false)
-  if (!p) return null
-  const c = g.clubs[p.clubId], mine = p.clubId === g.userClubId, me = g.clubs[g.userClubId]
-  const k = knowOf(g, p), known = k >= 100
-  const est = p.attrs.map((v, i) => shown(g, p, v, 5, i))
-  const rd = radarOf(known ? p : { ...p, attrs: est.map(r => (r[0] + r[1]) / 2) }), age = ageOn(p.birth, g.date), open = windowOpen(g.date)
-  const gap = p.pa - p.ca, potKnown = mine ? sab(g, 'youth') + sab(g, 'asst') >= 18 || age > 23 : k >= 70
-  const potTxt = age > 26 ? 'Ya alcanzó su techo' : p.pa >= 85 ? 'Futura figura' : p.pa >= 78 ? 'Muy buen potencial' : gap >= 8 ? 'Buen potencial' : 'Potencial limitado'
-  const starred = g.shortlist.includes(p.id)
-  const done = () => { save(); refresh() }
-  const bid = (loan: boolean) => {
-    const r = evaluateBid(g, p, fee, loan)
-    if (r.ok && !loan) { setMsg({ t: `${g.clubs[p.clubId].name} aceptó ${money(fee)}${p.clause && fee >= p.clause ? ' (pagaste la cláusula)' : ''}. Ahora hay que arreglar con el jugador.`, ok: true }); setNeg({ mode: 'buy', fee }); return }
-    if (r.ok) { doTransfer(g, p, me.id, fee, loan); setMsg({ t: `${p.name} llega a préstamo hasta fin de temporada.`, ok: true }); done() }
-    else { setMsg({ t: `${r.reason}${r.counter ? ` Aceptarían ${money(r.counter)}.` : ''}`, ok: false }); if (r.counter) setFee(r.counter) }
-  }
-  return (
-    <Modal onClose={onClose} wide>
-      <div className="hero" style={{ ...(clubTheme(c) as object), marginBottom: 16 }}>
-        <div className="row wrap" style={{ gap: 16 }}>
-          <Face p={p} club={c} size={84} />
-          <div className="grow">
-            <div className="row wrap" style={{ gap: 8 }}><PosPill p={p} /><Status p={p} />{p.gen && <span className="chip">Inferiores</span>}</div>
-            <h1 style={{ fontSize: '2.3rem', marginTop: 6 }}>{p.name}</h1>
-            <div className="row dim wrap" style={{ marginTop: 4 }}><Badge club={c} size={22} /><span>{c.name} · N.º {p.num} · {age} años · {p.nat} · pie {p.foot === 'D' ? 'derecho' : p.foot === 'I' ? 'izquierdo' : 'ambidiestro'}</span></div>
-          </div>
-          <div className="kpi center"><h3>Valoración</h3><span className="big" style={{ fontSize: known ? '3.2rem' : '2.4rem' }}>{fmtRange(shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99))}</span>{!known && <span className="dim sm">Conocimiento {Math.round(k)}%</span>}</div>
-          <div className="col" style={{ gap: 6 }}>
-            <button className="btn sm" onClick={onClose}>Cerrar ✕</button>
-            {!mine && <button className={`btn sm ${starred ? 'on' : ''}`} onClick={() => { g.shortlist = starred ? g.shortlist.filter(x => x !== p.id) : [...g.shortlist, p.id]; done() }}>{starred ? '★ En seguimiento' : '☆ Seguir'}</button>}
-            {!mine && !known && <button className={`btn sm ${g.scouting.includes(p.id) ? 'on' : ''}`} disabled={g.scouting.includes(p.id)} title="El scouting lo sigue unos días hasta conocerlo por completo" onClick={() => { scout(g, p); done() }}>{g.scouting.includes(p.id) ? 'Ojeándolo…' : 'Mandar a ojear'}</button>}
-            {mine && <button className="btn sm" onClick={() => setTalkOpen(true)}>Hablar</button>}
-          </div>
-        </div>
-      </div>
-      <div className="dash">
-        <div className="card s4 col center" style={{ alignItems: 'center' }}><h3>Perfil</h3><Radar values={rd.values} labels={rd.labels} />
-          <div className="row wrap" style={{ justifyContent: 'center', gap: 5 }}>{p.positions.map(x => <span key={x} className="chip acc" title={POS_NAME[x]}>{POS_LABEL[x]} {fmtRange(shown(g, p, Math.round(posRating(p, x)), 9, 50, 1, 99))}</span>)}</div>
-          <div className="sm">{potKnown ? <b>{potTxt}</b> : <span className="dim">Potencial desconocido</span>}</div></div>
-        <div className="card s8">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16 }}>
-            {ATTR_GROUPS.filter(gr => (gr.name === 'Arquero') === (p.line === 'GK') || gr.name === 'Mentales' || gr.name === 'Físicos').map(gr => (
-              <div key={gr.name}><h3 style={{ marginBottom: 6 }}>{gr.name}</h3>
-                {gr.attrs.map(a => { const r = est[A[a]]; return <div key={a} className="attr"><span className="dim sm">{ATTR_LABEL[a]}</span><span className={`v ${attrClass((r[0] + r[1]) / 2)}`} style={r[0] !== r[1] ? { width: 'auto', minWidth: 46, padding: '1px 6px', whiteSpace: 'nowrap' } : undefined}>{fmtRange(r)}</span></div> })}</div>))}
-          </div>
-          {!known && <div className="dim sm" style={{ marginTop: 8 }}>Lo que sabés de él es aproximado. Mandalo a ojear o enfrentalo para conocerlo mejor.</div>}
-        </div>
-        <div className="card s4 col"><h3>Estado</h3>
-          <div className="row between"><span className="dim">Físico</span><Cond v={p.cond} /></div><div className="row between"><span className="dim">Moral</span><Cond v={p.morale} /></div>
-          <div className="row between"><span className="dim">Últimos puntajes</span><Spark values={p.form} /></div>
-          {p.injury && <div className="bad sm">Lesión: {p.injury.desc} ({p.injury.days} días).</div>}
-          <div className="row between"><span className="dim">Personalidad</span><span className="sm right">{mine || k >= 60 ? persLabels(p).join(' · ') : 'Desconocida'}</span></div>
-          {mine && p.status && <><div className="row between"><span className="dim">Rol</span><b>{STATUS[p.status].name}</b></div>
-            <div className="row between"><span className="dim">Minutos</span><span className="sm">{Math.round(minutesShare(p) * 100)} % (espera {Math.round(STATUS[p.status].share * 100)} %)</span></div>
-            <div className="row between"><span className="dim">Conformidad</span><Cond v={p.happy ?? 70} /></div></>}</div>
-        <div className="card s4 col"><h3>Contrato</h3>
-          <div className="row between"><span className="dim">Valor de mercado</span><b>{money(p.value)}</b></div><div className="row between"><span className="dim">Sueldo mensual</span><b>{money(p.wage)}</b></div>
-          <div className="row between"><span className="dim">Vence</span><b className={p.contractEnd <= g.season ? 'warn' : ''}>dic {p.contractEnd}</b></div>
-          {p.clause ? <div className="row between"><span className="dim">Cláusula de rescisión</span><b>{money(p.clause)}</b></div> : null}
-          {mine && <div className="row wrap">
-            <button className="btn sm" disabled={!!p.negBlock && g.date < p.negBlock} title={p.negBlock && g.date < p.negBlock ? `No quiere negociar hasta el ${fmtDate(p.negBlock)}` : ''} onClick={() => setNeg({ mode: 'renew', fee: 0 })}>Negociar renovación</button>
-            <button className={`btn sm ${p.listed ? 'on' : ''}`} onClick={() => { p.listed = !p.listed; done() }}>{p.listed ? 'Quitar de transferibles' : 'Declarar transferible'}</button></div>}</div>
-        <div className="card s4 col"><h3>{mine ? 'Mercado' : 'Negociar'}</h3>
-          {mine ? <div className="dim sm" style={{ lineHeight: 1.5 }}>Pedido estimado: <b style={{ color: 'var(--text)' }}>{money(askingPrice(g, p))}</b>. Si lo declarás transferible van a llegar más ofertas, por menos plata.</div> : (<>
-            <div className="dim sm">Cobraría alrededor de {money(wageDemand(g, p, me))}/mes · Tu presupuesto: <b style={{ color: 'var(--text)' }}>{money(me.budget)}</b>{p.clause ? <> · Cláusula: <b style={{ color: 'var(--text)' }}>{money(p.clause)}</b></> : null}</div>
-            <label className="f">Oferta (US$)<input type="number" step={10000} min={0} value={fee} onChange={e => setFee(Number(e.target.value))} /></label>
-            <div className="row wrap"><button className="btn primary sm" disabled={!open} onClick={() => bid(false)}>Ofertar compra</button><button className="btn sm" disabled={!open} onClick={() => bid(true)}>Pedir préstamo</button></div>
-            {!open && <div className="warn sm">El libro de pases está cerrado.</div>}</>)}
-          {msg && <div className={`sm ${msg.ok ? 'good' : 'warn'}`} style={{ lineHeight: 1.45 }}>{msg.t}</div>}</div>
-        <div className="card s12 scroll-x"><h3 style={{ marginBottom: 6 }}>Estadísticas</h3>
-          <table><thead><tr><th>Temporada</th><th className="r">PJ</th><th className="r">Min</th><th className="r">Goles</th><th className="r">Asist</th><th className="r">Am</th><th className="r">Roj</th><th className="r">Fig</th><th className="r">Prom</th></tr></thead>
-            <tbody><StatLine s={p.stats} label={`${g.season} · ${c.short}`} />{[...p.history].reverse().map(h => <StatLine key={h.season} s={h.stats} label={`${h.season} · ${g.clubs[h.clubId]?.short ?? ''}`} />)}</tbody></table></div>
-      </div>
-      {neg && <NegotiationModal p={p} mode={neg.mode} fee={neg.fee} onClose={m => { setNeg(null); if (m) setMsg({ t: m, ok: !/cay|termina/.test(m) }); done() }} />}
-      {talkOpen && <TalkModal p={p} onClose={() => { setTalkOpen(false); done() }} />}
-    </Modal>
-  )
-}
-
 /** Análisis del partido: por dónde atacó cada uno, dónde perdió la pelota y quién ganó los duelos. */
 function Analysis({ g, f, cols }: { g: Game; f: Fixture; cols: [string, string] }) {
   const an = f.analysis!, max = Math.max(0.3, ...an[0].xg, ...an[1].xg)
@@ -311,7 +219,7 @@ export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: (
           {f.lines && <><h3>Puntajes</h3>
             <div className="grid2" style={{ gap: 12 }}>{([0, 1] as const).map(si => <div key={si}>{f.lines!.filter(l => l.side === si).map(l => (
               <div key={l.pid} className="row between sm" style={{ padding: '2px 0' }}>
-                <span className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name ?? 'Jugador'}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{l.rating.toFixed(1)}</b></div>))}</div>)}</div></>}
+                <span data-pid={g.players[l.pid] ? l.pid : undefined} className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name ?? 'Jugador'}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{l.rating.toFixed(1)}</b></div>))}</div>)}</div></>}
         </div>
       </div>
       <div className="right" style={{ marginTop: 14 }}><button className="btn" onClick={onClose}>Cerrar</button></div>

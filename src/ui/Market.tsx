@@ -3,7 +3,7 @@ import { acceptOffer, askingPrice, haggle, rejectOffer, wageBill, windowOpen } f
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, ageOn } from '../engine/positions'
 import type { Player, Pos } from '../engine/types'
-import { useGame } from '../store'
+import { useGame, useSticky } from '../store'
 import { knowOf } from '../engine/squad'
 import { Badge, Face, Ovr, PosPill, Status, Val, money } from './common'
 
@@ -11,13 +11,13 @@ const POSS: Pos[] = ['GK', 'DR', 'DC', 'DL', 'DM', 'MC', 'MR', 'ML', 'AMC', 'AMR
 
 export function Market() {
   const { g, refresh, save, openPlayer } = useGame()
-  const [tab, setTab] = useState(g.offers.length ? 'offers' : 'search')
-  const [pos, setPos] = useState('')
-  const [maxAge, setMaxAge] = useState(40)
-  const [maxVal, setMaxVal] = useState(0)
-  const [minOvr, setMinOvr] = useState(60)
-  const [div, setDiv] = useState(0)
-  const [only, setOnly] = useState(false)
+  const [tab, setTab] = useSticky('mk.tab', g.offers.length ? 'offers' : 'search')
+  const [pos, setPos] = useSticky('mk.pos', '')
+  const [maxAge, setMaxAge] = useSticky('mk.age', 40)
+  const [maxVal, setMaxVal] = useSticky('mk.val', 0)
+  const [minOvr, setMinOvr] = useSticky('mk.ovr', 60)
+  const [div, setDiv] = useSticky('mk.div', 0)
+  const [only, setOnly] = useSticky('mk.only', false)
   const [note, setNote] = useState('')
   const club = g.clubs[g.userClubId], open = windowOpen(g.date)
   const done = () => { save(); refresh() }
@@ -28,7 +28,7 @@ export function Market() {
     <div className="card scroll-x"><table>
       <thead><tr><th>Jugador</th><th>Pos</th><th>Club</th><th className="r">Edad</th><th className="r">Val</th><th className="r">Pot.</th><th className="r">Valor</th><th className="r">Pedido</th><th className="r">Sueldo</th><th className="r">Contrato</th><th className="r">Conoc.</th></tr></thead>
       <tbody>{list.map(p => { const c = g.clubs[p.clubId], age = ageOn(p.birth, g.date), gap = p.pa - p.ca; return (
-        <tr key={p.id} className="click" onClick={() => openPlayer(p.id)}>
+        <tr key={p.id} data-pid={p.id} className="click" onClick={() => openPlayer(p.id)}>
           <td><span className="row"><Face p={p} club={c} size={30} /><b style={{ fontWeight: 600 }}>{p.name}</b><Status p={p} /></span></td><td><PosPill p={p} /></td>
           <td><span className="row"><Badge club={c} size={20} />{c.short}</span></td><td className="r num">{age}</td><td className="r"><Val p={p} /></td>
           <td className="r">{age <= 23 && knowOf(g, p) >= 70 ? <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span> : <span className="dim">–</span>}</td>
@@ -59,7 +59,7 @@ export function Market() {
         {note && <div className="card acc">{note}</div>}
         {g.offers.map(o => { const p = g.players[o.pid]; if (!p) return null; return (
           <div key={o.id} className="card row wrap" style={{ gap: 14 }}>
-            <Face p={p} club={club} size={46} /><div className="grow" style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><b>{p.name}</b> <PosPill p={p} /> <Ovr v={p.ca} /><div className="dim sm">Valor {money(p.value)} · llegó el {fmtDate(o.date)}</div></div>
+            <Face p={p} club={club} size={46} /><div className="grow" data-pid={p.id} style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><b>{p.name}</b> <PosPill p={p} /> <Ovr v={p.ca} /><div className="dim sm">Valor {money(p.value)} · llegó el {fmtDate(o.date)}</div></div>
             <div className="row">{o.from ? <Badge club={g.clubs[o.from]} size={30} /> : <span className="chip">Exterior</span>}<div><b>{o.fromName}</b><div className="big" style={{ fontSize: '1.4rem' }}>{money(o.fee)}</div></div></div>
             <div className="row"><button className="btn primary" disabled={!open} onClick={() => { acceptOffer(g, o); setNote(`Vendiste a ${p.name} a ${o.fromName} por ${money(o.fee)}.`); done() }}>Aceptar</button>
               <button className="btn" onClick={() => { const ok = haggle(g, o); setNote(ok ? `${o.fromName} mejoró su oferta por ${p.name}.` : `${o.fromName} se retiró de la negociación por ${p.name}.`); done() }}>Pedir más</button>
@@ -71,7 +71,7 @@ export function Market() {
       {tab === 'short' && rows(g.shortlist.map(id => g.players[id]).filter(Boolean))}
 
       {tab === 'moves' && <div className="card scroll-x"><table><thead><tr><th>Fecha</th><th>Jugador</th><th>Desde</th><th>Hacia</th><th className="r">Monto</th></tr></thead>
-        <tbody>{g.transfers.slice(0, 80).map((t, i) => <tr key={i} className={g.players[t.pid] ? 'click' : ''} onClick={() => g.players[t.pid] && openPlayer(t.pid)}><td className="dim sm">{fmtDate(t.date)}</td><td><b style={{ fontWeight: 600 }}>{t.name}</b></td><td>{t.from}</td><td>{t.to}</td><td className="r num">{t.loan ? 'Préstamo' : t.fee ? money(t.fee) : 'Libre'}</td></tr>)}</tbody></table>
+        <tbody>{g.transfers.slice(0, 80).map((t, i) => <tr key={i} data-pid={g.players[t.pid] ? t.pid : undefined} className={g.players[t.pid] ? 'click' : ''} onClick={() => g.players[t.pid] && openPlayer(t.pid)}><td className="dim sm">{fmtDate(t.date)}</td><td><b style={{ fontWeight: 600 }}>{t.name}</b></td><td>{t.from}</td><td>{t.to}</td><td className="r num">{t.loan ? 'Préstamo' : t.fee ? money(t.fee) : 'Libre'}</td></tr>)}</tbody></table>
         {!g.transfers.length && <div className="dim sm" style={{ padding: 12 }}>Todavía no hubo movimientos en este mercado.</div>}</div>}
 
       {tab === 'fin' && <div className="grid2">
