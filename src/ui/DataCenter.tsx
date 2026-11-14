@@ -126,7 +126,7 @@ function PlayersView() {
     </div>
     <div className="dash">
       <div className="card s12 col" style={{ gap: 8 }}>
-        <div className="row between"><h3>Uso y rendimiento del plantel</h3><div className="seg">{([['mins', 'Minutos'], ['rat', 'Promedio'], ['ga', 'G+A por 90'], ['m30', 'Últimos 30 días']] as const).map(([k, l]) => <button key={k} className={sort === k ? 'on' : ''} onClick={() => setSort(k)}>{l}</button>)}</div></div>
+        <div className="row between"><h3>Uso y rendimiento del plantel</h3><div className="seg" role="group" aria-label="Ordenar por">{([['mins', 'Minutos'], ['rat', 'Promedio'], ['ga', 'G+A por 90'], ['m30', 'Últimos 30 días']] as const).map(([k, l]) => <button key={k} className={sort === k ? 'on' : ''} aria-pressed={sort === k} onClick={() => setSort(k)}>{l}</button>)}</div></div>
         <table className="dc-table"><thead><tr><th>Jugador</th><th>Pos</th><th className="r">PJ</th><th className="r">Min</th><th className="r">Prom</th><th className="hide-md">Últimos puntajes</th><th className="r">G+A/90</th><th className="hide-md">Puestos que ocupó</th><th>Últimos 5 (min)</th><th>Min. 30 días</th><th>Físico</th></tr></thead>
           <tbody>{list.map(u => (
             <tr key={u.p.id} data-pid={u.p.id} className="click" onClick={() => openPlayer(u.p.id)}>
@@ -201,7 +201,7 @@ function LeagueView() {
     ['poss', 'Pos.', r => `${Math.round(r.poss)} %`], ['shots', 'Rem/p', r => r.shots.toFixed(1).replace('.', ',')],
   ]
   return <>
-    <div className="row wrap"><div className="seg">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div>
+    <div className="row wrap"><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div>
       <span className="dim sm">Partidos de liga de la temporada {g.season}.</span></div>
     {!rows.length ? <Empty /> : <div className="dash">
       <div className="s7"><ChartCard title="Quién genera y quién concede" sub="Cada punto es un club; en azul, el tuyo. Arriba a la derecha, los que generan mucho y conceden poco. Las líneas marcan el promedio. Clic en un punto para ver el club."

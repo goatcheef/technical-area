@@ -62,35 +62,54 @@ export function ClubPage({ id, tab = 'plantel' }: { id: number; tab?: string }) 
 }
 
 // ---------- ficha breve al pasar el mouse ----------
-/** Cualquier elemento con data-pid o data-cid muestra una ficha breve al dejar el mouse encima. */
+/** Cualquier elemento con data-pid o data-cid muestra una ficha breve al dejar el mouse encima o al enfocarlo con el teclado (Esc la cierra). */
 export function HoverCard() {
   const { g, openClub } = useGame()
   const open = useRef(openClub)
   open.current = openClub
   const [hc, setHc] = useState<{ k: 'p' | 'c'; id: number; x: number; y: number } | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const shownRef = useRef(false)
+  shownRef.current = !!hc
   useEffect(() => {
-    const over = (e: MouseEvent) => {
-      const el = (e.target as HTMLElement)?.closest?.('[data-pid],[data-cid]') as HTMLElement | null
-      clearTimeout(timer.current)
-      if (!el) { setHc(null); return }
+    const SEL = '[data-pid],[data-cid]'
+    const show = (el: HTMLElement) => {
       const pid = el.dataset.pid, cid = el.dataset.cid
       timer.current = setTimeout(() => {
+        if (!el.isConnected) return
         const r = el.getBoundingClientRect()
         const x = Math.min(window.innerWidth - 330, Math.max(8, r.left)), below = r.bottom + 220 < window.innerHeight
         setHc({ k: pid ? 'p' : 'c', id: Number(pid ?? cid), x, y: below ? r.bottom + 6 : Math.max(8, r.top - 226) })
       }, 380)
     }
+    const over = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement)?.closest?.(SEL) as HTMLElement | null
+      clearTimeout(timer.current)
+      if (!el) { setHc(null); return }
+      show(el)
+    }
+    // con el teclado: el elemento enfocado (o una fila que contiene al jugador) muestra la ficha con la misma demora
+    const focus = (e: FocusEvent) => {
+      const t = e.target as HTMLElement
+      const el = (t?.closest?.(SEL) ?? t?.querySelector?.('[data-pid]') ?? t?.querySelector?.('[data-cid]')) as HTMLElement | null
+      clearTimeout(timer.current)
+      if (!el || t.closest('.hovercard') || !t.matches(':focus-visible')) { setHc(null); return }
+      focusAt = Date.now(); show(el)
+    }
     const hide = () => { clearTimeout(timer.current); setHc(null) }
+    // el foco con Tab desplaza la página para mostrar el elemento: ese desplazamiento no cierra la ficha
+    let focusAt = 0
+    const scroll = () => { if (Date.now() - focusAt > 450) hide() }
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape' && (shownRef.current || timer.current)) { const was = shownRef.current; hide(); if (was) e.stopPropagation() } }
     // escudos y nombres de club sueltos llevan a la ficha del club; si están dentro de algo clickeable, manda ese clic
     const click = (e: MouseEvent) => {
       const t = e.target as HTMLElement, el = t?.closest?.('[data-cid]') as HTMLElement | null
       if (!el || e.button !== 0 || t.closest('button, a, input, select, .click, [data-pid], .hovercard, .modal-bg')) return
       open.current(Number(el.dataset.cid))
     }
-    document.addEventListener('click', click)
-    document.addEventListener('mouseover', over); document.addEventListener('scroll', hide, true); document.addEventListener('mousedown', hide)
-    return () => { document.removeEventListener('mouseover', over); document.removeEventListener('scroll', hide, true); document.removeEventListener('mousedown', hide); document.removeEventListener('click', click) }
+    document.addEventListener('click', click); document.addEventListener('keydown', esc)
+    document.addEventListener('mouseover', over); document.addEventListener('focusin', focus); document.addEventListener('focusout', hide); document.addEventListener('scroll', scroll, true); document.addEventListener('mousedown', hide)
+    return () => { document.removeEventListener('mouseover', over); document.removeEventListener('focusin', focus); document.removeEventListener('focusout', hide); document.removeEventListener('scroll', scroll, true); document.removeEventListener('mousedown', hide); document.removeEventListener('click', click); document.removeEventListener('keydown', esc) }
   }, [])
   if (!hc) return null
   let body: ReactNode = null
@@ -129,14 +148,15 @@ export function HoverCard() {
 // ---------- barra de comandos ----------
 export interface Command { label: string; hint?: string; run: () => void; icon?: ReactNode }
 export function CommandPalette({ pages, actions, onClose }: { pages: [string, string][]; actions: Command[]; onClose: () => void }) {
-  const { g, go, openPlayer, openClub } = useGame()
+  const { g, go, openPlayer, openClub, settings } = useGame()
   const [q, setQ] = useState('')
   const [sel, setSel] = useState(0)
+  const single = settings.singleKeys !== false
   const ql = q.trim().toLowerCase()
   const items: Command[] = []
   const match = (s: string) => !ql || s.toLowerCase().includes(ql)
   for (const a of actions) if (match(a.label)) items.push(a)
-  pages.forEach(([id, l], i) => { if (match(l)) items.push({ label: l, hint: i < 10 ? `Pantalla · tecla ${(i + 1) % 10}` : 'Pantalla', run: () => go(id) }) })
+  pages.forEach(([id, l], i) => { if (match(l)) items.push({ label: l, hint: i < 10 && single ? `Pantalla · tecla ${(i + 1) % 10}` : 'Pantalla', run: () => go(id) }) })
   if (ql.length >= 2) {
     Object.values(g.clubs).filter(c => c.name.toLowerCase().includes(ql) || c.short.toLowerCase().includes(ql)).slice(0, 5).forEach(c => items.push({ label: c.name, hint: `Club · ${DIV_NAME[c.division]}`, run: () => openClub(c.id), icon: <Badge club={c} size={20} /> }))
     Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8).forEach(p => items.push({ label: p.name, hint: `Jugador · ${g.clubs[p.clubId]?.short}`, run: () => openPlayer(p.id), icon: <Face p={p} size={22} /> }))
@@ -164,29 +184,32 @@ export function CommandPalette({ pages, actions, onClose }: { pages: [string, st
 }
 
 // ---------- atajos y ajustes ----------
-export const SHORTCUTS: [string, string][] = [
-  ['Espacio', 'Continuar un día (o jugar, si hay partido)'], ['Mayús + Espacio', 'Ir al partido'], ['Ctrl + K  o  /', 'Barra de comandos: buscar y saltar a cualquier lado'],
-  ['1 a 9, 0', 'Pantallas de la barra lateral, en orden'], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda'],
+/** Atajos: tecla, qué hace y si es de una sola tecla (los que apaga el ajuste "Atajos de una tecla"). Los del partido viven en MatchView y no se apagan. */
+export const SHORTCUTS: [string, string, boolean?][] = [
+  ['Espacio', 'Continuar un día (o jugar, si hay partido)', true], ['Mayús + Espacio', 'Ir al partido', true], ['Ctrl + K', 'Barra de comandos: buscar y saltar a cualquier lado'], ['/', 'Barra de comandos', true],
+  ['1 a 9, 0', 'Pantallas, en orden', true], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda', true],
   ['En el partido: Espacio', 'Pausar o reanudar'], ['En el partido: 1 a 4', 'Velocidad (pausa, normal, rápido, muy rápido)'], ['En el partido: M', 'Partido completo o jugadas clave'],
   ['En el partido: C, T, R', 'Mi equipo (cambios), táctica, rival'], ['En el partido: P', 'Elegir los paneles'], ['En el partido: Esc', 'Cancelar el cambio o la orden en curso'],
 ]
-export function ShortcutsHelp({ onClose }: { onClose: () => void }) {
+export function ShortcutsHelp({ onClose, single = true, onSettings }: { onClose: () => void; single?: boolean; onSettings?: () => void }) {
   return <Modal onClose={onClose}><div className="row between" style={{ marginBottom: 12 }}><h2>Atajos de teclado</h2><button className="btn sm" onClick={onClose}>Cerrar</button></div>
-    <table><tbody>{SHORTCUTS.map(([k, d]) => <tr key={k}><td><span className="kbd">{k}</span></td><td>{d}</td></tr>)}</tbody></table></Modal>
+    <div className="row wrap" style={{ gap: 10, marginBottom: 12 }}><span className="grow sm">Atajos de una tecla: <b>{single ? 'encendidos' : 'apagados'}</b>. {single ? 'Se pueden apagar en Ajustes, en Accesibilidad.' : 'Las teclas marcadas no hacen nada; se encienden en Ajustes.'}</span>{onSettings && <button className="btn sm" onClick={() => { onClose(); onSettings() }}>Ir a Ajustes</button>}</div>
+    <table><tbody>{SHORTCUTS.map(([k, d, one]) => <tr key={k} className={one && !single ? 'kbd-off' : ''}><td><span className="kbd">{k}</span></td><td>{d}{one && <span className="dim">{single ? ' · una tecla' : ' · apagado'}</span>}</td></tr>)}</tbody></table></Modal>
 }
 export function SettingsModal({ s, onChange, onClose, onTour }: { s: Settings; onChange: (s: Settings) => void; onClose: () => void; onTour?: () => void }) {
   return <Modal onClose={onClose}>
     <div className="row between" style={{ marginBottom: 14 }}><h2>Ajustes</h2><button className="btn sm" onClick={onClose}>Listo</button></div>
     <div className="col" style={{ gap: 16 }}>
-      <div><h3 style={{ marginBottom: 6 }}>Densidad</h3><Seg value={s.density === 'compact' ? 1 : 0} options={['Cómoda', 'Compacta']} onChange={v => onChange({ ...s, density: v ? 'compact' : 'comfy' })} /><div className="dim sm" style={{ marginTop: 4 }}>Compacta muestra más filas por pantalla.</div></div>
-      <div><h3 style={{ marginBottom: 6 }}>Tamaño de texto</h3><Seg value={[90, 100, 110, 120].indexOf(s.text)} options={['Chico', 'Normal', 'Grande', 'Muy grande']} onChange={v => onChange({ ...s, text: [90, 100, 110, 120][v] })} /></div>
-      <div><h3 style={{ marginBottom: 6 }}>Velocidad del partido</h3><Seg value={Math.max(0, [1, 2, 5].indexOf(s.matchSpeed))} options={['Normal', 'Rápido', 'Muy rápido']} onChange={v => onChange({ ...s, matchSpeed: [1, 2, 5][v] })} /><div className="dim sm" style={{ marginTop: 4 }}>La que se usa al darle play con Espacio. El partido siempre arranca en pausa para la charla previa.</div></div>
-      <div><h3 style={{ marginBottom: 6 }}>Modo de partido</h3><Seg value={s.matchMode === 'key' ? 1 : 0} options={['Partido completo', 'Jugadas clave']} onChange={v => onChange({ ...s, matchMode: v ? 'key' : 'full' })} /></div>
+      <div><h3 style={{ marginBottom: 6 }}>Densidad</h3><Seg label="Densidad" value={s.density === 'compact' ? 1 : 0} options={['Cómoda', 'Compacta']} onChange={v => onChange({ ...s, density: v ? 'compact' : 'comfy' })} /><div className="dim sm" style={{ marginTop: 4 }}>Compacta muestra más filas por pantalla.</div></div>
+      <div><h3 style={{ marginBottom: 6 }}>Tamaño de texto</h3><Seg label="Tamaño de texto" value={[90, 100, 110, 120].indexOf(s.text)} options={['Chico', 'Normal', 'Grande', 'Muy grande']} onChange={v => onChange({ ...s, text: [90, 100, 110, 120][v] })} /></div>
+      <div><h3 style={{ marginBottom: 6 }}>Velocidad del partido</h3><Seg label="Velocidad del partido" value={Math.max(0, [1, 2, 5].indexOf(s.matchSpeed))} options={['Normal', 'Rápido', 'Muy rápido']} onChange={v => onChange({ ...s, matchSpeed: [1, 2, 5][v] })} /><div className="dim sm" style={{ marginTop: 4 }}>La que se usa al darle play con Espacio. El partido siempre arranca en pausa para la charla previa.</div></div>
+      <div><h3 style={{ marginBottom: 6 }}>Modo de partido</h3><Seg label="Modo de partido" value={s.matchMode === 'key' ? 1 : 0} options={['Partido completo', 'Jugadas clave']} onChange={v => onChange({ ...s, matchMode: v ? 'key' : 'full' })} /></div>
       <h3 style={{ marginTop: 6 }}>Accesibilidad</h3>
-      <div><div className="sm" style={{ marginBottom: 6 }}>Movimiento</div><Seg value={s.motion === 'reduce' ? 1 : 0} options={['Según el sistema', 'Reducido']} onChange={v => onChange({ ...s, motion: v ? 'reduce' : 'auto' })} /><div className="dim sm" style={{ marginTop: 4 }}>Reducido quita las transiciones y animaciones de la interfaz.</div></div>
-      <div><div className="sm" style={{ marginBottom: 6 }}>Colores aptos para daltonismo</div><Seg value={s.cvd ? 1 : 0} options={['No', 'Sí']} onChange={v => onChange({ ...s, cvd: !!v })} /><div className="dim sm" style={{ marginTop: 4 }}>Cambia el verde y el rojo de las escalas (valoración, físico, resultados) por azul y naranja.</div></div>
+      <div><div className="sm" style={{ marginBottom: 6 }}>Movimiento</div><Seg label="Movimiento" value={s.motion === 'reduce' ? 1 : 0} options={['Según el sistema', 'Reducido']} onChange={v => onChange({ ...s, motion: v ? 'reduce' : 'auto' })} /><div className="dim sm" style={{ marginTop: 4 }}>Reducido quita las transiciones y animaciones de la interfaz.</div></div>
+      <div><div className="sm" style={{ marginBottom: 6 }}>Atajos de una tecla</div><Seg label="Atajos de una tecla" value={s.singleKeys === false ? 1 : 0} options={['Encendidos', 'Apagados']} onChange={v => onChange({ ...s, singleKeys: !v })} /><div className="dim sm" style={{ marginTop: 4 }}>Espacio (Continuar), Mayús + Espacio (Ir al partido), los números, / y ?. Apagados, esas teclas no hacen nada fuera del partido; Ctrl + K, Alt + flechas y Esc siguen andando.</div></div>
+      <div><div className="sm" style={{ marginBottom: 6 }}>Colores aptos para daltonismo</div><Seg label="Colores aptos para daltonismo" value={s.cvd ? 1 : 0} options={['No', 'Sí']} onChange={v => onChange({ ...s, cvd: !!v })} /><div className="dim sm" style={{ marginTop: 4 }}>Cambia el verde y el rojo de las escalas (valoración, físico, resultados) por azul y naranja.</div></div>
       <h3 style={{ marginTop: 6 }}>Ayudas</h3>
-      <div className="row wrap"><Seg value={s.tips === false ? 1 : 0} options={['Mostrar ayudas en cada pantalla', 'Ocultarlas']} onChange={v => onChange({ ...s, tips: !v, seenTips: v ? s.seenTips : [] })} />
+      <div className="row wrap"><Seg label="Ayudas en cada pantalla" value={s.tips === false ? 1 : 0} options={['Mostrar ayudas en cada pantalla', 'Ocultarlas']} onChange={v => onChange({ ...s, tips: !v, seenTips: v ? s.seenTips : [] })} />
         {onTour && <button className="btn sm" onClick={() => { onClose(); onTour() }}>Volver a ver la guía</button>}</div>
       <div className="dim sm">Los ajustes se guardan en este navegador.</div>
     </div>

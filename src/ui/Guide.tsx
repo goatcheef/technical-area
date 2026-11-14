@@ -77,7 +77,7 @@ const TIPS: Record<string, { title: string; text: string }> = {
   training: { title: 'Entrenamiento', text: 'Más intensidad mejora más rápido pero cansa y lesiona más. El día después del partido conviene descansar. Si no querés ocuparte, delegalo en el ayudante.' },
   locker: { title: 'Vestuario', text: 'Cada jugador espera minutos según su rol. Si no los tiene, baja su conformidad y puede pedir irse. Hablale, prometele minutos o acordá otro rol.' },
   market: { title: 'Mercado', text: 'De los jugadores ajenos ves rangos: mandalos a ojear para conocerlos mejor antes de ofertar. El libro de pases abre en enero y en julio.' },
-  inbox: { title: 'Bandeja', text: 'Lo que tenés que decidir aparece primero, en "Pendientes". Si no respondés a tiempo, una oferta vence y la prensa la contesta el ayudante.' },
+  inbox: { title: 'Bandeja', text: 'Lo que tenés que decidir está siempre arriba, con su plazo: las ofertas y los trabajos vencen. Cada mensaje trae los botones para resolverlo.' },
   data: { title: 'Centro de datos', text: 'El xG mide la calidad de las ocasiones. Si convertís mucho más de lo que generás, probablemente no dure: mirá el xG para saber si el equipo juega bien.' },
 }
 export function PageTip({ id }: { id: string }) {

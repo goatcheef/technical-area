@@ -158,13 +158,13 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   return (
     <div className="ptable-wrap col" style={{ gap: 8 }}>
       <div className="row wrap ptable-bar" style={{ gap: 8 }}>
-        <div className="seg">{allViews.map(([k, l]) => <button key={k} className={view === k && !prefs.edit ? 'on' : ''} onClick={() => setPrefs({ ...prefs, view: k, edit: undefined })}>{l}</button>)}{prefs.edit && <button className="on">Personalizada</button>}</div>
+        <div className="seg" role="group" aria-label="Vista">{allViews.map(([k, l]) => <button key={k} className={view === k && !prefs.edit ? 'on' : ''} aria-pressed={view === k && !prefs.edit} onClick={() => setPrefs({ ...prefs, view: k, edit: undefined })}>{l}</button>)}{prefs.edit && <button className="on" aria-pressed>Personalizada</button>}</div>
         <div style={{ position: 'relative' }}>
-          <button className={`btn sm ${menu ? 'on' : ''}`} onClick={() => setMenu(!menu)}>Columnas{hiddenN > 0 ? ` · ${hiddenN} ocultas por el ancho` : ''}</button>
+          <button className={`btn sm ${menu ? 'on' : ''}`} aria-expanded={menu} onClick={() => setMenu(!menu)}>Columnas{hiddenN > 0 ? ` · ${hiddenN} ocultas por el ancho` : ''}</button>
           {menu && <ColMenu cols={baseCols} hidden={want.filter(k => !vis.includes(k))} onChange={setCols} onClose={() => setMenu(false)} onSave={n => { saveView(n); setMenu(false) }} current={view.startsWith('mine:') ? view.slice(5) : ''}
             onDelete={view.startsWith('mine:') ? () => { const mine = { ...prefs.mine }; delete mine[view.slice(5)]; setPrefs({ view: def, mine }); setMenu(false) } : undefined} />}
         </div>
-        {filters && <><div className="seg">{LINES.map(([k, l]) => <button key={k} className={line === k ? 'on' : ''} onClick={() => setLine(k)}>{l}</button>)}</div>
+        {filters && <><div className="seg" role="group" aria-label="Línea">{LINES.map(([k, l]) => <button key={k} className={line === k ? 'on' : ''} aria-pressed={line === k} onClick={() => setLine(k)}>{l}</button>)}</div>
           <input type="search" placeholder="Filtrar por nombre" value={q} onChange={e => setQ(e.target.value)} style={{ width: 170, padding: '5px 10px' }} /></>}
         <span className="grow" />
         {keys.length > 1 && <span className="dim sm">Orden: {keys.map(s => COLS[s.k]?.l).join(' › ')} <button className="btn sm" onClick={() => setSort([])}>Quitar</button></span>}

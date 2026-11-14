@@ -3,11 +3,12 @@ import { wageBill, windowOpen } from '../engine/career'
 import { FOCUS, INTENSITY } from '../engine/week'
 import { harmony } from '../engine/squad'
 import { ReportModal } from './Week'
-import { annualTable, clubsIn, fmtDate, leagueFx, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf } from '../engine/game'
+import { annualTable, clubsIn, fmtDate, leagueFx, markRead, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf } from '../engine/game'
 import type { Fixture } from '../engine/types'
 import { exportGame, useGame } from '../store'
 import { Badge, Face, Gauge, MatchReport, Val, avgRat, money, resultText } from './common'
-import { pendingOf, pendingText, unreadOf } from './Inbox'
+import { pendingOf, pendingText, unreadOf } from '../engine/inbox'
+import { DayHead, MsgBody, TAG_ICON, TAG_NAME } from './msg'
 
 
 export function Home() {
@@ -48,19 +49,17 @@ export function Home() {
   const tiles: Record<string, { name: string; hero?: boolean; render: () => ReactNode }> = {
     inbox: { name: 'Mensajes', render: () => <>
       <div className="row between"><h3>Mensajes</h3><button className="btn sm" onClick={() => go('inbox')}>Abrir bandeja</button></div>
-      <div className="seg">{([['all', 'Todos'], ['unread', `Sin leer (${unreadOf(g)})`], ['me', 'Con acción']] as const).map(([k, l]) => <button key={k} className={ibf === k ? 'on' : ''} onClick={() => setIbf(k)}>{l}</button>)}</div>
+      <div className="seg" role="group" aria-label="Filtrar mensajes">{([['all', 'Todos'], ['unread', `Sin leer (${unreadOf(g)})`], ['me', 'Con acción']] as const).map(([k, l]) => <button key={k} className={ibf === k ? 'on' : ''} aria-pressed={ibf === k} onClick={() => setIbf(k)}>{l}</button>)}</div>
       {pend.length > 0 && <button className="ib-pend" onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span>Pendiente: {pendingText(pend)}</button>}
       <div className="msglist">{ibList.map((n, i) => (<div key={n.id}>
-        {(i === 0 || ibList[i - 1].date !== n.date) && <div className="msg-day">{fmtDate(n.date)}</div>}
-        <button className={`msg ${n.read ? '' : 'unread'}`} onClick={() => go('inbox')}>
-          <span className="msg-ico" aria-hidden>{TAG_ICON[n.tag] ?? TAG_ICON.club}</span>
-          <span className="grow" style={{ minWidth: 0 }}><span className="msg-from">{TAG_NAME[n.tag]}</span><span className="msg-t">{n.title}</span></span>
-          {!n.read && <span className="msg-dot" aria-label="Sin leer" />}
+        {(i === 0 || ibList[i - 1].date !== n.date) && <DayHead d={n.date} today={g.date} />}
+        <button className={`msg ${n.read ? '' : 'unread'}`} onClick={() => { if (!n.read) { markRead(g, [n.id], true); save() } nav({ page: 'inbox', tab: 'club.todo', sel: `n${n.id}` }) }}>
+          <MsgBody ico={<span className="msg-ico">{TAG_ICON[n.tag] ?? TAG_ICON.club}</span>} kind={TAG_NAME[n.tag]} who={n.pid != null ? g.players[n.pid]?.name : undefined} title={n.title} unread={!n.read} />
         </button></div>))}
         {!ibList.length && <div className="dim sm" style={{ padding: 8 }}>No hay mensajes en esta vista.</div>}</div>
     </> },
     news: { name: 'Noticias', render: () => <>
-      <div className="row between"><button className="linkish h3link" onClick={() => nav({ page: 'inbox', tab: 'all' })}>Noticias del fútbol <span aria-hidden>›</span></button>
+      <div className="row between"><button className="linkish h3link" onClick={() => nav({ page: 'inbox', tab: 'futbol.todo' })}>Noticias del fútbol <span aria-hidden>›</span></button>
         {world.length > 1 && <div className="row" style={{ gap: 4 }}><button className="btn sm icon" aria-label="Noticia anterior" onClick={() => setNewsI((newsI + world.length - 1) % world.length)}>‹</button><button className="btn sm icon" aria-label="Noticia siguiente" onClick={() => setNewsI((newsI + 1) % world.length)}>›</button></div>}</div>
       {news ? <div className="newsbody">
         <div className="grow col" style={{ gap: 8, minWidth: 0 }}><b className="news-t">{news.title}</b><p className="news-p">{news.body}</p><span className="dim sm">{fmtDate(news.date)}{news.clubId != null && g.clubs[news.clubId] ? ` · ${g.clubs[news.clubId].name}` : ''}</span></div>
@@ -193,10 +192,3 @@ const DEFAULT_HOME: Tile[] = [{ id: 'inbox', size: 4, rows: 3 }, { id: 'news', s
 const DEFAULT_SIZE: Record<string, number> = Object.fromEntries(DEFAULT_HOME.map(t => [t.id, t.size]))
 
 const COMP_CODE: Record<string, string> = { AP: 'APE', CL: 'CLA', PN: 'PN', T3: 'B', CA: 'CA', LIB: 'LIB', SUD: 'SUD' }
-const TAG_NAME: Record<string, string> = { partido: 'Partido', torneo: 'Torneo', lesion: 'Parte médico', club: 'Club', mercado: 'Mercado', premio: 'Premio', directiva: 'Dirigencia' }
-const ic = (d: string) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
-const TAG_ICON: Record<string, ReactNode> = {
-  partido: ic('M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7l3 2-1 4h-4l-1-4z'), torneo: ic('M8 4h8v5a4 4 0 0 1-8 0zM6 5H4v2a3 3 0 0 0 3 3M18 5h2v2a3 3 0 0 1-3 3M12 13v4M9 20h6'),
-  lesion: ic('M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z'), club: ic('M16 20v-1a4 4 0 0 0-8 0v1M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M20 20v-1a3 3 0 0 0-2-2.8M4 20v-1a3 3 0 0 1 2-2.8'),
-  mercado: ic('M4 7h13l-3-3M20 17H7l3 3'), premio: ic('M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z'), directiva: ic('M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6'),
-}

@@ -9,7 +9,7 @@ import { aggFor, computeQual, isCup, progressCup, scheduleCups } from './cups'
 import { afterUserMatch, dailySquad, harmonyBoost, initSquad, learnFromMatch, weeklyReserve } from './squad'
 import { isDerby } from './week'
 import { answerPress, dailyTraining, dayEvents, delegatePress, docFactor, initStaff, makePostPress, refreshPool, trainEdge } from './week'
-import { seasonOffers } from './career'
+import { expireSeasonJobs, seasonOffers } from './career'
 import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
 
 const db = dbJson as unknown as { start: string; dbVersion: number; clubs: any[]; players: any[] }
@@ -184,6 +184,21 @@ export function news(g: Game, n: Omit<News, 'id' | 'date'>) {
   }
 }
 
+/** El mensaje es para el DT (su club, sus jugadores, sus decisiones). Las noticias viejas no traen `me`. */
+export const isMine = (g: Game, n: News) => n.me ?? n.clubId === g.userClubId
+export function markRead(g: Game, ids: number[], read: boolean) {
+  const s = new Set(ids)
+  for (const n of g.news) if (s.has(n.id)) n.read = read
+}
+/** Cuándo vuelve un lesionado y cuántos partidos de tu club se pierde (de hoy a la fecha de vuelta). */
+export function injuryOutlook(g: Game, pid: number): { days: number; back: string; matches: number } | null {
+  const p = g.players[pid]
+  if (!p?.injury) return null
+  // passDays descuenta un día al cerrar cada fecha: con `days` restantes, el día `back` ya está disponible
+  const days = p.injury.days, back = addDays(g.date, days), c = g.userClubId
+  return { days, back, matches: g.fixtures.filter(f => !f.played && f.date >= g.date && f.date < back && (f.home === c || f.away === c)).length }
+}
+
 function scheduleSeason(g: Game, rng: Rng) {
   const y = g.season
   const byCode = new Map(Object.values(g.clubs).map(c => [c.code, c.id]))
@@ -297,7 +312,7 @@ export function refreshDb(g: Game): number {
   g.dbVersion = db.dbVersion
   if (n) {
     for (const c of Object.values(g.clubs)) if (c.id !== g.userClubId) Object.assign(c.tactic, autoPick(g, c.id, c.tactic.formation))
-    news(g, { tag: 'club', title: 'Base de jugadores actualizada', body: `Se actualizaron las valoraciones y los puestos de ${n} jugadores con los datos más recientes. Revisá tu once titular en Tácticas.` })
+    news(g, { tag: 'club', me: true, title: 'Base de jugadores actualizada', body: `Se actualizaron las valoraciones y los puestos de ${n} jugadores con los datos más recientes. Revisá tu once titular en Tácticas.` })
   }
   return n
 }
@@ -642,6 +657,7 @@ export function startNewSeason(g: Game) {
   for (const comp of Object.values(g.comps)) if (comp.champion) g.clubs[comp.champion].rep = Math.min(96, g.clubs[comp.champion].rep + 1)
   g.season++
   g.date = `${g.season}-01-10`
+  expireSeasonJobs(g)
   for (const p of Object.values(g.players)) {
     p.history.push({ season: g.season - 1, clubId: p.clubId, stats: p.stats })
     develop(p, ageOn(p.birth, g.date), rng, p.clubId === g.userClubId ? 1 + (g.manager.attrs.you - 10) * 0.04 : 1)

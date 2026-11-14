@@ -43,7 +43,7 @@ export function Tables() {
   const rel = relegationZone(g)
   return (
     <div className="page">
-      <div className="row wrap"><h2 className="grow">Posiciones</h2><div className="seg">{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}</div></div>
+      <div className="row wrap"><h2 className="grow">Posiciones</h2><div className="seg" role="group" aria-label="Torneo">{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} aria-pressed={tab === k} onClick={() => setTab(k)}>{l}</button>)}</div></div>
       {tab === 'T3' && g.comps.T3 && (<>
         <div className="grid2">{['A', 'B'].map(z => (
           <div key={z} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{z === 'A' ? 'Primera B' : 'Federal A'}</h3>
@@ -89,7 +89,7 @@ export function Fixtures() {
     <div className="page">
       <div className="row wrap"><h2 className="grow">Fixture</h2>
         {mode === 'all' && <div className="row"><button className="btn sm" disabled={di <= 0} onClick={() => setDate(dates[di - 1])}>◂</button><b>{fmtDate(date)}</b><button className="btn sm" disabled={di >= dates.length - 1} onClick={() => setDate(dates[di + 1])}>▸</button></div>}
-        <div className="seg"><button className={mode === 'mine' ? 'on' : ''} onClick={() => setMode('mine')}>{club.short}</button><button className={mode === 'all' ? 'on' : ''} onClick={() => setMode('all')}>Toda la fecha</button></div></div>
+        <div className="seg" role="group" aria-label="Partidos"><button className={mode === 'mine' ? 'on' : ''} aria-pressed={mode === 'mine'} onClick={() => setMode('mine')}>{club.short}</button><button className={mode === 'all' ? 'on' : ''} aria-pressed={mode === 'all'} onClick={() => setMode('all')}>Toda la fecha</button></div></div>
       <div className="card scroll-x">
         <table><thead><tr><th>Fecha</th><th>Torneo</th><th>Instancia</th><th className="r">Local</th><th className="c">Resultado</th><th>Visitante</th></tr></thead>
           <tbody>{list.map(f => (
@@ -123,7 +123,7 @@ export function Stats() {
   ]
   return (
     <div className="page">
-      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
+      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
       <div className="grid2">{boards.map(([title, val, show, filter]) => (
         <div key={title} className="card"><h3 style={{ marginBottom: 6 }}>{title}</h3>
           <table><tbody>{ps.filter(p => pj(p) > 0 && (!filter || filter(p))).sort((a, b) => val(b) - val(a)).slice(0, 10).map((p, i) => (

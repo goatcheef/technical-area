@@ -1,10 +1,10 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
 import { sab } from './week'
 import { initSquad } from './squad'
-import { addDays, autoPick, clubsIn, leagueFx, news, squadOf, tableOf, valuation } from './game'
+import { addDays, autoPick, clubsIn, fmtDate, leagueFx, news, squadOf, tableOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
-import { ATTRS, A, emptyLedger, emptyStats, type Club, type Game, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type Terms } from './types'
+import { ATTRS, A, emptyLedger, emptyStats, type Club, type Game, type JobOffer, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type Terms } from './types'
 
 // ---------- DT ----------
 export const BACKGROUNDS: { id: string; name: string; desc: string; points: number; rep: number }[] = [
@@ -101,19 +101,44 @@ function switchClub(g: Game, clubId: number, note: string, repDelta: number) {
   g.manager.rep = clamp(g.manager.rep + repDelta, 15, 99)
   g.board = { confidence: 55, objective: '', target: 0, fired: false, offers: [] }
   initSquad(g, clubId)
+  for (const j of [...(g.jobOffers ?? [])]) if (j.clubId !== clubId) dropJob(g, j.clubId) // los otros clubes que esperaban respuesta nombran DT
   setObjective(g); g.offers = []; g.jobOffers = []; g.press = null
   news(g, { tag: 'club', clubId, title: `${g.manager.name}, nuevo DT de ${c.name}`, body: `Tras su salida de ${old.name}, ${g.manager.name} firmó con ${c.name}. Objetivo de la dirigencia: ${g.board.objective.toLowerCase()}.` })
 }
+/** Lo que se pierde al aceptar un trabajo: ofertas por jugadores, las otras ofertas de trabajo, la conferencia abierta y el cuerpo técnico (queda en el club). */
+export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number } {
+  return {
+    offers: g.offers.filter(o => g.players[o.pid]).length,
+    jobs: (g.jobOffers ?? []).filter(j => j.clubId !== clubId && j.until >= g.date).length,
+    press: !!g.press,
+    staff: g.staff.filter(s => s.clubId === g.userClubId).length,
+  }
+}
+/** De mitad de temporada (6 días) o de fin de temporada (hasta comenzar la próxima). Las partidas viejas no guardan el tipo. */
+export const jobKind = (g: Game, j: JobOffer): 'mid' | 'season' => j.kind ?? (g.seasonOver ? 'season' : 'mid')
+const INTERIM = 'Cuerpo técnico interino'
+/** Saca una oferta de trabajo. Si el club había quedado con un interino, nombra DT. `why` avisa al DT que se le pasó el plazo. */
+function dropJob(g: Game, clubId: number, why?: 'expired' | 'season') {
+  const c = g.clubs[clubId]
+  if (!c || !(g.jobOffers ?? []).some(j => j.clubId === clubId)) return
+  g.jobOffers = g.jobOffers!.filter(j => j.clubId !== clubId)
+  const interim = c.manager === INTERIM
+  if (interim) {
+    c.manager = coachName(g)
+    news(g, { tag: 'club', clubId: c.id, title: `${c.manager} es el nuevo DT de ${c.short}`, body: `${c.name} cerró la llegada de ${c.manager} para reemplazar al entrenador despedido.` })
+  }
+  if (why) news(g, { tag: 'directiva', clubId: c.id, ref: c.id, me: true, title: `Venció la oferta de ${c.name} para dirigir`, body: `${why === 'season' ? 'Comenzó la temporada sin tu respuesta' : 'No respondiste a tiempo'} y la oferta de ${c.name} quedó sin efecto.${interim ? ` El club eligió a ${c.manager} como entrenador.` : ''}` })
+}
+/** Rechaza una oferta de trabajo: el club busca otro DT enseguida, igual que si la oferta venciera. */
+export function rejectJob(g: Game, clubId: number) { dropJob(g, clubId) }
+/** Al comenzar la temporada se pierden las ofertas de trabajo sin responder. */
+export function expireSeasonJobs(g: Game) { for (const j of [...(g.jobOffers ?? [])]) dropJob(g, j.clubId, 'season') }
 
 // ---------- el mercado de entrenadores ----------
 /** Una vez por semana: los clubes que andan mal echan al DT; si tu prestigio alcanza, te llaman. */
 export function managerMarket(g: Game, rng: Rng) {
   const me = g.clubs[g.userClubId], m = g.manager
-  for (const o of g.jobOffers ?? []) if (o.until < g.date && g.clubs[o.clubId].manager === 'Cuerpo técnico interino') {
-    const c = g.clubs[o.clubId]; c.manager = coachName(g)
-    news(g, { tag: 'club', clubId: c.id, title: `${c.manager} es el nuevo DT de ${c.short}`, body: `${c.name} cerró la llegada de ${c.manager} para reemplazar al entrenador despedido.` })
-  }
-  g.jobOffers = (g.jobOffers ?? []).filter(o => o.until >= g.date)
+  for (const o of [...(g.jobOffers ?? [])]) if (o.until < g.date) dropJob(g, o.clubId, 'expired')
   for (const comp of ['AP', 'CL', 'PN', 'T3']) {
     const cp = g.comps[comp]
     if (!cp || cp.phase !== 'league') continue
@@ -127,9 +152,10 @@ export function managerMarket(g: Game, rng: Rng) {
       c.firedAt = g.season
       const old = c.manager
       if (c.rep >= me.rep - 2 && m.rep >= c.rep - 14 && !g.board.fired) {
-        c.manager = 'Cuerpo técnico interino'
-        g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 6) }]
-        news(g, { tag: 'directiva', clubId: c.id, act: 'job', ref: c.id, title: `${c.name} te quiere como DT`, body: `${c.name} despidió a ${old} y la dirigencia se comunicó con ${m.name} para ofrecerle el cargo. Tenés una semana para responder.` })
+        c.manager = INTERIM
+        const until = addDays(g.date, 6)
+        g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until, kind: 'mid' }]
+        news(g, { tag: 'directiva', clubId: c.id, act: 'job', ref: c.id, title: `${c.name} te quiere como DT`, body: `${c.name} despidió a ${old} y la dirigencia se comunicó con ${m.name} para ofrecerle el cargo. Respondé hasta el ${fmtDate(until)}.` })
       } else {
         c.manager = coachName(g)
         news(g, { tag: 'club', clubId: c.id, title: `${c.name} despidió a ${old}`, body: `Por los malos resultados, ${c.name} terminó el ciclo de ${old}. Lo reemplaza ${c.manager}.` })
@@ -144,8 +170,8 @@ export function seasonOffers(g: Game, rng: Rng) {
   const cands = Object.values(g.clubs).filter(c => c.division >= 1 && c.id !== me.id && c.rep > me.rep + 1 && c.rep <= m.rep + 6)
   for (const c of rng.shuffle(cands).slice(0, 2)) {
     if (!rng.chance(0.55)) continue
-    g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 20) }]
-    news(g, { tag: 'directiva', clubId: c.id, act: 'job', ref: c.id, title: `${c.name} te ofrece dirigir`, body: `Después de tu temporada, la dirigencia de ${c.name} te ofreció ser su entrenador. Si aceptás, empezás la próxima temporada en el club.` })
+    g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 20), kind: 'season' }]
+    news(g, { tag: 'directiva', clubId: c.id, act: 'job', ref: c.id, title: `${c.name} te ofrece dirigir`, body: `Después de tu temporada, la dirigencia de ${c.name} te ofreció ser su entrenador. Si aceptás, empezás la próxima temporada en el club. Respondé antes de comenzar la próxima temporada.` })
   }
 }
 
@@ -226,7 +252,7 @@ export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan =
   g.shortlist = g.shortlist.filter(id => id !== p.id)
   const mine = from.id === g.userClubId || to.id === g.userClubId
   if (!quiet && (mine || fee >= 1500000)) news(g, {
-    tag: 'mercado', clubId: to.id, pid: p.id, title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
+    tag: 'mercado', clubId: to.id, pid: p.id, ...(from.id === g.userClubId ? { me: true } : {}), title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
     body: `${to.name} ${loan ? 'acordó el préstamo' : 'cerró la contratación'} de ${p.name}, proveniente de ${from.name}${fee ? `, a cambio de US$ ${fee.toLocaleString('es-AR')}` : ''}.`,
   })
 }
@@ -251,19 +277,25 @@ export function acceptOffer(g: Game, o: Offer) {
   g.offers = g.offers.filter(x => x.id !== o.id)
 }
 export function rejectOffer(g: Game, o: Offer) { g.offers = g.offers.filter(x => x.id !== o.id) }
+/** Último día para responder una oferta: `marketTick` la borra al cerrar ese día (corre antes de pasar la fecha). */
+export const offerDeadline = (o: Offer) => addDays(o.date, 9)
 /** Pide más plata. Devuelve true si el comprador mejora la oferta; si no, se retira. */
 export function haggle(g: Game, o: Offer): boolean {
   const p = g.players[o.pid]
   const top = p.value * (1.25 + (g.manager.attrs.neg - 10) * 0.02)
   const asked = Math.round((o.fee * 1.15) / 10000) * 10000
-  if (asked <= top && hash(o.id, p.id) < 0.75) { o.fee = asked; o.id = g.nextId++; return true }
+  const k = o.asks ?? 0
+  o.asks = k + 1 // cada pedido es una tirada nueva; el id no cambia (lo usan la noticia y la bandeja)
+  if (asked <= top && hash(o.id * 31 + k, p.id) < 0.75) { o.fee = asked; return true }
   rejectOffer(g, o)
   return false
 }
 
 /** Actividad diaria del mercado (clubes de la IA, ofertas del exterior y por jugadores del usuario). */
 export function marketTick(g: Game, days: number, rng: Rng) {
-  g.offers = g.offers.filter(o => addDays(o.date, 8) >= g.date && g.players[o.pid])
+  for (const o of g.offers) if (offerDeadline(o) <= g.date && g.players[o.pid]?.clubId === g.userClubId)
+    news(g, { tag: 'mercado', clubId: g.userClubId, pid: o.pid, ref: o.id, me: true, title: `Venció la oferta de ${o.fromName} por ${g.players[o.pid].name}`, body: `No respondiste a tiempo y ${o.fromName} retiró la oferta de US$ ${o.fee.toLocaleString('es-AR')} por ${g.players[o.pid].name}.` })
+  g.offers = g.offers.filter(o => offerDeadline(o) > g.date && g.players[o.pid])
   if (!windowOpen(g.date)) return
   const clubs = Object.values(g.clubs).filter(c => c.division > 0)
   const all = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division > 0)
@@ -334,9 +366,9 @@ export function marketTick(g: Game, days: number, rng: Rng) {
 }
 function pushOffer(g: Game, p: Player, from: number, fromName: string, fee: number) {
   if (g.offers.some(o => o.pid === p.id && o.from === from) || g.offers.length >= 8) return
-  const oid = g.nextId++
-  g.offers.push({ id: oid, pid: p.id, from, fromName, fee, date: g.date })
-  news(g, { tag: 'mercado', clubId: g.userClubId, pid: p.id, act: 'offer', ref: oid, title: `Oferta de ${fromName} por ${p.name}`, body: `${fromName} ofrece US$ ${fee.toLocaleString('es-AR')} por el pase de ${p.name}. Podés aceptarla, rechazarla o pedir más desde la pantalla de Mercado. La oferta vence en una semana.` })
+  const o: Offer = { id: g.nextId++, pid: p.id, from, fromName, fee, date: g.date }
+  g.offers.push(o)
+  news(g, { tag: 'mercado', clubId: g.userClubId, pid: p.id, act: 'offer', ref: o.id, title: `Oferta de ${fromName} por ${p.name}`, body: `${fromName} ofrece US$ ${fee.toLocaleString('es-AR')} por el pase de ${p.name}. Podés responder desde este mensaje. Vence el ${fmtDate(offerDeadline(o))}.` })
 }
 
 // ---------- contratos ----------

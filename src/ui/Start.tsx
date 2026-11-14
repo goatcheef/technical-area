@@ -40,7 +40,7 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
     if (!f) return
     try { const g = JSON.parse(await f.text()) as Game; if (!g.clubs || !g.players || g.version !== 6) throw new Error(); onStart(g) } catch { setBad(true) }
   }
-  const sw = (list: string[], k: 'skin' | 'hairColor' | 'suit') => <div className="row wrap" style={{ gap: 7 }}>{list.map((c, i) => <button key={c} className={`sw ${av[k] === i ? 'on' : ''}`} style={{ background: c }} aria-label={`Opción ${i + 1}`} onClick={() => setAv({ ...av, [k]: i })} />)}</div>
+  const sw = (list: string[], k: 'skin' | 'hairColor' | 'suit') => <div className="row wrap" style={{ gap: 7 }}>{list.map((c, i) => <button key={c} className={`sw ${av[k] === i ? 'on' : ''}`} aria-pressed={av[k] === i} style={{ background: c }} aria-label={`Opción ${i + 1}`} onClick={() => setAv({ ...av, [k]: i })} />)}</div>
   return (
     <div className="main" style={{ height: '100%', ...(sel ? (clubTheme(sel) as object) : {}) }}>
       <div className="page" style={{ maxWidth: 1120 }}>
@@ -71,9 +71,9 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
                   <div className="col" style={{ gap: 6 }}><h3>Piel</h3>{sw(SKINS, 'skin')}</div>
                   <div className="col" style={{ gap: 6 }}><h3>Color de pelo</h3>{sw(HAIRS, 'hairColor')}</div>
                   <div className="col" style={{ gap: 6 }}><h3>Traje</h3>{sw(SUITS, 'suit')}</div>
-                  <div className="col" style={{ gap: 6 }}><h3>Peinado</h3><div className="seg">{['Rapado', 'Corto', 'Al costado', 'Rulos', 'Largo'].map((l, i) => <button key={l} className={av.hair === i ? 'on' : ''} onClick={() => setAv({ ...av, hair: i })}>{l}</button>)}</div></div>
-                  <div className="col" style={{ gap: 6 }}><h3>Barba</h3><div className="seg">{['Sin barba', 'Barba', 'Bigote'].map((l, i) => <button key={l} className={av.beard === i ? 'on' : ''} onClick={() => setAv({ ...av, beard: i })}>{l}</button>)}</div></div>
-                  <div className="col" style={{ gap: 6 }}><h3>Anteojos</h3><div className="seg">{['No', 'Sí'].map((l, i) => <button key={l} className={av.glasses === (i === 1) ? 'on' : ''} onClick={() => setAv({ ...av, glasses: i === 1 })}>{l}</button>)}</div></div>
+                  <div className="col" style={{ gap: 6 }}><h3>Peinado</h3><div className="seg" role="group" aria-label="Peinado">{['Rapado', 'Corto', 'Al costado', 'Rulos', 'Largo'].map((l, i) => <button key={l} className={av.hair === i ? 'on' : ''} aria-pressed={av.hair === i} onClick={() => setAv({ ...av, hair: i })}>{l}</button>)}</div></div>
+                  <div className="col" style={{ gap: 6 }}><h3>Barba</h3><div className="seg" role="group" aria-label="Barba">{['Sin barba', 'Barba', 'Bigote'].map((l, i) => <button key={l} className={av.beard === i ? 'on' : ''} aria-pressed={av.beard === i} onClick={() => setAv({ ...av, beard: i })}>{l}</button>)}</div></div>
+                  <div className="col" style={{ gap: 6 }}><h3>Anteojos</h3><div className="seg" role="group" aria-label="Anteojos">{['No', 'Sí'].map((l, i) => <button key={l} className={av.glasses === (i === 1) ? 'on' : ''} aria-pressed={av.glasses === (i === 1)} onClick={() => setAv({ ...av, glasses: i === 1 })}>{l}</button>)}</div></div>
                 </div>
               </div>
             </div>
@@ -84,11 +84,11 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
           <div className="card col" style={{ gap: 18 }}>
             <h2>2 · Trayectoria y estilo</h2>
             <div className="grid4">{BACKGROUNDS.map((b, i) => (
-              <button key={b.id} className={`opt ${bg === i ? 'on' : ''}`} onClick={() => pick(i, preset)}><b>{b.name}</b><span className="dim sm" style={{ lineHeight: 1.45 }}>{b.desc}</span>
+              <button key={b.id} className={`opt ${bg === i ? 'on' : ''}`} aria-pressed={bg === i} onClick={() => pick(i, preset)}><b>{b.name}</b><span className="dim sm" style={{ lineHeight: 1.45 }}>{b.desc}</span>
                 <span className="row sm" style={{ marginTop: 'auto' }}><span className="chip">Prestigio {b.rep}</span><span className="chip acc">{b.points} puntos</span></span></button>))}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'center' }} className="pgrid">
               <div className="col">
-                <div className="row wrap"><h3>Estilo</h3><div className="seg">{PRESETS.map((p, i) => <button key={p.name} className={preset === i ? 'on' : ''} onClick={() => pick(bg, i)}>{p.name}</button>)}</div>
+                <div className="row wrap"><h3>Estilo</h3><div className="seg" role="group" aria-label="Estilo">{PRESETS.map((p, i) => <button key={p.name} className={preset === i ? 'on' : ''} aria-pressed={preset === i} onClick={() => pick(bg, i)}>{p.name}</button>)}</div>
                   <span className={`chip ${used === pts ? 'acc' : 'warn'}`} style={{ marginLeft: 'auto' }}>{pts - used} puntos libres</span></div>
                 {MGR_ATTRS.map(a => (
                   <div key={a.k} className="row" style={{ gap: 12 }}>
@@ -107,7 +107,7 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
         {step === 2 && (
           <div className="card col" style={{ gap: 16 }}>
             <div className="row wrap"><h2 className="grow">3 · Elegí tu club</h2>
-              <div className="seg">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
+              <div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
             {sel && (
               <div className="hero row wrap" style={{ gap: 18 }}>
                 <Badge club={sel} size={84} />
@@ -117,7 +117,7 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
                 <div className="kpi"><h3>Dificultad</h3><b style={{ fontSize: '1.3rem' }} className={BACKGROUNDS[bg].rep < sel.rep - 25 ? 'warn' : ''}>{BACKGROUNDS[bg].rep < sel.rep - 25 ? 'Poca paciencia' : BACKGROUNDS[bg].rep >= sel.rep ? 'Mucho respaldo' : 'Normal'}</b></div>
               </div>)}
             <div className="clubgrid">{clubs.map(c => (
-              <button key={c.id} className={`clubcard ${club === c.id ? 'on' : ''}`} onClick={() => { setClub(c.id); setSure(false) }}>
+              <button key={c.id} className={`clubcard ${club === c.id ? 'on' : ''}`} aria-pressed={club === c.id} onClick={() => { setClub(c.id); setSure(false) }}>
                 <Badge club={c} size={40} /><span className="grow"><b>{c.name}</b><br /><span className="dim sm">{c.city} · Rep. {c.rep}</span></span></button>))}</div>
             <div className="row wrap"><button className="btn" onClick={() => setStep(1)}>◂ Volver</button>
               {!framed && <button className="btn" onClick={() => file.current?.click()}>Importar partida</button>}{bad && <span className="bad sm">El archivo no es una partida válida.</span>}

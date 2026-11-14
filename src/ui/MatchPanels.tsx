@@ -81,7 +81,7 @@ export function PanelMenu({ onClose }: { onClose: () => void }) {
         <div key={p.id} className="row" style={{ gap: 6 }}>
           <button className="btn sm icon" disabled={i === 0} onClick={() => move(i, -1)}>▴</button><button className="btn sm icon" disabled={i === list.length - 1} onClick={() => move(i, 1)}>▾</button>
           <span className="grow">{PANELS[p.id]}</span>
-          <div className="seg">{([['side', 'Al costado'], ['bottom', 'Abajo'], ['off', 'Oculto']] as const).map(([k, l]) => <button key={k} className={p.slot === k ? 'on' : ''} onClick={() => set(list.map(x => (x.id === p.id ? { ...x, slot: k } : x)))}>{l}</button>)}</div>
+          <div className="seg" role="group" aria-label={`Lugar de ${PANELS[p.id]}`}>{([['side', 'Al costado'], ['bottom', 'Abajo'], ['off', 'Oculto']] as const).map(([k, l]) => <button key={k} className={p.slot === k ? 'on' : ''} aria-pressed={p.slot === k} onClick={() => set(list.map(x => (x.id === p.id ? { ...x, slot: k } : x)))}>{l}</button>)}</div>
         </div>))}</div>
       <div className="row"><button className="btn sm" onClick={() => setSettings({ ...settings, matchPanels: undefined, bigPitch: false })}>Restablecer</button><span className="dim sm">Se guarda en este navegador.</span></div>
     </div>

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, type ReactNode } from 'react'
+import { useId, useRef, useEffect, useState, type ReactNode } from 'react'
 import crestsJson from '../data/crests.json'
 import { PLAYER_PHOTO } from '../data/playerPhoto'
 import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
@@ -17,14 +17,47 @@ const rgb = (hex: string) => { const n = parseInt(hex.slice(1), 16); return [n >
 const lum = (hex: string) => { const [r, g, b] = rgb(hex); return r * 0.299 + g * 0.587 + b * 0.114 }
 const sat = (hex: string) => { const [r, g, b] = rgb(hex); return Math.max(r, g, b) - Math.min(r, g, b) }
 const mix = (hex: string, t: number) => '#' + rgb(hex).map(v => Math.round(v + (255 - v) * t).toString(16).padStart(2, '0')).join('')
-export const ink = (hex: string) => (lum(hex) > 150 ? '#0b0f14' : '#ffffff')
-/** Variables de tema a partir de los colores del club. */
+const lin = (v: number) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }
+const L = (hex: string) => { const [r, g, b] = rgb(hex).map(lin); return 0.2126 * r + 0.7152 * g + 0.0722 * b }
+/** Contraste WCAG entre dos colores (1 a 21). */
+export const contrast = (a: string, b: string) => { const x = L(a), y = L(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05) }
+const toward = (hex: string, to: number, t: number) => '#' + rgb(hex).map(v => Math.round(v + (to - v) * t).toString(16).padStart(2, '0')).join('')
+const blend = (a: string, b: string, t: number) => { const y = rgb(b); return '#' + rgb(a).map((v, i) => Math.round(v * t + y[i] * (1 - t)).toString(16).padStart(2, '0')).join('') }
+const INK_L = '#ffffff', INK_D = '#0b0f14'
+/** Tinta clara u oscura, la de más contraste sobre el color. */
+export const ink = (hex: string) => (contrast(hex, INK_L) >= contrast(hex, INK_D) ? INK_L : INK_D)
+/** El color corrido lo justo (más oscuro con tinta clara, más claro con tinta oscura) para que la tinta llegue a 4,5:1. */
+const fit = (hex: string, k: string) => { for (let i = 0; i < 50 && contrast(hex, k) < 4.5; i++) hex = toward(hex, k === INK_L ? 0 : 255, 0.02); return hex }
+/** Acento y su tinta: se respeta el color del club; si ninguna tinta llega a 4,5:1, se corre lo mínimo hacia la que necesite menos cambio. */
+export function inked(hex: string): [string, string] {
+  if (Math.max(contrast(hex, INK_L), contrast(hex, INK_D)) >= 4.5) return [hex, ink(hex)]
+  for (let i = 1; i <= 100; i++) { const d = toward(hex, 0, i / 100), l = toward(hex, 255, i / 100); if (contrast(d, INK_L) >= 4.5) return [d, INK_L]; if (contrast(l, INK_D) >= 4.5) return [l, INK_D] }
+  return [hex, ink(hex)]
+}
+/** Matiz (0-360) y saturación (0-1) HSL. */
+export const hueSat = (hex: string): [number, number] => {
+  const [r, g, b] = rgb(hex).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2
+  if (!d) return [0, 0]
+  const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4
+  return [(h * 60 + 360) % 360, d / (1 - Math.abs(2 * l - 1))]
+}
+const hueGap = (a: number, b: number) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d) }
+/** Matices de `--warn` (ámbar #ffb547) y de `--warn` en el modo para daltonismo (amarillo #f3d34a): el color de "decisión". */
+const WARN_HUES = [hueSat('#ffb547')[0], hueSat('#f3d34a')[0]]
+/**
+ * Color de selección y foco (`--sel`): el acento claro, salvo que su matiz quede a menos de 25° del ámbar de las decisiones
+ * (o del amarillo del modo para daltonismo) con saturación alta (≥ 0,35). En ese caso, el texto (#f1f2fa): así "elegido" nunca
+ * se confunde con "para decidir" en los clubes amarillos y naranjas.
+ */
+export const selColor = (hi: string) => { const [h, s] = hueSat(hi); return s >= 0.35 && WARN_HUES.some(w => hueGap(h, w) < 25) ? '#f1f2fa' : hi }
+/** Variables de tema a partir de los colores del club (regla repetida en tools/check-contrast.mjs). */
 export function clubTheme(c: { colors: [string, string] }): Record<string, string> {
   let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'
   if (lum(a) < 95) a = mix(a, lum(a) < 60 ? 0.45 : 0.28)
-  const [r, g, b] = rgb(a)
+  const [acc, k] = inked(a), [r, g, b] = rgb(acc), hi = blend(acc, '#ffffff', 0.7)
   const soft = (h: string, o: number) => { const [x, y, z] = rgb(h); return `rgba(${x}, ${y}, ${z}, ${o})` }
-  return { '--accent': a, '--accent-ink': ink(a), '--accent-soft': `rgba(${r}, ${g}, ${b}, .14)`, '--c1a': soft(c.colors[0], lum(c.colors[0]) > 200 ? 0.1 : 0.34), '--c2a': soft(c.colors[1], lum(c.colors[1]) > 200 ? 0.08 : 0.26) }
+  return { '--accent': acc, '--accent-ink': k, '--accent-soft': `rgba(${r}, ${g}, ${b}, .14)`, '--accent-hi': hi, '--sel': selColor(hi), '--accent-2': fit(blend(acc, '#ff6fb5', 0.55), k),
+    '--c1a': soft(c.colors[0], lum(c.colors[0]) > 200 ? 0.1 : 0.34), '--c2a': soft(c.colors[1], lum(c.colors[1]) > 200 ? 0.08 : 0.26) }
 }
 
 // ---------- identidad ----------
@@ -92,6 +125,13 @@ export function Modal({ children, onClose, wide }: { children: ReactNode; onClos
   const box = useRef<HTMLDivElement>(null)
   const close = useRef(onClose)
   close.current = onClose
+  const uid = useId()
+  // el nombre de la ventana es su primer título: aria-labelledby apunta a él
+  useEffect(() => {
+    const el = box.current, h = el?.querySelector<HTMLElement>('h1, h2, h3, h4')
+    if (!el) return
+    if (h) { h.id ||= `${uid}t`; el.setAttribute('aria-labelledby', h.id) } else el.removeAttribute('aria-labelledby')
+  })
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null
     const el = box.current
@@ -111,8 +151,9 @@ export function Modal({ children, onClose, wide }: { children: ReactNode; onClos
   }, [])
   return <div className="modal-bg" onClick={onClose}><div ref={box} className="modal" role="dialog" aria-modal="true" tabIndex={-1} style={wide ? { width: 'min(1120px, 100%)' } : undefined} onClick={e => e.stopPropagation()}>{children}</div></div>
 }
-export function Seg({ value, options, onChange }: { value: number; options: string[]; onChange: (v: number) => void }) {
-  return <div className="seg">{options.map((o, i) => <button key={o} className={i === value ? 'on' : ''} onClick={() => onChange(i)}>{o}</button>)}</div>
+/** Control segmentado: la opción elegida lleva ✓ (por CSS) y aria-pressed. */
+export function Seg({ value, options, onChange, label }: { value: number; options: string[]; onChange: (v: number) => void; label?: string }) {
+  return <div className="seg" role="group" aria-label={label}>{options.map((o, i) => <button key={o} className={i === value ? 'on' : ''} aria-pressed={i === value} onClick={() => onChange(i)}>{o}</button>)}</div>
 }
 
 // ---------- gráficos ----------

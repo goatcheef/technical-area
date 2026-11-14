@@ -2,11 +2,13 @@
 import { createContext, useContext, useState } from 'react'
 import type { Game } from './engine/types'
 
-/** Una pantalla del juego. Las fichas llevan el id del jugador o del club. */
-export interface Route { page: string; id?: number; tab?: string }
+/** Una pantalla del juego. Las fichas llevan el id del jugador o del club; `sel` es lo elegido dentro de la pantalla (p. ej. el mensaje abierto). */
+export interface Route { page: string; id?: number; tab?: string; sel?: string }
 export interface Settings { density: 'comfy' | 'compact'; text: number; matchSpeed: number; matchMode: 'full' | 'key'; home?: { id: string; size: number; rows?: number }[]; homeV?: number; matchPanels?: { id: string; slot: 'side' | 'bottom' | 'off' }[]; bigPitch?: boolean
   /** Accesibilidad y ayudas */
-  motion?: 'auto' | 'reduce'; cvd?: boolean; tips?: boolean; tourDone?: boolean; seenTips?: string[] }
+  motion?: 'auto' | 'reduce'; cvd?: boolean; tips?: boolean; tourDone?: boolean; seenTips?: string[]
+  /** Atajos de una sola tecla (Espacio, Mayús + Espacio, 0-9, / y ?); `false` los apaga (AM-03). Sin definir: encendidos. */
+  singleKeys?: boolean }
 export const DEFAULT_SETTINGS: Settings = { density: 'comfy', text: 100, matchSpeed: 1, matchMode: 'full' }
 export function loadSettings(): Settings {
   try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('ta-settings') ?? '{}') } } catch { return DEFAULT_SETTINGS }
@@ -15,6 +17,8 @@ export function storeSettings(s: Settings) { try { localStorage.setItem('ta-sett
 
 export interface Ctx {
   g: Game
+  /** La entrada actual del historial: al volver atrás, la pantalla recupera su pestaña y su selección de acá. */
+  route: Route
   refresh: () => void
   go: (page: string) => void
   nav: (r: Route) => void

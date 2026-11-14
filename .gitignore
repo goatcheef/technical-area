@@ -7,3 +7,4 @@ technical-area.html
 *.zip
 .DS_Store
 __pycache__/
+project.local.yaml

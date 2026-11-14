@@ -35,12 +35,12 @@ function useMenus() {
 }
 
 /** Fila de arriba: secciones grandes. Clic en la sección lleva a su primera pantalla; el menú muestra todas. */
-export function Sections({ groups, active, go, badge }: { groups: Group[]; active: string; go: (p: string) => void; badge: (id: string) => ReactNode }) {
+export function Sections({ groups, active, go, badge }: { groups: Group[]; active: string; go: (p: string) => void; badge: (id: string, inGroup?: boolean) => ReactNode }) {
   const m = useMenus()
   return (
     <nav ref={m.root} className="sections" aria-label="Secciones">
       {groups.map(gr => {
-        const on = gr.id === active, b = gr.pages.map(p => badge(p[0])).find(Boolean)
+        const on = gr.id === active, b = gr.pages.map(p => badge(p[0], true)).find(Boolean)
         return (
           <div key={gr.id} className="tn-item" onMouseEnter={() => gr.pages.length > 1 && m.hover(gr.id)} onMouseLeave={() => m.hover(null)}>
             <button className={`nav sec ${on ? 'on' : ''}`} data-group={gr.id} data-page={gr.pages[0][0]} title={gr.label} aria-current={on ? 'true' : undefined}
@@ -72,7 +72,7 @@ export function Tools({ g, search, onFind, onOpenPlayer, onOpenClub, onSettings,
           return <button key={`${f.k}${f.id}`} role="menuitem" className="tn-opt" data-pid={p?.id} data-cid={c?.id} onClick={() => { m.setOpen(null); p ? onOpenPlayer(p.id) : onOpenClub(c!.id) }}>{p ? <Face p={p} size={22} /> : <Badge club={c!} size={22} />}<span className="grow ell">{p ? p.name : c!.name}</span></button> })
           : <div className="dim sm" style={{ padding: '8px 10px', maxWidth: 240 }}>Marcá jugadores o clubes con "☆ Favorito" en su ficha y aparecen acá.</div>}</m.Menu>
       </div>
-      <button className="tn-icon" aria-label="Atajos de teclado" title="Atajos de teclado (?)" onClick={onHelp}><svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01" /></svg></button>
+      <button className="tn-icon tn-help" aria-label="Atajos de teclado" title="Atajos de teclado (?)" onClick={onHelp}><svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01" /></svg></button>
       <button className="tn-icon" aria-label="Ajustes" title="Ajustes" onClick={onSettings}><svg viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg></button>
     </div>
   )
