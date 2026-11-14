@@ -1,12 +1,11 @@
 import { useRef, useState } from 'react'
-import { BACKGROUNDS, PRESETS, baseBudget, distribute } from '../engine/career'
+import { BACKGROUNDS, DIV_NAMES, PRESETS, baseBudget, boardObjective, distribute } from '../engine/career'
 import { DB_CLUBS, fmtDate, newGame } from '../engine/game'
 import { MGR_ATTRS, type Avatar, type Game, type Manager, type MgrAttr } from '../engine/types'
 import { deleteSave } from '../store'
 import { Badge, HAIRS, ManagerFace, Radar, SKINS, SUITS, clubTheme, money } from './common'
 
 const NATS = ['Argentina', 'Uruguay', 'Paraguay', 'Chile', 'Colombia', 'Brasil', 'Bolivia', 'Perú', 'Ecuador', 'Venezuela', 'México', 'España', 'Italia', 'Portugal', 'Otra']
-const objective = (rank: number, div: number) => (div === 1 ? (rank <= 3 ? 'Pelear el campeonato' : rank <= 10 ? 'Clasificar a las copas' : rank <= 22 ? 'Mitad de tabla' : 'Mantener la categoría') : rank <= 5 ? 'Ascender a Primera' : rank <= 18 ? 'Clasificar al Reducido' : 'Mitad de tabla')
 
 export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Game) => void }) {
   const [step, setStep] = useState(0)
@@ -26,7 +25,6 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
   const pts = BACKGROUNDS[bg].points, used = Object.values(attrs).reduce((a, b) => a + b, 0)
   const clubs = DB_CLUBS.filter(c => c.division === div).sort((a, b) => b.rep - a.rep)
   const sel = DB_CLUBS.find(c => c.id === club)
-  const rank = sel ? DB_CLUBS.filter(c => c.division === sel.division && c.rep > sel.rep).length + 1 : 0
   const pick = (b: number, p: number) => { setBg(b); setPreset(p); setAttrs(distribute(BACKGROUNDS[b].points, PRESETS[p].attrs)) }
   const bump = (k: MgrAttr, d: number) => { const v = attrs[k] + d; if (v < 1 || v > 20 || (d > 0 && used >= pts)) return; setAttrs({ ...attrs, [k]: v }) }
   const begin = async () => {
@@ -107,12 +105,12 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
         {step === 2 && (
           <div className="card col" style={{ gap: 16 }}>
             <div className="row wrap"><h2 className="grow">3 · Elegí tu club</h2>
-              <div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
+              <div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{DIV_NAMES[d]}</button>)}</div></div>
             {sel && (
               <div className="hero row wrap" style={{ gap: 18 }}>
                 <Badge club={sel} size={84} />
                 <div className="grow"><h1 style={{ fontSize: '2.2rem' }}>{sel.name}</h1><div className="dim">{sel.city} · {sel.stadium} · Zona {sel.zone}</div></div>
-                <div className="kpi"><h3>Objetivo</h3><b style={{ fontSize: '1.3rem' }}>{objective(rank, sel.division)}</b></div>
+                <div className="kpi"><h3>Objetivo</h3><b style={{ fontSize: '1.3rem' }}>{boardObjective(DB_CLUBS, sel.id).objective}</b></div>
                 <div className="kpi"><h3>Presupuesto</h3><b style={{ fontSize: '1.3rem' }}>{money(baseBudget(sel.rep))}</b></div>
                 <div className="kpi"><h3>Dificultad</h3><b style={{ fontSize: '1.3rem' }} className={BACKGROUNDS[bg].rep < sel.rep - 25 ? 'warn' : ''}>{BACKGROUNDS[bg].rep < sel.rep - 25 ? 'Poca paciencia' : BACKGROUNDS[bg].rep >= sel.rep ? 'Mucho respaldo' : 'Normal'}</b></div>
               </div>)}

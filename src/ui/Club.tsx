@@ -1,4 +1,4 @@
-import { BACKGROUNDS, wageBill } from '../engine/career'
+import { BACKGROUNDS, divName, wageBill } from '../engine/career'
 import { squadOf } from '../engine/game'
 import { ageOn } from '../engine/positions'
 import { MGR_ATTRS } from '../engine/types'
@@ -14,7 +14,7 @@ export function Club() {
     <div className="page">
       <div className="hero row wrap" style={{ gap: 22 }}>
         <Badge club={c} size={110} />
-        <div className="grow"><h3>{c.division === 1 ? 'Liga Profesional' : 'Primera Nacional'} · Zona {c.zone}</h3><h1 style={{ marginTop: 4 }}>{c.name}</h1><div className="dim">{c.city} · {c.stadium} · {c.capacity.toLocaleString('es-AR')} espectadores</div></div>
+        <div className="grow"><h3>{divName(c)}{c.division === 1 || c.division === 2 ? ` · Zona ${c.zone}` : ''}</h3><h1 style={{ marginTop: 4 }}>{c.name}</h1><div className="dim">{c.city} · {c.stadium} · {c.capacity.toLocaleString('es-AR')} espectadores</div></div>
         <div className="kpi"><h3>Reputación</h3><b>{c.rep}</b></div><div className="kpi"><h3>Plantel</h3><b>{sq.length}</b></div>
         <div className="kpi"><h3>Edad media</h3><b>{(sq.reduce((s, p) => s + ageOn(p.birth, g.date), 0) / sq.length).toFixed(1)}</b></div><div className="kpi"><h3>Valor</h3><b>{money(sq.reduce((s, p) => s + p.value, 0))}</b></div>
       </div>

@@ -1,10 +1,10 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
-import { sab } from './week'
+import { sab, staffWage } from './week'
 import { initSquad } from './squad'
 import { addDays, autoPick, clubsIn, fmtDate, leagueFx, news, squadOf, tableOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
-import { ATTRS, A, emptyLedger, emptyStats, type Club, type Game, type JobOffer, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type Terms } from './types'
+import { ATTRS, A, STAFF_ROLES, emptyLedger, emptyStats, type Club, type Fixture, type Game, type JobOffer, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type StaffRole, type Terms } from './types'
 
 // ---------- DT ----------
 export const BACKGROUNDS: { id: string; name: string; desc: string; points: number; rep: number }[] = [
@@ -60,25 +60,60 @@ export function gateIncome(g: Game, clubId: number, att: number) {
 export function prize(g: Game, clubId: number, amount: number) { const c = g.clubs[clubId]; c.balance += amount; c.ledger.prizes += amount }
 
 // ---------- dirigencia ----------
-export function setObjective(g: Game) {
-  const c = g.clubs[g.userClubId]
-  const rank = clubsIn(g, c.division).map(id => g.clubs[id]).sort((a, b) => b.rep - a.rep).findIndex(x => x.id === c.id) + 1
+/** Nombre de la categoría de un club (la tercera se juega en dos zonas: Primera B y Federal A). */
+export const DIV_NAMES = ['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A']
+export const divName = (c: Pick<Club, 'division' | 'zone'>) => c.division === 3 ? (c.zone === 'B' ? 'Federal A' : 'Primera B') : DIV_NAMES[c.division] ?? ''
+/** Objetivo de la dirigencia según el lugar del club entre los de su categoría por reputación. Puro: lo usa también la pantalla de nueva partida. */
+export function boardObjective(clubs: Pick<Club, 'id' | 'rep' | 'division'>[], clubId: number): { objective: string; target: number } {
+  const c = clubs.find(x => x.id === clubId)!
+  const rank = clubs.filter(x => x.division === c.division).sort((a, b) => b.rep - a.rep || a.id - b.id).findIndex(x => x.id === c.id) + 1
   const [objective, target] = c.division === 3
     ? rank <= 6 ? ['Ascender a la Primera Nacional', 2] : ['Terminar en mitad de tabla', 5]
     : c.division === 1
     ? rank <= 3 ? ['Pelear el campeonato', 4] : rank <= 10 ? ['Clasificar a las copas', 9] : rank <= 22 ? ['Terminar en mitad de tabla', 18] : ['Mantener la categoría', 28]
     : rank <= 5 ? ['Ascender a Primera', 2] : rank <= 18 ? ['Clasificar al Reducido', 4] : ['Terminar en mitad de tabla', 12]
-  g.board.objective = objective as string; g.board.target = target as number
+  return { objective: objective as string, target: target as number }
+}
+export function setObjective(g: Game) { Object.assign(g.board, boardObjective(Object.values(g.clubs), g.userClubId)) }
+/** Cuánto exige la dirigencia: los clubes grandes tienen menos paciencia (más de 1), los chicos más (menos de 1). */
+export const boardDemand = (c: Club) => clamp(1 + (c.rep - 60) / 40, 0.7, 1.6)
+const ptsOf = (f: Fixture, clubId: number) => {
+  const us = f.home === clubId ? 0 : 1, gf = us ? f.ag : f.hg, gc = us ? f.hg : f.ag
+  return f.pens ? (f.pens[us] > f.pens[1 - us] ? 3 : 0) : gf > gc ? 3 : gf === gc ? 1 : 0
+}
+/** Derrotas seguidas del club (contando la de hoy), en todas las competencias. */
+export function lossStreak(g: Game, clubId: number): number {
+  const fx = g.fixtures.filter(f => f.played && (f.home === clubId || f.away === clubId)).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+  let n = 0
+  for (const f of fx) { if (ptsOf(f, clubId) > 0) break; n++ }
+  return n
+}
+/** Puesto en el torneo de liga y qué parte de la liga ya jugó (la Liga Profesional va por tabla anual). */
+function leagueStanding(g: Game, c: Club): { pos: number; done: number } | null {
+  const comps = c.division === 1 ? ['AP', 'CL'] : c.division === 2 ? ['PN'] : c.division === 3 ? ['T3'] : []
+  const fx = g.fixtures.filter(f => comps.includes(f.comp) && !f.knockout)
+  const mine = fx.filter(f => f.home === c.id || f.away === c.id)
+  if (!mine.length) return null
+  const table = tableOf(fx, clubsIn(g, c.division, c.division === 1 ? undefined : c.zone))
+  return { pos: table.findIndex(r => r.clubId === c.id) + 1, done: mine.filter(f => f.played).length / mine.length }
 }
 export function boardAfterMatch(g: Game, pts: number, repDiff: number, home: boolean) {
   const exp = clamp(1.35 + repDiff / 40 + (home ? 0.2 : -0.2), 0.6, 2.15)
-  const m = g.manager
+  const m = g.manager, c = g.clubs[g.userClubId]
   m.cur.pj++; if (pts === 3) m.cur.g++; else if (pts === 1) m.cur.e++; else m.cur.p++
-  g.board.confidence = clamp(g.board.confidence + (pts - exp) * 2.2 * (1 - m.rep / 400), 0, 100)
-  if (g.board.confidence <= 6 && m.cur.pj >= 10 && !g.board.fired) {
-    const c = g.clubs[g.userClubId]
+  // la exigencia del club multiplica todo; el prestigio del DT lo amortigua
+  const k = boardDemand(c) * (1 - m.rep / 400)
+  let d = (pts - exp) * 2.2 * k
+  // una racha de derrotas pesa más que la suma de los partidos: desde la tercera seguida, cada una cuesta más
+  const streak = pts === 0 ? Math.min(lossStreak(g, c.id), m.cur.pj) : 0
+  if (streak >= 3) d -= (streak - 2) * 4.5 * k
+  // de mitad de temporada en adelante, estar muy lejos del objetivo desgasta partido a partido
+  const st = leagueStanding(g, c)
+  if (st && st.done >= 0.5) { const gap = st.pos - g.board.target - (c.division === 1 ? 4 : 3); if (gap > 0) d -= Math.min(4, gap * 0.5) * k }
+  g.board.confidence = clamp(g.board.confidence + d, 0, 100)
+  if (g.board.confidence <= 6 && m.cur.pj >= 5 && !g.board.fired) {
     g.board.fired = true
-    g.board.offers = Object.values(g.clubs).filter(x => x.id !== c.id && x.rep <= Math.max(52, c.rep - 4)).sort((a, b) => b.rep - a.rep).slice(0, 12).sort((a, b) => (a.id * 7919 + g.rngState) % 13 - (b.id * 7919 + g.rngState) % 13).slice(0, 3).map(x => x.id)
+    g.board.offers = Object.values(g.clubs).filter(x => x.id !== c.id && x.division >= 1 && x.rep <= Math.max(52, c.rep - 4)).sort((a, b) => b.rep - a.rep).slice(0, 12).sort((a, b) => (a.id * 7919 + g.rngState) % 13 - (b.id * 7919 + g.rngState) % 13).slice(0, 3).map(x => x.id)
     news(g, { tag: 'directiva', clubId: c.id, title: `${c.name} despidió a ${m.name}`, body: `La comisión directiva decidió terminar el ciclo de ${m.name} por los malos resultados (${m.cur.g} ganados, ${m.cur.e} empatados y ${m.cur.p} perdidos). Ya hay clubes interesados en sus servicios.` })
   }
 }
@@ -101,17 +136,41 @@ function switchClub(g: Game, clubId: number, note: string, repDelta: number) {
   g.manager.rep = clamp(g.manager.rep + repDelta, 15, 99)
   g.board = { confidence: 55, objective: '', target: 0, fired: false, offers: [] }
   initSquad(g, clubId)
+  const came = moveStaff(g, old, c)
   for (const j of [...(g.jobOffers ?? [])]) if (j.clubId !== clubId) dropJob(g, j.clubId) // los otros clubes que esperaban respuesta nombran DT
   setObjective(g); g.offers = []; g.jobOffers = []; g.press = null
   news(g, { tag: 'club', clubId, title: `${g.manager.name}, nuevo DT de ${c.name}`, body: `Tras su salida de ${old.name}, ${g.manager.name} firmó con ${c.name}. Objetivo de la dirigencia: ${g.board.objective.toLowerCase()}.` })
+  const clubSt = g.staff.filter(s => s.clubId === c.id && CLUB_STAFF.includes(s.role)).map(staffLabel)
+  news(g, { tag: 'club', clubId, me: true, title: came.length ? `${came.map(s => s.name).join(' y ')} ${came.length > 1 ? 'llegan' : 'llega'} con vos a ${c.short}` : `Llegás solo a ${c.short}`,
+    body: `${came.length ? `Con ${g.manager.name} ${came.length > 1 ? 'llegan' : 'llega'} ${came.map(staffLabel).join(' y ')}.` : 'Llegás sin ayudante de campo ni preparador físico: esos puestos quedan vacantes hasta que contrates a alguien.'}${came.length === 1 ? ` El puesto de ${roleName(COACH_STAFF.find(r => r !== came[0].role)!).toLowerCase()} queda vacante.` : ''} En el club ${clubSt.length > 1 ? 'te esperan' : 'te espera'} ${clubSt.join(', ')}.` })
 }
-/** Lo que se pierde al aceptar un trabajo: ofertas por jugadores, las otras ofertas de trabajo, la conferencia abierta y el cuerpo técnico (queda en el club). */
-export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number } {
+// el ayudante y el preparador físico son gente del DT y lo siguen; el médico, el scouting y las inferiores son del club
+const COACH_STAFF: StaffRole[] = ['asst', 'fit'], CLUB_STAFF: StaffRole[] = ['doc', 'scout', 'youth']
+const roleName = (r: StaffRole) => STAFF_ROLES.find(x => x.k === r)!.name
+const staffLabel = (s: { name: string; role: StaffRole }) => `${s.name} (${roleName(s.role).toLowerCase()})`
+/** Cambio de club: la gente del DT se va con él y el club nuevo pone a los suyos en los puestos del club. Devuelve los que llegaron con el DT. */
+function moveStaff(g: Game, from: Club, to: Club) {
+  const came = g.staff.filter(s => s.clubId === from.id && COACH_STAFF.includes(s.role))
+  for (const s of g.staff) if (s.clubId === to.id && COACH_STAFF.includes(s.role)) s.clubId = 0 // si el DT vuelve a un club donde quedó gente suya de antes, esa gente queda libre
+  for (const s of came) s.clubId = to.id
+  const rng = new Rng(g.rngState)
+  for (const role of CLUB_STAFF) if (!g.staff.some(s => s.clubId === to.id && s.role === role)) {
+    // misma calidad que el cuerpo técnico inicial: según la reputación del club
+    const ab = clamp(Math.round(4 + to.rep * 0.12 + rng.gauss() * 2.2), 3, 20)
+    g.staff.push({ id: g.nextId++, name: `${rng.pick(NOMBRES)} ${rng.pick(APELLIDOS)}`, role, ability: ab, wage: staffWage(ab), contractEnd: g.season + rng.int(1, 2), clubId: to.id, age: rng.int(31, 66) })
+  }
+  g.rngState = rng.s
+  return came
+}
+/** Lo que pasa al aceptar un trabajo: se pierden las ofertas por jugadores, las otras ofertas de trabajo y la conferencia abierta; el ayudante y el preparador físico vienen con el DT (`follow`) y el resto del cuerpo técnico queda en el club (`staff`). */
+export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number; follow: number } {
+  const mine = g.staff.filter(s => s.clubId === g.userClubId)
   return {
     offers: g.offers.filter(o => g.players[o.pid]).length,
     jobs: (g.jobOffers ?? []).filter(j => j.clubId !== clubId && j.until >= g.date).length,
     press: !!g.press,
-    staff: g.staff.filter(s => s.clubId === g.userClubId).length,
+    staff: mine.filter(s => CLUB_STAFF.includes(s.role)).length,
+    follow: mine.filter(s => COACH_STAFF.includes(s.role)).length,
   }
 }
 /** De mitad de temporada (6 días) o de fin de temporada (hasta comenzar la próxima). Las partidas viejas no guardan el tipo. */
@@ -146,9 +205,12 @@ export function managerMarket(g: Game, rng: Rng) {
     const avgRep = teams.reduce((s, t) => s + g.clubs[t].rep, 0) / teams.length
     for (const r of tableOf(fx, teams)) {
       const c = g.clubs[r.clubId]
-      if (c.id === me.id || c.firedAt === g.season || r.pj < 6) continue
-      const exp = 1.35 + (c.rep - avgRep) / 25
-      if (r.pts / r.pj > exp - 0.55 || !rng.chance(0.3)) continue
+      if (c.id === me.id || c.firedAt === g.season || r.pj < 5) continue
+      // mismo criterio que con el DT del usuario: los grandes aguantan menos una mala campaña o una racha de derrotas
+      const exp = 1.35 + (c.rep - avgRep) / 25, dem = boardDemand(c)
+      const streak = lossStreak(g, c.id), limit = dem >= 1.3 ? 5 : dem >= 0.9 ? 6 : 7
+      const bad = r.pts / r.pj <= exp - 0.55 / dem
+      if (!(streak >= limit ? rng.chance(0.7) : bad && rng.chance(0.3))) continue
       c.firedAt = g.season
       const old = c.manager
       if (c.rep >= me.rep - 2 && m.rep >= c.rep - 14 && !g.board.fired) {
@@ -249,7 +311,7 @@ export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan =
   g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: to.name, fee, loan })
   if (g.transfers.length > 300) g.transfers.length = 300
   g.offers = g.offers.filter(o => o.pid !== p.id)
-  g.shortlist = g.shortlist.filter(id => id !== p.id)
+  if (toId === g.userClubId) g.shortlist = g.shortlist.filter(id => id !== p.id) // si se va a otro club, el DT lo sigue observando
   const mine = from.id === g.userClubId || to.id === g.userClubId
   if (!quiet && (mine || fee >= 1500000)) news(g, {
     tag: 'mercado', clubId: to.id, pid: p.id, ...(from.id === g.userClubId ? { me: true } : {}), title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
@@ -270,18 +332,23 @@ export function removePlayer(g: Game, p: Player) {
   delete g.players[p.id]
 }
 
-export function acceptOffer(g: Game, o: Offer) {
+/** Un jugador que el club tiene a préstamo no es suyo: no se puede declarar transferible, ni recibir ofertas, ni vender. */
+export const canSell = (p: Player) => p.loanFrom == null
+/** Acepta una oferta por un jugador propio. Devuelve false (sin cambios) con el libro de pases cerrado o si el jugador no se puede vender. */
+export function acceptOffer(g: Game, o: Offer): boolean {
   const p = g.players[o.pid]
-  if (!p) return
+  if (!p || !windowOpen(g.date) || !canSell(p)) return false
   if (o.from === 0) sellAbroad(g, p, o.fromName, o.fee); else doTransfer(g, p, o.from, o.fee)
   g.offers = g.offers.filter(x => x.id !== o.id)
+  return true
 }
 export function rejectOffer(g: Game, o: Offer) { g.offers = g.offers.filter(x => x.id !== o.id) }
 /** Último día para responder una oferta: `marketTick` la borra al cerrar ese día (corre antes de pasar la fecha). */
 export const offerDeadline = (o: Offer) => addDays(o.date, 9)
-/** Pide más plata. Devuelve true si el comprador mejora la oferta; si no, se retira. */
+/** Pide más plata. Devuelve true si el comprador mejora la oferta; si no, se retira. Con el libro de pases cerrado no se negocia: devuelve false y la oferta queda como estaba. */
 export function haggle(g: Game, o: Offer): boolean {
   const p = g.players[o.pid]
+  if (!p || !windowOpen(g.date)) return false
   const top = p.value * (1.25 + (g.manager.attrs.neg - 10) * 0.02)
   const asked = Math.round((o.fee * 1.15) / 10000) * 10000
   const k = o.asks ?? 0
@@ -312,7 +379,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
         let best: Player | null = null, bs = 0
         for (let k = 0; k < 70; k++) {
           const p = rng.pick(all)
-          if (!g.players[p.id] || p.clubId === buyer.id || p.positions[0] !== pos || p.loanFrom) continue
+          if (!g.players[p.id] || p.clubId === buyer.id || p.positions[0] !== pos || !canSell(p)) continue
           const r = bestRating(p), price = askingPrice(g, p), src = g.clubs[p.clubId]
           if (r < wr + 2.5 || price > buyer.budget || buyer.rep < src.rep - 5 || squadOf(g, src.id).length <= 22) continue
           if (wageBill(g, buyer.id) + wageDemand(g, p, buyer) > buyer.wageBudget * 1.08) continue
@@ -349,7 +416,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
     }
     // ventas al exterior
     if (rng.chance(0.14)) {
-      const cands = all.filter(p => g.players[p.id] && g.clubs[p.clubId]?.division === 1 && p.ca >= 73 && ageOn(p.birth, g.date) <= 26 && !p.loanFrom)
+      const cands = all.filter(p => g.players[p.id] && g.clubs[p.clubId]?.division === 1 && p.ca >= 73 && ageOn(p.birth, g.date) <= 26 && canSell(p))
       if (cands.length) {
         const p = rng.weighted(cands, x => (x.pa - 65) ** 2)
         const fee = Math.round((p.value * (1.1 + rng.next() * 0.6)) / 50000) * 50000
@@ -358,14 +425,14 @@ export function marketTick(g: Game, days: number, rng: Rng) {
       }
     }
     // interés por jugadores transferibles del usuario
-    for (const p of squadOf(g, g.userClubId)) if ((p.listed || p.wantsOut) && rng.chance(p.listed ? 0.12 : 0.05) && !g.offers.some(o => o.pid === p.id)) {
+    for (const p of squadOf(g, g.userClubId)) if ((p.listed || p.wantsOut) && canSell(p) && rng.chance(p.listed ? 0.12 : 0.05) && !g.offers.some(o => o.pid === p.id)) {
       const buyers = clubs.filter(c => c.id !== g.userClubId && c.budget >= p.value * 0.7 && c.rep >= g.clubs[g.userClubId].rep - 14 && squadOf(g, c.id).length < 40)
       if (buyers.length) { const b = rng.pick(buyers); pushOffer(g, p, b.id, b.name, Math.round((Math.min(b.budget, p.value * (0.7 + rng.next() * 0.4))) / 10000) * 10000) }
     }
   }
 }
 function pushOffer(g: Game, p: Player, from: number, fromName: string, fee: number) {
-  if (g.offers.some(o => o.pid === p.id && o.from === from) || g.offers.length >= 8) return
+  if (!canSell(p) || g.offers.some(o => o.pid === p.id && o.from === from) || g.offers.length >= 8) return
   const o: Offer = { id: g.nextId++, pid: p.id, from, fromName, fee, date: g.date }
   g.offers.push(o)
   news(g, { tag: 'mercado', clubId: g.userClubId, pid: p.id, act: 'offer', ref: o.id, title: `Oferta de ${fromName} por ${p.name}`, body: `${fromName} ofrece US$ ${fee.toLocaleString('es-AR')} por el pase de ${p.name}. Podés responder desde este mensaje. Vence el ${fmtDate(offerDeadline(o))}.` })
