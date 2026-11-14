@@ -41,7 +41,7 @@ La comunidad sigue comparándolo con FM24, que considera la referencia.
 
 ## Etapas
 
-### Etapa 1: navegación y densidad (base de todo lo demás)
+### Etapa 1: navegación y densidad (base de todo lo demás) — hecha
 - Rutas con historial: atrás y adelante (botones, teclado y mouse).
 - Ficha de jugador como página con pestañas: resumen, atributos, estadísticas, contrato, historial, informes de ojeo.
 - Ficha de club como página: plantel, partidos, finanzas, historia.
@@ -50,6 +50,8 @@ La comunidad sigue comparándolo con FM24, que considera la referencia.
 - Atajos de teclado para lo frecuente (continuar, pantallas principales, pausar el partido).
 - Ajustes: densidad (cómoda, compacta), tamaño de texto, velocidad de partido por defecto.
 - Favoritos: fijar jugadores, clubes o pantallas en la barra lateral.
+
+Resultado: cambio de pantalla entre 2 y 84 ms (en modo desarrollo), plantel sin desplazamiento horizontal a 1440 px, filtros y scroll que se conservan al volver. Las pantallas siguen siendo fijas en la barra lateral; los favoritos son jugadores y clubes.
 
 ### Etapa 2: bandeja de entrada y ritmo
 - Bandeja única que reemplaza las noticias sueltas: ofertas, prensa, informes, avisos del cuerpo técnico, pedidos de jugadores, con botones de acción en el mismo mensaje.

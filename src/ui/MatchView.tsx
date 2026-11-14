@@ -11,7 +11,7 @@ import { TacticControls } from './Tactics'
 const TICK = 1500 // milisegundos por minuto de juego a velocidad normal
 
 export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () => void }) {
-  const { g } = useGame()
+  const { g, settings } = useGame()
   const ref = useRef<MatchSim | null>(null)
   if (!ref.current) ref.current = createMatch(g, fixture, true)
   const sim = ref.current
@@ -22,7 +22,9 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
   const us: 0 | 1 = fixture.home === g.userClubId ? 0 : 1
   const home = g.clubs[fixture.home], away = g.clubs[fixture.away]
 
-  const [mode, setMode] = useState<'full' | 'key'>('full')
+  const [mode, setMode] = useState<'full' | 'key'>(settings.matchMode)
+  const pref = useRef(settings.matchSpeed || 1)
+  if (speed) pref.current = speed
   const [talk, setTalk] = useState<string | null>(null)
   const [riv, setRiv] = useState<number | null>(null)
   const dur = useRef(TICK)
@@ -58,6 +60,15 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
   const finish = () => { finishUserMatch(g, fixture, sim.result()); onDone() }
   const doSub = (inId: number) => { if (out != null && sim.substitute(us, out, inId)) { setOut(null); bump() } }
   const started = sim.tick > 0
+  // atajos: Espacio pausa o reanuda, 1 a 4 eligen la velocidad
+  const keys = useRef<(e: KeyboardEvent) => void>(() => {})
+  keys.current = e => {
+    const t = e.target as HTMLElement
+    if (sim.finished || (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) || e.ctrlKey || e.metaKey || e.altKey) return
+    if (e.key === ' ') { e.preventDefault(); setSpeed(speed ? 0 : pref.current) }
+    else if (/^[1-4]$/.test(e.key)) setSpeed([0, 1, 2, 5][Number(e.key) - 1])
+  }
+  useEffect(() => { const h = (e: KeyboardEvent) => keys.current(e); window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h) }, [])
   const cols = duoColors(home, away)
 
   return (
@@ -73,7 +84,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
           </div>
           <div className="row wrap" style={{ justifyContent: 'center' }}>
             {sim.finished ? <button className="btn primary cta" onClick={finish}>Continuar ▸</button> : (<>
-              <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l]) => <button key={v} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
+              <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l], i) => <button key={v} title={`Tecla ${i + 1}${v ? '' : ' · Espacio pausa o reanuda'}`} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
               <div className="seg" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones.">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} onClick={() => setMode(v)}>{l}</button>)}</div>
               <button className="btn" onClick={() => { setSpeed(0); while (!sim.finished) sim.step(); bump() }}>Ir al final</button>
             </>)}

@@ -116,3 +116,29 @@ td.r, th.r { text-align: right; } td.c, th.c { text-align: center; }
   .dash > * { grid-column: span 12; } .score { font-size: 3rem; } h1 { font-size: 2rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ---------- navegación: pestañas, fichas breves, barra de comandos, ajustes ---------- */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 2px 0 4px; overflow-x: auto; }
+.tabs button { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 9px 14px; cursor: pointer; color: var(--dim); font-weight: 600; white-space: nowrap; }
+.tabs button:hover { color: var(--text); } .tabs button.on { color: var(--text); border-bottom-color: var(--accent); }
+.linkish { background: none; border: 0; padding: 0; cursor: pointer; text-align: left; color: inherit; border-radius: 8px; }
+.linkish.row { padding: 4px 6px; } .linkish:hover { background: var(--panel2); }
+[data-pid], [data-cid] { cursor: pointer; }
+.hovercard { position: fixed; z-index: 80; width: 320px; background: var(--panel2); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 9px; box-shadow: 0 18px 50px -12px #000; pointer-events: none; animation: hc-in .12s ease-out; font-size: .84rem; }
+@keyframes hc-in { from { opacity: 0; transform: translateY(3px); } }
+.hc-grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: center; }
+.palette { width: min(620px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 30px 80px -20px #000; overflow: hidden; }
+.palette input { width: 100%; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; padding: 15px 18px; font-size: 1.05rem; outline: none; }
+.palette-list { max-height: 56vh; overflow-y: auto; padding: 6px; }
+.palette-list button { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 12px; background: none; border: 0; padding: 8px 12px; border-radius: 9px; cursor: pointer; text-align: left; min-width: 0; }
+.palette-list button.on { background: var(--accent-soft); }
+.palette-foot { border-top: 1px solid var(--line2); padding: 8px 16px; }
+.kbd { display: inline-block; font-family: ui-monospace, Menlo, monospace; font-size: .76rem; padding: 2px 7px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; background: var(--bg2); white-space: nowrap; }
+.btn.icon { padding: 4px 9px; }
+.favs { margin-top: 10px; border-top: 1px solid var(--line2); padding-top: 8px; display: flex; flex-direction: column; gap: 2px; }
+.favs-h { font-size: .66rem; text-transform: uppercase; letter-spacing: .12em; color: var(--faint); padding: 2px 11px 4px; font-weight: 650; }
+.favs .nav { padding: 6px 11px; font-size: .86rem; min-width: 0; }
+
+/* densidad compacta: más filas por pantalla */
+.dense .card { padding: 11px; } .dense td { padding: 4px 8px; } .dense th { padding: 5px 8px; }
+.dense .nav { padding: 7px 10px; } .dense .page { gap: 12px; } .dense .dash { gap: 10px; } .dense .hero { padding: 15px; }

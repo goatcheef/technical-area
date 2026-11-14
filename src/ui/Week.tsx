@@ -57,7 +57,7 @@ export function TrainingPage() {
       <div className="card scroll-x"><h3 style={{ marginBottom: 6 }}>Trabajo individual</h3>
         <table><thead><tr><th>Jugador</th><th>Pos</th><th className="r">Edad</th><th>Físico</th><th>Progreso</th><th className="r">Mejoras</th><th>Foco individual</th></tr></thead>
           <tbody>{squad.map(p => (
-            <tr key={p.id}><td className="click" onClick={() => openPlayer(p.id)}><b style={{ fontWeight: 600 }}>{p.name}</b> <Status p={p} /></td><td><PosPill p={p} /></td><td className="r num">{ageOn(p.birth, g.date)}</td><td><Cond v={p.cond} /></td>
+            <tr key={p.id}><td className="click" data-pid={p.id} onClick={() => openPlayer(p.id)}><b style={{ fontWeight: 600 }}>{p.name}</b> <Status p={p} /></td><td><PosPill p={p} /></td><td className="r num">{ageOn(p.birth, g.date)}</td><td><Cond v={p.cond} /></td>
               <td title="Cuando la barra se llena, el jugador mejora un atributo. Los jóvenes y los profesionales avanzan más rápido."><div className="bar" style={{ width: 80 }}><i style={{ width: `${Math.min(100, (p.tx ?? 0) * 100)}%`, background: 'var(--accent)' }} /></div></td>
               <td className="r num">{p.ups ? <b className="good">+{p.ups}</b> : <span className="dim">0</span>}</td>
               <td><select value={p.tfocus ?? ''} onChange={e => { p.tfocus = e.target.value || undefined; done() }}>{IND_FOCUS.filter(f => (f.k === 'gk') === (p.line === 'GK') || f.k === '' || f.k === 'men').map(f => <option key={f.k} value={f.k}>{f.name}</option>)}</select></td></tr>))}</tbody></table>
@@ -198,7 +198,7 @@ export function ReportModal({ f, onClose, onApply }: { f: Fixture; onClose: () =
           <div className="dim sm">Aplicar cambia tus instrucciones tácticas; las podés revisar en Tácticas.</div></div>
         <div className="card s12 scroll-x"><h3 style={{ marginBottom: 6 }}>Once probable</h3>
           <table><thead><tr><th>Jugador</th><th>Pos</th><th className="r">Valoración</th></tr></thead>
-            <tbody>{r.xi.map(x => <tr key={x.pid} className="click" onClick={() => openPlayer(x.pid)}><td>{g.players[x.pid]?.name}</td><td><span className="pill">{x.pos}</span></td><td className="r num"><b>{x.est}</b></td></tr>)}</tbody></table>
+            <tbody>{r.xi.map(x => <tr key={x.pid} data-pid={x.pid} className="click" onClick={() => openPlayer(x.pid)}><td>{g.players[x.pid]?.name}</td><td><span className="pill">{x.pos}</span></td><td className="r num"><b>{x.est}</b></td></tr>)}</tbody></table>
           {r.accuracy < 16 && <div className="dim sm" style={{ marginTop: 6 }}>Con un mejor jefe de scouting los rangos se vuelven valores exactos.</div>}</div>
       </div>
     </Modal>

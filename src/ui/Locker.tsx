@@ -22,7 +22,7 @@ export function LockerPage() {
         <div className="grow"><h3>Vestuario</h3><h1 style={{ fontSize: '2.2rem', marginTop: 4 }}>{hm.value >= 70 ? 'Grupo unido' : hm.value >= 45 ? 'Clima normal' : hm.value >= 25 ? 'Hay ruido' : 'Vestuario partido'}</h1>
           <div className="dim sm" style={{ maxWidth: 560, lineHeight: 1.5 }}>Cada jugador espera minutos según su rol. Si juega mucho menos, se molesta; los ambiciosos se impacientan antes y los leales aguantan más. Un vestuario unido rinde un poco más en la cancha.</div></div>
         <Gauge v={hm.value} label="ARMONÍA" />
-        <div className="col" style={{ gap: 6 }}><h3>Referentes</h3>{hm.leaders.map(p => <div key={p.id} className="row" style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><Face p={p} size={26} /><span>{p.name}</span>{(p.happy ?? 70) < 50 && <span className="chip bad">Molesto</span>}</div>)}</div>
+        <div className="col" style={{ gap: 6 }}><h3>Referentes</h3>{hm.leaders.map(p => <div key={p.id} data-pid={p.id} className="row" style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><Face p={p} size={26} /><span>{p.name}</span>{(p.happy ?? 70) < 50 && <span className="chip bad">Molesto</span>}</div>)}</div>
       </div>
       {hm.unhappy.length > 0 && <div className="card warn">{hm.unhappy.length} jugador(es) disconformes: {hm.unhappy.map(p => p.name).join(', ')}. Hablá con ellos, dales minutos o cambiales el rol.</div>}
       <div className="card scroll-x">
@@ -31,7 +31,7 @@ export function LockerPage() {
             const st = STATUS[p.status ?? 'sub'], sh = minutesShare(p)
             return (
               <tr key={p.id}>
-                <td className="click" onClick={() => openPlayer(p.id)}><span className="row"><Face p={p} size={28} /><b style={{ fontWeight: 600 }}>{p.name}</b><Status p={p} /></span></td>
+                <td className="click" data-pid={p.id} onClick={() => openPlayer(p.id)}><span className="row"><Face p={p} size={28} /><b style={{ fontWeight: 600 }}>{p.name}</b><Status p={p} /></span></td>
                 <td><PosPill p={p} /></td>
                 <td className="dim sm" style={{ whiteSpace: 'normal', maxWidth: 220 }}>{persLabels(p).join(' · ')}</td>
                 <td title={st.help}>{st.name}</td>

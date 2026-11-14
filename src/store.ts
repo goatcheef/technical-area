@@ -1,14 +1,27 @@
 // Estado global mínimo + guardado en IndexedDB.
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState } from 'react'
 import type { Game } from './engine/types'
+
+/** Una pantalla del juego. Las fichas llevan el id del jugador o del club. */
+export interface Route { page: string; id?: number; tab?: string }
+export interface Settings { density: 'comfy' | 'compact'; text: number; matchSpeed: number; matchMode: 'full' | 'key' }
+export const DEFAULT_SETTINGS: Settings = { density: 'comfy', text: 100, matchSpeed: 1, matchMode: 'full' }
+export function loadSettings(): Settings {
+  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('ta-settings') ?? '{}') } } catch { return DEFAULT_SETTINGS }
+}
+export function storeSettings(s: Settings) { try { localStorage.setItem('ta-settings', JSON.stringify(s)) } catch { /* sin almacenamiento: los ajustes duran la sesión */ } }
 
 export interface Ctx {
   g: Game
   refresh: () => void
   go: (page: string) => void
+  nav: (r: Route) => void
+  back: () => void
   openPlayer: (id: number) => void
+  openClub: (id: number) => void
   save: () => void
   openPress: () => void
+  settings: Settings
 }
 export const GameCtx = createContext<Ctx>(null as unknown as Ctx)
 export const useGame = () => useContext(GameCtx)
@@ -51,4 +64,11 @@ export function exportGame(g: Game) {
   a.download = `technical-area-${g.clubs[g.userClubId].code}-${g.date}.json`
   a.click()
   URL.revokeObjectURL(a.href)
+}
+
+/** Estado de pantalla que sobrevive a la navegación (filtros, orden, pestañas): volver atrás deja todo como estaba. */
+const sticky = new Map<string, unknown>()
+export function useSticky<T>(key: string, init: T | (() => T)): [T, (v: T) => void] {
+  const [v, setV] = useState<T>(() => (sticky.has(key) ? (sticky.get(key) as T) : typeof init === 'function' ? (init as () => T)() : init))
+  return [v, (x: T) => { sticky.set(key, x); setV(x) }]
 }

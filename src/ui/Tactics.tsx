@@ -133,7 +133,7 @@ export function Tactics() {
             <tbody>{list.map(p => {
               const inXi = t.lineup.includes(p.id), inB = t.bench.includes(p.id)
               return (
-                <tr key={p.id} className={`click ${inXi ? 'me' : ''}`} style={{ opacity: available(p) ? 1 : 0.5 }} onClick={() => place(p)}>
+                <tr key={p.id} data-pid={p.id} className={`click ${inXi ? 'me' : ''}`} style={{ opacity: available(p) ? 1 : 0.5 }} onClick={() => place(p)}>
                   <td><b style={{ fontWeight: 600 }}>{p.name}</b> <Status p={p} /></td><td><PosPill p={p} /></td>
                   <td className="r num"><b>{Math.round(selPos ? posRating(p, selPos) : bestRating(p))}</b></td><td><Cond v={p.cond} /></td>
                   <td>{inXi ? <span className="acc">Titular</span> : inB ? 'Banco' : <span className="dim">–</span>}</td>

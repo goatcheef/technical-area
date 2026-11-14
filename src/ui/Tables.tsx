@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { groupTable } from '../engine/cups'
 import { annualTable, clubsIn, fmtDate, leagueFx, promedios, relegationZone, tableOf, type Row } from '../engine/game'
 import type { Fixture, Game, Player } from '../engine/types'
-import { useGame } from '../store'
+import { useGame, useSticky } from '../store'
 import { Badge, MatchReport, PosPill, avgRat, resultText } from './common'
 
 function Table({ g, rows, marks }: { g: Game; rows: Row[]; marks?: (i: number, id: number) => string }) {
@@ -11,7 +11,7 @@ function Table({ g, rows, marks }: { g: Game; rows: Row[]; marks?: (i: number, i
       <thead><tr><th>#</th><th>Equipo</th><th className="r">PJ</th><th className="r">G</th><th className="r">E</th><th className="r">P</th><th className="r">GF</th><th className="r">GC</th><th className="r">DG</th><th className="r">Pts</th></tr></thead>
       <tbody>{rows.map((r, i) => (
         <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${marks?.(i, r.clubId) ?? ''}`}>
-          <td className="num dim">{i + 1}</td><td><span className="row"><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td>
+          <td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td>
           <td className="r num">{r.pj}</td><td className="r num">{r.g}</td><td className="r num">{r.e}</td><td className="r num">{r.p}</td><td className="r num">{r.gf}</td><td className="r num">{r.gc}</td>
           <td className="r num">{r.gf - r.gc > 0 ? '+' : ''}{r.gf - r.gc}</td><td className="r num"><b>{r.pts}</b></td>
         </tr>))}</tbody>
@@ -36,7 +36,7 @@ function Knockout({ g, comp, onOpen }: { g: Game; comp: string; onOpen: (f: Fixt
 
 export function Tables() {
   const { g } = useGame()
-  const [tab, setTab] = useState(['', 'AP', 'PN', 'T3'][g.clubs[g.userClubId].division] || 'AP')
+  const [tab, setTab] = useSticky(`tb.tab.${g.userClubId}`, ['', 'AP', 'PN', 'T3'][g.clubs[g.userClubId].division] || 'AP')
   const [rep, setRep] = useState<Fixture | null>(null)
   const tabs: [string, string][] = [['AP', 'Apertura'], ['CL', 'Clausura'], ['AN', 'Anual'], ['PR', 'Promedios'], ['PN', 'Primera Nacional'], ['T3', 'Tercera'], ['CA', 'Copa Argentina'], ['LIB', 'Libertadores'], ['SUD', 'Sudamericana']]
   const rel = relegationZone(g)
@@ -68,7 +68,7 @@ export function Tables() {
         <div className="dim" style={{ fontSize: '.84rem', marginTop: 8 }}>Suma las fases de zonas del Apertura y el Clausura. El último desciende; los primeros puestos dan plazas en copas internacionales.</div></div>}
       {tab === 'PR' && <div className="card scroll-x"><h3 style={{ marginBottom: 6 }}>Promedios</h3>
         <table><thead><tr><th>#</th><th>Equipo</th><th className="r">Pts</th><th className="r">PJ</th><th className="r">Promedio</th></tr></thead>
-          <tbody>{promedios(g).map((r, i) => <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${r.clubId === rel[1] ? 'zone-r' : ''}`}><td className="num dim">{i + 1}</td><td><span className="row"><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td><td className="r num">{r.pts}</td><td className="r num">{r.pj}</td><td className="r num"><b>{r.avg.toFixed(3)}</b></td></tr>)}</tbody></table>
+          <tbody>{promedios(g).map((r, i) => <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${r.clubId === rel[1] ? 'zone-r' : ''}`}><td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td><td className="r num">{r.pts}</td><td className="r num">{r.pj}</td><td className="r num"><b>{r.avg.toFixed(3)}</b></td></tr>)}</tbody></table>
         <div className="dim" style={{ fontSize: '.84rem', marginTop: 8 }}>Puntos por partido de las últimas tres temporadas en Primera. El peor promedio desciende (además del último de la tabla anual).</div></div>}
       {rep && <MatchReport g={g} f={rep} onClose={() => setRep(null)} />}
     </div>
@@ -78,7 +78,7 @@ export function Tables() {
 export function Fixtures() {
   const { g } = useGame()
   const club = g.clubs[g.userClubId]
-  const [mode, setMode] = useState<'mine' | 'all'>('mine')
+  const [mode, setMode] = useSticky<'mine' | 'all'>('fx.mode', 'mine')
   const [rep, setRep] = useState<Fixture | null>(null)
   const dates = [...new Set(g.fixtures.map(f => f.date))]
   const [date, setDate] = useState(() => dates.find(d => d >= g.date) ?? dates[dates.length - 1])
@@ -106,7 +106,7 @@ export function Fixtures() {
 
 export function Stats() {
   const { g, openPlayer } = useGame()
-  const [div, setDiv] = useState(g.clubs[g.userClubId].division)
+  const [div, setDiv] = useSticky(`st.div.${g.userClubId}`, g.clubs[g.userClubId].division)
   const ps = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division === div)
   const pj = (p: Player) => p.stats.apps + p.stats.subs
   const minPj = Math.max(1, Math.floor(Math.max(...ps.map(pj)) * 0.5))
@@ -126,7 +126,7 @@ export function Stats() {
       <div className="grid2">{boards.map(([title, val, show, filter]) => (
         <div key={title} className="card"><h3 style={{ marginBottom: 6 }}>{title}</h3>
           <table><tbody>{ps.filter(p => pj(p) > 0 && (!filter || filter(p))).sort((a, b) => val(b) - val(a)).slice(0, 10).map((p, i) => (
-            <tr key={p.id} className={`click ${p.clubId === g.userClubId ? 'me' : ''}`} onClick={() => openPlayer(p.id)}>
+            <tr key={p.id} data-pid={p.id} className={`click ${p.clubId === g.userClubId ? 'me' : ''}`} onClick={() => openPlayer(p.id)}>
               <td className="num dim">{i + 1}</td><td><b style={{ fontWeight: 600 }}>{p.name}</b></td><td><PosPill p={p} /></td>
               <td><span className="row dim"><Badge club={g.clubs[p.clubId]} size={18} />{g.clubs[p.clubId].short}</span></td><td className="r num dim">{pj(p)} PJ</td><td className="r num"><b>{show(p)}</b></td></tr>))}</tbody></table>
         </div>))}</div>

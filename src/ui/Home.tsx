@@ -59,7 +59,7 @@ export function Home() {
             </div>
             <div className="row wrap">
               <span className="dim sm">Rival: DT {opp.manager} · {opp.tactic.formation}</span><span className="row" style={{ gap: 3 }}>{oppFx.map((f, i) => chip(res(f, opp.id), i))}</span>
-              {oppStar && <button className="btn sm" onClick={() => openPlayer(oppStar.id)}>Figura: {oppStar.name} <Val p={oppStar} /></button>}
+              {oppStar && <button className="btn sm" data-pid={oppStar.id} onClick={() => openPlayer(oppStar.id)}>Figura: {oppStar.name} <Val p={oppStar} /></button>}
               <span className="grow" />{g.training.reportFor === next.id ? <button className="btn primary" onClick={() => setScout(true)}>Informe del rival</button> : <span className="dim sm">El informe del rival llega 3 días antes</span>}<button className="btn" onClick={() => go('tactics')}>Preparar el equipo</button>
             </div></>) : <div className="dim">No hay partidos programados.</div>}
         </div>
@@ -79,7 +79,7 @@ export function Home() {
         <div className="card s4 col">
           <div className="row between"><h3>Rendimiento</h3><span className="row" style={{ gap: 3 }}>{mine.slice(-5).map((f, i) => chip(res(f, club.id), i))}</span></div>
           {best.length ? best.map(p => (
-            <div key={p.id} className="row" style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><Face p={p} club={club} size={34} /><div className="grow ell"><b>{p.name}</b><div className="dim sm">{p.stats.goals} goles · {p.stats.ast} asist.</div></div><b className="num good">{avgRat(p.stats)}</b></div>))
+            <div key={p.id} data-pid={p.id} className="row" style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><Face p={p} club={club} size={34} /><div className="grow ell"><b>{p.name}</b><div className="dim sm">{p.stats.goals} goles · {p.stats.ast} asist.</div></div><b className="num good">{avgRat(p.stats)}</b></div>))
             : <div className="dim sm">Los mejores puntajes del plantel van a aparecer acá cuando empiece el torneo.</div>}
         </div>
         <div className="card s4 col">
