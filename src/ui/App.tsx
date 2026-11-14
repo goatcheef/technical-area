@@ -31,6 +31,9 @@ const PAGES: [string, string, ReactNode][] = [
   ['stats', 'Estadísticas', I('M5 20V10M12 20V4M19 20v-7')], ['data', 'Centro de datos', I('M4 19l5-6 4 3 7-9M4 4v16h16')], ['club', 'Club y DT', I('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z')],
 ]
 
+/** Donde Espacio no es Continuar sino la acción propia del elemento. */
+const CONTROLS = 'button, [role=button], a, input, select, textarea, [contenteditable]:not([contenteditable=false]), tr.click, .seg, [aria-pressed], summary, label'
+
 // secciones de la barra superior: las que tienen más de una pantalla abren un menú
 const P = (id: string) => PAGES.find(p => p[0] === id)!
 const GROUPS: Group[] = [
@@ -60,9 +63,9 @@ export function App() {
   const remember = () => { if (mainRef.current) scrolls.current[lastI.current] = mainRef.current.scrollTop }
   const nav = (r: Route) => { remember(); setHist(h => {
     const cur = h.stack[h.i]
-    if (cur.page === r.page && cur.id === r.id && cur.tab === r.tab) return h
-    // cambiar de pestaña dentro de la misma ficha reemplaza la entrada en lugar de apilarla
-    const same = cur.page === r.page && cur.id === r.id && r.id != null
+    // misma pantalla y mismo id: cambiar solo la pestaña o la selección reemplaza la entrada en lugar de apilarla
+    const same = cur.page === r.page && cur.id === r.id
+    if (same && cur.tab === r.tab && cur.sel === r.sel) return h
     const stack = [...h.stack.slice(0, same ? h.i : h.i + 1), r].slice(-60)
     if (!same) delete scrolls.current[stack.length - 1]
     return { stack, i: stack.length - 1 }
@@ -103,7 +106,7 @@ export function App() {
   const club = g.clubs[g.userClubId]
   const today = userFixtureToday(g), next = nextUserFixture(g)
   const opp = next ? g.clubs[next.home === club.id ? next.away : next.home] : null
-  const ctx = { g, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => saveGame(g), openPress: () => setPress(true), settings, setSettings }
+  const ctx = { g, route, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => saveGame(g), openPress: () => setPress(true), settings, setSettings }
   // atajos de teclado (ver SHORTCUTS en Nav.tsx)
   api.current.key = (e: KeyboardEvent) => {
     const t = e.target as HTMLElement
@@ -117,7 +120,8 @@ export function App() {
     if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); fwd(); return }
     if (e.key === '/') { e.preventDefault(); setOverlay('palette'); return }
     if (e.key === '?') { setOverlay('help'); return }
-    if (e.key === ' ') { e.preventDefault(); advance(e.shiftKey); return }
+    // Espacio es Continuar, salvo sobre un control: ahí hace lo suyo (un botón se aprieta). Las filas de una lista (role=option) sí continúan.
+    if (e.key === ' ') { if (!t?.matches?.('[role=option]') && t?.closest?.(CONTROLS)) return; e.preventDefault(); advance(e.shiftKey); return }
     if (busy) return
     if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) { const i = (Number(e.key) + 9) % 10; if (PAGES[i]) setPage(PAGES[i][0]) }
   }

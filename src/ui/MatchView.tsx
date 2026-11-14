@@ -106,11 +106,11 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
           {started && <div className="mb-poss" title={`Posesión ${s.poss[0]} % - ${s.poss[1]} %`}><span className="num">{s.poss[0]}%</span><div className="duo grow"><i style={{ width: `${s.poss[0]}%`, background: cols[0] }} /><i style={{ flex: 1, background: cols[1] }} /></div><span className="num">{s.poss[1]}%</span></div>}
           <div className="mb-ctrl">
             {sim.finished ? <button className="btn primary cta" onClick={finish}><span>Continuar</span><svg viewBox="0 0 24 24" aria-hidden><path d="M9 6l6 6-6 6" /></svg></button> : (<>
-              <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l], i) => <button key={v} title={`Tecla ${i + 1}${v ? '' : ' · Espacio pausa o reanuda'}`} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
-              <div className="seg" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones (tecla M).">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} onClick={() => setMode(v)}>{l}</button>)}</div>
+              <div className="seg" role="group" aria-label="Velocidad">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l], i) => <button key={v} title={`Tecla ${i + 1}${v ? '' : ' · Espacio pausa o reanuda'}`} className={speed === v ? 'on' : ''} aria-pressed={speed === v} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
+              <div className="seg" role="group" aria-label="Modo de partido" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones (tecla M).">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} aria-pressed={mode === v} onClick={() => setMode(v)}>{l}</button>)}</div>
               <button className="btn" onClick={() => { setSpeed(0); while (!sim.finished) sim.step(); syncLive(live, 0, true); bump() }}>Ir al final</button>
             </>)}
-            <div style={{ position: 'relative', zIndex: 5 }}><button className={`btn ${menu ? 'on' : ''}`} title="Elegí qué paneles ver y dónde (tecla P)" onClick={() => setMenu(!menu)}>Paneles</button></div>
+            <div style={{ position: 'relative', zIndex: 5 }}><button className={`btn ${menu ? 'on' : ''}`} aria-expanded={menu} title="Elegí qué paneles ver y dónde (tecla P)" onClick={() => setMenu(!menu)}>Paneles</button></div>
             {!sim.finished && <span className="dim kbd-hint" style={{ fontSize: '.74rem' }}>Espacio pausa · 1-4 velocidad · M jugadas clave · C cambios · T táctica · R rival · P paneles</span>}
           </div>
         </div>
@@ -118,10 +118,10 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
           const P: Record<string, ReactNode> = {
             team: <div key="team">
           <div className="card" data-team>
-            <div className="row" style={{ marginBottom: 8 }}><div className="seg">
-              <button className={tab === 'team' ? 'on' : ''} onClick={() => setTab('team')}>Mi equipo</button>
-              <button className={tab === 'tactic' ? 'on' : ''} onClick={() => setTab('tactic')}>Táctica</button>
-              <button className={tab === 'rival' ? 'on' : ''} onClick={() => setTab('rival')}>Rival</button></div>
+            <div className="row" style={{ marginBottom: 8 }}><div className="seg" role="group" aria-label="Panel">
+              <button className={tab === 'team' ? 'on' : ''} aria-pressed={tab === 'team'} onClick={() => setTab('team')}>Mi equipo</button>
+              <button className={tab === 'tactic' ? 'on' : ''} aria-pressed={tab === 'tactic'} onClick={() => setTab('tactic')}>Táctica</button>
+              <button className={tab === 'rival' ? 'on' : ''} aria-pressed={tab === 'rival'} onClick={() => setTab('rival')}>Rival</button></div>
               <span className="dim" style={{ marginLeft: 'auto', fontSize: '.84rem' }}>Cambios {mine.subs}/5</span></div>
             {tab === 'tactic' && <div className="col">
               <div><div className="dim" style={{ fontSize: '.78rem', marginBottom: 3 }}>Formación</div>
@@ -137,13 +137,13 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
                 {tab === 'rival' && !sim.finished && (riv != null && g.players[riv] ? (() => { const oo = mine.tactic.oppo?.[riv] ?? {}, mm = mine.tactic.manMark; return (
                   <div className="col" style={{ marginTop: 12, gap: 8 }}><h3>Órdenes sobre {g.players[riv].name}</h3>
                     <div className="row wrap">{([['tight', 'Marcarlo encima', 'Lo anula si no tiene cambio de ritmo. Un rápido se saca la marca y queda solo. Cansa a tu marcador.'], ['hard', 'Entrarle fuerte', 'Le cuesta más pasar, pero vas a cometer más faltas y arriesgás tarjetas.'], ['press', 'Presionarlo en la salida', 'Complica al rival cuando la jugada empieza o pasa por él.']] as const).map(([k, l, h]) => (
-                      <button key={k} title={h} className={`btn sm ${oo[k] ? 'on' : ''}`} onClick={() => { sim.toggleOppo(us, riv, k); bump() }}>{oo[k] ? '✓ ' : ''}{l}</button>))}</div>
+                      <button key={k} title={h} className={`btn sm ${oo[k] ? 'on' : ''}`} aria-pressed={!!oo[k]} onClick={() => { sim.toggleOppo(us, riv, k); bump() }}>{oo[k] ? '✓ ' : ''}{l}</button>))}</div>
                     <label className="f" title="Uno de los tuyos lo sigue por toda la cancha: lo marca mejor, pero se desgasta más.">Marca personal a cargo de<select value={mm?.target === riv ? mm.by : 0} onChange={e => { sim.setManMark(us, Number(e.target.value), riv); bump() }}>
                       <option value={0}>Nadie</option>{mine.on.filter(x => x.pos !== 'GK').map(x => <option key={x.pid} value={x.pid}>{g.players[x.pid].name} ({POS_LABEL[x.pos]})</option>)}</select></label></div>) })()
                   : <div className="dim sm" style={{ marginTop: 10 }}>Tocá un rival para darle órdenes puntuales a tu equipo: marcarlo encima, entrarle fuerte, presionarlo o ponerle marca personal.</div>)}
                 {tab === 'team' && out != null && (() => { const o = v.on.find(x => x.pid === out); return o && rolesFor(o.pos).length > 1 ? (
                   <div style={{ marginTop: 10 }}><div className="dim" style={{ fontSize: '.76rem', marginBottom: 3 }}>Rol de {g.players[out].name}</div>
-                    <div className="seg">{rolesFor(o.pos).map(r => <button key={r.id} title={r.desc} className={o.role === r.id ? 'on' : ''} onClick={() => { sim.setRole(us, out, r.id); bump() }}>{r.name}</button>)}</div></div>) : null })()}
+                    <div className="seg" role="group" aria-label={`Rol de ${g.players[out].name}`}>{rolesFor(o.pos).map(r => <button key={r.id} title={r.desc} className={o.role === r.id ? 'on' : ''} aria-pressed={o.role === r.id} onClick={() => { sim.setRole(us, out, r.id); bump() }}>{r.name}</button>)}</div></div>) : null })()}
                 {tab === 'team' && <>
                   <h3 style={{ margin: '12px 0 6px' }}>{out != null ? `¿Quién entra por ${g.players[out].name}?` : 'Banco (tocá un titular para hacer un cambio)'}</h3>
                   <table><tbody>{v.bench.map(id => { const p = g.players[id], op = out != null ? v.on.find(o => o.pid === out)?.pos : null; return (

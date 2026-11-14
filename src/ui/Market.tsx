@@ -35,7 +35,7 @@ export function Market() {
         <div className="kpi"><h3>Presupuesto</h3><b>{money(club.budget)}</b></div><div className="kpi"><h3>Caja</h3><b className={club.balance < 0 ? 'bad' : ''}>{money(club.balance)}</b></div>
         <div className="kpi"><h3>Sueldos / tope</h3><b>{money(wageBill(g, club.id))} / {money(club.wageBudget)}</b></div>
       </div>
-      <div className="seg" style={{ alignSelf: 'flex-start' }}>{[['search', 'Buscar jugadores'], ['offers', `Ofertas recibidas (${g.offers.length})`], ['short', `Seguimiento (${g.shortlist.length})`], ['moves', 'Movimientos'], ['fin', 'Finanzas']].map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}</div>
+      <div className="seg" role="group" aria-label="Mercado" style={{ alignSelf: 'flex-start' }}>{[['search', 'Buscar jugadores'], ['offers', `Ofertas recibidas (${g.offers.length})`], ['short', `Seguimiento (${g.shortlist.length})`], ['moves', 'Movimientos'], ['fin', 'Finanzas']].map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} aria-pressed={tab === k} onClick={() => setTab(k)}>{l}</button>)}</div>
 
       {tab === 'search' && (<>
         <div className="card row wrap" style={{ alignItems: 'flex-end', gap: 14 }}>
@@ -44,7 +44,7 @@ export function Market() {
           <label className="f" style={{ minWidth: 150 }}>Valoración mínima: {minOvr}<input id="mk-ovr" type="range" min={40} max={90} value={minOvr} onChange={e => setMinOvr(Number(e.target.value))} /></label>
           <label className="f" style={{ minWidth: 150 }}>Edad máxima: {maxAge}<input id="mk-age" type="range" min={16} max={40} value={maxAge} onChange={e => setMaxAge(Number(e.target.value))} /></label>
           <label className="f">Precio máximo<select id="mk-val" value={maxVal} onChange={e => setMaxVal(Number(e.target.value))}><option value={0}>Sin límite</option><option value={club.budget}>Mi presupuesto</option>{[250000, 500000, 1000000, 2500000, 5000000, 10000000].map(v => <option key={v} value={v}>{money(v)}</option>)}</select></label>
-          <button className={`btn ${only ? 'on' : ''}`} onClick={() => setOnly(!only)}>Solo transferibles o con contrato por vencer</button>
+          <button className={`btn ${only ? 'on' : ''}`} aria-pressed={only} onClick={() => setOnly(!only)}>Solo transferibles o con contrato por vencer</button>
         </div>
         {rows('market', results, 'No hay jugadores que cumplan esos filtros.')}</>)}
 

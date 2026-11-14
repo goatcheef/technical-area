@@ -6,7 +6,12 @@ const rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8)
 const lum = h => { const [r, g, b] = rgb(h); return r * .299 + g * .587 + b * .114 }
 const sat = h => { const [r, g, b] = rgb(h); return Math.max(r, g, b) - Math.min(r, g, b) }
 const mix = (h, t) => '#' + rgb(h).map(v => Math.round(v + (255 - v) * t).toString(16).padStart(2, '0')).join('')
-const accentOf = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = mix(a, lum(a) < 60 ? .45 : .28); return a }
+// regla nueva de clubTheme (tinta por contraste WCAG; si ninguna llega a 4,5:1 el acento se corre lo mínimo), igual que tools/check-contrast.mjs
+const hexOf = c => '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0')).join('')
+const toward = (h, to, t) => hexOf(rgb(h).map(v => v + (to - v) * t))
+const crH = (a, b) => cr(rgb(a), rgb(b))
+const inked = h => { if (Math.max(crH(h, '#ffffff'), crH(h, '#0b0f14')) >= 4.5) return h; for (let i = 1; i <= 100; i++) { const d = toward(h, 0, i / 100), l = toward(h, 255, i / 100); if (crH(d, '#ffffff') >= 4.5) return d; if (crH(l, '#0b0f14') >= 4.5) return l } return h }
+const accentOf = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = mix(a, lum(a) < 60 ? .45 : .28); return inked(a) }
 const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }
 const L = c => .2126 * lin(c[0]) + .7152 * lin(c[1]) + .0722 * lin(c[2])
 const cr = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) }

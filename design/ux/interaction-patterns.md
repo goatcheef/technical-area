@@ -755,15 +755,15 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 **Cuándo usarlo**: para elegir una opción entre 2 y 6 que conviene ver juntas (densidad, velocidad, vista de la tabla, filtro por línea, ubicación de un panel, rol del jugador).
 **Cuándo no**: más de 6 opciones o nombres largos (usá `select`); acciones (usá botones).
 
-**Anatomía**: `.seg` con botones contiguos; el elegido lleva `.on` (relleno de acento, texto blanco y negrita). Puede llevar `title` por opción para explicar su efecto.
+**Anatomía**: `.seg` con botones contiguos, dentro de un `role="group"` con `aria-label` (el rótulo visible del control). El elegido lleva `.on` y `aria-pressed="true"`; los demás, `aria-pressed="false"`. Elegido: borde `--accent-hi`, fondo `--accent-soft`, un ✓ delante del rótulo (por CSS, `.seg button.on::before`, oculto para el lector de pantalla porque ya anuncia `aria-pressed`), texto `--text` en negrita. Nunca texto blanco sobre el acento lleno. Puede llevar `title` por opción para explicar su efecto.
 
 **Estados**: normal, hover, elegido. Si no entra, pasa a dos filas (`flex-wrap`).
 
-**Accesibilidad**: el elegido se distingue por relleno y peso, no solo por tono. Falta exponer cuál está elegido (ver G3).
+**Accesibilidad**: el elegido se distingue por el ✓, el borde y el peso, no solo por tono. `aria-pressed` expone cuál está elegido. Contrastes: `--text` sobre `--accent-soft` 10,6:1 como mínimo y `--accent-hi` contra el fondo de la opción 5,1:1 como mínimo en los 86 clubes (`node tools/check-contrast.mjs`). Espacio sobre una opción la elige (no es Continuar, ver G1).
 
-**Dónde está**: `Seg` en `src/ui/common.tsx`; muchos usos arman `.seg` a mano (tabla, partido, Inicio).
+**Dónde está**: `Seg` en `src/ui/common.tsx` (prop `label` para el `aria-label`); los `.seg` armados a mano (tabla, partido, Inicio, Mercado, Tácticas, centro de datos, inicio de partida) repiten `role="group"`, `aria-label` y `aria-pressed`.
 
-**Hacé**: usá `Seg` cuando las opciones son un índice. **No hagas**: un segmentado que ejecute una acción en lugar de elegir un valor.
+**Hacé**: usá `Seg` cuando las opciones son un índice; si armás uno a mano, poné `aria-pressed` en cada opción. **No hagas**: un segmentado que ejecute una acción en lugar de elegir un valor, ni un elegido con relleno de acento lleno.
 
 ---
 

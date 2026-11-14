@@ -48,7 +48,7 @@ export function Home() {
   const tiles: Record<string, { name: string; hero?: boolean; render: () => ReactNode }> = {
     inbox: { name: 'Mensajes', render: () => <>
       <div className="row between"><h3>Mensajes</h3><button className="btn sm" onClick={() => go('inbox')}>Abrir bandeja</button></div>
-      <div className="seg">{([['all', 'Todos'], ['unread', `Sin leer (${unreadOf(g)})`], ['me', 'Con acción']] as const).map(([k, l]) => <button key={k} className={ibf === k ? 'on' : ''} onClick={() => setIbf(k)}>{l}</button>)}</div>
+      <div className="seg" role="group" aria-label="Filtrar mensajes">{([['all', 'Todos'], ['unread', `Sin leer (${unreadOf(g)})`], ['me', 'Con acción']] as const).map(([k, l]) => <button key={k} className={ibf === k ? 'on' : ''} aria-pressed={ibf === k} onClick={() => setIbf(k)}>{l}</button>)}</div>
       {pend.length > 0 && <button className="ib-pend" onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span>Pendiente: {pendingText(pend)}</button>}
       <div className="msglist">{ibList.map((n, i) => (<div key={n.id}>
         {(i === 0 || ibList[i - 1].date !== n.date) && <div className="msg-day">{fmtDate(n.date)}</div>}

@@ -32,12 +32,12 @@ export function TacticControls({ tactic, onChange, tabs }: { tactic: Tactic; onC
   const groups = tabs ? [TACTIC_GROUPS[gi]] : TACTIC_GROUPS
   return (
     <div className="col" style={{ gap: 12 }}>
-      {tabs && <div className="seg">{TACTIC_GROUPS.map((gr, i) => <button key={gr.name} className={gi === i ? 'on' : ''} onClick={() => setGi(i)}>{gr.name}</button>)}</div>}
+      {tabs && <div className="seg" role="group" aria-label="Instrucciones">{TACTIC_GROUPS.map((gr, i) => <button key={gr.name} className={gi === i ? 'on' : ''} aria-pressed={gi === i} onClick={() => setGi(i)}>{gr.name}</button>)}</div>}
       {groups.map(gr => (
         <div key={gr.name} className="col" style={{ gap: 10 }}>{!tabs && <h3>{gr.name}</h3>}
           {gr.opts.map(([k, label, opts, help]) => (
             <div key={k} className="topt" title={help}><div className="topt-l"><span>{label}</span><b>{opts[tactic[k] as number]}</b></div>
-              <Seg value={tactic[k] as number} options={opts} onChange={v => onChange({ [k]: v })} /></div>))}
+              <Seg label={label} value={tactic[k] as number} options={opts} onChange={v => onChange({ [k]: v })} /></div>))}
         </div>))}
     </div>
   )
@@ -147,7 +147,7 @@ export function Tactics() {
           {sel != null && selPos ? (
             <div className="card col"><div className="row between"><h3>Rol del {POS_LABEL[selPos]}{selP ? ` · ${selP.name.split(' ').slice(-1)[0]}` : ''}</h3><button className="btn sm" onClick={() => setSel(null)}>Listo</button></div>
               {rolesFor(selPos).map(r => { const fit = selP ? roleFit(selP, r) : 1; return (
-                <button key={r.id} className={`opt ${t.roles[sel] === r.id ? 'on' : ''}`} onClick={() => { t.roles[sel] = r.id; done() }}>
+                <button key={r.id} className={`opt ${t.roles[sel] === r.id ? 'on' : ''}`} aria-pressed={t.roles[sel] === r.id} onClick={() => { t.roles[sel] = r.id; done() }}>
                   <span className="row between"><b>{r.name}</b>{selP && <span className={`chip ${fit >= 1.03 ? 'acc' : fit < 0.98 ? 'warn' : ''}`}>{fit >= 1.03 ? 'Le queda muy bien' : fit < 0.98 ? 'No es lo suyo' : 'Le queda bien'}</span>}</span>
                   <span className="dim sm" style={{ lineHeight: 1.4 }}>{r.desc}</span></button>) })}
               <div className="dim sm">Para cambiar al jugador, tocá uno de la lista o del banco. Para intercambiar dos puestos, tocá otro puesto.</div></div>
@@ -161,7 +161,7 @@ export function Tactics() {
                   <tr key={pl.id} data-pid={pl.id} className={`click ${inXi ? 'me' : ''}`} style={{ opacity: available(pl) ? 1 : 0.5 }} onClick={() => place(pl)}>
                     <td><span className="row" style={{ gap: 6 }}><b className="ell" style={{ fontWeight: 600, maxWidth: 150 }}>{pl.name}</b><Status p={pl} /></span><span className="dim" style={{ fontSize: '.72rem' }}>{inXi ? 'Titular' : inB ? 'Suplente' : ''}</span></td><td><PosPill p={pl} /></td>
                     <td className="r num"><b>{Math.round(selPos ? posRating(pl, selPos) : bestRating(pl))}</b></td><td className="r num dim" title="Físico">{Math.round(pl.cond)}</td>
-                    <td>{!inXi && <button className={`btn sm icon ${inB ? 'on' : ''}`} title={inB ? 'Quitar del banco' : 'Al banco'} aria-label={inB ? `Quitar a ${pl.name} del banco` : `Llevar a ${pl.name} al banco`} onClick={e => { e.stopPropagation(); toggleBench(pl) }}>{inB ? '✓' : '+'}</button>}</td>
+                    <td>{!inXi && <button className={`btn sm icon ${inB ? 'on' : ''}`} aria-pressed={inB} title={inB ? 'Quitar del banco' : 'Al banco'} aria-label={inB ? `Quitar a ${pl.name} del banco` : `Llevar a ${pl.name} al banco`} onClick={e => { e.stopPropagation(); toggleBench(pl) }}>{inB ? '✓' : '+'}</button>}</td>
                   </tr>)
               })}</tbody>
             </table>
@@ -176,7 +176,7 @@ export function Tactics() {
         <div className="card s7 col"><h3>Pelota parada</h3><div className="grid3" style={{ gap: 10 }}>{taker('pen', 'Penales')}{taker('fk', 'Tiros libres')}{taker('corner', 'Córners')}</div>
           <div className="row wrap" style={{ gap: 14, alignItems: 'flex-end' }}>
             <div title="Primer palo: más cabezazos ganados pero menos peligrosos; rinde con jugadores rápidos y que anticipan. Segundo palo: menos ganados pero más claros; rinde con los altos y fuertes. Jugada corta: evita el duelo aéreo y busca un desborde."><div className="dim" style={{ fontSize: '.76rem', marginBottom: 3 }}>Rutina de córner</div>
-              <Seg value={t.cornerPlan ?? 0} options={['Mixto', 'Primer palo', 'Segundo palo', 'Jugada corta']} onChange={v => { t.cornerPlan = v; done() }} /></div>
+              <Seg label="Rutina de córner" value={t.cornerPlan ?? 0} options={['Mixto', 'Primer palo', 'Segundo palo', 'Jugada corta']} onChange={v => { t.cornerPlan = v; done() }} /></div>
             <label className="f">Buscar en los córners a<select value={t.cornerTarget ?? 0} onChange={e => { t.cornerTarget = Number(e.target.value); done() }}>
               <option value={0}>El mejor ubicado</option>{xiPlayers.filter(pl => pl.line !== 'GK').map(pl => <option key={pl.id} value={pl.id}>{pl.name}</option>)}</select></label></div></div>
       </div>
