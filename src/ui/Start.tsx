@@ -107,7 +107,7 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
         {step === 2 && (
           <div className="card col" style={{ gap: 16 }}>
             <div className="row wrap"><h2 className="grow">3 · Elegí tu club</h2>
-              <div className="seg">{[1, 2].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{d === 1 ? 'Liga Profesional' : 'Primera Nacional'}</button>)}</div></div>
+              <div className="seg">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
             {sel && (
               <div className="hero row wrap" style={{ gap: 18 }}>
                 <Badge club={sel} size={84} />

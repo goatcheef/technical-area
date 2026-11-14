@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { wageBill, windowOpen } from '../engine/career'
 import { FOCUS, INTENSITY } from '../engine/week'
 import { harmony } from '../engine/squad'
+import { acceptJob } from '../engine/career'
 import { ReportModal } from './Week'
 import { annualTable, clubsIn, fmtDate, leagueFx, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf } from '../engine/game'
 import type { Fixture } from '../engine/types'
@@ -18,7 +19,7 @@ export function Home() {
   const [report, setReport] = useState<Fixture | null>(null)
   const club = g.clubs[g.userClubId], squad = squadOf(g, club.id)
   const next = nextUserFixture(g)
-  const comp = club.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : 'PN'
+  const comp = club.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : club.division === 3 ? 'T3' : 'PN'
   const table = tableOf(leagueFx(g, comp), clubsIn(g, club.division, club.zone))
   const pos = table.findIndex(r => r.clubId === club.id)
   const mine = g.fixtures.filter(f => f.played && (f.home === club.id || f.away === club.id))
@@ -40,6 +41,13 @@ export function Home() {
             Tabla anual: 1.º {g.clubs[annualTable(g)[0].clubId].name}. Descienden {relegationZone(g).map(id => g.clubs[id].name).join(' y ')}. Peor promedio: {promedios(g).slice(-1).map(r => `${g.clubs[r.clubId].short} (${r.avg.toFixed(3)})`)}.</div>
           <div><button className="btn primary cta" onClick={() => { startNewSeason(g); save(); refresh() }}>Comenzar temporada {g.season + 1} ▸</button></div>
         </div>)}
+      {(g.jobOffers ?? []).filter(o => o.until >= g.date).map(o => { const c = g.clubs[o.clubId]; return (
+        <div key={o.clubId} className="card glow row wrap" style={{ gap: 16 }}>
+          <Badge club={c} size={56} />
+          <div className="grow"><h3>Oferta de trabajo</h3><h2>{c.name} te quiere como DT</h2><div className="dim sm">{['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][c.division]} · reputación {c.rep} · tenés tiempo hasta el {fmtDate(o.until)}. Si aceptás, dejás {club.name} ahora mismo.</div></div>
+          <button className="btn" onClick={() => { g.jobOffers = (g.jobOffers ?? []).filter(x => x.clubId !== o.clubId); save(); refresh() }}>Rechazar</button>
+          <button className="btn primary" onClick={() => { acceptJob(g, o.clubId); save(); refresh() }}>Aceptar</button>
+        </div>) })}
       <div className="dash">
         <div className="hero s8 col" style={{ gap: 16 }}>
           <div className="row between"><h3>Próximo partido</h3>{next && <span className="chip acc">{g.comps[next.comp].name} · {next.stage}</span>}</div>

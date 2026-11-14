@@ -9,6 +9,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 - `npm run sim -- 3`: simula N temporadas sin interfaz y muestra métricas (goles por partido, localía, finanzas, pases). Correrlo después de tocar el motor o la economía.
 - `npm run db`: regenera `src/data/db.json` desde `data/clubs_raw.json`.
 - `python3 tools/import_wiki.py`: reimporta clubes y planteles de Wikipedia en español. `python3 tools/fetch_crests.py`: escudos.
+- `python3 tools/import_extra.py`: clubes sin plantel conocido (tercera categoría y rivales sudamericanos) a `data/clubs_extra.json`, con escudos. Sus jugadores los genera `tools/build-db.ts` con nombres ficticios.
 
 ## Arquitectura
 
@@ -17,11 +18,12 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - `game.ts`: nueva partida, armado de equipos, fixture, tablas, fases, avance de días, cambio de temporada.
   - `career.ts`: DT, dirigencia, finanzas, mercado de pases, contratos, juveniles.
   - `squad.ts`: el plantel como grupo. Personalidad (`persOf`: ambición, temperamento, lealtad, presión), rol en el plantel (`p.status`) y minutos esperados, conformidad (`p.happy`), promesas, charlas, armonía del vestuario (afecta el rendimiento), reserva, ojeo con incertidumbre (`knowOf`, `shown`: los jugadores ajenos se ven como rangos) y negociación de contratos (`demand`, `evalOffer`).
+  - `cups.ts`: tercera categoría (`T3`, Primera B y Federal A, dos zonas), Copa Argentina (`CA`, 64 equipos, miércoles), Libertadores y Sudamericana (`LIB`, `SUD`: grupos, cuartos y semis de ida y vuelta con `leg`/`pair` y global en `opts.agg`, final única). `computeQual` define los clasificados de la temporada siguiente (`g.qual`).
   - `week.ts`: la semana. Cuerpo técnico (`g.staff`, `sab(g, rol)` da la capacidad 1-20), entrenamiento diario (`dailyTraining`: físico, lesiones, familiaridad y mejora de atributos con `p.tx`), informe del rival (`scoutReport`), conferencias de prensa (`g.press`) y eventos del día (`dayEvents`).
   - El tiempo avanza día por día: `advanceDay` (un día) y `advanceToMatch` (hasta el partido, frenando si hay prensa). `continueGame` es solo para simulaciones sin interfaz.
   - `positions.ts`: puestos, formaciones, valoración por puesto y roles (`ROLES`: cada rol cambia el aporte del puesto, cuánto crea y cuánto remata). `rng.ts`: azar con semilla.
 - `src/ui/` es React. `common.tsx` tiene los componentes compartidos (escudo, cara, radar, mapa de remates, ficha de jugador).
-- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 5; si cambia el formato, subir la versión.
+- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 5 (la etapa 4 no cambió el formato, pero las partidas anteriores no tienen copas ni tercera);  si cambia el formato, subir la versión.
 
 ## Decisiones tomadas
 
@@ -33,6 +35,9 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 - Juveniles con proyección: `tools/prospects.py` cruza los planteles con las listas de selecciones juveniles de Wikipedia (`data/raw/sel/`, sub-15 a sub-23) y genera `data/prospects.json`; suben habilidad y potencial. Los que el usuario conoce y no figuran ahí se cargan en `data/overrides.json` con `prospect` (1 a 6).
 - No se usan datos de Football Manager ni de sitios que los republican: es una base propietaria. El usuario lo pidió y se le explicó que no.
 - La temporada inicial es 2026 con las zonas reales de ese año.
+- Clubes con división 0 son del exterior: solo juegan copas, no llevan economía y sus jugadores no aparecen en el mercado.
+- Los ids de jugadores nuevos salen de `newPid` (consecutivos). Usar `g.nextId` para jugadores pasa `g.players` a modo diccionario y vuelve lento todo el juego.
+- Economía: TV, recaudación y premios contra sueldos y gastos de funcionamiento (`rep² × 15` por mes). Los clubes de la IA reinvierten la caja (presupuesto y masa salarial) y los ricos compran refuerzos en el exterior.
 
 ## Calibración de referencia del motor
 
@@ -43,13 +48,11 @@ Alrededor de 2,2 a 2,4 goles por partido, 40-42 % de triunfos locales, 27 % de e
 1. **El partido como centro.** Hecho: motor por jugadas, roles, instrucciones con pelota / sin pelota / transiciones, pateadores, rutinas de córner, órdenes sobre rivales puntuales y marca personal (solo durante el partido, `tactic.oppo` y `tactic.manMark`), familiaridad táctica (`club.fam`), ritmo más lento con modos "partido completo" y "jugadas clave", charla del entretiempo.
 2. **La semana.** Hecho: avance día por día con calendario, entrenamiento (intensidad, foco colectivo e individual, descanso posterior al partido, delegable), informe del rival con sugerencias aplicables, conferencias previas y posteriores (delegables), charla previa al partido, cuerpo técnico de cinco puestos con contrataciones y despidos. Falta: que los rivales también entrenen y que la prensa tenga consecuencias más allá del partido.
 3. **El plantel como grupo.** Hecho: personalidades con efecto en juego (presión en partidos grandes, temperamento y tarjetas, ambición y lealtad en la conformidad y los contratos), roles en el plantel con minutos esperados, conformidad, pedidos para irse, promesas que se cumplen o se rompen, charlas individuales, armonía y referentes, reserva semanal, ojeo con rangos y conocimiento progresivo, negociación de contratos con representantes (sueldo, años, rol, cláusula, prima) y cláusulas que los rivales pueden pagar. Falta: préstamos de juveniles a otros clubes y que los planteles rivales también tengan conflictos.
-4. **El mundo:** copas, tercera categoría, economía, ofertas de trabajo.
+4. **El mundo.** Hecho: tercera categoría con ascensos y descensos con la Primera Nacional, Copa Argentina, Libertadores y Sudamericana con clasificación según la temporada anterior, premios, mercado de entrenadores (los clubes que andan mal echan al DT y, si tu prestigio alcanza, te llaman) y ofertas de fin de temporada, economía con gastos de funcionamiento y reinversión de la IA. Falta: descensos desde la tercera categoría (no hay cuarta), Supercopa y Trofeo de Campeones.
 
 ## Pendiente (en orden sugerido)
 
-1. Etapa 4 del plan: el mundo (copas, tercera categoría, economía, ofertas de trabajo).
-2. Corregir puestos y calidad de los jugadores más conocidos.
-3. Ajustar la economía: los clubes grandes acumulan demasiada caja con los años.
-4. Copa Argentina, Libertadores y Sudamericana.
-5. Descensos desde la Primera Nacional (no hay tercera categoría).
-6. Escudos faltantes: Aldosivi, Ciudad de Bolívar y Gimnasia y Tiro.
+1. Corregir puestos y calidad de los jugadores más conocidos (`data/overrides.json`).
+2. Préstamos de juveniles a otros clubes; conflictos en los planteles rivales; que los rivales entrenen.
+3. La caja de los clubes más grandes todavía crece unos 10 millones por año (sobre todo por ventas al exterior).
+4. Escudos faltantes: Aldosivi, Ciudad de Bolívar, Gimnasia y Tiro, Deportivo Armenio, Real Pilar, Corinthians y Colo-Colo.

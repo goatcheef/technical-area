@@ -234,11 +234,50 @@ raw.forEach((c, idx) => {
   }
 })
 
+// ---------- clubes sin plantel conocido: tercera categoría y rivales sudamericanos ----------
+// Los clubes son reales (data/clubs_extra.json); sus jugadores se generan con nombres ficticios.
+const NOM_ES = 'Mateo,Thiago,Bautista,Santino,Benjamín,Joaquín,Valentín,Lautaro,Franco,Tomás,Agustín,Nicolás,Facundo,Ignacio,Santiago,Lucas,Matías,Ramiro,Gonzalo,Federico,Julián,Emiliano,Ezequiel,Bruno,Luciano,Rodrigo,Leandro,Cristian,Iván,Nahuel,Elías,Renzo,Enzo,Alexis,Diego,Sebastián,Pablo,Martín,Andrés,Camilo,Kevin,Brian,Jonathan,Maximiliano,Fernando'.split(',')
+const APE_ES = 'González,Rodríguez,Gómez,Fernández,López,Díaz,Martínez,Pérez,García,Sánchez,Romero,Sosa,Torres,Álvarez,Ruiz,Ramírez,Flores,Benítez,Acosta,Medina,Herrera,Suárez,Aguirre,Giménez,Gutiérrez,Pereyra,Rojas,Molina,Castro,Ortiz,Silva,Núñez,Luna,Cabrera,Ríos,Morales,Godoy,Ferreyra,Peralta,Vega,Vera,Ojeda,Cardozo,Navarro,Ramos,Vargas,Cáceres,Correa,Paz,Miranda,Bravo,Toledo,Zárate,Villalba'.split(',')
+const NOM_PT = 'Gabriel,Lucas,Matheus,Pedro,Guilherme,Gustavo,Rafael,Felipe,Bruno,João,Vinícius,Thiago,Rodrigo,Caio,Igor,Diego,Leonardo,André,Wesley,Everton,Danilo,Marcos,Renan,Victor,Henrique,Arthur'.split(',')
+const APE_PT = 'Silva,Santos,Oliveira,Souza,Lima,Pereira,Ferreira,Costa,Rodrigues,Almeida,Nascimento,Carvalho,Araújo,Ribeiro,Gomes,Martins,Barbosa,Rocha,Dias,Moreira,Cardoso,Teixeira,Correia,Mendes,Freitas,Pinto'.split(',')
+const NAT_OF: Record<string, string> = { Brasil: 'Brasil', Uruguay: 'Uruguay', Paraguay: 'Paraguay', Chile: 'Chile', Colombia: 'Colombia', Ecuador: 'Ecuador', Perú: 'Perú', Bolivia: 'Bolivia', Argentina: 'Argentina' }
+const GEN_POS: Pos[] = ['GK', 'GK', 'GK', 'DC', 'DC', 'DC', 'DC', 'DC', 'DR', 'DR', 'DL', 'DL', 'DM', 'DM', 'DM', 'MC', 'MC', 'MC', 'MC', 'AMC', 'AMC', 'AMR', 'AMR', 'AML', 'AML', 'ST', 'ST', 'ST']
+const extra = JSON.parse(readFileSync(new URL('../data/clubs_extra.json', import.meta.url), 'utf8')) as any[]
+for (const c of extra) {
+  clubs.push({ id: c.id, name: c.name, short: c.short, code: c.code, city: c.city, stadium: c.stadium || `Estadio de ${c.short}`, capacity: c.capacity, division: c.division, zone: c.zone || 'A', rep: c.rep, colors: c.colors, manager: c.manager, country: c.country, ppg: null, pj: 0 })
+  const br = c.country === 'Brasil', n = c.division === 0 ? 23 : 26
+  const used = new Set<number>()
+  const pos = GEN_POS.filter((_, i) => i < 3 || i >= 3 + (GEN_POS.length - n))
+  const mean = 31 + c.rep * 0.5
+  for (const pp of pos) {
+    const age = rng.int(18, 34)
+    const ageAdj = age <= 19 ? -6 : age <= 21 ? -3 : age <= 31 ? 1 : -1
+    const ca0 = clamp(Math.round(mean + ageAdj + rng.gauss() * 4), 30, 90)
+    const attrs = genAttrs(pp, ca0, age)
+    const realCa = Math.round(rawRating(attrs, pp))
+    let num = pp === 'GK' ? 1 : 2
+    while (used.has(num)) num++
+    if (rng.chance(0.4)) { const r = rng.int(2, 40); if (!used.has(r) && pp !== 'GK') num = r }
+    used.add(num)
+    const positions: Pos[] = [pp]
+    if (pp !== 'GK' && rng.chance(0.5)) positions.push(rng.pick(SECOND[pp]!))
+    players.push({
+      id: pid++, name: `${rng.pick(br ? NOM_PT : NOM_ES)} ${rng.pick(br ? APE_PT : APE_ES)}`, clubId: c.id, line: POS_LINE[pp], positions,
+      foot: pp === 'DL' || pp === 'ML' || pp === 'AML' ? 'I' : rng.chance(0.2) ? 'I' : 'D',
+      birth: `${2026 - age}-${String(rng.int(1, 12)).padStart(2, '0')}-${String(rng.int(1, 28)).padStart(2, '0')}`,
+      nat: rng.chance(0.85) ? NAT_OF[c.country] ?? 'Argentina' : rng.pick(['Argentina', 'Uruguay', 'Paraguay', 'Colombia']),
+      num, attrs, ca: realCa, pa: age <= 23 ? clamp(realCa + rng.int(3, 14), realCa, 90) : realCa,
+      contractEnd: 2026 + rng.int(0, 3), loan: false, youth: false, gen: true, prof: clamp(Math.round(11 + rng.gauss() * 3.5), 1, 20),
+    })
+  }
+}
+
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })
 writeFileSync(new URL('../src/data/db.json', import.meta.url), JSON.stringify({ start: START, dbVersion: Date.now(), clubs, players }))
-const by = (d: number) => players.filter(p => clubs[p.clubId - 1].division === d)
+const cl = new Map(clubs.map(c => [c.id, c]))
+const by = (d: number) => players.filter(p => cl.get(p.clubId).division === d)
 const avg = (a: any[]) => (a.reduce((s, p) => s + p.ca, 0) / a.length).toFixed(1)
-console.log(`clubes ${clubs.length}, jugadores ${players.length}; CA media Primera ${avg(by(1))}, PN ${avg(by(2))}`)
+console.log(`clubes ${clubs.length}, jugadores ${players.length}; CA media Primera ${avg(by(1))}, PN ${avg(by(2))}, tercera ${avg(by(3))}, sudamericanos ${avg(by(0))}`)
 for (const c of clubs.filter(c => (process.argv[2] ? process.argv[2].split(',') : ['RIV', 'BOC']).includes(c.code))) {
   const sq = players.filter(p => p.clubId === c.id).sort((a, b) => b.ca - a.ca)
   console.log(c.name, 'rep', c.rep, 'top:', sq.slice(0, process.argv[2] ? 40 : 5).map(p => `${p.name} ${p.positions[0]} ${p.ca}/${p.pa}`).join(', '))

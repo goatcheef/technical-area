@@ -1,7 +1,7 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
 import { sab } from './week'
 import { initSquad } from './squad'
-import { addDays, autoPick, clubsIn, news, squadOf, valuation } from './game'
+import { addDays, autoPick, clubsIn, leagueFx, news, squadOf, tableOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
 import { ATTRS, A, emptyLedger, emptyStats, type Club, type Game, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type Terms } from './types'
@@ -41,14 +41,20 @@ export function initFinances(g: Game) {
   }
 }
 export function dailyFinances(g: Game, days: number) {
+  // una sola pasada por todos los jugadores para sumar la masa salarial de cada club
+  const bills: Record<number, number> = {}
+  for (const p of Object.values(g.players)) bills[p.clubId] = (bills[p.clubId] ?? 0) + p.wage
   for (const c of Object.values(g.clubs)) {
-    const w = (wageBill(g, c.id) / 30) * days
-    const tv = ((c.division === 1 ? 110000 + c.rep * 1500 : 40000) / 30) * days
-    c.balance += tv - w; c.ledger.tv += tv; c.ledger.wages += w
+    if (c.division === 0) continue // los clubes del exterior no llevan economía
+    const w = ((bills[c.id] ?? 0) / 30) * days
+    const tv = ((c.division === 1 ? 110000 + c.rep * 1500 : c.division === 2 ? 40000 : 15000) / 30) * days
+    // gastos de funcionamiento: estadio, sedes, inferiores y estructura, según el tamaño del club
+    const ops = ((c.rep * c.rep * 15) / 30) * days
+    c.balance += tv - w - ops; c.ledger.tv += tv; c.ledger.wages += w + ops
   }
 }
 export function gateIncome(g: Game, clubId: number, att: number) {
-  const c = g.clubs[clubId], inc = att * (c.division === 1 ? 5.5 : 3.5)
+  const c = g.clubs[clubId], inc = att * (c.division === 1 ? 5.5 : c.division === 2 ? 3.5 : 2.5)
   c.balance += inc; c.ledger.gate += inc
 }
 export function prize(g: Game, clubId: number, amount: number) { const c = g.clubs[clubId]; c.balance += amount; c.ledger.prizes += amount }
@@ -57,7 +63,9 @@ export function prize(g: Game, clubId: number, amount: number) { const c = g.clu
 export function setObjective(g: Game) {
   const c = g.clubs[g.userClubId]
   const rank = clubsIn(g, c.division).map(id => g.clubs[id]).sort((a, b) => b.rep - a.rep).findIndex(x => x.id === c.id) + 1
-  const [objective, target] = c.division === 1
+  const [objective, target] = c.division === 3
+    ? rank <= 6 ? ['Ascender a la Primera Nacional', 2] : ['Terminar en mitad de tabla', 5]
+    : c.division === 1
     ? rank <= 3 ? ['Pelear el campeonato', 4] : rank <= 10 ? ['Clasificar a las copas', 9] : rank <= 22 ? ['Terminar en mitad de tabla', 18] : ['Mantener la categoría', 28]
     : rank <= 5 ? ['Ascender a Primera', 2] : rank <= 18 ? ['Clasificar al Reducido', 4] : ['Terminar en mitad de tabla', 12]
   g.board.objective = objective as string; g.board.target = target as number
@@ -79,18 +87,66 @@ export function closeCareerSeason(g: Game, note: string) {
   if (m.cur.pj) m.career.push({ season: g.season, clubId: g.userClubId, ...m.cur, note })
   m.cur = { pj: 0, g: 0, e: 0, p: 0 }
 }
-export function takeJob(g: Game, clubId: number) {
-  closeCareerSeason(g, 'Despedido')
+export function takeJob(g: Game, clubId: number) { switchClub(g, clubId, 'Despedido', -6) }
+/** Acepta una oferta de trabajo de otro club. */
+export function acceptJob(g: Game, clubId: number) { switchClub(g, clubId, `Se fue a ${g.clubs[clubId].short}`, 2) }
+const coachName = (g: Game) => `${NOMBRES[(g.nextId * 7) % NOMBRES.length]} ${APELLIDOS[(g.nextId++ * 13) % APELLIDOS.length]}`
+function switchClub(g: Game, clubId: number, note: string, repDelta: number) {
+  closeCareerSeason(g, note)
   const old = g.clubs[g.userClubId]
-  old.manager = 'Cuerpo técnico interino'
+  old.manager = coachName(g)
   g.userClubId = clubId
   const c = g.clubs[clubId]
   c.manager = g.manager.name
-  g.manager.rep = Math.max(15, g.manager.rep - 6)
+  g.manager.rep = clamp(g.manager.rep + repDelta, 15, 99)
   g.board = { confidence: 55, objective: '', target: 0, fired: false, offers: [] }
   initSquad(g, clubId)
-  setObjective(g); g.offers = []
+  setObjective(g); g.offers = []; g.jobOffers = []; g.press = null
   news(g, { tag: 'club', clubId, title: `${g.manager.name}, nuevo DT de ${c.name}`, body: `Tras su salida de ${old.name}, ${g.manager.name} firmó con ${c.name}. Objetivo de la dirigencia: ${g.board.objective.toLowerCase()}.` })
+}
+
+// ---------- el mercado de entrenadores ----------
+/** Una vez por semana: los clubes que andan mal echan al DT; si tu prestigio alcanza, te llaman. */
+export function managerMarket(g: Game, rng: Rng) {
+  const me = g.clubs[g.userClubId], m = g.manager
+  for (const o of g.jobOffers ?? []) if (o.until < g.date && g.clubs[o.clubId].manager === 'Cuerpo técnico interino') {
+    const c = g.clubs[o.clubId]; c.manager = coachName(g)
+    news(g, { tag: 'club', clubId: c.id, title: `${c.manager} es el nuevo DT de ${c.short}`, body: `${c.name} cerró la llegada de ${c.manager} para reemplazar al entrenador despedido.` })
+  }
+  g.jobOffers = (g.jobOffers ?? []).filter(o => o.until >= g.date)
+  for (const comp of ['AP', 'CL', 'PN', 'T3']) {
+    const cp = g.comps[comp]
+    if (!cp || cp.phase !== 'league') continue
+    const teams = clubsIn(g, cp.division), fx = leagueFx(g, comp)
+    const avgRep = teams.reduce((s, t) => s + g.clubs[t].rep, 0) / teams.length
+    for (const r of tableOf(fx, teams)) {
+      const c = g.clubs[r.clubId]
+      if (c.id === me.id || c.firedAt === g.season || r.pj < 6) continue
+      const exp = 1.35 + (c.rep - avgRep) / 25
+      if (r.pts / r.pj > exp - 0.55 || !rng.chance(0.3)) continue
+      c.firedAt = g.season
+      const old = c.manager
+      if (c.rep >= me.rep - 2 && m.rep >= c.rep - 14 && !g.board.fired) {
+        c.manager = 'Cuerpo técnico interino'
+        g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 6) }]
+        news(g, { tag: 'directiva', clubId: c.id, title: `${c.name} te quiere como DT`, body: `${c.name} despidió a ${old} y la dirigencia se comunicó con ${m.name} para ofrecerle el cargo. Tenés una semana para responder.` })
+      } else {
+        c.manager = coachName(g)
+        news(g, { tag: 'club', clubId: c.id, title: `${c.name} despidió a ${old}`, body: `Por los malos resultados, ${c.name} terminó el ciclo de ${old}. Lo reemplaza ${c.manager}.` })
+      }
+    }
+  }
+}
+/** Al final de la temporada, si te fue bien, te llaman clubes más grandes. */
+export function seasonOffers(g: Game, rng: Rng) {
+  const me = g.clubs[g.userClubId], m = g.manager
+  if (g.board.confidence < 60) return
+  const cands = Object.values(g.clubs).filter(c => c.division >= 1 && c.id !== me.id && c.rep > me.rep + 1 && c.rep <= m.rep + 6)
+  for (const c of rng.shuffle(cands).slice(0, 2)) {
+    if (!rng.chance(0.55)) continue
+    g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 20) }]
+    news(g, { tag: 'directiva', clubId: c.id, title: `${c.name} te ofrece dirigir`, body: `Después de tu temporada, la dirigencia de ${c.name} te ofreció ser su entrenador. Si aceptás, empezás la próxima temporada en el club.` })
+  }
 }
 
 // ---------- mercado ----------
@@ -209,8 +265,8 @@ export function haggle(g: Game, o: Offer): boolean {
 export function marketTick(g: Game, days: number, rng: Rng) {
   g.offers = g.offers.filter(o => addDays(o.date, 8) >= g.date && g.players[o.pid])
   if (!windowOpen(g.date)) return
-  const all = Object.values(g.players)
-  const clubs = Object.values(g.clubs)
+  const clubs = Object.values(g.clubs).filter(c => c.division > 0)
+  const all = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division > 0)
   for (let d = 0; d < days; d++) {
     // pase entre clubes argentinos
     if (rng.chance(0.85)) {
@@ -239,6 +295,24 @@ export function marketTick(g: Game, days: number, rng: Rng) {
           } else if (best.clubId === g.userClubId) { if (best.listed || best.wantsOut || rng.chance(0.5)) pushOffer(g, best, buyer.id, buyer.name, Math.round((price * (0.8 + rng.next() * 0.3)) / 10000) * 10000) }
           else doTransfer(g, best, buyer.id, price)
         }
+      }
+    }
+    // refuerzos del exterior: los clubes con mucha caja compran afuera lo que no encuentran en el país
+    if (rng.chance(0.12)) {
+      const rich = clubs.filter(c => c.id !== g.userClubId && c.division === 1 && c.budget > baseBudget(c.rep) * 1.3 && squadOf(g, c.id).length < 34)
+      if (rich.length) {
+        const c = rng.weighted(rich, x => x.budget)
+        const { lineup } = autoPick(g, c.id, c.tactic.formation), slots = FORMATIONS[c.tactic.formation]
+        let wi = 0, wr = 999
+        lineup.forEach((id, i) => { const r = posRating(g.players[id], slots[i].pos); if (r < wr) { wr = r; wi = i } })
+        const avg = lineup.reduce((s, id, i) => s + posRating(g.players[id], slots[i].pos), 0) / Math.max(1, lineup.length)
+        const nat = rng.pick(['Uruguay', 'Paraguay', 'Colombia', 'Chile', 'Ecuador', 'Brasil', 'Venezuela', 'Perú'])
+        const p = makeYouth(g, c, rng, 0, slots[wi].pos, { age: rng.int(22, 29), target: Math.round(Math.max(wr, avg) + rng.int(1, 5)), nat })
+        const fee = Math.max(100000, Math.min(c.budget, Math.round((p.value * 1.15) / 50000) * 50000))
+        c.budget -= fee; c.balance -= fee; c.ledger.buys += fee
+        const from = rng.pick(FOREIGN)
+        g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from, to: c.name, fee })
+        if (fee >= 1500000) news(g, { tag: 'mercado', clubId: c.id, title: `${c.short} se refuerza con ${p.name}`, body: `${c.name} pagó US$ ${fee.toLocaleString('es-AR')} por ${p.name}, ${nat === 'Brasil' ? 'brasileño' : `jugador de ${nat}`} que llega desde ${from}.` })
       }
     }
     // ventas al exterior
@@ -280,10 +354,16 @@ export function renew(g: Game, p: Player, years: number): string | null {
 export const NOMBRES = 'Mateo,Thiago,Bautista,Santino,Benjamín,Joaquín,Valentín,Lautaro,Franco,Tomás,Agustín,Nicolás,Facundo,Ignacio,Santiago,Juan Cruz,Lucas,Matías,Ramiro,Gonzalo,Federico,Lisandro,Julián,Emiliano,Ezequiel,Máximo,Alan,Kevin,Brian,Axel,Dylan,Ian,Gael,Bruno,Luciano,Maximiliano,Rodrigo,Leandro,Cristian,Iván,Nahuel,Elías,Simón,Felipe,Tobías,Renzo,Enzo,Exequiel,Alexis,Germán'.split(',')
 export const APELLIDOS = 'González,Rodríguez,Gómez,Fernández,López,Díaz,Martínez,Pérez,García,Sánchez,Romero,Sosa,Torres,Álvarez,Ruiz,Ramírez,Flores,Benítez,Acosta,Medina,Herrera,Suárez,Aguirre,Giménez,Gutiérrez,Pereyra,Rojas,Molina,Castro,Ortiz,Silva,Núñez,Luna,Juárez,Cabrera,Ríos,Morales,Godoy,Moreno,Ferreyra,Domínguez,Carrizo,Peralta,Castillo,Ledesma,Quiroga,Vega,Vera,Muñoz,Ojeda,Ponce,Villalba,Cardozo,Navarro,Coronel,Vázquez,Ramos,Vargas,Cáceres,Arias,Figueroa,Córdoba,Correa,Maldonado,Paz,Rivero,Miranda,Mansilla,Farías,Roldán,Méndez,Guzmán,Agüero,Páez,Escobar,Barrios,Bustos,Ávila,Soria,Leiva,Lucero,Maidana,Velázquez,Bravo,Blanco,Toledo,Ibáñez,Montenegro,Zárate,Barrionuevo'.split(',')
 const YOUTH_POS: [Pos, number][] = [['GK', 1], ['DC', 2], ['DR', 1], ['DL', 1], ['DM', 1.2], ['MC', 2], ['AMC', 1], ['MR', 0.5], ['ML', 0.5], ['AMR', 1], ['AML', 1], ['ST', 2]]
-export function makeYouth(g: Game, club: Club, rng: Rng, boost = 0, force?: Pos): Player {
+/** Id consecutivo para un jugador nuevo. */
+export function newPid(g: Game): number {
+  g.nextPid ??= Math.max(0, ...Object.keys(g.players).map(Number).filter(n => n < 100000)) + 1
+  return g.nextPid++
+}
+/** Genera un juvenil de inferiores, o (con opt) un jugador formado que llega del exterior. */
+export function makeYouth(g: Game, club: Club, rng: Rng, boost = 0, force?: Pos, opt?: { age: number; target: number; nat: string }): Player {
   const pos = force ?? rng.weighted(YOUTH_POS, x => x[1])[0]
-  const age = rng.int(16, 18)
-  const target = clamp(Math.round(15 + club.rep * 0.5 + rng.gauss() * 5 + boost), 25, 80)
+  const age = opt?.age ?? rng.int(16, 18)
+  const target = clamp(Math.round(opt?.target ?? 15 + club.rep * 0.5 + rng.gauss() * 5 + boost), 25, opt ? 90 : 80)
   const w = POS_WEIGHTS[pos], base = 3 + target * 0.15
   const attrs = ATTRS.map((_, i) => {
     const gkA = i >= A.han
@@ -292,10 +372,10 @@ export function makeYouth(g: Game, club: Club, rng: Rng, boost = 0, force?: Pos)
   })
   const ca = Math.round(rawRating(attrs, pos))
   const p: Player = {
-    id: g.nextId++, name: `${rng.pick(NOMBRES)} ${rng.pick(APELLIDOS)}`, clubId: club.id, line: POS_LINE[pos] as Line, positions: [pos],
+    id: newPid(g), name: `${rng.pick(NOMBRES)} ${rng.pick(APELLIDOS)}`, clubId: club.id, line: POS_LINE[pos] as Line, positions: [pos],
     foot: rng.chance(0.24) ? 'I' : 'D', birth: `${g.season - age}-${String(rng.int(1, 12)).padStart(2, '0')}-${String(rng.int(1, 28)).padStart(2, '0')}`,
-    nat: 'Argentina', num: 0, attrs, ca, pa: clamp(ca + rng.int(6, 22) + Math.round(boost) + (rng.chance(0.05) ? 8 : 0), ca, 92),
-    value: 0, wage: 0, contractEnd: g.season + 3, loan: false, youth: true, morale: 70, cond: 100, form: [], injury: null, susp: 0, ycAcc: 0,
+    nat: opt?.nat ?? 'Argentina', num: 0, attrs, ca, pa: opt ? clamp(ca + (age <= 24 ? rng.int(2, 8) : rng.int(0, 2)), ca, 94) : clamp(ca + rng.int(6, 22) + Math.round(boost) + (rng.chance(0.05) ? 8 : 0), ca, 92),
+    value: 0, wage: 0, contractEnd: g.season + 3, loan: false, youth: !opt, morale: 70, cond: 100, form: [], injury: null, susp: 0, ycAcc: 0,
     prof: clamp(Math.round(11 + rng.gauss() * 3.5), 1, 20), stats: emptyStats(), history: [], gen: true,
   }
   Object.assign(p, valuation(p, g.date))
@@ -327,7 +407,9 @@ export function seasonTurnover(g: Game, rng: Rng) {
   for (const c of Object.values(g.clubs)) {
     const mine = c.id === g.userClubId
     let sq = squadOf(g, c.id)
-    if (!mine) for (const p of [...sq].sort((a, b) => a.ca - b.ca)) { if (sq.length <= 34) break; if (ageOn(p.birth, g.date) >= 24) { removePlayer(g, p); sq = sq.filter(x => x !== p) } }
+    // los planteles de la IA no crecen sin control: se van los de menor nivel (los pibes con proyección se quedan)
+    const cap = c.division === 0 ? 24 : c.division === 3 ? 28 : 32
+    if (!mine) for (const p of [...sq].sort((a, b) => (a.ca * 0.6 + a.pa * 0.4) - (b.ca * 0.6 + b.pa * 0.4))) { if (sq.length <= cap) break; if (ageOn(p.birth, g.date) >= 22 || p.pa < 62) { removePlayer(g, p); sq = sq.filter(x => x !== p) } }
     const n = Math.max(mine ? 3 + (you >= 15 ? 1 : 0) : 3, 24 - sq.length)
     const made: Player[] = []
     for (let i = 0; i < n; i++) made.push(makeYouth(g, c, rng, mine ? (you - 10) * 0.5 + (sab(g, 'youth') - 10) * 0.4 : 0))
@@ -336,8 +418,9 @@ export function seasonTurnover(g: Game, rng: Rng) {
       const top = made.sort((a, b) => b.pa - a.pa)[0]
       news(g, { tag: 'club', clubId: c.id, title: `Suben ${made.length} juveniles al plantel`, body: `Las inferiores de ${c.name} promovieron a ${made.map(p => p.name).join(', ')}. En el club destacan el potencial de ${top.name}.` })
     }
-    c.wageBudget = Math.round((wageBill(g, c.id) * 1.1 + c.budget * 0.01) / 1000) * 1000
-    c.budget = Math.max(mine ? 50000 : 80000, Math.round(Math.min(baseBudget(c.rep) * 2.5, baseBudget(c.rep) * 0.6 + Math.max(0, c.balance) * 0.2) / 10000) * 10000)
+    // los clubes reinvierten lo que tienen en caja: más presupuesto de pases y más masa salarial
+    c.budget = Math.max(mine ? 50000 : 80000, Math.round((baseBudget(c.rep) * 0.6 + Math.max(0, c.balance) * (mine ? 0.3 : 0.45)) / 10000) * 10000)
+    c.wageBudget = Math.round((wageBill(g, c.id) * 1.1 + Math.max(0, c.balance) * 0.004) / 1000) * 1000
     c.ledger = emptyLedger()
   }
 }

@@ -126,6 +126,8 @@ export interface Club {
   colors: [string, string]
   manager: string
   tactic: Tactic
+  country?: string // clubes del exterior (división 0)
+  firedAt?: number // temporada en la que despidió a su DT
   fam: number // familiaridad con el sistema táctico (0-100)
   famKey: string
   balance: number // caja en USD
@@ -197,6 +199,8 @@ export interface Fixture {
   away: number
   neutral?: boolean
   knockout?: boolean
+  leg?: 1 | 2 // serie de ida y vuelta
+  pair?: number // id del otro partido de la serie
   played: boolean
   hg: number
   ag: number
@@ -218,7 +222,7 @@ export interface Competition {
   koRound: number
   champion?: number
   runnerUp?: number
-  extra: Record<string, number | number[] | string>
+  extra: Record<string, unknown>
 }
 
 export interface News {
@@ -281,4 +285,8 @@ export interface Game {
   press: Press | null
   know: Record<number, number> // conocimiento de jugadores ajenos (0-100)
   scouting: number[] // jugadores que se están ojeando
+  qual?: { lib: number[]; sud: number[] } // clasificados a las copas de esta temporada
+  jobOffers?: { clubId: number; until: string }[]
+  /** Próximo id de jugador. Va aparte de nextId para que los ids de jugadores sean consecutivos (la lista de jugadores se mantiene rápida). */
+  nextPid?: number
 }

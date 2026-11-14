@@ -1,0 +1,819 @@
+[
+ {
+  "id": 67,
+  "wiki": "Arsenal Fútbol Club",
+  "name": "Arsenal",
+  "short": "Arsenal",
+  "city": "Sarandí",
+  "stadium": "Julio Humberto Grondona",
+  "capacity": 16300,
+  "division": 3,
+  "zone": "A",
+  "rep": 47,
+  "country": "Argentina",
+  "colors": [
+   "#ffd400",
+   "#ffffff"
+  ],
+  "manager": "Fabián Lisa",
+  "code": "ARS"
+ },
+ {
+  "id": 68,
+  "wiki": "Club Social y Cultural Deportivo Laferrere",
+  "name": "Deportivo Laferrere",
+  "short": "Deportivo Laferrere",
+  "city": "Laferrere",
+  "stadium": "Ciudad de Laferrere",
+  "capacity": 13000,
+  "division": 3,
+  "zone": "A",
+  "rep": 47,
+  "country": "Argentina",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Pablo Nieva",
+  "code": "DEP"
+ },
+ {
+  "id": 69,
+  "wiki": "Club Atlético Talleres (Remedios de Escalada)",
+  "name": "Talleres (Remedios de Escalada)",
+  "short": "Talleres (RE)",
+  "city": "Remedios de Escalada",
+  "stadium": "Pablo Comelli",
+  "capacity": 13000,
+  "division": 3,
+  "zone": "A",
+  "rep": 47,
+  "country": "Argentina",
+  "colors": [
+   "#75aadb",
+   "#ffffff"
+  ],
+  "manager": "Juan Carlos Kopriva",
+  "code": "TAL"
+ },
+ {
+  "id": 70,
+  "wiki": "Club Villa Dálmine",
+  "name": "Villa Dálmine",
+  "short": "Villa Dálmine",
+  "city": "Campana",
+  "stadium": "El Coliseo de Mitre y Puccini",
+  "capacity": 11250,
+  "division": 3,
+  "zone": "A",
+  "rep": 46,
+  "country": "Argentina",
+  "colors": [
+   "#7a1531",
+   "#ffffff"
+  ],
+  "manager": "Ariel Fuscaldo",
+  "code": "VIL"
+ },
+ {
+  "id": 71,
+  "wiki": "Club Atlético Argentino (Merlo)",
+  "name": "Argentino de Merlo",
+  "short": "Argentino de Merlo",
+  "city": "Merlo",
+  "stadium": "Juan Carlos Brieva",
+  "capacity": 11000,
+  "division": 3,
+  "zone": "A",
+  "rep": 46,
+  "country": "Argentina",
+  "colors": [
+   "#ff7a00",
+   "#ffffff"
+  ],
+  "manager": "Cristian Tula",
+  "code": "ARG"
+ },
+ {
+  "id": 72,
+  "wiki": "Club Deportivo Armenio",
+  "name": "Deportivo Armenio",
+  "short": "Deportivo Armenio",
+  "city": "Ingeniero Maschwitz",
+  "stadium": "Armenia",
+  "capacity": 10500,
+  "division": 3,
+  "zone": "A",
+  "rep": 46,
+  "country": "Argentina",
+  "colors": [
+   "#d6001c",
+   "#ffffff"
+  ],
+  "manager": "Fernando Ruiz",
+  "code": "DEP"
+ },
+ {
+  "id": 73,
+  "wiki": "Club Social y Deportivo Merlo",
+  "name": "Deportivo Merlo",
+  "short": "Deportivo Merlo",
+  "city": "Parque San Martín",
+  "stadium": "José Manuel Moreno",
+  "capacity": 10000,
+  "division": 3,
+  "zone": "A",
+  "rep": 45,
+  "country": "Argentina",
+  "colors": [
+   "#1d4f9c",
+   "#ffffff"
+  ],
+  "manager": "Néstor Omar Piccoli",
+  "code": "DEP"
+ },
+ {
+  "id": 74,
+  "wiki": "Real Pilar Fútbol Club",
+  "name": "Real Pilar",
+  "short": "Real Pilar",
+  "city": "Pilar",
+  "stadium": "Carlos Barraza",
+  "capacity": 10000,
+  "division": 3,
+  "zone": "A",
+  "rep": 45,
+  "country": "Argentina",
+  "colors": [
+   "#0a7d3b",
+   "#ffffff"
+  ],
+  "manager": "Gabriel Torres",
+  "code": "REA"
+ },
+ {
+  "id": 75,
+  "wiki": "Club Sportivo Dock Sud",
+  "name": "Dock Sud",
+  "short": "Dock Sud",
+  "city": "Dock Sud",
+  "stadium": "De los Inmigrantes",
+  "capacity": 9500,
+  "division": 3,
+  "zone": "A",
+  "rep": 45,
+  "country": "Argentina",
+  "colors": [
+   "#ffd400",
+   "#ffffff"
+  ],
+  "manager": "Jesus Diaz",
+  "code": "DOC"
+ },
+ {
+  "id": 76,
+  "wiki": "Club Atlético Excursionistas",
+  "name": "Excursionistas",
+  "short": "Excursionistas",
+  "city": "Buenos Aires",
+  "stadium": "Excursionistas",
+  "capacity": 7200,
+  "division": 3,
+  "zone": "A",
+  "rep": 44,
+  "country": "Argentina",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Rodrigo Bilbao",
+  "code": "EXC"
+ },
+ {
+  "id": 77,
+  "wiki": "Club Atlético Sarmiento (Resistencia)",
+  "name": "Sarmiento (Resistencia)",
+  "short": "Sarmiento (R)",
+  "city": "Resistencia",
+  "stadium": "Centenario",
+  "capacity": 25000,
+  "division": 3,
+  "zone": "B",
+  "rep": 46,
+  "country": "Argentina",
+  "colors": [
+   "#75aadb",
+   "#ffffff"
+  ],
+  "manager": "Miguel Urbina",
+  "code": "SAR"
+ },
+ {
+  "id": 78,
+  "wiki": "Club Atlético Boca Unidos",
+  "name": "Boca Unidos",
+  "short": "Boca Unidos",
+  "city": "Corrientes",
+  "stadium": "Leoncio Benítez",
+  "capacity": 18000,
+  "division": 3,
+  "zone": "B",
+  "rep": 46,
+  "country": "Argentina",
+  "colors": [
+   "#7a1531",
+   "#ffffff"
+  ],
+  "manager": "Lucas Batistuta",
+  "code": "BOC"
+ },
+ {
+  "id": 79,
+  "wiki": "Club Olimpo",
+  "name": "Olimpo",
+  "short": "Olimpo",
+  "city": "Bahía Blanca",
+  "stadium": "Roberto Natalio Carminatti",
+  "capacity": 18000,
+  "division": 3,
+  "zone": "B",
+  "rep": 46,
+  "country": "Argentina",
+  "colors": [
+   "#ff7a00",
+   "#ffffff"
+  ],
+  "manager": "Carlos Mungo",
+  "code": "OLI"
+ },
+ {
+  "id": 80,
+  "wiki": "Club Atlético Douglas Haig",
+  "name": "Douglas Haig",
+  "short": "Douglas Haig",
+  "city": "Pergamino",
+  "stadium": "Miguel Morales",
+  "capacity": 16000,
+  "division": 3,
+  "zone": "B",
+  "rep": 45,
+  "country": "Argentina",
+  "colors": [
+   "#d6001c",
+   "#ffffff"
+  ],
+  "manager": "Hernán Medina",
+  "code": "DOU"
+ },
+ {
+  "id": 81,
+  "wiki": "Club Sportivo Belgrano (San Francisco)",
+  "name": "Sportivo Belgrano",
+  "short": "Sportivo Belgrano",
+  "city": "San Francisco",
+  "stadium": "Juan Pablo Francia",
+  "capacity": 15500,
+  "division": 3,
+  "zone": "B",
+  "rep": 45,
+  "country": "Argentina",
+  "colors": [
+   "#1d4f9c",
+   "#ffffff"
+  ],
+  "manager": "Marcelo Vázquez",
+  "code": "SPO"
+ },
+ {
+  "id": 82,
+  "wiki": "Club Social y Atlético Guillermo Brown",
+  "name": "Guillermo Brown",
+  "short": "Guillermo Brown",
+  "city": "Puerto Madryn",
+  "stadium": "Raúl Conti",
+  "capacity": 14500,
+  "division": 3,
+  "zone": "B",
+  "rep": 45,
+  "country": "Argentina",
+  "colors": [
+   "#0a7d3b",
+   "#ffffff"
+  ],
+  "manager": "Christián Corrales",
+  "code": "GUI"
+ },
+ {
+  "id": 83,
+  "wiki": "Centro Juventud Antoniana",
+  "name": "Juventud Antoniana",
+  "short": "Juventud Antoniana",
+  "city": "Salta",
+  "stadium": "Fray Honorato Pistoia",
+  "capacity": 12000,
+  "division": 3,
+  "zone": "B",
+  "rep": 44,
+  "country": "Argentina",
+  "colors": [
+   "#ffd400",
+   "#ffffff"
+  ],
+  "manager": "Germán Noce",
+  "code": "JUV"
+ },
+ {
+  "id": 84,
+  "wiki": "Club Sol de América (Formosa)",
+  "name": "Sol de América",
+  "short": "Sol de América",
+  "city": "Formosa",
+  "stadium": "Sol de América",
+  "capacity": 12000,
+  "division": 3,
+  "zone": "B",
+  "rep": 44,
+  "country": "Argentina",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Pablo Ríos",
+  "code": "SOL"
+ },
+ {
+  "id": 85,
+  "wiki": "Club Cipolletti",
+  "name": "Cipolletti",
+  "short": "Cipolletti",
+  "city": "Cipolletti",
+  "stadium": "La Visera de Cemento",
+  "capacity": 12000,
+  "division": 3,
+  "zone": "B",
+  "rep": 44,
+  "country": "Argentina",
+  "colors": [
+   "#75aadb",
+   "#ffffff"
+  ],
+  "manager": "Fabián Enriquez",
+  "code": "CIP"
+ },
+ {
+  "id": 86,
+  "wiki": "Club Atlético Huracán Las Heras",
+  "name": "Huracán Las Heras",
+  "short": "Huracán Las Heras",
+  "city": "Las Heras",
+  "stadium": "General San Martín",
+  "capacity": 10000,
+  "division": 3,
+  "zone": "B",
+  "rep": 43,
+  "country": "Argentina",
+  "colors": [
+   "#7a1531",
+   "#ffffff"
+  ],
+  "manager": "Gabriel Vallés",
+  "code": "HUR"
+ },
+ {
+  "id": 87,
+  "wiki": "Clube de Regatas do Flamengo",
+  "name": "Flamengo",
+  "short": "Flamengo",
+  "code": "FLA",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 90,
+  "country": "Brasil",
+  "colors": [
+   "#c4161c",
+   "#111111"
+  ],
+  "manager": "Leonardo Jardim"
+ },
+ {
+  "id": 88,
+  "wiki": "Sociedade Esportiva Palmeiras",
+  "name": "Palmeiras",
+  "short": "Palmeiras",
+  "code": "PAL",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 89,
+  "country": "Brasil",
+  "colors": [
+   "#006437",
+   "#ffffff"
+  ],
+  "manager": "Cuerpo técnico interino"
+ },
+ {
+  "id": 89,
+  "wiki": "Botafogo de Futebol e Regatas",
+  "name": "Botafogo",
+  "short": "Botafogo",
+  "code": "BOT",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 85,
+  "country": "Brasil",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Tite"
+ },
+ {
+  "id": 90,
+  "wiki": "Clube Atlético Mineiro",
+  "name": "Atlético Mineiro",
+  "short": "Atl. Mineiro",
+  "code": "CAM",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 84,
+  "country": "Brasil",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Eduardo Domínguez"
+ },
+ {
+  "id": 91,
+  "wiki": "São Paulo Futebol Clube",
+  "name": "São Paulo",
+  "short": "São Paulo",
+  "code": "SAO",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 84,
+  "country": "Brasil",
+  "colors": [
+   "#ffffff",
+   "#d10a11"
+  ],
+  "manager": "Dorival Júnior"
+ },
+ {
+  "id": 92,
+  "wiki": "Fluminense Football Club",
+  "name": "Fluminense",
+  "short": "Fluminense",
+  "code": "FLU",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 83,
+  "country": "Brasil",
+  "colors": [
+   "#7a1531",
+   "#006b3f"
+  ],
+  "manager": "Marcão de Oliveira"
+ },
+ {
+  "id": 93,
+  "wiki": "Sport Club Internacional",
+  "name": "Internacional",
+  "short": "Internacional",
+  "code": "INT",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 83,
+  "country": "Brasil",
+  "colors": [
+   "#d6001c",
+   "#ffffff"
+  ],
+  "manager": "Eduardo Baptista"
+ },
+ {
+  "id": 94,
+  "wiki": "Grêmio Foot-Ball Porto Alegrense",
+  "name": "Grêmio",
+  "short": "Grêmio",
+  "code": "GRE",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 82,
+  "country": "Brasil",
+  "colors": [
+   "#0d80bf",
+   "#111111"
+  ],
+  "manager": "Renato Gaúcho"
+ },
+ {
+  "id": 95,
+  "wiki": "Sport Club Corinthians Paulista",
+  "name": "Corinthians",
+  "short": "Corinthians",
+  "code": "COR",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 82,
+  "country": "Brasil",
+  "colors": [
+   "#ffffff",
+   "#111111"
+  ],
+  "manager": "Clarence Seedorf"
+ },
+ {
+  "id": 96,
+  "wiki": "Cruzeiro Esporte Clube",
+  "name": "Cruzeiro",
+  "short": "Cruzeiro",
+  "code": "CRU",
+  "city": "Brasil",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 81,
+  "country": "Brasil",
+  "colors": [
+   "#2f529e",
+   "#ffffff"
+  ],
+  "manager": "Artur Jorge"
+ },
+ {
+  "id": 97,
+  "wiki": "Club Atlético Peñarol",
+  "name": "Peñarol",
+  "short": "Peñarol",
+  "code": "PEÑ",
+  "city": "Uruguay",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 80,
+  "country": "Uruguay",
+  "colors": [
+   "#ffd400",
+   "#111111"
+  ],
+  "manager": "Diego Aguirre"
+ },
+ {
+  "id": 98,
+  "wiki": "Club Nacional de Football",
+  "name": "Nacional",
+  "short": "Nacional",
+  "code": "NAC",
+  "city": "Uruguay",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 79,
+  "country": "Uruguay",
+  "colors": [
+   "#ffffff",
+   "#1d3f8f"
+  ],
+  "manager": "Daniel Carreño"
+ },
+ {
+  "id": 99,
+  "wiki": "Liga Deportiva Universitaria (Quito)",
+  "name": "Liga de Quito",
+  "short": "LDU",
+  "code": "LDU",
+  "city": "Ecuador",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 79,
+  "country": "Ecuador",
+  "colors": [
+   "#ffffff",
+   "#c8102e"
+  ],
+  "manager": "Gustavo Álvarez"
+ },
+ {
+  "id": 100,
+  "wiki": "Independiente del Valle",
+  "name": "Independiente del Valle",
+  "short": "Ind. del Valle",
+  "code": "IDV",
+  "city": "Ecuador",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 79,
+  "country": "Ecuador",
+  "colors": [
+   "#111111",
+   "#1d4f9c"
+  ],
+  "manager": "Joaquín Papa"
+ },
+ {
+  "id": 101,
+  "wiki": "Club Olimpia",
+  "name": "Olimpia",
+  "short": "Olimpia",
+  "code": "OLI",
+  "city": "Paraguay",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 77,
+  "country": "Paraguay",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Pablo Sánchez"
+ },
+ {
+  "id": 102,
+  "wiki": "Club Cerro Porteño",
+  "name": "Cerro Porteño",
+  "short": "Cerro Porteño",
+  "code": "CCP",
+  "city": "Paraguay",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 77,
+  "country": "Paraguay",
+  "colors": [
+   "#1d3f8f",
+   "#c8102e"
+  ],
+  "manager": "Gustavo Costas"
+ },
+ {
+  "id": 103,
+  "wiki": "Club Libertad",
+  "name": "Libertad",
+  "short": "Libertad",
+  "code": "LIB",
+  "city": "Paraguay",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 76,
+  "country": "Paraguay",
+  "colors": [
+   "#111111",
+   "#ffffff"
+  ],
+  "manager": "Nelson Haedo Valdez"
+ },
+ {
+  "id": 104,
+  "wiki": "Club Social y Deportivo Colo-Colo",
+  "name": "Colo-Colo",
+  "short": "Colo-Colo",
+  "code": "CC",
+  "city": "Chile",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 77,
+  "country": "Chile",
+  "colors": [
+   "#ffffff",
+   "#111111"
+  ],
+  "manager": "Fernando Ortiz"
+ },
+ {
+  "id": 105,
+  "wiki": "Club Universidad de Chile",
+  "name": "Universidad de Chile",
+  "short": "U. de Chile",
+  "code": "UCH",
+  "city": "Chile",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 76,
+  "country": "Chile",
+  "colors": [
+   "#1d3f8f",
+   "#c8102e"
+  ],
+  "manager": "Fernando Gago"
+ },
+ {
+  "id": 106,
+  "wiki": "Atlético Nacional",
+  "name": "Atlético Nacional",
+  "short": "Atl. Nacional",
+  "code": "ATN",
+  "city": "Colombia",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 77,
+  "country": "Colombia",
+  "colors": [
+   "#0a7d3b",
+   "#ffffff"
+  ],
+  "manager": "Lucas González"
+ },
+ {
+  "id": 107,
+  "wiki": "Millonarios Fútbol Club",
+  "name": "Millonarios",
+  "short": "Millonarios",
+  "code": "MIL",
+  "city": "Colombia",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 75,
+  "country": "Colombia",
+  "colors": [
+   "#1d3f8f",
+   "#ffffff"
+  ],
+  "manager": "Alberto Gamero"
+ },
+ {
+  "id": 108,
+  "wiki": "Club Universitario de Deportes",
+  "name": "Universitario",
+  "short": "Universitario",
+  "code": "UNV",
+  "city": "Perú",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 75,
+  "country": "Perú",
+  "colors": [
+   "#f3ead0",
+   "#7a1531"
+  ],
+  "manager": "Fabián Bustos"
+ },
+ {
+  "id": 109,
+  "wiki": "Club Bolívar",
+  "name": "Club Bolívar",
+  "short": "Club Bolívar",
+  "code": "BOL",
+  "city": "Bolivia",
+  "stadium": "",
+  "capacity": 40000,
+  "division": 0,
+  "zone": "",
+  "rep": 73,
+  "country": "Bolivia",
+  "colors": [
+   "#75aadb",
+   "#ffffff"
+  ],
+  "manager": "Alejandro Restrepo"
+ }
+]

@@ -68,7 +68,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
           <div className="row" style={{ justifyContent: 'center', gap: 24, margin: '6px 0' }}>
             <div className="row grow" style={{ justifyContent: 'flex-end' }}><b style={{ fontSize: '1.15rem' }}>{home.name}</b><Badge club={home} size={72} /></div>
             <div className="center"><div className="score">{sim.sides[0].goals} – {sim.sides[1].goals}</div>
-              <div className="acc num" style={{ fontWeight: 650 }}>{sim.finished ? (sim.pens ? `Penales ${sim.pens[0]}-${sim.pens[1]}` : 'Final') : started ? `${sim.minute}'` : 'Previa'}</div></div>
+              <div className="acc num" style={{ fontWeight: 650 }}>{sim.finished ? (sim.pens ? `Penales ${sim.pens[0]}-${sim.pens[1]}` : 'Final') : started ? `${sim.minute}'` : 'Previa'}{sim.opts.agg && <div className="dim sm">Global {sim.sides[0].goals + sim.opts.agg[0]}-{sim.sides[1].goals + sim.opts.agg[1]}</div>}</div></div>
             <div className="row grow"><Badge club={away} size={72} /><b style={{ fontSize: '1.15rem' }}>{away.name}</b></div>
           </div>
           <div className="row wrap" style={{ justifyContent: 'center' }}>

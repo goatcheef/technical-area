@@ -21,7 +21,7 @@ export function Market() {
   const [note, setNote] = useState('')
   const club = g.clubs[g.userClubId], open = windowOpen(g.date)
   const done = () => { save(); refresh() }
-  const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && (!pos || p.positions.includes(pos as Pos)) && p.ca >= minOvr
+  const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && g.clubs[p.clubId]?.division > 0 && (!pos || p.positions.includes(pos as Pos)) && p.ca >= minOvr
     && ageOn(p.birth, g.date) <= maxAge && (!maxVal || askingPrice(g, p) <= maxVal) && (!div || g.clubs[p.clubId].division === div) && (!only || p.listed || p.contractEnd <= g.season))
     .sort((a, b) => b.ca - a.ca).slice(0, 60), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
   const rows = (list: Player[]) => (

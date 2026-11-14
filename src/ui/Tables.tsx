@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { groupTable } from '../engine/cups'
 import { annualTable, clubsIn, fmtDate, leagueFx, promedios, relegationZone, tableOf, type Row } from '../engine/game'
 import type { Fixture, Game, Player } from '../engine/types'
 import { useGame } from '../store'
@@ -19,7 +20,7 @@ function Table({ g, rows, marks }: { g: Game; rows: Row[]; marks?: (i: number, i
 }
 
 function Knockout({ g, comp, onOpen }: { g: Game; comp: string; onOpen: (f: Fixture) => void }) {
-  const ko = g.fixtures.filter(f => f.comp === comp && f.knockout)
+  const ko = g.fixtures.filter(f => f.comp === comp && (f.knockout || f.leg))
   if (!ko.length) return null
   const stages = [...new Set(ko.map(f => f.stage))]
   return (
@@ -35,13 +36,27 @@ function Knockout({ g, comp, onOpen }: { g: Game; comp: string; onOpen: (f: Fixt
 
 export function Tables() {
   const { g } = useGame()
-  const [tab, setTab] = useState(g.clubs[g.userClubId].division === 1 ? 'AP' : 'PN')
+  const [tab, setTab] = useState(['', 'AP', 'PN', 'T3'][g.clubs[g.userClubId].division] || 'AP')
   const [rep, setRep] = useState<Fixture | null>(null)
-  const tabs: [string, string][] = [['AP', 'Apertura'], ['CL', 'Clausura'], ['AN', 'Anual'], ['PR', 'Promedios'], ['PN', 'Primera Nacional']]
+  const tabs: [string, string][] = [['AP', 'Apertura'], ['CL', 'Clausura'], ['AN', 'Anual'], ['PR', 'Promedios'], ['PN', 'Primera Nacional'], ['T3', 'Tercera'], ['CA', 'Copa Argentina'], ['LIB', 'Libertadores'], ['SUD', 'Sudamericana']]
   const rel = relegationZone(g)
   return (
     <div className="page">
       <div className="row wrap"><h2 className="grow">Posiciones</h2><div className="seg">{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}</div></div>
+      {tab === 'T3' && g.comps.T3 && (<>
+        <div className="grid2">{['A', 'B'].map(z => (
+          <div key={z} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{z === 'A' ? 'Primera B' : 'Federal A'}</h3>
+            <Table g={g} rows={tableOf(leagueFx(g, 'T3'), clubsIn(g, 3, z))} marks={i => (i < 2 ? 'zone-q' : '')} /></div>))}</div>
+        <div className="dim" style={{ fontSize: '.84rem' }}>Los dos primeros de cada zona ascienden a la Primera Nacional, y bajan los dos últimos de cada zona de la Primera Nacional.</div>
+      </>)}
+      {tab === 'CA' && g.comps.CA && <><div className="dim" style={{ fontSize: '.84rem' }}>64 equipos de las tres categorías, a partido único en cancha neutral. El campeón juega la próxima Libertadores.</div><Knockout g={g} comp="CA" onOpen={setRep} /></>}
+      {(tab === 'LIB' || tab === 'SUD') && g.comps[tab] && (<>
+        <div className="grid2">{[0, 1, 2, 3].map(i => (
+          <div key={i} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{g.comps[tab].name} · Grupo {'ABCD'[i]}</h3>
+            <Table g={g} rows={groupTable(g, tab, i)} marks={j => (j < 2 ? 'zone-q' : '')} /></div>))}</div>
+        <div className="dim" style={{ fontSize: '.84rem' }}>Los dos primeros de cada grupo pasan a cuartos. Cuartos y semifinales se juegan ida y vuelta (sin alargue: si el global queda igual, penales). La final es a partido único.</div>
+        <Knockout g={g} comp={tab} onOpen={setRep} />
+      </>)}
       {(tab === 'AP' || tab === 'CL' || tab === 'PN') && (<>
         <div className="grid2">{['A', 'B'].map(z => (
           <div key={z} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{g.comps[tab].name} · Zona {z}</h3>
@@ -107,7 +122,7 @@ export function Stats() {
   ]
   return (
     <div className="page">
-      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg">{[1, 2].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{d === 1 ? 'Liga Profesional' : 'Primera Nacional'}</button>)}</div></div>
+      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
       <div className="grid2">{boards.map(([title, val, show, filter]) => (
         <div key={title} className="card"><h3 style={{ marginBottom: 6 }}>{title}</h3>
           <table><tbody>{ps.filter(p => pj(p) > 0 && (!filter || filter(p))).sort((a, b) => val(b) - val(a)).slice(0, 10).map((p, i) => (

@@ -30,7 +30,7 @@ export function Squad() {
         <Badge club={club} size={40} />
         <div className="grow"><h2>{club.name}</h2><div className="dim">{list.length} jugadores · edad promedio {avgAge.toFixed(1)} · valor del plantel {money(list.reduce((s, p) => s + p.value, 0))} · masa salarial {money(list.reduce((s, p) => s + p.wage, 0))}/mes</div></div>
         <select value={clubId} onChange={e => setClubId(Number(e.target.value))}>
-          {[1, 2].map(d => <optgroup key={d} label={d === 1 ? 'Liga Profesional' : 'Primera Nacional'}>{Object.values(g.clubs).filter(c => c.division === d).sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</optgroup>)}
+          {[1, 2, 3, 0].map(d => <optgroup key={d} label={['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}>{Object.values(g.clubs).filter(c => c.division === d).sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</optgroup>)}
         </select>
       </div>
       <div className="card scroll-x">

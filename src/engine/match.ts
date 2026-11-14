@@ -17,7 +17,9 @@ export interface MatchOpts { knockout?: boolean; neutral?: boolean; seed: number
   /** Multiplicadores del DT por lado: [ataque, defensa, medio] */
   boost?: [number, number, number][]
   /** Multiplicador de pelota parada por lado (entrenamiento). */
-  sp?: [number, number] }
+  sp?: [number, number]
+  /** Goles del partido de ida que arrastra cada equipo (vuelta de una serie): define por global, sin alargue. */
+  agg?: [number, number] }
 export interface MatchResult {
   hg: number; ag: number; pens?: [number, number]; et: boolean
   stats: MatchStats; events: MatchEvent[]; lines: PlayerLine[]; shots: Shot[]
@@ -441,7 +443,14 @@ export class MatchSim {
 
   private periodEnd() {
     const [h, a] = this.sides
-    if (this.opts.knockout && h.goals === a.goals && !this.et) {
+    const ag = this.opts.agg, tied = h.goals + (ag?.[0] ?? 0) === a.goals + (ag?.[1] ?? 0)
+    if (ag) {
+      if (tied) this.shootout()
+      this.finished = true
+      this.ev(90, 'info', 0, `Final del partido: ${this.scoreText()}. Global ${h.goals + ag[0]}-${a.goals + ag[1]}${this.pens ? `, ${this.pens[0]}-${this.pens[1]} en los penales` : ''}.`)
+      return
+    }
+    if (this.opts.knockout && tied && !this.et) {
       this.et = true
       this.ev(90, 'info', 0, `Final de los 90 minutos: ${this.scoreText()}. Habrá tiempo suplementario.`)
       for (let m = 91; m <= 120; m++) this.ticks.push(m)

@@ -21,7 +21,10 @@ for (let s = 0; s < seasons; s++) {
   console.log('remates', st('shots'), 'al arco', st('sot'), 'xG', st('xg'), 'faltas', st('fouls'), 'corners', st('corners'), 'offsides', st('offs'), 'amarillas', st('yc'), 'rojas', st('rc'), 'pases', st('passes'))
   console.log('0-0:', pct(fx.filter(f => f.hg + f.ag === 0).length), '| 4+ goles:', pct(fx.filter(f => f.hg + f.ag >= 4).length), '| posesión local media', (sum(f => f.stats.poss[0]) / n).toFixed(1))
   const name = (id: number) => g.clubs[id].short
-  for (const c of ['AP', 'CL', 'PN']) console.log(g.comps[c].name, '-> campeón:', name(g.comps[c].champion!), '| final vs', name(g.comps[c].runnerUp!))
+  for (const c of ['AP', 'CL', 'PN', 'CA', 'LIB', 'SUD']) console.log(g.comps[c].name, '-> campeón:', name(g.comps[c].champion!), '| final vs', name(g.comps[c].runnerUp!))
+  console.log('Tercera: ascienden', ((g.comps.T3.extra as any).promoted as number[]).map(name).join(', '), '| bajan de la PN', ((g.comps.PN.extra as any).down as number[]).map(name).join(', '))
+  console.log('Clasificados', g.season + 1, '- Lib:', g.qual!.lib.map(name).join(', '), '| Sud:', g.qual!.sud.map(name).join(', '))
+  console.log('DT despedidos:', Object.values(g.clubs).filter(c => c.firedAt === g.season).length, '| ofertas al usuario:', (g.jobOffers ?? []).length)
   console.log('Anual:', annualTable(g).map(r => `${name(r.clubId)} ${r.pts}`).join(', '))
   console.log('PN A:', zoneTable(g, 'PN', 2, 'A').slice(0, 6).map(r => `${name(r.clubId)} ${r.pts}`).join(', '), '... último', zoneTable(g, 'PN', 2, 'A').slice(-1).map(r => `${name(r.clubId)} ${r.pts}`)[0])
   console.log('Descensos:', relegationZone(g).map(name).join(', '), '| Ascensos:', ((g.comps.PN.extra as any).promoted as number[]).map(name).join(', '), '| peor promedio', promedios(g).slice(-2).map(r => `${name(r.clubId)} ${r.avg.toFixed(3)}`).join(', '))

@@ -4,9 +4,11 @@ import { MatchSim, type MatchResult } from './match'
 import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, bestRole, fixRoles, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
 import { emptyLedger, emptyStats, type Club, type Competition, type Fixture, type Game, type Manager, type News, type Player, type Tactic } from './types'
+import { aggFor, computeQual, isCup, progressCup, scheduleCups } from './cups'
 import { afterUserMatch, dailySquad, harmonyBoost, initSquad, learnFromMatch, weeklyReserve } from './squad'
 import { isDerby } from './week'
 import { answerPress, dailyTraining, dayEvents, delegatePress, docFactor, initStaff, makePostPress, refreshPool, trainEdge } from './week'
+import { seasonOffers } from './career'
 import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
 
 const db = dbJson as unknown as { start: string; dbVersion: number; clubs: any[]; players: any[] }
@@ -25,7 +27,7 @@ export function addDays(d: string, n: number): string {
   t.setUTCDate(t.getUTCDate() + n)
   return t.toISOString().slice(0, 10)
 }
-function firstSaturday(from: string): string {
+export function firstSaturday(from: string): string {
   let d = from
   while (new Date(d + 'T12:00:00Z').getUTCDay() !== 6) d = addDays(d, 1)
   return d
@@ -156,7 +158,7 @@ export function promedios(g: Game): AvgRow[] {
 }
 
 // ---------- fixture ----------
-function roundRobin(teams: number[]): [number, number][][] {
+export function roundRobin(teams: number[]): [number, number][][] {
   const t = [...teams]
   if (t.length % 2) t.push(-1)
   const n = t.length, rounds: [number, number][][] = []
@@ -171,7 +173,7 @@ function roundRobin(teams: number[]): [number, number][][] {
   }
   return rounds
 }
-function addFx(g: Game, f: Omit<Fixture, 'id' | 'played' | 'hg' | 'ag'>) {
+export function addFx(g: Game, f: Omit<Fixture, 'id' | 'played' | 'hg' | 'ag'>) {
   g.fixtures.push({ ...f, id: g.nextId++, played: false, hg: 0, ag: 0 })
 }
 export function news(g: Game, n: Omit<News, 'id' | 'date'>) {
@@ -223,6 +225,7 @@ function scheduleSeason(g: Game, rng: Rng) {
     last = d
   }
   g.comps.PN = { id: 'PN', name: `Primera Nacional ${y}`, division: 2, phase: 'league', koRound: 0, extra: { koDate: last } }
+  scheduleCups(g, rng)
   g.fixtures.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id))
 }
 
@@ -319,8 +322,8 @@ export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
   const boost: [number, number, number][] = [[1, 1, 1], [1, 1, 1]]
   const sp: [number, number] = [1, 1]
   if (userSide != null) { const m = mgrBoost(g.manager), e = trainEdge(g); boost[userSide] = [m[0] * e.att, m[1] * e.def, m[2] * harmonyBoost(g)]; sp[userSide] = e.sp }
-  const importance = f.knockout || isDerby(g.clubs[f.home], g.clubs[f.away]) ? 1 : 0
-  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp, importance })
+  const importance = f.knockout || f.leg || isDerby(g.clubs[f.home], g.clubs[f.away]) ? 1 : 0
+  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp, importance, agg: aggFor(g, f) })
 }
 
 export function applyResult(g: Game, f: Fixture, res: MatchResult) {
@@ -403,7 +406,8 @@ function progress(g: Game) {
     if (comp.phase === 'done') continue
     const fx = g.fixtures.filter(f => f.comp === comp.id)
     if (fx.some(f => !f.played)) continue
-    if (comp.division === 1) progressLiga(g, comp, fx)
+    if (isCup(comp.id)) progressCup(g, comp, fx)
+    else if (comp.division === 1) progressLiga(g, comp, fx)
     else progressNacional(g, comp, fx)
   }
   g.fixtures.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id))
@@ -456,6 +460,8 @@ function progressNacional(g: Game, comp: Competition, fx: Fixture[]) {
   if (comp.phase === 'league') {
     comp.phase = 'ko'; comp.koRound = 0
     mk(ta[0].clubId, tb[0].clubId, 'Final por el ascenso', true)
+    ex.down = [...ta.slice(-2), ...tb.slice(-2)].map(r => r.clubId)
+    news(g, { tag: 'torneo', title: 'Descensos en la Primera Nacional', body: `Bajan a la tercera categoría ${ex.down.map((id: number) => g.clubs[id].name).join(', ')}.` })
     news(g, { tag: 'torneo', title: 'Primera Nacional: se viene la final por el ascenso', body: `${g.clubs[ta[0].clubId].name} y ${g.clubs[tb[0].clubId].name} ganaron sus zonas y definirán al campeón en cancha neutral.` })
   } else if (comp.koRound === 0) {
     const f = round[0]
@@ -501,6 +507,9 @@ function closeSeason(g: Game) {
     tag: 'torneo', title: `Fin de la temporada ${g.season}`,
     body: `${g.clubs[ann[0].clubId].name} terminó primero en la tabla anual con ${ann[0].pts} puntos. Descienden ${g.clubs[rel[0]].name} (tabla anual) y ${g.clubs[rel[1]].name} (promedios). Ascienden ${pro.map(id => g.clubs[id].name).join(' y ')}.`,
   })
+  computeQual(g)
+  withRng(g, r => seasonOffers(g, r))
+  news(g, { tag: 'torneo', title: `Clasificados a las copas ${g.season + 1}`, body: `Copa Libertadores: ${g.qual!.lib.map(id => g.clubs[id].name).join(', ')}. Copa Sudamericana: ${g.qual!.sud.map(id => g.clubs[id].name).join(', ')}.` })
   seasonReview(g, rel, pro)
   const top = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division === 1).sort((a, b) => b.stats.goals - a.stats.goals)[0]
   if (top) news(g, { tag: 'premio', clubId: top.clubId, title: `${top.name}, goleador de la temporada`, body: `El jugador de ${g.clubs[top.clubId].name} fue el máximo artillero de Primera con ${top.stats.goals} goles.` })
@@ -508,7 +517,7 @@ function closeSeason(g: Game) {
 
 function seasonReview(g: Game, rel: number[], pro: number[]) {
   const c = g.clubs[g.userClubId], m = g.manager, b = g.board
-  const pos = c.division === 1 ? annualTable(g).findIndex(r => r.clubId === c.id) + 1 : zoneTable(g, 'PN', 2, c.zone).findIndex(r => r.clubId === c.id) + 1
+  const pos = c.division === 1 ? annualTable(g).findIndex(r => r.clubId === c.id) + 1 : zoneTable(g, c.division === 3 ? 'T3' : 'PN', c.division, c.zone).findIndex(r => r.clubId === c.id) + 1
   const champ = Object.values(g.comps).filter(x => x.champion === c.id).length
   const ok = pos <= b.target || champ > 0 || pro.includes(c.id)
   b.confidence = clamp(b.confidence + (ok ? 15 : -Math.min(25, (pos - b.target) * 1.5)) + champ * 20 - (rel.includes(c.id) ? 30 : 0), 0, 100)
@@ -602,6 +611,15 @@ export function startNewSeason(g: Game) {
   }
   const ex = g.comps.PN.extra as any
   const rel = ex.relegated as number[], pro = ex.promoted as number[]
+  // Primera Nacional ↔ tercera categoría
+  const down3 = (ex.down ?? []) as number[], up3 = ((g.comps.T3?.extra as any)?.promoted ?? []) as number[]
+  down3.forEach((id, i) => {
+    const d = g.clubs[id], u = g.clubs[up3[i]]
+    if (!u) return
+    const z = d.zone
+    d.division = 3; d.zone = u.zone; u.division = 2; u.zone = z
+    d.rep = Math.max(38, d.rep - 3); u.rep = Math.min(80, u.rep + 3)
+  })
   rel.forEach((id, i) => {
     const down = g.clubs[id], up = g.clubs[pro[i]]
     const z = down.zone
