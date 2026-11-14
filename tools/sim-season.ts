@@ -2,8 +2,10 @@
 import { newGame, continueGame, userFixtureToday, finishUserMatch, createMatch, startNewSeason, annualTable, zoneTable, promedios, relegationZone } from '../src/engine/game'
 
 const seasons = Number(process.argv[2] ?? 1)
+// semilla opcional: npm run sim -- 3 777 (por defecto 12345, la de siempre)
+const seed = Number(process.argv[3] ?? 12345)
 import { BACKGROUNDS, PRESETS, distribute, wageBill } from '../src/engine/career'
-const g = newGame(23, { name: 'Test', nat: 'Argentina', birthYear: 1980, avatar: { skin: 0, hair: 0, hairColor: 0, beard: 0, glasses: false, suit: 0 }, background: 'primera', attrs: distribute(BACKGROUNDS[1].points, PRESETS[0].attrs), rep: 60, career: [], cur: { pj: 0, g: 0, e: 0, p: 0 }, titles: [] }, 12345)
+const g = newGame(23, { name: 'Test', nat: 'Argentina', birthYear: 1980, avatar: { skin: 0, hair: 0, hairColor: 0, beard: 0, glasses: false, suit: 0 }, background: 'primera', attrs: distribute(BACKGROUNDS[1].points, PRESETS[0].attrs), rep: 60, career: [], cur: { pj: 0, g: 0, e: 0, p: 0 }, titles: [] }, seed)
 const t0 = Date.now()
 for (let s = 0; s < seasons; s++) {
   while (!g.seasonOver) {
@@ -19,6 +21,10 @@ for (let s = 0; s < seasons; s++) {
   console.log('goles/partido', (sum(f => f.hg + f.ag) / n).toFixed(2), '| local', pct(fx.filter(f => f.hg > f.ag).length), 'empate', pct(fx.filter(f => f.hg === f.ag).length), 'visita', pct(fx.filter(f => f.hg < f.ag).length))
   const st = (k: string) => (sum(f => f.stats[k][0] + f.stats[k][1]) / n).toFixed(2)
   console.log('remates', st('shots'), 'al arco', st('sot'), 'xG', st('xg'), 'faltas', st('fouls'), 'corners', st('corners'), 'offsides', st('offs'), 'amarillas', st('yc'), 'rojas', st('rc'), 'pases', st('passes'))
+  const goals = sum(f => f.hg + f.ag), ge = fx.flatMap(f => (f.events ?? []).filter((e: any) => ['goal', 'pen-goal', 'own'].includes(e.type)))
+  const tramo = [0, 0, 0, 0, 0, 0, 0]
+  for (const e of ge) tramo[e.min > 90 ? 6 : Math.min(5, Math.floor((e.min - 1) / 15))]++
+  console.log('xG/goles', (sum(f => f.stats.xg[0] + f.stats.xg[1]) / goals).toFixed(3), '| en contra', ((ge.filter(e => e.type === 'own').length / goals) * 100).toFixed(1) + '%', '| goles por tramo de 15\' (y alargue):', tramo.map(v => ((v / goals) * 100).toFixed(1) + '%').join(' '))
   console.log('0-0:', pct(fx.filter(f => f.hg + f.ag === 0).length), '| 4+ goles:', pct(fx.filter(f => f.hg + f.ag >= 4).length), '| posesión local media', (sum(f => f.stats.poss[0]) / n).toFixed(1))
   const name = (id: number) => g.clubs[id].short
   for (const c of ['AP', 'CL', 'PN', 'CA', 'LIB', 'SUD']) console.log(g.comps[c].name, '-> campeón:', name(g.comps[c].champion!), '| final vs', name(g.comps[c].runnerUp!))
