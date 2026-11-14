@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode } from 'react'
 import { takeJob, windowOpen } from '../engine/career'
-import { advanceDay, advanceToMatch, fmtDate, nextUserFixture, refreshDb, userFixtureToday } from '../engine/game'
+import { advanceDay, fmtDate, nextUserFixture, refreshDb, userFixtureToday } from '../engine/game'
 import type { Fixture, Game } from '../engine/types'
 import { GameCtx, loadGame, loadSettings, saveGame, storeSettings, type Route, type Settings } from '../store'
 import { Club } from './Club'
 import { Badge, Face, ManagerFace, PosPill, Val, clubTheme } from './common'
 import { ClubPage, CommandPalette, HoverCard, SettingsModal, ShortcutsHelp } from './Nav'
 import { PlayerPage } from './PlayerPage'
+import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
 import { Home } from './Home'
 import { Market } from './Market'
 import { MatchView } from './MatchView'
@@ -19,7 +20,7 @@ import { CalendarPage, PressModal, StaffPage, TrainingPage } from './Week'
 
 const I = (d: string) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
 const PAGES: [string, string, ReactNode][] = [
-  ['home', 'Inicio', I('M3 11l9-8 9 8M5 10v10h14V10')], ['squad', 'Plantel', I('M16 20v-1a4 4 0 0 0-8 0v1M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M20 20v-1a3 3 0 0 0-2-2.8M4 20v-1a3 3 0 0 1 2-2.8')],
+  ['home', 'Inicio', I('M3 11l9-8 9 8M5 10v10h14V10')], ['inbox', 'Bandeja', I('M3 13l3-8h12l3 8v6H3zM3 13h5l1 2h6l1-2h5')], ['squad', 'Plantel', I('M16 20v-1a4 4 0 0 0-8 0v1M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M20 20v-1a3 3 0 0 0-2-2.8M4 20v-1a3 3 0 0 1 2-2.8')],
   ['tactics', 'Tácticas', I('M4 4h16v16H4zM4 12h16M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5')], ['locker', 'Vestuario', I('M6 3h12v18H6zM12 3v18M9 12h1M14 12h1')], ['training', 'Entrenamiento', I('M4 12h3M17 12h3M7 8v8M17 8v8M7 12h10')], ['calendar', 'Calendario', I('M5 5h14v15H5zM5 10h14M9 3v4M15 3v4M9 14h2M13 14h2')],
   ['market', 'Mercado', I('M4 7h13l-3-3M20 17H7l3 3')], ['staff', 'Cuerpo técnico', I('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6M3 20v-1a6 6 0 0 1 12 0v1M16 11l2 2 4-4')],
   ['fixtures', 'Fixture', I('M5 5h14v15H5zM5 10h14M9 3v4M15 3v4')], ['tables', 'Posiciones', I('M4 6h16M4 12h16M4 18h10')],
@@ -66,6 +67,8 @@ export function App() {
   const [match, setMatch] = useState<Fixture | null>(null)
   const [q, setQ] = useState('')
   const [press, setPress] = useState(false)
+  const [busy, setBusy] = useState<null | { done: number; total: number }>(null)
+  const stopRef = useRef(false)
   const [, refresh] = useReducer((x: number) => x + 1, 0)
   useEffect(() => { loadGame().then(s => setSaved(s && s.version === 6 ? s : null)) }, [])
 
@@ -73,28 +76,57 @@ export function App() {
   const club = g.clubs[g.userClubId]
   const today = userFixtureToday(g), next = nextUserFixture(g)
   const opp = next ? g.clubs[next.home === club.id ? next.away : next.home] : null
-  const ctx = { g, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => saveGame(g), openPress: () => setPress(true), settings }
+  const ctx = { g, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => saveGame(g), openPress: () => setPress(true), settings, setSettings }
   // atajos de teclado (ver SHORTCUTS en Nav.tsx)
   api.current.key = (e: KeyboardEvent) => {
     const t = e.target as HTMLElement
     const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOverlay('palette'); return }
+    if (e.key === 'Escape' && busy) { stopRef.current = true; return }
     if (e.key === 'Escape') { if (overlay) setOverlay(null); else if (!typing && (page === 'player' || page === 'clubv') && !document.querySelector('.modal')) back(); return }
     if (typing || match || overlay || document.querySelector('.modal')) return
     if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); back(); return }
     if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); fwd(); return }
     if (e.key === '/') { e.preventDefault(); setOverlay('palette'); return }
     if (e.key === '?') { setOverlay('help'); return }
-    if (e.key === ' ') { e.preventDefault(); if (!g.seasonOver) advance(e.shiftKey); return }
+    if (e.key === ' ') { e.preventDefault(); advance(e.shiftKey); return }
+    if (busy) return
     if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) { const i = (Number(e.key) + 9) % 10; if (PAGES[i]) setPage(PAGES[i][0]) }
   }
-  const advance = (toMatch = false) => {
+  /**
+   * Avanza día por día cediéndole el turno al navegador entre días: la interfaz no se congela, se ve el progreso y se puede frenar.
+   * Hasta el partido se detiene si aparece una decisión nueva (oferta, oferta de trabajo, jugador que quiere irse, conferencia).
+   */
+  const advance = async (toMatch = false) => {
+    if (busy) { stopRef.current = true; return }
+    if (g.seasonOver) { setPage('home'); return }
     if (today) { setMatch(today); return }
-    const r = toMatch ? advanceToMatch(g) : advanceDay(g)
+    if (!toMatch) {
+      const r = advanceDay(g)
+      saveGame(g)
+      if (r === 'press' && g.press) setPress(true)
+      refresh(); return
+    }
+    const total = next ? Math.max(1, Math.round((Date.parse(next.date) - Date.parse(g.date)) / 86400000)) : 7
+    const before = decisionKeys(g)
+    stopRef.current = false
+    let r = 'day', done = 0
+    setBusy({ done: 0, total })
+    for (;;) {
+      r = advanceDay(g); done++
+      if (r === 'match' || r === 'season' || r === 'press') break
+      if ([...decisionKeys(g)].some(k => !before.has(k))) { r = 'decision'; break }
+      if (stopRef.current || done >= 400) break
+      setBusy({ done, total }); refresh()
+      await new Promise(res => setTimeout(res, 45))
+    }
+    setBusy(null)
     saveGame(g)
     if (r === 'press' && g.press) setPress(true)
+    if (r === 'decision') nav({ page: 'inbox', tab: 'pend' })
     refresh()
   }
+  const pend = pendingOf(g), unread = unreadOf(g)
   const ql = q.trim().toLowerCase()
   const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8) : []
   const theme = clubTheme(club) as object
@@ -114,7 +146,7 @@ export function App() {
           <div className="shell">
             <aside className="side">
               <div className="brand">TECHNICAL <i>AREA</i></div>
-              {PAGES.map(([id, label, icon], i) => <button key={id} className={`nav ${page === id ? 'on' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
+              {PAGES.map(([id, label, icon], i) => <button key={id} className={`nav ${page === id ? 'on' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'inbox' && unread + pend.length > 0 && <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : ''}>{unread + pend.length}</span>}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
               {(g.favs ?? []).length > 0 && <div className="favs"><div className="favs-h">Favoritos</div>{(g.favs ?? []).map(f => {
                 const p = f.k === 'p' ? g.players[f.id] : undefined, c = f.k === 'c' ? g.clubs[f.id] : undefined
                 if (!p && !c) return null
@@ -140,12 +172,19 @@ export function App() {
               </div>
               <span className="grow" />
               {opp && next && !g.seasonOver && <div className="row topnext" style={{ gap: 8 }}><div className="dim right sm">{next.home === club.id ? 'Local vs' : 'Visitante en'} <b style={{ color: 'var(--text)' }}>{opp.short}</b><br />{fmtDate(next.date)} · {next.stage}</div><Badge club={opp} size={30} /></div>}
-              {g.press && <button className="btn on" onClick={() => setPress(true)} title="Conferencia de prensa pendiente">Prensa</button>}
-              {!today && !g.seasonOver && <button className="btn" title="Avanza día por día hasta el próximo partido. Se frena si hay una conferencia para responder." onClick={() => advance(true)}>Ir al partido ▸▸</button>}
-              <button className="btn primary cta" disabled={g.seasonOver} title={today ? '' : 'Avanza un día'} onClick={() => advance()}>{g.seasonOver ? 'Fin de temporada' : today ? 'Jugar ▸' : 'Continuar ▸'}</button>
+              {busy ? (
+                <div className="advancing" role="status">
+                  <div className="sm"><b>Avanzando</b> · {fmtDate(g.date)}<div className="adv-bar"><span style={{ width: `${Math.min(100, (busy.done / busy.total) * 100)}%` }} /></div></div>
+                  <button className="btn" title="Frenar (Esc o Espacio)" onClick={() => (stopRef.current = true)}>Frenar</button>
+                </div>
+              ) : (<>
+                {pend.length > 0 && <button className="btn pendbtn" title={`Pendiente: ${pendingText(pend)}. Clic para verlo en la bandeja.`} onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span><span className="ell">{pendingText(pend).replace(/^./, c => c.toUpperCase())}</span></button>}
+                {!today && !g.seasonOver && <button className="btn" title="Avanza día por día hasta el próximo partido. Se frena si llega algo para decidir." onClick={() => advance(true)}>Ir al partido ▸▸</button>}
+                <button className="btn primary cta" title={g.seasonOver ? 'Ir al resumen de la temporada' : today ? '' : 'Avanza un día'} onClick={() => advance()}>{g.seasonOver ? 'Nueva temporada ▸' : today ? 'Jugar ▸' : 'Continuar ▸'}</button>
+              </>)}
             </header>
             <main className="main" ref={mainRef}>
-              {page === 'home' && <Home />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
+              {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
               {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}
               {page === 'player' && route.id != null && <PlayerPage key={route.id} id={route.id} tab={route.tab} />}{page === 'clubv' && route.id != null && <ClubPage key={route.id} id={route.id} tab={route.tab} />}
             </main>

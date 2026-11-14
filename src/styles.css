@@ -142,3 +142,37 @@ td.r, th.r { text-align: right; } td.c, th.c { text-align: center; }
 /* densidad compacta: más filas por pantalla */
 .dense .card { padding: 11px; } .dense td { padding: 4px 8px; } .dense th { padding: 5px 8px; }
 .dense .nav { padding: 7px 10px; } .dense .page { gap: 12px; } .dense .dash { gap: 10px; } .dense .hero { padding: 15px; }
+
+/* ---------- bandeja de entrada ---------- */
+.tabs .cnt { margin-left: 7px; background: var(--panel3); color: var(--text); border-radius: 99px; font-size: .68rem; padding: 1px 7px; font-weight: 700; }
+.inbox { display: grid; grid-template-columns: minmax(320px, 5fr) 7fr; gap: 16px; align-items: start; }
+.ib-list { padding: 6px; max-height: calc(100vh - 230px); overflow-y: auto; }
+.ib-read { position: sticky; top: 0; min-height: 260px; }
+.ib-row { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: 0; border-radius: 10px; padding: 8px 10px; cursor: pointer; text-align: left; min-width: 0; color: var(--dim); }
+.ib-row:hover { background: var(--panel2); } .ib-row.on { background: var(--accent-soft); color: var(--text); }
+.ib-row.unread { color: var(--text); } .ib-row.unread .ib-title { font-weight: 650; }
+.ib-row.unread::before { content: ''; width: 6px; height: 6px; border-radius: 99px; background: var(--accent); flex: none; margin-left: -4px; }
+.ib-row.pend { color: var(--text); box-shadow: inset 3px 0 0 var(--warn); }
+.ib-ico { flex: none; width: 32px; display: flex; justify-content: center; }
+.ib-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ib-meta { display: block; margin-top: 1px; }
+.ib-sep { font-size: .66rem; text-transform: uppercase; letter-spacing: .12em; color: var(--faint); padding: 10px 10px 4px; font-weight: 650; }
+.ib-body { margin: 0; line-height: 1.6; color: var(--dim); white-space: normal; }
+.ib-who { padding: 6px 10px 6px 6px; border: 1px solid var(--line2); gap: 10px; }
+.nav .dot.warn { background: var(--warn); }
+@media (max-width: 900px) { .inbox { grid-template-columns: 1fr; } .ib-read { position: static; } }
+
+/* ---------- continuar: pendientes y progreso ---------- */
+.pendbtn { display: inline-flex; align-items: center; gap: 8px; max-width: 280px; border-color: rgba(255, 181, 71, .45); }
+.pdot { background: var(--warn); color: #1d1300; border-radius: 99px; font-size: .7rem; font-weight: 800; padding: 0 7px; flex: none; }
+.advancing { display: flex; align-items: center; gap: 12px; min-width: 260px; }
+.adv-bar { height: 4px; border-radius: 99px; background: var(--panel3); margin-top: 5px; overflow: hidden; width: 160px; }
+.adv-bar span { display: block; height: 100%; background: var(--accent); transition: width .08s linear; }
+
+/* ---------- inicio configurable ---------- */
+.tile { position: relative; }
+.tile.editing { outline: 1px dashed var(--faint); outline-offset: 3px; }
+.tile-tools { position: absolute; top: 8px; right: 8px; z-index: 3; display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 4px; box-shadow: 0 8px 20px -8px #000; }
+.searchbox { min-width: 190px; }
+.pendbtn { max-width: 230px; }
+@media (max-width: 1500px) { .top:has(.pendbtn) .topnext, .top:has(.advancing) .topnext { display: none !important; } }

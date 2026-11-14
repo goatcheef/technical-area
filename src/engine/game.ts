@@ -174,8 +174,14 @@ export function addFx(g: Game, f: Omit<Fixture, 'id' | 'played' | 'hg' | 'ag'>) 
   g.fixtures.push({ ...f, id: g.nextId++, played: false, hg: 0, ag: 0 })
 }
 export function news(g: Game, n: Omit<News, 'id' | 'date'>) {
-  g.news.unshift({ ...n, id: g.nextId++, date: g.date })
-  if (g.news.length > 250) g.news.length = 250
+  const me = n.clubId === g.userClubId || !!n.act || (n.pid != null && g.players[n.pid]?.clubId === g.userClubId)
+  g.news.unshift({ ...n, id: g.nextId++, date: g.date, ...(me ? { me } : {}) })
+  // se descartan primero las noticias viejas del resto del fútbol: los mensajes del DT duran más
+  if (g.news.length > 320) {
+    let drop = g.news.length - 300
+    for (let i = g.news.length - 1; i >= 0 && drop > 0; i--) if (!g.news[i].me) { g.news.splice(i, 1); drop-- }
+    if (g.news.length > 400) g.news.length = 400
+  }
 }
 
 function scheduleSeason(g: Game, rng: Rng) {
@@ -362,7 +368,7 @@ export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   for (const inj of res.injuries) {
     const p = g.players[inj.pid]
     p.injury = { days: p.clubId === g.userClubId ? Math.max(1, Math.round(inj.days * docFactor(g))) : inj.days, desc: inj.desc }
-    if (p.clubId === g.userClubId) news(g, { tag: 'lesion', clubId: p.clubId, title: `${p.name}, lesionado`, body: `${p.name} sufrió ${inj.desc} y estará fuera de las canchas unos ${inj.days} días.` })
+    if (p.clubId === g.userClubId) news(g, { tag: 'lesion', clubId: p.clubId, pid: p.id, act: 'injury', title: `${p.name}, lesionado`, body: `${p.name} sufrió ${inj.desc} y estará fuera de las canchas unos ${inj.days} días.` })
   }
   if (isUser) {
     matchNews(g, f, res)
@@ -391,7 +397,7 @@ function matchNews(g: Game, f: Fixture, res: MatchResult) {
     + (scorers.length ? `Goles: ${scorers.join(', ')}. ` : '')
     + `Remates ${res.stats.shots[us]}-${res.stats.shots[1 - us]}, posesión ${res.stats.poss[us]}%, xG ${res.stats.xg[us].toFixed(2)}-${res.stats.xg[1 - us].toFixed(2)}. `
     + `La figura fue ${star.name} (${g.clubs[star.clubId].short}).`
-  news(g, { tag: 'partido', clubId: me.id, title, body })
+  news(g, { tag: 'partido', clubId: me.id, act: 'result', ref: f.id, pid: star?.id, title, body })
 }
 
 function simFixture(g: Game, f: Fixture) { applyResult(g, f, createMatch(g, f, false).runToEnd()) }
@@ -512,7 +518,7 @@ function closeSeason(g: Game) {
   news(g, { tag: 'torneo', title: `Clasificados a las copas ${g.season + 1}`, body: `Copa Libertadores: ${g.qual!.lib.map(id => g.clubs[id].name).join(', ')}. Copa Sudamericana: ${g.qual!.sud.map(id => g.clubs[id].name).join(', ')}.` })
   seasonReview(g, rel, pro)
   const top = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division === 1).sort((a, b) => b.stats.goals - a.stats.goals)[0]
-  if (top) news(g, { tag: 'premio', clubId: top.clubId, title: `${top.name}, goleador de la temporada`, body: `El jugador de ${g.clubs[top.clubId].name} fue el máximo artillero de Primera con ${top.stats.goals} goles.` })
+  if (top) news(g, { tag: 'premio', clubId: top.clubId, pid: top.id, title: `${top.name}, goleador de la temporada`, body: `El jugador de ${g.clubs[top.clubId].name} fue el máximo artillero de Primera con ${top.stats.goals} goles.` })
 }
 
 function seasonReview(g: Game, rel: number[], pro: number[]) {

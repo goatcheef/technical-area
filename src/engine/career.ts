@@ -129,7 +129,7 @@ export function managerMarket(g: Game, rng: Rng) {
       if (c.rep >= me.rep - 2 && m.rep >= c.rep - 14 && !g.board.fired) {
         c.manager = 'Cuerpo técnico interino'
         g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 6) }]
-        news(g, { tag: 'directiva', clubId: c.id, title: `${c.name} te quiere como DT`, body: `${c.name} despidió a ${old} y la dirigencia se comunicó con ${m.name} para ofrecerle el cargo. Tenés una semana para responder.` })
+        news(g, { tag: 'directiva', clubId: c.id, act: 'job', ref: c.id, title: `${c.name} te quiere como DT`, body: `${c.name} despidió a ${old} y la dirigencia se comunicó con ${m.name} para ofrecerle el cargo. Tenés una semana para responder.` })
       } else {
         c.manager = coachName(g)
         news(g, { tag: 'club', clubId: c.id, title: `${c.name} despidió a ${old}`, body: `Por los malos resultados, ${c.name} terminó el ciclo de ${old}. Lo reemplaza ${c.manager}.` })
@@ -145,7 +145,7 @@ export function seasonOffers(g: Game, rng: Rng) {
   for (const c of rng.shuffle(cands).slice(0, 2)) {
     if (!rng.chance(0.55)) continue
     g.jobOffers = [...(g.jobOffers ?? []), { clubId: c.id, until: addDays(g.date, 20) }]
-    news(g, { tag: 'directiva', clubId: c.id, title: `${c.name} te ofrece dirigir`, body: `Después de tu temporada, la dirigencia de ${c.name} te ofreció ser su entrenador. Si aceptás, empezás la próxima temporada en el club.` })
+    news(g, { tag: 'directiva', clubId: c.id, act: 'job', ref: c.id, title: `${c.name} te ofrece dirigir`, body: `Después de tu temporada, la dirigencia de ${c.name} te ofreció ser su entrenador. Si aceptás, empezás la próxima temporada en el club.` })
   }
 }
 
@@ -226,7 +226,7 @@ export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan =
   g.shortlist = g.shortlist.filter(id => id !== p.id)
   const mine = from.id === g.userClubId || to.id === g.userClubId
   if (!quiet && (mine || fee >= 1500000)) news(g, {
-    tag: 'mercado', clubId: to.id, title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
+    tag: 'mercado', clubId: to.id, pid: p.id, title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
     body: `${to.name} ${loan ? 'acordó el préstamo' : 'cerró la contratación'} de ${p.name}, proveniente de ${from.name}${fee ? `, a cambio de US$ ${fee.toLocaleString('es-AR')}` : ''}.`,
   })
 }
@@ -235,7 +235,7 @@ function sellAbroad(g: Game, p: Player, buyer: string, fee: number) {
   dropFromTactics(g, p)
   from.balance += fee; from.ledger.sales += fee; from.budget += Math.round(fee * 0.6)
   g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: buyer, fee })
-  news(g, { tag: 'mercado', clubId: from.id, title: `${p.name} se va a ${buyer}`, body: `${from.name} vendió a ${p.name} a ${buyer} en US$ ${fee.toLocaleString('es-AR')}. El jugador, de ${ageOn(p.birth, g.date)} años, seguirá su carrera en el exterior.` })
+  news(g, { tag: 'mercado', clubId: from.id, pid: p.id, title: `${p.name} se va a ${buyer}`, body: `${from.name} vendió a ${p.name} a ${buyer} en US$ ${fee.toLocaleString('es-AR')}. El jugador, de ${ageOn(p.birth, g.date)} años, seguirá su carrera en el exterior.` })
   removePlayer(g, p)
 }
 export function removePlayer(g: Game, p: Player) {
@@ -290,7 +290,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
         if (best) {
           const price = askingPrice(g, best)
           if (best.clubId === g.userClubId && best.clause && buyer.budget >= best.clause && (best.pers?.amb ?? 10) >= 12 && rng.chance(0.3)) {
-            news(g, { tag: 'mercado', clubId: g.userClubId, title: `${buyer.name} pagó la cláusula de ${best.name}`, body: `${buyer.name} depositó los US$ ${best.clause.toLocaleString('es-AR')} de la cláusula de rescisión y ${best.name} deja el club.` })
+            news(g, { tag: 'mercado', clubId: g.userClubId, pid: best.id, title: `${buyer.name} pagó la cláusula de ${best.name}`, body: `${buyer.name} depositó los US$ ${best.clause.toLocaleString('es-AR')} de la cláusula de rescisión y ${best.name} deja el club.` })
             doTransfer(g, best, buyer.id, best.clause)
           } else if (best.clubId === g.userClubId) { if (best.listed || best.wantsOut || rng.chance(0.5)) pushOffer(g, best, buyer.id, buyer.name, Math.round((price * (0.8 + rng.next() * 0.3)) / 10000) * 10000) }
           else doTransfer(g, best, buyer.id, price)
@@ -312,7 +312,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
         c.budget -= fee; c.balance -= fee; c.ledger.buys += fee
         const from = rng.pick(FOREIGN)
         g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from, to: c.name, fee })
-        if (fee >= 1500000) news(g, { tag: 'mercado', clubId: c.id, title: `${c.short} se refuerza con ${p.name}`, body: `${c.name} pagó US$ ${fee.toLocaleString('es-AR')} por ${p.name}, ${nat === 'Brasil' ? 'brasileño' : `jugador de ${nat}`} que llega desde ${from}.` })
+        if (fee >= 1500000) news(g, { tag: 'mercado', clubId: c.id, pid: p.id, title: `${c.short} se refuerza con ${p.name}`, body: `${c.name} pagó US$ ${fee.toLocaleString('es-AR')} por ${p.name}, ${nat === 'Brasil' ? 'brasileño' : `jugador de ${nat}`} que llega desde ${from}.` })
       }
     }
     // ventas al exterior
@@ -334,8 +334,9 @@ export function marketTick(g: Game, days: number, rng: Rng) {
 }
 function pushOffer(g: Game, p: Player, from: number, fromName: string, fee: number) {
   if (g.offers.some(o => o.pid === p.id && o.from === from) || g.offers.length >= 8) return
-  g.offers.push({ id: g.nextId++, pid: p.id, from, fromName, fee, date: g.date })
-  news(g, { tag: 'mercado', clubId: g.userClubId, title: `Oferta de ${fromName} por ${p.name}`, body: `${fromName} ofrece US$ ${fee.toLocaleString('es-AR')} por el pase de ${p.name}. Podés aceptarla, rechazarla o pedir más desde la pantalla de Mercado. La oferta vence en una semana.` })
+  const oid = g.nextId++
+  g.offers.push({ id: oid, pid: p.id, from, fromName, fee, date: g.date })
+  news(g, { tag: 'mercado', clubId: g.userClubId, pid: p.id, act: 'offer', ref: oid, title: `Oferta de ${fromName} por ${p.name}`, body: `${fromName} ofrece US$ ${fee.toLocaleString('es-AR')} por el pase de ${p.name}. Podés aceptarla, rechazarla o pedir más desde la pantalla de Mercado. La oferta vence en una semana.` })
 }
 
 // ---------- contratos ----------
@@ -392,13 +393,13 @@ export function seasonTurnover(g: Game, rng: Rng) {
     if (p.loanFrom) { const back = g.clubs[p.loanFrom]; if (back) { dropFromTactics(g, p); p.clubId = back.id; p.num = freeNumber(g, back.id, p) } p.loanFrom = undefined }
     p.loan = false
     if (age >= 39 || (age >= 36 && rng.chance(0.5)) || (age >= 34 && p.ca < 55 && rng.chance(0.5))) {
-      if (p.clubId === g.userClubId) news(g, { tag: 'club', clubId: p.clubId, title: `${p.name} se retira del fútbol`, body: `A los ${age} años, ${p.name} anunció su retiro como jugador profesional.` })
+      if (p.clubId === g.userClubId) news(g, { tag: 'club', clubId: p.clubId, pid: p.id, title: `${p.name} se retira del fútbol`, body: `A los ${age} años, ${p.name} anunció su retiro como jugador profesional.` })
       removePlayer(g, p); continue
     }
     if (p.contractEnd < g.season) {
       if (p.clubId === g.userClubId) {
         const dest = rng.pick(Object.values(g.clubs).filter(c => c.id !== p.clubId && Math.abs(c.rep - g.clubs[p.clubId].rep) <= 10))
-        news(g, { tag: 'mercado', clubId: p.clubId, title: `${p.name} se fue libre`, body: `Venció el contrato de ${p.name} y el jugador firmó con ${dest.name} con el pase en su poder.` })
+        news(g, { tag: 'mercado', clubId: p.clubId, pid: p.id, title: `${p.name} se fue libre`, body: `Venció el contrato de ${p.name} y el jugador firmó con ${dest.name} con el pase en su poder.` })
         dropFromTactics(g, p); p.clubId = dest.id; p.num = freeNumber(g, dest.id, p); p.wage = valuation(p, g.date).wage
       }
       p.contractEnd = g.season + rng.int(0, 2)
@@ -416,7 +417,7 @@ export function seasonTurnover(g: Game, rng: Rng) {
     if (sq.filter(p => p.line === 'GK').length < 2) makeYouth(g, c, rng, 0, 'GK')
     if (mine) {
       const top = made.sort((a, b) => b.pa - a.pa)[0]
-      news(g, { tag: 'club', clubId: c.id, title: `Suben ${made.length} juveniles al plantel`, body: `Las inferiores de ${c.name} promovieron a ${made.map(p => p.name).join(', ')}. En el club destacan el potencial de ${top.name}.` })
+      news(g, { tag: 'club', clubId: c.id, pid: top.id, title: `Suben ${made.length} juveniles al plantel`, body: `Las inferiores de ${c.name} promovieron a ${made.map(p => p.name).join(', ')}. En el club destacan el potencial de ${top.name}.` })
     }
     // los clubes reinvierten lo que tienen en caja: más presupuesto de pases y más masa salarial
     c.budget = Math.max(mine ? 50000 : 80000, Math.round((baseBudget(c.rep) * 0.6 + Math.max(0, c.balance) * (mine ? 0.3 : 0.45)) / 10000) * 10000)
