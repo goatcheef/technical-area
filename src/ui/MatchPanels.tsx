@@ -27,9 +27,9 @@ export function LiveOthers({ live, minute }: { live: Live[]; minute: number }) {
     const h = g.clubs[f.home], a = g.clubs[f.away]
     return (
       <div key={f.id} className={`live-row ${fresh ? 'flash' : ''}`} title={goals.map(e => `${e.min}' ${e.text}`).join('\n')}>
-        <span className="row ell" style={{ gap: 6, justifyContent: 'flex-end' }} data-cid={h.id}>{h.short}<Badge club={h} size={18} /></span>
+        <span className="row" style={{ gap: 6, justifyContent: 'flex-end', minWidth: 0 }} data-cid={h.id}><span className="ell">{h.short}</span><Badge club={h} size={18} /></span>
         <b className="num live-score">{sim.sides[0].goals}-{sim.sides[1].goals}</b>
-        <span className="row ell" style={{ gap: 6 }} data-cid={a.id}><Badge club={a} size={18} />{a.short}</span>
+        <span className="row" style={{ gap: 6, minWidth: 0 }} data-cid={a.id}><Badge club={a} size={18} /><span className="ell">{a.short}</span></span>
         <span className="dim sm num">{sim.finished ? 'Final' : sim.tick ? `${sim.minute}'` : '–'}</span>
       </div>)
   })}</div>
