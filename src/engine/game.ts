@@ -400,6 +400,10 @@ function matchNews(g: Game, f: Fixture, res: MatchResult) {
   news(g, { tag: 'partido', clubId: me.id, act: 'result', ref: f.id, pid: star?.id, title, body })
 }
 
+/** Los otros partidos del mismo torneo y del mismo día que el del usuario: se juegan en vivo a la par. */
+export function sameRound(g: Game, f: Fixture): Fixture[] {
+  return g.fixtures.filter(x => x.id !== f.id && !x.played && x.date === f.date && x.comp === f.comp)
+}
 function simFixture(g: Game, f: Fixture) { applyResult(g, f, createMatch(g, f, false).runToEnd()) }
 
 // ---------- avance de fases ----------
@@ -577,9 +581,11 @@ export function advanceToMatch(g: Game, stopOnPress = true): DayResult {
 export function continueGame(g: Game) { advanceToMatch(g, false); if (g.press) delegatePress(g) }
 
 /** Registra el partido del usuario, completa la jornada y pasa al día siguiente. */
-export function finishUserMatch(g: Game, f: Fixture, res: MatchResult) {
+export function finishUserMatch(g: Game, f: Fixture, res: MatchResult, others: { f: Fixture; res: MatchResult }[] = []) {
   if (g.press) delegatePress(g)
   applyResult(g, f, res)
+  // los partidos del día que se siguieron en vivo se registran con el resultado que se vio
+  for (const o of others) if (!o.f.played) applyResult(g, o.f, o.res)
   for (const x of g.fixtures.filter(x => x.date === g.date && !x.played)) simFixture(g, x)
   progress(g)
   if (g.seasonOver || g.board.fired) return

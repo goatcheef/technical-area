@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useRef, useState } from 'react'
-import { createMatch, finishUserMatch } from '../engine/game'
+import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
+import { createMatch, finishUserMatch, sameRound } from '../engine/game'
 import type { MatchSim } from '../engine/match'
 import { FORMATION_NAMES, POS_LABEL, ROLE, posRating, rolesFor } from '../engine/positions'
 import type { Fixture } from '../engine/types'
@@ -7,14 +7,20 @@ import { useGame } from '../store'
 import { Badge, Cond, Momentum, PosPill, ShotMap, duoColors, ratClass } from './common'
 import { Pitch2D } from './Pitch2D'
 import { TacticControls } from './Tactics'
+import { LiveOthers, LiveTable, PanelMenu, panelsOf, syncLive, type Live } from './MatchPanels'
 
 const TICK = 1500 // milisegundos por minuto de juego a velocidad normal
 
-export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () => void }) {
+export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixtureId: number) => void }) {
   const { g, settings } = useGame()
   const ref = useRef<MatchSim | null>(null)
   if (!ref.current) ref.current = createMatch(g, fixture, true)
   const sim = ref.current
+  // los otros partidos del torneo en el mismo día se juegan a la par, minuto a minuto
+  const liveRef = useRef<Live[] | null>(null)
+  if (!liveRef.current) liveRef.current = sameRound(g, fixture).map(f => ({ f, sim: createMatch(g, f, false) }))
+  const live = liveRef.current
+  const [menu, setMenu] = useState(false)
   const [speed, setSpeed] = useState(0)
   const [out, setOut] = useState<number | null>(null)
   const [tab, setTab] = useState<'team' | 'tactic' | 'rival'>('team')
@@ -34,6 +40,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
     let t: ReturnType<typeof setTimeout>
     const run = () => {
       const evs = sim.step()
+      syncLive(live, sim.minute, sim.finished)
       if (sim.halfTime) setTalk(null)
       if (evs.some(e => (e.type === 'rc' || e.type === 'yc2' || e.type === 'inj') && e.side === us) || sim.halfTime || sim.finished) setSpeed(0)
       // cada minuto dura según lo que pasó: las ocasiones y los goles se miran con calma
@@ -57,7 +64,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
     ['Amarillas', s.yc[0], s.yc[1], share(s.yc)], ['Rojas', s.rc[0], s.rc[1], share(s.rc)],
   ]
   const feed = sim.events.slice().reverse()
-  const finish = () => { finishUserMatch(g, fixture, sim.result()); onDone() }
+  const finish = () => { syncLive(live, 0, true); finishUserMatch(g, fixture, sim.result(), live.map(l => ({ f: l.f, res: l.sim.result() }))); onDone(fixture.id) }
   const doSub = (inId: number) => { if (out != null && sim.substitute(us, out, inId)) { setOut(null); bump() } }
   const started = sim.tick > 0
   // atajos: Espacio pausa o reanuda, 1 a 4 eligen la velocidad
@@ -65,8 +72,13 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
   keys.current = e => {
     const t = e.target as HTMLElement
     if (sim.finished || (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) || e.ctrlKey || e.metaKey || e.altKey) return
+    const k = e.key.toLowerCase()
     if (e.key === ' ') { e.preventDefault(); setSpeed(speed ? 0 : pref.current) }
     else if (/^[1-4]$/.test(e.key)) setSpeed([0, 1, 2, 5][Number(e.key) - 1])
+    else if (k === 'c' || k === 't' || k === 'r') { setTab(k === 'c' ? 'team' : k === 't' ? 'tactic' : 'rival'); document.querySelector('[data-team]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) }
+    else if (k === 'm') setMode(mode === 'key' ? 'full' : 'key')
+    else if (k === 'p') setMenu(!menu)
+    else if (e.key === 'Escape') { setOut(null); setRiv(null); setMenu(false) }
   }
   useEffect(() => { const h = (e: KeyboardEvent) => keys.current(e); window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h) }, [])
   const cols = duoColors(home, away)
@@ -85,26 +97,17 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
           <div className="row wrap" style={{ justifyContent: 'center' }}>
             {sim.finished ? <button className="btn primary cta" onClick={finish}>Continuar ▸</button> : (<>
               <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l], i) => <button key={v} title={`Tecla ${i + 1}${v ? '' : ' · Espacio pausa o reanuda'}`} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
-              <div className="seg" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones.">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} onClick={() => setMode(v)}>{l}</button>)}</div>
-              <button className="btn" onClick={() => { setSpeed(0); while (!sim.finished) sim.step(); bump() }}>Ir al final</button>
+              <div className="seg" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones (tecla M).">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} onClick={() => setMode(v)}>{l}</button>)}</div>
+              <button className="btn" onClick={() => { setSpeed(0); while (!sim.finished) sim.step(); syncLive(live, 0, true); bump() }}>Ir al final</button>
             </>)}
+            <div style={{ position: 'relative', zIndex: 5 }}><button className={`btn ${menu ? 'on' : ''}`} title="Elegí qué paneles ver y dónde (tecla P)" onClick={() => setMenu(!menu)}>Paneles</button></div>
           </div>
+          {!sim.finished && <div className="dim center" style={{ fontSize: '.74rem', marginTop: 8 }}>Espacio pausa · 1-4 velocidad · M jugadas clave · C cambios · T táctica · R rival · P paneles</div>}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.15fr .9fr 1.15fr', gap: 16, alignItems: 'start' }} className="mgrid">
-          <div className="card pitchcard" style={{ gridColumn: 'span 2', padding: 10 }}>
-            <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={dur.current} />
-            {(() => { const tips = sim.insights(us); return tips.length ? (
-              <div className="col" style={{ gap: 4, padding: '10px 4px 2px' }}><h3>Tu ayudante</h3>
-                {tips.map((t, i) => <div key={i} className="row sm" style={{ alignItems: 'flex-start' }}><span className="acc">●</span><span>{t}</span></div>)}</div>) : null })()}
-            {sim.tick === 0 && (
-              <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Previa.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">Antes de salir a la cancha, ¿qué les decís?</span>
-                {(['Tranquilos, jueguen como saben', 'Hoy se gana sí o sí', 'Nadie confía en nosotros: demuéstrenlo'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.preTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}</div>)}
-            {sim.halfTime && !sim.finished && (
-              <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Entretiempo.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">¿Qué les decís en el vestuario?</span>
-                {(['Tranquilos, sigan así', 'Quiero más de ustedes', 'Los felicito'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.teamTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}
-                <span className="dim sm">Podés hacer cambios y tocar la táctica antes de seguir.</span></div>)}
-          </div>
-          <div className="card" style={{ gridColumn: 3, gridRow: '1 / span 2' }} data-team>
+        {(() => {
+          const P: Record<string, ReactNode> = {
+            team: <div key="team">
+          <div className="card" data-team>
             <div className="row" style={{ marginBottom: 8 }}><div className="seg">
               <button className={tab === 'team' ? 'on' : ''} onClick={() => setTab('team')}>Mi equipo</button>
               <button className={tab === 'tactic' ? 'on' : ''} onClick={() => setTab('tactic')}>Táctica</button>
@@ -140,20 +143,42 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
               </>)
             })()}
           </div>
+</div>,
+            assistant: <div key="assistant" className="card col" style={{ gap: 6 }}><h3>Tu ayudante</h3>{sim.insights(us).length ? sim.insights(us).map((t, i) => <div key={i} className="row sm" style={{ alignItems: 'flex-start' }}><span className="acc">●</span><span>{t}</span></div>) : <span className="dim sm">{started ? 'Sin observaciones por ahora.' : 'Va a comentar lo que vea cuando empiece el partido.'}</span>}</div>,
+            others: <div key="others" className="card"><h3 style={{ marginBottom: 8 }}>Otros partidos</h3><LiveOthers live={live} minute={sim.minute} /></div>,
+            table: <div key="table" className="card"><h3 style={{ marginBottom: 8 }}>Tabla en vivo</h3><LiveTable f={fixture} live={live} mine={sim} /></div>,
+            feed: <div key="feed">
           <div className="card"><h3 style={{ marginBottom: 8 }}>Relato</h3>
             <div className="feed" style={{ maxHeight: 300 }}>{feed.map((e, i) => <div key={feed.length - i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span>{e.text}</span></div>)}</div></div>
+</div>,
+            stats: <div key="stats">
           <div className="card"><h3 style={{ marginBottom: 8 }}>Estadísticas</h3>
             {stats.map(([l, a, b, sh]) => (
               <div key={l} style={{ marginBottom: 7 }}>
                 <div className="statrow"><b className="num">{a}</b><span className="lbl">{l}</span><b className="num right">{b}</b></div>
                 <div className="duo"><i style={{ width: `${sh * 100}%`, background: cols[0] }} /><i style={{ flex: 1, background: cols[1] }} /></div>
               </div>))}
-            <h3 style={{ margin: '12px 0 6px' }}>Mapa de remates</h3><ShotMap shots={sim.shots} colors={cols} />
-            <h3 style={{ margin: '12px 0 6px' }}>Dominio del partido</h3><Momentum shots={sim.shots} colors={cols} upTo={sim.minute} />
           </div>
-        </div>
-        <style>{`@media (max-width: 1100px) { .mgrid { grid-template-columns: 1fr !important; } .mgrid > * { grid-column: auto !important; grid-row: auto !important; } }`}</style>
+</div>,
+            shots: <div key="shots" className="card"><h3 style={{ marginBottom: 8 }}>Mapa de remates</h3><ShotMap shots={sim.shots} colors={cols} /><h3 style={{ margin: '12px 0 6px' }}>Dominio del partido</h3><Momentum shots={sim.shots} colors={cols} upTo={sim.minute} /></div>,
+          }
+          const pl = panelsOf(settings), side = pl.filter(p => p.slot === 'side').map(p => P[p.id]), bottom = pl.filter(p => p.slot === 'bottom').map(p => P[p.id])
+          const pitch = <div className="card pitchcard" style={{ padding: 10 }}>
+            <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={dur.current} />
+            {sim.tick === 0 && (
+              <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Previa.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">Antes de salir a la cancha, ¿qué les decís?</span>
+                {(['Tranquilos, jueguen como saben', 'Hoy se gana sí o sí', 'Nadie confía en nosotros: demuéstrenlo'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.preTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}</div>)}
+            {sim.halfTime && !sim.finished && (
+              <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Entretiempo.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">¿Qué les decís en el vestuario?</span>
+                {(['Tranquilos, sigan así', 'Quiero más de ustedes', 'Los felicito'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.teamTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}
+                <span className="dim sm">Podés hacer cambios y tocar la táctica antes de seguir.</span></div>)}
+          </div>
+          return settings.bigPitch
+            ? <div className="col" style={{ gap: 16 }}><div className="bigpitch">{pitch}</div><div className="mbottom">{[...side, ...bottom]}</div></div>
+            : <div className="mlayout"><div className="col" style={{ gap: 16, minWidth: 0 }}>{pitch}<div className="mbottom">{bottom}</div></div><div className="col mside" style={{ gap: 16, minWidth: 0 }}>{side}</div></div>
+        })()}
       </div>
+      {menu && <PanelMenu onClose={() => setMenu(false)} />}
     </div>
   )
 }

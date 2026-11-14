@@ -69,11 +69,13 @@ Resultado: bandeja con pestañas (para vos, pendientes, plantel, mercado, partid
 
 Resultado: una sola tabla para plantel, ficha de club, mercado, seguimiento y estadísticas. Tiene vistas General, Físico, Contrato, Ojeo y Estadísticas, más las que guarda el jugador. Cualquier dato o atributo puede ser columna, el orden admite hasta tres criterios (Mayús + clic) y hay filtro por línea y por nombre. Sin desplazamiento horizontal a 1440 ni a 1100 px: se ocultan las columnas menos importantes y se avisa cuántas. Selección múltiple con Mayús para rangos, acciones masivas y comparador de 2 o 3 jugadores (radar superpuesto, atributos con el mejor marcado, temporada y contrato) que respeta lo que se conoce de cada uno.
 
-### Etapa 4: día de partido
+### Etapa 4: día de partido — hecha
 - Disposición configurable: cancha grande, paneles a elección (estadísticas, ayudante, relato, mi equipo).
 - Resultados en vivo de los otros partidos y tabla en vivo.
 - Atajos (pausa, velocidad, cambios) y modo de resúmenes.
 - Flujo posterior ordenado: resultado, análisis, conferencia.
+
+Resultado: la cancha ocupa el centro y siete paneles (mi equipo y táctica, ayudante, otros partidos, tabla en vivo, relato, estadísticas, remates y dominio) se ponen al costado, abajo u ocultos; hay modo cancha grande. Los otros partidos del torneo se juegan minuto a minuto junto al tuyo, con el gol recién hecho resaltado, y la tabla en vivo muestra subas y bajas. Lo que se ve en vivo es lo que queda registrado. Atajos: Espacio, 1-4, M, C, T, R, P y Esc. Al terminar, tres pasos: resultado (goles, puntajes y resto de la fecha), análisis y conferencia, con la opción de saltearlos.
 
 ### Etapa 5: centro de datos
 - Gráficos de rendimiento del equipo por partido y temporada: xG a favor y en contra, forma, peligro por sector.

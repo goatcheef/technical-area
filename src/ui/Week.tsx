@@ -145,16 +145,20 @@ export function StaffPage() {
 
 // ---------- prensa ----------
 export function PressModal({ onClose }: { onClose: () => void }) {
+  return <Modal onClose={onClose}><PressPanel onDone={onClose} onLater={onClose} /></Modal>
+}
+/** Las preguntas de la conferencia con sus respuestas (sin la ventana). */
+export function PressPanel({ onDone, onLater }: { onDone: () => void; onLater?: () => void }) {
   const { g, refresh, save } = useGame()
   const pr = g.press
   const [picks, setPicks] = useState<number[]>(() => pr?.questions.map(() => -1) ?? [])
   if (!pr) return null
   const f = g.fixtures.find(x => x.id === pr.fixtureId), me = g.clubs[g.userClubId]
   const opp = f ? g.clubs[f.home === me.id ? f.away : f.home] : null
-  const finish = () => { save(); refresh(); onClose() }
+  const finish = () => { save(); refresh(); onDone() }
   return (
-    <Modal onClose={onClose}>
-      <div className="row" style={{ marginBottom: 12 }}>{opp && <Badge club={opp} size={40} />}<div className="grow"><h3>Conferencia de prensa</h3><h2>{pr.kind === 'pre' ? `Antes de jugar con ${opp?.short}` : `Después del partido con ${opp?.short}`}</h2></div><button className="btn sm" onClick={onClose}>Más tarde</button></div>
+    <div>
+      <div className="row" style={{ marginBottom: 12 }}>{opp && <Badge club={opp} size={40} />}<div className="grow"><h3>Conferencia de prensa</h3><h2>{pr.kind === 'pre' ? `Antes de jugar con ${opp?.short}` : `Después del partido con ${opp?.short}`}</h2></div>{onLater && <button className="btn sm" onClick={onLater}>Más tarde</button>}</div>
       <div className="dim sm" style={{ marginBottom: 12, lineHeight: 1.5 }}>Lo que digas llega al vestuario y a la dirigencia. Si no respondés antes de seguir, habla el ayudante con respuestas prudentes.</div>
       <div className="col" style={{ gap: 16 }}>{pr.questions.map((q, i) => (
         <div key={i} className="col" style={{ gap: 6 }}><b>{q.q}</b>
@@ -166,7 +170,7 @@ export function PressModal({ onClose }: { onClose: () => void }) {
         <button className="btn" onClick={() => { delegatePress(g); finish() }}>Que hable el ayudante</button>
         <button className="btn primary" disabled={picks.some(p => p < 0)} onClick={() => { answerPress(g, picks); finish() }}>Responder</button>
       </div>
-    </Modal>
+    </div>
   )
 }
 

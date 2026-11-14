@@ -177,7 +177,7 @@ export function duoColors(h: Club, a: Club): [string, string] {
 
 // ---------- ficha del jugador ----------
 /** Análisis del partido: por dónde atacó cada uno, dónde perdió la pelota y quién ganó los duelos. */
-function Analysis({ g, f, cols }: { g: Game; f: Fixture; cols: [string, string] }) {
+export function Analysis({ g, f, cols }: { g: Game; f: Fixture; cols: [string, string] }) {
   const an = f.analysis!, max = Math.max(0.3, ...an[0].xg, ...an[1].xg)
   const Bar = ({ v, c }: { v: number; c: string }) => <div className="bar" style={{ flex: 1 }}><i style={{ width: `${(v / max) * 100}%`, background: c }} /></div>
   const duels = ([0, 1] as const).flatMap(si => Object.entries(an[si].duels).map(([pid, d]) => ({ si, pid: Number(pid), w: d[0], l: d[1] }))).filter(d => g.players[d.pid] && d.w + d.l >= 3)
@@ -197,6 +197,10 @@ function Analysis({ g, f, cols }: { g: Game; f: Fixture; cols: [string, string] 
 }
 
 export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: () => void }) {
+  return <Modal onClose={onClose}><ReportBody g={g} f={f} /><div className="right" style={{ marginTop: 14 }}><button className="btn" onClick={onClose}>Cerrar</button></div></Modal>
+}
+/** Contenido del informe de un partido jugado (sin la ventana). */
+export function ReportBody({ g, f }: { g: Game; f: Fixture }) {
   const h = g.clubs[f.home], a = g.clubs[f.away], s = f.stats, cols = duoColors(h, a)
   const rows: [string, (i: 0 | 1) => string | number][] = s ? [
     ['Posesión', i => `${s.poss[i]}%`], ['Remates', i => s.shots[i]], ['Al arco', i => s.sot[i]], ['xG', i => s.xg[i].toFixed(2)],
@@ -204,7 +208,7 @@ export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: (
     ['Faltas', i => s.fouls[i]], ['Offsides', i => s.offs[i]], ['Amarillas', i => s.yc[i]], ['Rojas', i => s.rc[i]],
   ] : []
   return (
-    <Modal onClose={onClose}>
+    <div>
       <div className="dim center sm">{g.comps[f.comp]?.name} · {f.stage} · {fmtDate(f.date)}{f.att ? ` · ${f.att.toLocaleString('es-AR')} espectadores` : ''}</div>
       <div className="row" style={{ justifyContent: 'center', gap: 22, margin: '10px 0 16px' }}>
         <div className="row grow" style={{ justifyContent: 'flex-end' }}><b>{h.name}</b><Badge club={h} size={48} /></div><div className="score" style={{ fontSize: '3rem' }}>{resultText(f)}</div><div className="row grow"><Badge club={a} size={48} /><b>{a.name}</b></div>
@@ -222,7 +226,6 @@ export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: (
                 <span data-pid={g.players[l.pid] ? l.pid : undefined} className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name ?? 'Jugador'}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{l.rating.toFixed(1)}</b></div>))}</div>)}</div></>}
         </div>
       </div>
-      <div className="right" style={{ marginTop: 14 }}><button className="btn" onClick={onClose}>Cerrar</button></div>
-    </Modal>
+    </div>
   )
 }

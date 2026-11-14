@@ -167,7 +167,8 @@ export function CommandPalette({ pages, actions, onClose }: { pages: [string, st
 export const SHORTCUTS: [string, string][] = [
   ['Espacio', 'Continuar un día (o jugar, si hay partido)'], ['Mayús + Espacio', 'Ir al partido'], ['Ctrl + K  o  /', 'Barra de comandos: buscar y saltar a cualquier lado'],
   ['1 a 9, 0', 'Pantallas de la barra lateral, en orden'], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda'],
-  ['En el partido: Espacio', 'Pausar o reanudar'], ['En el partido: 1 a 4', 'Velocidad (pausa, normal, rápido, muy rápido)'],
+  ['En el partido: Espacio', 'Pausar o reanudar'], ['En el partido: 1 a 4', 'Velocidad (pausa, normal, rápido, muy rápido)'], ['En el partido: M', 'Partido completo o jugadas clave'],
+  ['En el partido: C, T, R', 'Mi equipo (cambios), táctica, rival'], ['En el partido: P', 'Elegir los paneles'], ['En el partido: Esc', 'Cancelar el cambio o la orden en curso'],
 ]
 export function ShortcutsHelp({ onClose }: { onClose: () => void }) {
   return <Modal onClose={onClose}><div className="row between" style={{ marginBottom: 12 }}><h2>Atajos de teclado</h2><button className="btn sm" onClick={onClose}>Cerrar</button></div>
