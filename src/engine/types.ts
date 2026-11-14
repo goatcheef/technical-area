@@ -128,7 +128,7 @@ export interface Manager {
 export interface Board { confidence: number; objective: string; target: number; fired: boolean; offers: number[] }
 export interface Offer { id: number; pid: number; from: number; fromName: string; fee: number; date: string; loan?: boolean }
 export interface Transfer { date: string; pid: number; name: string; from: string; to: string; fee: number; loan?: boolean }
-export interface Shot { min: number; side: 0 | 1; pid: number; xg: number; out: 'goal' | 'saved' | 'off' | 'block' | 'post'; x: number; y: number }
+export interface Shot { min: number; side: 0 | 1; pid: number; xg: number; out: 'goal' | 'saved' | 'off' | 'block' | 'post'; x: number; y: number; ast?: number }
 
 export interface MatchStats {
   poss: [number, number]; shots: [number, number]; sot: [number, number]

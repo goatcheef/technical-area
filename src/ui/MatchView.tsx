@@ -5,7 +5,10 @@ import { FORMATION_NAMES, POS_LABEL, posRating } from '../engine/positions'
 import type { Fixture } from '../engine/types'
 import { useGame } from '../store'
 import { Badge, Cond, Momentum, PosPill, ShotMap, duoColors, ratClass } from './common'
+import { Pitch2D } from './Pitch2D'
 import { TacticControls } from './Tactics'
+
+const TICK = 900 // milisegundos por minuto de juego a velocidad normal
 
 export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () => void }) {
   const { g } = useGame()
@@ -21,12 +24,18 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
 
   useEffect(() => {
     if (!speed || sim.finished) return
-    const t = setInterval(() => {
+    let t: ReturnType<typeof setTimeout>
+    const run = () => {
       const evs = sim.step()
       if (evs.some(e => e.text.startsWith('Entretiempo') || (e.type === 'rc' || e.type === 'yc2' || e.type === 'inj') && e.side === us) || sim.finished) setSpeed(0)
       bump()
-    }, 700 / speed)
-    return () => clearInterval(t)
+      // los goles y las ocasiones se miran un poco más
+      const sh = sim.frame.shot
+      const extra = speed >= 10 ? 0 : sh?.out === 'goal' ? 2000 / speed : sh ? 500 / speed : 0
+      t = setTimeout(run, TICK / speed + extra)
+    }
+    t = setTimeout(run, TICK / speed)
+    return () => clearTimeout(t)
   }, [speed, sim, us])
 
   const mine = sim.view(us), theirs = sim.view(us === 0 ? 1 : 0)
@@ -64,18 +73,10 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1.15fr .9fr 1.15fr', gap: 16, alignItems: 'start' }} className="mgrid">
-          <div className="card"><h3 style={{ marginBottom: 8 }}>Relato</h3>
-            <div className="feed">{feed.map((e, i) => <div key={feed.length - i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span>{e.text}</span></div>)}</div></div>
-          <div className="card"><h3 style={{ marginBottom: 8 }}>Estadísticas</h3>
-            {stats.map(([l, a, b, sh]) => (
-              <div key={l} style={{ marginBottom: 7 }}>
-                <div className="statrow"><b className="num">{a}</b><span className="lbl">{l}</span><b className="num right">{b}</b></div>
-                <div className="duo"><i style={{ width: `${sh * 100}%`, background: cols[0] }} /><i style={{ flex: 1, background: cols[1] }} /></div>
-              </div>))}
-            <h3 style={{ margin: '12px 0 6px' }}>Mapa de remates</h3><ShotMap shots={sim.shots} colors={cols} />
-            <h3 style={{ margin: '12px 0 6px' }}>Dominio del partido</h3><Momentum shots={sim.shots} colors={cols} upTo={sim.minute} />
+          <div className="card pitchcard" style={{ gridColumn: 'span 2', padding: 10 }}>
+            <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={speed ? TICK / speed : TICK} />
           </div>
-          <div className="card">
+          <div className="card" style={{ gridColumn: 3, gridRow: '1 / span 2' }} data-team>
             <div className="row" style={{ marginBottom: 8 }}><div className="seg">
               <button className={tab === 'team' ? 'on' : ''} onClick={() => setTab('team')}>Mi equipo</button>
               <button className={tab === 'tactic' ? 'on' : ''} onClick={() => setTab('tactic')}>Táctica</button>
@@ -101,8 +102,19 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
               </>)
             })()}
           </div>
+          <div className="card"><h3 style={{ marginBottom: 8 }}>Relato</h3>
+            <div className="feed" style={{ maxHeight: 300 }}>{feed.map((e, i) => <div key={feed.length - i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span>{e.text}</span></div>)}</div></div>
+          <div className="card"><h3 style={{ marginBottom: 8 }}>Estadísticas</h3>
+            {stats.map(([l, a, b, sh]) => (
+              <div key={l} style={{ marginBottom: 7 }}>
+                <div className="statrow"><b className="num">{a}</b><span className="lbl">{l}</span><b className="num right">{b}</b></div>
+                <div className="duo"><i style={{ width: `${sh * 100}%`, background: cols[0] }} /><i style={{ flex: 1, background: cols[1] }} /></div>
+              </div>))}
+            <h3 style={{ margin: '12px 0 6px' }}>Mapa de remates</h3><ShotMap shots={sim.shots} colors={cols} />
+            <h3 style={{ margin: '12px 0 6px' }}>Dominio del partido</h3><Momentum shots={sim.shots} colors={cols} upTo={sim.minute} />
+          </div>
         </div>
-        <style>{`@media (max-width: 1100px) { .mgrid { grid-template-columns: 1fr !important; } }`}</style>
+        <style>{`@media (max-width: 1100px) { .mgrid { grid-template-columns: 1fr !important; } .mgrid > * { grid-column: auto !important; grid-row: auto !important; } }`}</style>
       </div>
     </div>
   )

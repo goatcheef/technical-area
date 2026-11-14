@@ -13,7 +13,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 ## Arquitectura
 
 - `src/engine/` es TypeScript puro, sin React, con estado JSON serializable (`Game` en `types.ts`).
-  - `match.ts`: motor de partido minuto a minuto (`MatchSim`), controlable en vivo (cambios, táctica).
+  - `match.ts`: motor de partido minuto a minuto (`MatchSim`), controlable en vivo (cambios, táctica). `sim.frame` describe el último minuto para la cancha 2D.
   - `game.ts`: nueva partida, armado de equipos, fixture, tablas, fases, avance de días, cambio de temporada.
   - `career.ts`: DT, dirigencia, finanzas, mercado de pases, contratos, juveniles.
   - `positions.ts`: puestos, formaciones, valoración por puesto. `rng.ts`: azar con semilla.
@@ -36,7 +36,7 @@ Alrededor de 2,2 a 2,4 goles por partido, 42 % de triunfos locales, 28 % de empa
 
 ## Pendiente (en orden sugerido)
 
-1. Cancha 2D animada en los partidos.
+1. Mejorar la cancha 2D (`src/ui/Pitch2D.tsx`): hoy dibuja una jugada por minuto a partir de `sim.frame` (posesión y remate); faltan córners, tiros libres, faltas y saques dibujados.
 2. Corregir puestos y calidad de los jugadores más conocidos.
 3. Ajustar la economía: los clubes grandes acumulan demasiada caja con los años.
 4. Copa Argentina, Libertadores y Sudamericana.

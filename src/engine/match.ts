@@ -33,6 +33,8 @@ export class MatchSim {
   stats: MatchStats
   events: MatchEvent[] = []
   shots: Shot[] = []
+  /** Lo que pasó en el último minuto, para la cancha 2D. */
+  frame: { poss: 0 | 1; shot: Shot | null } = { poss: 0, shot: null }
   injuries: MatchResult['injuries'] = []
   tick = 0
   ticks: number[] = []
@@ -122,6 +124,7 @@ export class MatchSim {
     const k = 2.4
     const pH = clamp(h.mid ** k / (h.mid ** k + a.mid ** k), 0.24, 0.76)
     const ps = this.rng.chance(pH) ? 0 : 1
+    this.frame = { poss: ps as 0 | 1, shot: null }
     const S = this.sides[ps], O = this.sides[1 - ps]
     this.possTicks[ps]++
     // pases
@@ -224,6 +227,7 @@ export class MatchSim {
     const far = kind === 'long' ? 24 + r.next() * 10 : kind === 'fk' ? 20 + r.next() * 8 : kind === 'pen' ? 11 : 4 + r.next() * 12
     const log: Shot = { min, side: si, pid: sh.p.id, xg, out: 'off', x: kind === 'pen' ? 50 : clamp(50 + r.gauss() * 14, 12, 88), y: far }
     this.shots.push(log)
+    this.frame.shot = log
     if (r.chance(pGoal)) {
       log.out = 'goal'
       this.stats.sot[si]++; sh.line.sot++; sh.line.goals++; sh.acc += 1.1; S.goals++
@@ -232,7 +236,7 @@ export class MatchSim {
         const cands = S.on.filter(x => x !== sh)
         if (cands.length) {
           as = r.weighted(cands, x => ASSIST_W[x.pos] * (at(x.p, 'pas') + at(x.p, 'vis') + (kind === 'head' ? at(x.p, 'cro') * 2 : 0)))
-          as.line.ast++; as.acc += 0.8
+          as.line.ast++; as.acc += 0.8; log.ast = as.p.id
         }
       }
       for (const x of O.on) x.acc -= x.pos === 'GK' ? 0.35 : POS_LINE[x.pos] === 'DF' || x.pos === 'DM' ? 0.16 : 0.05
