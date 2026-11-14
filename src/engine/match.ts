@@ -3,7 +3,7 @@
 // concretos, según su puesto, su rol y las instrucciones de los dos equipos.
 import { Rng, clamp } from './rng'
 import { FORMATIONS, POS_LINE, ROLE, ZONE_W, at, fixRoles, posRating, roleFit, defaultRole, type Role } from './positions'
-import type { Attr, Club, Frame, MatchEvent, MatchStats, PlayKind, Player, PlayerLine, Pos, Shot, Tactic } from './types'
+import type { SideAnalysis, Attr, Club, Frame, MatchEvent, MatchStats, PlayKind, Player, PlayerLine, Pos, Shot, Tactic } from './types'
 
 interface OnPitch {
   p: Player; pos: Pos; role: Role; ch: 0 | 1 | 2; cond: number; day: number; acc: number; eff: number
@@ -20,10 +20,14 @@ export interface MatchOpts { knockout?: boolean; neutral?: boolean; seed: number
   /** Multiplicador de pelota parada por lado (entrenamiento). */
   sp?: [number, number]
   /** Goles del partido de ida que arrastra cada equipo (vuelta de una serie): define por global, sin alargue. */
-  agg?: [number, number] }
+  agg?: [number, number]
+  /** Peso del público local (0 = cancha neutral, alrededor de 1 = cancha llena). */
+  crowd?: number
+  /** Árbitro del partido: strict multiplica las tarjetas (0,75 a 1,3). */
+  ref?: { name: string; strict: number } }
 export interface MatchResult {
   hg: number; ag: number; pens?: [number, number]; et: boolean
-  stats: MatchStats; events: MatchEvent[]; lines: PlayerLine[]; shots: Shot[]
+  stats: MatchStats; events: MatchEvent[]; lines: PlayerLine[]; shots: Shot[]; analysis: [SideAnalysis, SideAnalysis]
   injuries: { pid: number; days: number; desc: string }[]; motm: number; cond: Record<number, number>
 }
 
@@ -42,6 +46,8 @@ export class MatchSim {
   sides: [Side, Side]
   stats: MatchStats
   events: MatchEvent[] = []
+  /** Lectura del partido de cada bando (sectores, peligro, pérdidas, duelos). */
+  an: [SideAnalysis, SideAnalysis] = [0, 1].map(() => ({ att: [0, 0, 0], xg: [0, 0, 0], lost: [0, 0, 0], duels: {} })) as [SideAnalysis, SideAnalysis]
   shots: Shot[] = []
   frame: Frame = { poss: 0, route: [], shot: null, kind: 'open', channel: 1 }
   injuries: MatchResult['injuries'] = []
@@ -72,7 +78,8 @@ export class MatchSim {
     this.ht = 45 + s1
     for (let m = 46; m <= 90; m++) this.ticks.push(m)
     for (let i = 0; i < s2; i++) this.ticks.push(90)
-    this.ev(0, 'info', 0, `Comienza el partido en ${opts.neutral ? 'cancha neutral' : home.stadium}.`)
+    const rf = opts.ref ? ` Arbitra ${opts.ref.name}${opts.ref.strict >= 1.15 ? ', de mano dura con las tarjetas' : opts.ref.strict <= 0.85 ? ', que deja jugar' : ''}.` : ''
+    this.ev(0, 'info', 0, `Comienza el partido en ${opts.neutral ? 'cancha neutral' : home.stadium}.${rf}`)
   }
 
   private mkOn(p: Player, pos: Pos, role: Role, ch: 0 | 1 | 2, side: 0 | 1, started: boolean, tick: number): OnPitch {
@@ -117,12 +124,16 @@ export class MatchSim {
       mid *= 1 + 0.04 * (t.pressing - 1) + 0.035 * (t.line - 1) - 0.012 * (t.width - 1) - 0.035 * (t.passing - 1)
       if (t.pressing === 2 && t.line === 0) mid *= 0.96 // presión alta con línea baja: equipo partido
       if (t.passing === 0 && t.tempo === 0) mid *= 1.03
-      if (i === 0 && !this.opts.neutral) mid *= 1.045
+      if (i === 0 && !this.opts.neutral) mid *= 1 + 0.045 * this.crowdK
       s.mid = (mid / 4.5) * (this.opts.boost?.[i]?.[2] ?? 1)
     }
     this.dirty = false
   }
-  private home(i: number) { return i === 0 && !this.opts.neutral ? 0.02 : 0 }
+  private get crowdK() { return (this.opts.crowd ?? 0.85) / 0.85 }
+  private home(i: number) { return i === 0 && !this.opts.neutral ? 0.02 * this.crowdK : 0 }
+  private condOf(S: Side) { let s = 0; for (const x of S.on) s += x.cond; return S.on.length ? s / S.on.length : 80 }
+  /** Envión: el que acaba de convertir empuja unos minutos. */
+  momUntil: [number, number] = [0, 0]
 
   // ---------- un minuto de juego ----------
   step(): MatchEvent[] {
@@ -201,7 +212,7 @@ export class MatchSim {
         const mk = dcs.length ? r.pick(dcs) : O.on[0]
         fr.route.push(tgt.p.id); fr.kind = 'aerial'
         const p = 0.47 + (this.sk(tgt, 'hea', 'jmp', 'str') - this.sk(mk, 'hea', 'jmp', 'str')) * 0.035 + (tgt.role.id === 'tgt' ? 0.07 : 0) + this.home(si)
-        if (!r.chance(clamp(p, 0.15, 0.8))) { mk.acc += 0.05; return this.lose(si, min, mk, 0.3, depth) }
+        if (!r.chance(clamp(p, 0.15, 0.8))) { mk.acc += 0.05; this.an[si].lost[0]++; return this.lose(si, min, mk, 0.3, depth) }
         tgt.acc += 0.05; bonus3 = -0.03
       } else {
         const press = O.on.filter(x => POS_LINE[x.pos] === 'FW' || x.pos === 'AMC')
@@ -210,6 +221,7 @@ export class MatchSim {
         if (!r.chance(clamp(p1, 0.5, 0.99))) {
           const w = press.length ? r.pick(press) : O.on[0]
           w.acc += 0.1; builder.acc -= 0.12
+          this.an[si].lost[0]++
           return this.lose(si, min, w, 1.5, depth) // pérdida en la salida: muy peligrosa
         }
         if (ot.pressing === 2) bonus3 += 0.05 // superada la presión alta, hay espacios
@@ -224,6 +236,7 @@ export class MatchSim {
         if (!r.chance(clamp(p2, 0.2, 0.9))) {
           const w = r.weighted(stop, x => at(x.p, 'tck') + at(x.p, 'pos'))
           w.acc += 0.06; link.acc -= 0.03
+          this.an[si].lost[1]++
           return this.lose(si, min, w, 0.7, depth)
         }
         link.acc += 0.03
@@ -252,8 +265,14 @@ export class MatchSim {
     }
     if (hard) a3 *= 0.96
     const p3 = 0.352 + (a3 - d3) * 0.035 + bonus3 + 0.02 * (t.mentality - 2) + 0.025 * (t.tempo - 1) + (ot.line === 0 ? -0.05 : ot.line === 2 ? 0.02 : 0)
-      + (mk.role.id === 'stp' ? -0.02 : 0) + bAtt * 2.5 - bDef * 2.5 + this.home(si) + (S.on.length - O.on.length) * 0.04
-    if (!r.chance(clamp(p3, 0.12, 0.85))) {
+      + (mk.role.id === 'stp' ? -0.02 : 0)
+      + (this.tick < this.momUntil[si] ? 0.03 : 0) + (this.condOf(S) - this.condOf(O)) * 0.0025 - (min <= 15 ? 0.03 : 0) + (min >= 76 ? 0.035 : 0)
+      + bAtt * 2.5 - bDef * 2.5 + this.home(si) + (S.on.length - O.on.length) * 0.04
+    this.an[si].att[ch]++
+    const won = r.chance(clamp(p3, 0.12, 0.85))
+    this.duel(si, cre.p.id, won); this.duel((1 - si) as 0 | 1, mk.p.id, !won)
+    if (!won) {
+      this.an[si].lost[2]++
       mk.acc += 0.07; cre.acc -= 0.02
       const u = r.next(), foulP = (hard ? 1.6 : 1) * 0.15 * [0.75, 1, 1.35][ot.tackling] * (0.6 + at(mk.p, 'agg') / 25) * (mk.role.id === 'stp' ? 1.25 : 1)
       if (u < foulP) return this.attackFoul(si, min, cre, mk)
@@ -371,7 +390,7 @@ export class MatchSim {
     this.stats.fouls[(1 - si) as 0 | 1]++
     this.card((1 - si) as 0 | 1, f, min, 1.05)
     this.frame.poss = si
-    if (r.chance(0.034)) {
+    if (r.chance(0.034 * (0.85 + 0.15 * (this.opts.ref?.strict ?? 1)))) {
       const tk = this.taker(S, 'pen')
       this.frame.kind = 'pen'; this.frame.route = [tk.p.id]
       this.ev(min, 'info', si, `¡Penal para ${S.club.short}! Falta de ${this.nm(f)} sobre ${this.nm(victim)}.`)
@@ -391,7 +410,7 @@ export class MatchSim {
     const xg = kind === 'pen' ? base : base * (0.54 + 0.72 * r.next())
     if (this.oi(O, sh, 'tight') && kind !== 'pen' && kind !== 'fk') sk *= 0.94
     const pGoal = clamp(xg * (0.49 + 0.92 * sk) * sh.role.shoot ** 0.25 * (1.62 - 0.9 * gkQ) * (kind === 'long' && gk?.role.id === 'sk' ? 1.2 : 1), 0.008, 0.95)
-    this.stats.shots[si]++; this.stats.xg[si] += xg
+    this.stats.shots[si]++; this.stats.xg[si] += xg; this.an[si].xg[this.frame.channel] += xg
     sh.line.shots++
     const n = this.nm(sh), club = S.club.short
     const far = kind === 'long' ? 24 + r.next() * 10 : kind === 'fk' ? 20 + r.next() * 8 : kind === 'pen' ? 11 : 4 + r.next() * 12
@@ -401,7 +420,7 @@ export class MatchSim {
     const pre = intro ? `${intro}. ` : ''
     if (r.chance(pGoal)) {
       log.out = 'goal'
-      this.stats.sot[si]++; sh.line.sot++; sh.line.goals++; sh.acc += 1.1; S.goals++
+      this.stats.sot[si]++; sh.line.sot++; sh.line.goals++; sh.acc += 1.1; S.goals++; this.momUntil[si] = this.tick + 8
       if (as) { as.line.ast++; as.acc += 0.8 }
       for (const x of O.on) x.acc -= x.pos === 'GK' ? 0.35 : POS_LINE[x.pos] === 'DF' || x.pos === 'DM' ? 0.16 : 0.05
       for (const x of S.on) x.acc += 0.04
@@ -487,7 +506,7 @@ export class MatchSim {
   }
   private card(si: 0 | 1, f: OnPitch, min: number, k: number) {
     const S = this.sides[si]
-    const mod = [0.75, 1, 1.35][S.tactic.tackling] * (0.6 + at(f.p, 'agg') / 25) * k * (1 + ((f.p.pers?.temp ?? 10) - 10) * 0.03)
+    const mod = [0.75, 1, 1.35][S.tactic.tackling] * (0.6 + at(f.p, 'agg') / 25) * k * (1 + ((f.p.pers?.temp ?? 10) - 10) * 0.03) * (this.opts.ref?.strict ?? 1) * (this.opts.importance ? 1.1 : 1)
     const u = this.rng.next()
     if (u < 0.0028 * mod) this.sendOff(si, f, min, false)
     else if (u < 0.178 * mod * (f.yellow ? 0.3 : 1)) {
@@ -578,6 +597,29 @@ export class MatchSim {
     Object.assign(S.tactic, patch)
     if (patch.formation && patch.formation !== oldF) { this.reshape(S); S.fam = Math.max(0.9, S.fam - 0.02) } // cambiar el dibujo en pleno partido cuesta
     this.dirty = true
+  }
+  private duel(si: 0 | 1, pid: number, won: boolean) { const d = (this.an[si].duels[pid] ??= [0, 0]); d[won ? 0 : 1]++ }
+  /** Lo que el ayudante le marca al DT durante el partido. */
+  insights(si: 0 | 1): string[] {
+    if (this.minute < 15) return []
+    const S = this.sides[si], O = this.sides[1 - si], me = this.an[si], op = this.an[1 - si], out: string[] = []
+    const sum = (a: number[]) => a.reduce((x, y) => x + y, 0)
+    // el sector izquierdo del rival es nuestra derecha
+    const w = op.xg.indexOf(Math.max(...op.xg))
+    if (op.xg[w] >= 0.45 && op.xg[w] >= sum(op.xg) * 0.5) out.push(`El rival nos lastima por ${['nuestra derecha', 'el medio', 'nuestra izquierda'][w]}: ${op.xg[w].toFixed(2)} de xG por ese sector.`)
+    const lost = S.on.map(x => ({ x, d: me.duels[x.p.id] })).filter(o => o.d && o.d[1] - o.d[0] >= 3).sort((a, b) => (b.d[1] - b.d[0]) - (a.d[1] - a.d[0]))[0]
+    if (lost) out.push(`${this.nm(lost.x)} pierde los duelos: ganó ${lost.d[0]} de ${lost.d[0] + lost.d[1]}. Pensá en cambiarlo o en darle ayuda por ese lado.`)
+    const ace = S.on.map(x => ({ x, d: me.duels[x.p.id] })).filter(o => o.d && o.d[0] - o.d[1] >= 3 && POS_LINE[o.x.pos] !== 'DF').sort((a, b) => (b.d[0] - b.d[1]) - (a.d[0] - a.d[1]))[0]
+    if (ace) out.push(`${this.nm(ace.x)} le gana a su marcador una y otra vez: cargá el juego por su sector.`)
+    if (me.lost[0] >= 6 && me.lost[0] >= me.lost[1] && S.tactic.passing !== 2) out.push(`Perdemos muchas pelotas en la salida (${me.lost[0]}). Contra esta presión conviene salir largo.`)
+    if (sum(me.att) >= 12 && sum(me.xg) < 0.3) out.push('Llegamos, pero no generamos peligro. Probá con más gente en el área o con remates de afuera.')
+    const tired = S.on.filter(x => x.pos !== 'GK' && x.cond < 62)
+    if (tired.length) out.push(`${tired.map(x => this.nm(x)).join(', ')} ${tired.length > 1 ? 'están fundidos' : 'está fundido'}.`)
+    const risk = S.on.find(x => x.yellow && at(x.p, 'agg') >= 13)
+    if (risk) out.push(`${this.nm(risk)} tiene amarilla y va fuerte a cada pelota: corre riesgo de expulsión.`)
+    const star = O.on.filter(x => x.acc >= 0.8).sort((a, b) => b.acc - a.acc)[0]
+    if (star && !S.tactic.manMark) out.push(`${this.nm(star)} es la figura del rival. Podés marcarlo encima desde la pestaña Rival.`)
+    return out.slice(0, 4)
   }
   /** Orden sobre un rival puntual. */
   toggleOppo(si: 0 | 1, pid: number, k: 'tight' | 'hard' | 'press') {
@@ -690,7 +732,7 @@ export class MatchSim {
       }
     })
     const motm = lines.reduce((b, l) => (l.rating > b.rating ? l : b), lines[0]).pid
-    return { hg: h.goals, ag: a.goals, pens: this.pens, et: this.et, stats: this.stats, events: this.events, lines, injuries: this.injuries, motm, cond, shots: this.shots }
+    return { hg: h.goals, ag: a.goals, pens: this.pens, et: this.et, stats: this.stats, events: this.events, lines, injuries: this.injuries, motm, cond, shots: this.shots, analysis: this.an }
   }
 }
 

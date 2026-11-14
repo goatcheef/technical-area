@@ -118,6 +118,10 @@ export function fixLineup(g: Game, clubId: number): boolean {
 }
 
 
+// Árbitros (nombres ficticios)
+const REF_N = ['Martín', 'Gustavo', 'Fernando', 'Pablo', 'Diego', 'Sergio', 'Andrés', 'Hernán', 'Leandro', 'Mauro', 'Ariel', 'Nicolás', 'Javier', 'Silvio', 'Rodolfo']
+const REF_A = ['Iriarte', 'Landaburu', 'Echeverri', 'Ocampo', 'Sarmiento', 'Bertolotti', 'Galarza', 'Quinteros', 'Villafañe', 'Arregui', 'Montesano', 'Lucero', 'Cabrera', 'Ledesma', 'Pizarro']
+
 // ---------- tablas ----------
 export interface Row { clubId: number; pj: number; g: number; e: number; p: number; gf: number; gc: number; pts: number }
 export function tableOf(fixtures: Fixture[], teams: number[]): Row[] {
@@ -316,14 +320,17 @@ export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
   const sp: [number, number] = [1, 1]
   if (userSide != null) { const m = mgrBoost(g.manager), e = trainEdge(g); boost[userSide] = [m[0] * e.att, m[1] * e.def, m[2] * harmonyBoost(g)]; sp[userSide] = e.sp }
   const importance = f.knockout || f.leg || isDerby(g.clubs[f.home], g.clubs[f.away]) ? 1 : 0
-  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp, importance, agg: aggFor(g, f) })
+  const hc = g.clubs[f.home], derby = isDerby(hc, g.clubs[f.away])
+  const crowd = f.neutral ? 0 : clamp(0.35 + hc.rep / 160, 0.2, 1) * (derby ? 1.15 : 1)
+  const ref = withRng(g, r => ({ name: `${REF_N[r.int(0, REF_N.length - 1)]} ${REF_A[r.int(0, REF_A.length - 1)]}`, strict: 0.75 + r.next() * 0.55 }))
+  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { crowd, ref, seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp, importance, agg: aggFor(g, f) })
 }
 
 export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   const isUser = f.home === g.userClubId || f.away === g.userClubId
   f.played = true; f.hg = res.hg; f.ag = res.ag; f.pens = res.pens; f.et = res.et; f.stats = res.stats
   f.events = isUser ? res.events : res.events.filter(e => ['goal', 'pen-goal', 'rc', 'yc2'].includes(e.type))
-  if (isUser) { f.lines = res.lines; f.shots = res.shots }
+  if (isUser) { f.lines = res.lines; f.shots = res.shots; f.analysis = res.analysis }
   const hc = g.clubs[f.home]
   f.att = Math.round(hc.capacity * clamp(0.35 + hc.rep / 160 + (g.rngState % 100) / 500, 0.2, 1))
   if (!f.neutral) gateIncome(g, f.home, f.att)

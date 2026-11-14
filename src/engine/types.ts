@@ -165,6 +165,8 @@ export interface Transfer { date: string; pid: number; name: string; from: strin
 export type PlayKind = 'open' | 'cross' | 'through' | 'long' | 'corner' | 'fk' | 'pen' | 'counter' | 'aerial'
 /** Lo que pasó en el último minuto, para dibujarlo en la cancha. */
 export interface Frame { poss: 0 | 1; route: number[]; shot: Shot | null; kind: PlayKind; channel: 0 | 1 | 2; lostTo?: number }
+/** Lectura de un partido para un bando: [izquierda, centro, derecha] desde su ataque; pérdidas en [salida, elaboración, último tercio]. */
+export interface SideAnalysis { att: number[]; xg: number[]; lost: number[]; duels: Record<number, [number, number]> }
 export interface Shot { min: number; side: 0 | 1; pid: number; xg: number; out: 'goal' | 'saved' | 'off' | 'block' | 'post'; x: number; y: number; ast?: number; kind?: string }
 
 export interface MatchStats {
@@ -211,6 +213,7 @@ export interface Fixture {
   events?: MatchEvent[]
   lines?: PlayerLine[]
   shots?: Shot[]
+  analysis?: [SideAnalysis, SideAnalysis]
   att?: number
 }
 

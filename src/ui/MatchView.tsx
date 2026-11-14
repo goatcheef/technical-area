@@ -82,6 +82,9 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
         <div style={{ display: 'grid', gridTemplateColumns: '1.15fr .9fr 1.15fr', gap: 16, alignItems: 'start' }} className="mgrid">
           <div className="card pitchcard" style={{ gridColumn: 'span 2', padding: 10 }}>
             <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={dur.current} />
+            {(() => { const tips = sim.insights(us); return tips.length ? (
+              <div className="col" style={{ gap: 4, padding: '10px 4px 2px' }}><h3>Tu ayudante</h3>
+                {tips.map((t, i) => <div key={i} className="row sm" style={{ alignItems: 'flex-start' }}><span className="acc">●</span><span>{t}</span></div>)}</div>) : null })()}
             {sim.tick === 0 && (
               <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Previa.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">Antes de salir a la cancha, ¿qué les decís?</span>
                 {(['Tranquilos, jueguen como saben', 'Hoy se gana sí o sí', 'Nadie confía en nosotros: demuéstrenlo'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.preTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}</div>)}

@@ -14,7 +14,8 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 ## Arquitectura
 
 - `src/engine/` es TypeScript puro, sin React, con estado JSON serializable (`Game` en `types.ts`).
-  - `match.ts`: motor de partido por jugadas (`MatchSim`). Cada minuto un equipo tiene la pelota y la jugada pasa por salida, elaboración, último tercio y definición; cada fase es un duelo entre jugadores concretos según puesto, rol e instrucciones. Controlable en vivo (cambios, táctica, roles, charla). `sim.frame` describe el último minuto (quiénes la tocaron, carril, tipo de jugada) para la cancha 2D.
+  - `match.ts`: motor de partido por jugadas (`MatchSim`). Cada minuto un equipo tiene la pelota y la jugada pasa por salida, elaboración, último tercio y definición; cada fase es un duelo entre jugadores concretos según puesto, rol e instrucciones. Controlable en vivo (cambios, táctica, roles, charla). `sim.frame` describe el último minuto (quiénes la tocaron, carril, tipo de jugada) para la cancha 2D. `sim.an` registra por bando ataques y xG por sector, pérdidas por fase y duelos por jugador: de ahí salen los consejos del ayudante (`insights`) y el análisis del informe (`f.analysis`). Público (`opts.crowd`, escala la localía), árbitro con criterio propio (`opts.ref`, nombres ficticios), envión tras el gol, cansancio comparado entre equipos y final de partido más abierto.
+  - `ai.ts`: el cerebro de los DT rivales. `planMatch` arma el plan de cada partido (fuerza de los dos onces con el físico del día y la localía; repliegue o presión, ataque al lateral flojo, marca personal a la figura, salida larga contra presión alta, dibujo defensivo contra rivales superiores) sobre la identidad táctica del club (`club.style`); rota si hay otro partido cerca. `weeklyAiTraining`: los planteles rivales entrenan. En el partido (`aiManage` en `match.ts`) la IA cambia el dibujo y mete delanteros si pierde, se cierra si gana por uno al final y se reacomoda tras una expulsión.
   - `game.ts`: nueva partida, armado de equipos, fixture, tablas, fases, avance de días, cambio de temporada.
   - `career.ts`: DT, dirigencia, finanzas, mercado de pases, contratos, juveniles.
   - `squad.ts`: el plantel como grupo. Personalidad (`persOf`: ambición, temperamento, lealtad, presión), rol en el plantel (`p.status`) y minutos esperados, conformidad (`p.happy`), promesas, charlas, armonía del vestuario (afecta el rendimiento), reserva, ojeo con incertidumbre (`knowOf`, `shown`: los jugadores ajenos se ven como rangos) y negociación de contratos (`demand`, `evalOffer`).
@@ -42,7 +43,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 
 ## Calibración de referencia del motor
 
-Alrededor de 2,2 a 2,4 goles por partido, 40-42 % de triunfos locales, 27 % de empates, 22-23 remates, 9 córners, 5 amarillas y 0,3 rojas por partido. Las constantes están en `attack`, `chance` y `shot` de `match.ts`; después de tocarlas, correr `npm run sim -- 2`.
+Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 39-42 % de triunfos locales, 26-28 % de empates, 12-14 % de 0-0, 22 remates, 9 córners, 3,4 offsides, 5 amarillas y 0,3 rojas por partido. Goles por tramo de 15 minutos parecidos a los reales (el último tramo es el de más goles). La recuperación física es de unos 6 puntos por día: un partido a mitad de semana se nota. Las constantes están en `attack`, `chance` y `shot` de `match.ts`; después de tocarlas, correr `npm run sim -- 2`.
 
 ## Plan de jugabilidad (acordado con el usuario)
 

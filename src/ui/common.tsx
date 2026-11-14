@@ -268,6 +268,26 @@ export function PlayerModal({ id, onClose }: { id: number; onClose: () => void }
   )
 }
 
+/** Análisis del partido: por dónde atacó cada uno, dónde perdió la pelota y quién ganó los duelos. */
+function Analysis({ g, f, cols }: { g: Game; f: Fixture; cols: [string, string] }) {
+  const an = f.analysis!, max = Math.max(0.3, ...an[0].xg, ...an[1].xg)
+  const Bar = ({ v, c }: { v: number; c: string }) => <div className="bar" style={{ flex: 1 }}><i style={{ width: `${(v / max) * 100}%`, background: c }} /></div>
+  const duels = ([0, 1] as const).flatMap(si => Object.entries(an[si].duels).map(([pid, d]) => ({ si, pid: Number(pid), w: d[0], l: d[1] }))).filter(d => g.players[d.pid] && d.w + d.l >= 3)
+  const top = [...duels].sort((a, b) => (b.w - b.l) - (a.w - a.l)).slice(0, 3), bottom = [...duels].sort((a, b) => (b.l - b.w) - (a.l - a.w)).slice(0, 3)
+  const D = (d: typeof duels[0]) => <div key={`${d.si}-${d.pid}`} className="row between sm"><span className="ell"><span style={{ color: cols[d.si] }}>●</span> {g.players[d.pid].name}</span><b className="num">{d.w} ganados · {d.l} perdidos</b></div>
+  return (<>
+    <h3>Peligro por sector (xG)</h3>
+    {(['Izquierda', 'Centro', 'Derecha'] as const).map((n, k) => (
+      <div key={n} className="row sm" style={{ gap: 8 }}><span className="dim" style={{ width: 70 }}>{n}</span>
+        <Bar v={an[0].xg[k]} c={cols[0]} /><b className="num" style={{ width: 34 }}>{an[0].xg[k].toFixed(2)}</b>
+        <Bar v={an[1].xg[k]} c={cols[1]} /><b className="num" style={{ width: 34 }}>{an[1].xg[k].toFixed(2)}</b></div>))}
+    <div className="dim sm">Cada sector visto desde el ataque de cada equipo: la izquierda de uno es la derecha del otro.</div>
+    <h3>Dónde se perdió la pelota</h3>
+    {([0, 1] as const).map(si => <div key={si} className="row between sm"><span style={{ color: cols[si] }}>● {g.clubs[si === 0 ? f.home : f.away].short}</span><span className="num">salida {an[si].lost[0]} · elaboración {an[si].lost[1]} · último tercio {an[si].lost[2]}</span></div>)}
+    {duels.length > 0 && <><h3>Duelos</h3><div className="dim sm">Los que más ganaron</div>{top.map(D)}<div className="dim sm" style={{ marginTop: 4 }}>Los que más perdieron</div>{bottom.map(D)}</>}
+  </>)
+}
+
 export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: () => void }) {
   const h = g.clubs[f.home], a = g.clubs[f.away], s = f.stats, cols = duoColors(h, a)
   const rows: [string, (i: 0 | 1) => string | number][] = s ? [
@@ -284,7 +304,8 @@ export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: (
       <div className="grid2">
         <div className="col"><h3>Incidencias</h3>
           <div className="col" style={{ gap: 5 }}>{(f.events ?? []).filter(e => !['save', 'chance', 'post'].includes(e.type)).map((e, i) => <div key={i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span>{e.text}</span></div>)}</div>
-          {f.shots && <><h3>Mapa de remates</h3><ShotMap shots={f.shots} colors={cols} /><h3>Dominio del partido</h3><Momentum shots={f.shots} colors={cols} /></>}</div>
+          {f.shots && <><h3>Mapa de remates</h3><ShotMap shots={f.shots} colors={cols} /><h3>Dominio del partido</h3><Momentum shots={f.shots} colors={cols} /></>}
+          {f.analysis && <Analysis g={g} f={f} cols={cols} />}</div>
         <div className="col"><h3>Estadísticas</h3>
           <div>{rows.map(([l, fn]) => <div key={l} className="statrow"><b className="num">{fn(0)}</b><span className="lbl">{l}</span><b className="num right">{fn(1)}</b></div>)}</div>
           {f.lines && <><h3>Puntajes</h3>
