@@ -176,3 +176,24 @@ td.r, th.r { text-align: right; } td.c, th.c { text-align: center; }
 .searchbox { min-width: 190px; }
 .pendbtn { max-width: 230px; }
 @media (max-width: 1500px) { .top:has(.pendbtn) .topnext, .top:has(.advancing) .topnext { display: none !important; } }
+
+/* ---------- tabla de jugadores ---------- */
+.ptable { padding: 4px 8px 8px; }
+.ptable table { table-layout: fixed; width: 100%; }
+.ptable td, .ptable th { overflow: hidden; text-overflow: ellipsis; padding-left: 6px; padding-right: 6px; }
+.ptable th:first-child, .ptable td:first-child { padding-right: 0; }
+.ptable input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
+.ptable tr.selrow td { background: var(--accent-soft); }
+.ptable-bar .seg button { padding: 4px 10px; }
+.bulkbar { position: sticky; top: 0; z-index: 5; gap: 8px; background: var(--panel2); border: 1px solid var(--accent); border-radius: 12px; padding: 8px 12px; box-shadow: 0 10px 30px -14px #000; }
+.colmenu { position: absolute; z-index: 40; top: calc(100% + 6px); left: 0; width: min(760px, 86vw); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: 0 24px 60px -18px #000; display: flex; flex-direction: column; gap: 10px; }
+.colmenu-order { display: flex; flex-wrap: wrap; gap: 5px; }
+.colmenu-order .chip { gap: 4px; padding: 2px 6px; } .colmenu-order .linkish { padding: 0 3px; color: var(--dim); } .colmenu-order .linkish:hover { color: var(--text); background: none; }
+.colmenu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 16px; max-height: 46vh; overflow-y: auto; }
+.cmp { display: grid; gap: 0 14px; align-items: center; }
+.cmp-radar { grid-row: span 1; display: flex; justify-content: center; }
+.cmp-head { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 6px; border-top: 3px solid; border-radius: 0 0 10px 10px; text-align: center; }
+.cmp-l { color: var(--dim); font-size: .84rem; padding: 5px 0; border-bottom: 1px solid var(--line2); }
+.cmp-c { text-align: center; padding: 5px 0; border-bottom: 1px solid var(--line2); }
+.cmp-sec { grid-column: 1 / -1; font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; color: var(--faint); font-weight: 650; padding: 14px 0 4px; }
+@media (max-width: 1100px) { .colmenu-grid { grid-template-columns: repeat(2, 1fr); } }

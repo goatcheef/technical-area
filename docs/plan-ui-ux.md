@@ -61,11 +61,13 @@ Resultado: cambio de pantalla entre 2 y 84 ms (en modo desarrollo), plantel sin 
 
 Resultado: bandeja con pestañas (para vos, pendientes, plantel, mercado, partidos, torneos, todo el fútbol), lista y lectura lado a lado, y acciones en el mensaje (aceptar, pedir más o rechazar una oferta; aceptar un trabajo; hablar con un jugador o declararlo transferible; ver informes). Responder una oferta pasa de 3 clics a 1 desde Pendientes. El avance a la siguiente fecha muestra el progreso, nunca bloquea la interfaz más de 18 ms y frena cuando llega algo para decidir. En lugar del web worker se avanza día por día cediendo el turno al navegador, porque un día cuesta 1 ms y copiar el estado al worker costaría más.
 
-### Etapa 3: tablas profesionales
+### Etapa 3: tablas profesionales — hecha
 - Componente de tabla único para todo el juego: columnas elegibles, orden por varias columnas, filtros, vistas guardadas (General, Físico, Contrato, Ojeo, Estadísticas).
 - Sin desplazamiento horizontal: las columnas se adaptan al ancho.
 - Comparador de jugadores lado a lado (radar, atributos, estadísticas, contrato).
 - Selección múltiple con acciones (al banco, a la reserva, transferibles, ojear).
+
+Resultado: una sola tabla para plantel, ficha de club, mercado, seguimiento y estadísticas. Tiene vistas General, Físico, Contrato, Ojeo y Estadísticas, más las que guarda el jugador. Cualquier dato o atributo puede ser columna, el orden admite hasta tres criterios (Mayús + clic) y hay filtro por línea y por nombre. Sin desplazamiento horizontal a 1440 ni a 1100 px: se ocultan las columnas menos importantes y se avisa cuántas. Selección múltiple con Mayús para rangos, acciones masivas y comparador de 2 o 3 jugadores (radar superpuesto, atributos con el mejor marcado, temporada y contrato) que respeta lo que se conoce de cada uno.
 
 ### Etapa 4: día de partido
 - Disposición configurable: cancha grande, paneles a elección (estadísticas, ayudante, relato, mi equipo).
