@@ -5,7 +5,7 @@ import { acceptJob, acceptOffer, haggle, jobConsequences, offerDeadline, rejectJ
 import { clubsIn, fmtDate, injuryOutlook, isMine, leagueFx, markRead, nextUserFixture, squadOf, tableOf } from '../engine/game'
 import { pendingKeyOf, pendingOf, type Pending } from '../engine/inbox'
 import { POS_NAME, ageOn } from '../engine/positions'
-import { STATUS, demand, minutesShare, naturalStatusFor, persLabels, setListed } from '../engine/squad'
+import { STATUS, demand, minutesShare, naturalStatusFor, persLabels, setListed, toggleShortlist } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Club, type Fixture, type Game, type News, type Offer } from '../engine/types'
 import { delegatePress, scoutReport } from '../engine/week'
 import { useGame, useSticky, type Route } from '../store'
@@ -376,7 +376,7 @@ function Toggles({ label, items, value, onPick, className, btnClass = '' }: { la
 
 // ---------- lectura ----------
 /** `nav`: solo lleva a otra pantalla (lectura); sigue habilitada durante el avance y en pantallas angostas puede salir de la barra. `dec`: decide sin confirmación. */
-type Act = { label: ReactNode; kind?: 'primary' | 'danger'; run?: () => void; confirm?: { label: string; danger?: boolean; run: () => void }; disabled?: boolean; nav?: boolean; dec?: boolean }
+type Act = { label: ReactNode; kind?: 'primary' | 'danger'; run?: () => void; confirm?: { label: string; danger?: boolean; run: () => void }; disabled?: boolean; nav?: boolean; dec?: boolean; on?: boolean }
 
 /** Fila de acciones con confirmación en el lugar (F6): el botón se reemplaza por "Confirmar…" y "No"; Esc o "No" vuelven. */
 function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: boolean }) {
@@ -389,7 +389,7 @@ function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: b
     <div className="ib-acts" onKeyDown={e => { if (e.key === 'Escape' && open != null) { e.preventDefault(); cancel() } }}>
       {acts.map((a, i) => open === i && a.confirm
         ? <div key={i} className={`ib-confirm ${a.confirm.danger ? 'danger' : ''}`}><button ref={conf} className={a.confirm.danger ? 'btn danger strong' : 'btn primary'} onClick={a.confirm.run}>{a.confirm.label}</button><button className="btn" onClick={cancel}>No</button></div>
-        : <button key={i} ref={el => { btns.current[i] = el }} className={`btn ${a.kind ?? ''}`} data-primary={a.kind === 'primary' || undefined} disabled={a.disabled || (busy && !a.nav && (!!a.confirm || !!a.dec))} onClick={() => (a.confirm ? setOpen(i) : a.run?.())}>{a.label}</button>)}
+        : <button key={i} ref={el => { btns.current[i] = el }} className={`btn ${a.kind ?? ''} ${a.on ? 'on' : ''}`} aria-pressed={a.on ?? undefined} data-primary={a.kind === 'primary' || undefined} disabled={a.disabled || (busy && !a.nav && (!!a.confirm || !!a.dec))} onClick={() => (a.confirm ? setOpen(i) : a.run?.())}>{a.label}</button>)}
     </div>
     {busy && decision && <div className="ib-help">Frená el avance para decidir.</div>}
     {help.filter(Boolean).map((h, i) => <div key={i} className="ib-help">{h}</div>)}
@@ -551,7 +551,10 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
         const mine = p.clubId === g.userClubId, ask = mine ? null : demand(g, p, 'buy', naturalStatusFor(g, p)).terms.wage
         extra = <div className="attr-cols ib-attrs">{[...top, low].map((i, j) => <div key={i} className="attr"><span className="attr-l">{j === 4 ? 'Más flojo: ' : ''}{ATTR_LABEL[ATTRS[i]]}</span><span className={`v ${attrClass(p.attrs[i])}`}>{p.attrs[i]}</span></div>)}</div>
         kpis = <><Kpi t l="Personalidad" v={persLabels(p).join(', ') || '—'} /><Kpi l="Valor" v={money(p.value)} />{ask != null && <Kpi l="Pedido de sueldo" v={money(ask)} s="por mes" />}</>
-        acts = [{ label: 'Ver la ficha', kind: 'primary', run: () => openPlayer(p.id) }, ...(!mine ? [{ label: 'Ofertar', run: () => nav({ page: 'player', id: p.id, tab: 'contrato' }) }] : [])]
+        const followed = g.shortlist.includes(p.id)
+        acts = [{ label: 'Ver la ficha', kind: 'primary', run: () => openPlayer(p.id) }, ...(!mine ? [
+          { label: followed ? '✓ En seguimiento' : 'Seguir', on: followed, run: () => { toggleShortlist(g, p.id); save(); refresh() } },
+          { label: 'Ofertar', run: () => nav({ page: 'player', id: p.id, tab: 'contrato' }) }] : [])]
       }
     } else if (n.act === 'rival') {
       const nx = nextUserFixture(g)

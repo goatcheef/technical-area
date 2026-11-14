@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { acceptOffer, askingPrice, haggle, rejectOffer, wageBill, windowOpen } from '../engine/career'
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, ageOn } from '../engine/positions'
+import { knownRating } from '../engine/squad'
 import type { Player, Pos } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Face, Ovr, PosPill, money } from './common'
@@ -22,9 +23,11 @@ export function Market() {
   const [note, setNote] = useState('')
   const club = g.clubs[g.userClubId], open = windowOpen(g.date)
   const done = () => { save(); refresh() }
-  const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && g.clubs[p.clubId]?.division > 0 && (!pos || p.positions.includes(pos as Pos)) && p.ca >= minOvr
-    && ageOn(p.birth, g.date) <= maxAge && (!maxVal || askingPrice(g, p) <= maxVal) && (!div || g.clubs[p.clubId].division === div) && (!only || p.listed || p.contractEnd <= g.season))
-    .sort((a, b) => b.ca - a.ca).slice(0, 400), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
+  // filtro y recorte por lo que sabe el DT (punto medio del rango), no por la valoración real: no revelan lo que el ojeo no sabe
+  const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && g.clubs[p.clubId]?.division > 0 && (!pos || p.positions.includes(pos as Pos))
+    && ageOn(p.birth, g.date) <= maxAge && (!div || g.clubs[p.clubId].division === div) && (!only || p.listed || p.contractEnd <= g.season))
+    .map(p => [p, knownRating(g, p)] as const).filter(([p, v]) => v >= minOvr && (!maxVal || askingPrice(g, p) <= maxVal))
+    .sort((a, b) => b[1] - a[1]).slice(0, 400).map(([p]) => p), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
   const rows = (id: string, list: Player[], empty: string) => <PlayerTable id={id} players={list} views={['ojeo', 'general', 'contrato', 'stats', 'fisico']} def="ojeo" defSort={[{ k: 'val', d: -1 }]} bulk={scoutBulk(g)} limit={100} empty={empty} />
   const L = club.ledger
   return (

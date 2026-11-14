@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, POS_NAME, ageOn, bestRating, posRating } from '../engine/positions'
-import { STATUS, fmtRange, knowOf, minutesShare, persLabels, scout, shown } from '../engine/squad'
+import { STATUS, canTalk, fmtRange, knowOf, minutesShare, nextTalk, persLabels, scout, shown, toggleShortlist } from '../engine/squad'
 import { ATTR_GROUPS, ATTR_LABEL, A, type SeasonStats } from '../engine/types'
 import { sab } from '../engine/week'
 import { useGame } from '../store'
@@ -37,6 +37,9 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
   const gap = p.pa - p.ca, potKnown = mine ? sab(g, 'youth') + sab(g, 'asst') >= 18 || age > 23 : k >= 70
   const potTxt = age > 26 ? 'Ya alcanzó su techo' : p.pa >= 85 ? 'Futura figura' : p.pa >= 78 ? 'Muy buen potencial' : gap >= 8 ? 'Buen potencial' : 'Potencial limitado'
   const starred = g.shortlist.includes(p.id)
+  const talkOk = mine && canTalk(g, p), talkWhy = talkOk ? undefined : `Ya hablaron esta semana: podés volver a hablarle desde el ${fmtDate(nextTalk(p))}.`
+  // salió de las inferiores del club (cantera real o camada del juego) y sigue ahí: no a préstamo ni transferido desde entonces
+  const homegrown = p.youth && p.loanFrom == null && !g.transfers.some(t => t.pid === p.id && !t.loan)
   const done = () => { save(); refresh() }
   const setTab = (t: string) => nav({ page: 'player', id, tab: t })
   const bid = (loan: boolean) => {
@@ -55,7 +58,7 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
           <div className="pband-face"><Face p={p} club={c} size={104} /></div>
           <div className="pband-id">
             <div className="row" style={{ gap: 10 }}><h1 className="pband-name">{p.name}</h1><span className="numbox">{p.num}</span></div>
-            <div className="row wrap" style={{ gap: 6 }}><span className="boxed">{p.positions.map(x => POS_NAME[x] ?? POS_LABEL[x]).slice(0, 2).join(' / ')}</span><Status p={p} />{p.gen && <span className="chip">Inferiores</span>}</div>
+            <div className="row wrap" style={{ gap: 6 }}><span className="boxed">{p.positions.map(x => POS_NAME[x] ?? POS_LABEL[x]).slice(0, 2).join(' / ')}</span><Status p={p} />{homegrown && <span className="chip" title={`Surgió de las inferiores de ${c.name}`}>Inferiores</span>}</div>
             <div className="row wrap" style={{ gap: 8 }}><span className="boxed">{p.nat}</span><b>{age} años</b><span className="dim">({fmtDate(p.birth)})</span><span className="dim">· pie {p.foot === 'D' ? 'derecho' : p.foot === 'I' ? 'izquierdo' : 'ambidiestro'}</span></div>
           </div>
           <div className="pband-sep" />
@@ -72,9 +75,9 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
           {TABS.map(([k2, l]) => <button key={k2} className={tab === k2 ? 'on' : ''} onClick={() => setTab(k2)}>{l}</button>)}
           <span className="grow" />
           <FavButton k="p" id={p.id} />
-          {!mine && <button className={`btn sm ${starred ? 'on' : ''}`} onClick={() => { g.shortlist = starred ? g.shortlist.filter(x => x !== p.id) : [...g.shortlist, p.id]; done() }}>{starred ? '✓ En seguimiento' : 'Seguir'}</button>}
+          {!mine && <button className={`btn sm ${starred ? 'on' : ''}`} aria-pressed={starred} onClick={() => { toggleShortlist(g, p.id); done() }}>{starred ? '✓ En seguimiento' : 'Seguir'}</button>}
           {!mine && !known && <button className={`btn sm ${g.scouting.includes(p.id) ? 'on' : ''}`} disabled={g.scouting.includes(p.id)} title="El scouting lo sigue unos días hasta conocerlo por completo" onClick={() => { scout(g, p); done() }}>{g.scouting.includes(p.id) ? 'Ojeándolo…' : 'Mandar a ojear'}</button>}
-          {mine && <button className="btn sm" onClick={() => setTalkOpen(true)}>Hablar</button>}
+          {mine && <button className="btn sm" disabled={!talkOk} title={talkWhy} onClick={() => setTalkOpen(true)}>Hablar</button>}
           <button className="btn sm primary" onClick={() => setTab('contrato')}>{mine ? 'Contrato' : 'Ofertar'} ▸</button>
         </div>
       </div>
@@ -161,7 +164,8 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
             <div className="row between"><span className="dim">Minutos</span><span>{Math.round(minutesShare(p) * 100)} % (espera {Math.round(STATUS[p.status].share * 100)} %)</span></div>
             <div className="row between"><span className="dim">Conformidad</span><Cond v={p.happy ?? 70} /></div></>}
           {p.promise && <div className="acc sm">Le prometiste más minutos hasta el {fmtDate(p.promise.until)}.</div>}
-          <button className="btn sm" style={{ alignSelf: 'flex-start' }} onClick={() => setTalkOpen(true)}>Hablar con él</button></div>
+          <button className="btn sm" style={{ alignSelf: 'flex-start' }} disabled={!talkOk} onClick={() => setTalkOpen(true)}>Hablar con él</button>
+          {!talkOk && <div className="dim sm">{talkWhy}</div>}</div>
           : <div className="card s6 col"><h3>Ojeo</h3>
             <div className="row between"><span className="dim">Conocimiento</span><div className="row" style={{ gap: 6 }}><div className="bar" style={{ width: 100 }}><i style={{ width: `${k}%`, background: 'var(--accent)' }} /></div><b className="num">{Math.round(k)}%</b></div></div>
             <div className="dim sm" style={{ lineHeight: 1.5 }}>{known ? 'Lo conocés por completo.' : g.scouting.includes(p.id) ? 'El scouting lo está siguiendo.' : 'Mandarlo a ojear revela sus atributos exactos, su potencial y su personalidad. Enfrentarlo también ayuda.'}</div>
@@ -169,7 +173,7 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
       </div>}
 
       {neg && <NegotiationModal p={p} mode={neg.mode} fee={neg.fee} onClose={m => { setNeg(null); if (m) setMsg({ t: m, ok: !/cay|termina/.test(m) }); done() }} />}
-      {talkOpen && <TalkModal p={p} onClose={() => { setTalkOpen(false); done() }} />}
+      {talkOpen && mine && <TalkModal p={p} onClose={() => { setTalkOpen(false); done() }} />}
     </div>
   )
 }

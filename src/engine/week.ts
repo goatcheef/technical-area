@@ -1,9 +1,10 @@
 // La semana: cuerpo técnico, entrenamiento, informe del rival y conferencias de prensa.
 import { APELLIDOS, NOMBRES, managerMarket } from './career'
-import { weeklyAiTraining } from './ai'
-import { addDays, autoPick, available, clubsIn, fmtDate, news, nextUserFixture, squadOf } from './game'
+import { predictPlan, weeklyAiTraining } from './ai'
+import { addDays, available, clubsIn, fmtDate, news, nextUserFixture, squadOf } from './game'
 import { FORMATIONS, POS_LABEL, POS_LINE, POS_WEIGHTS, ageOn, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
+import { knowWidth, rangeAround, shown } from './squad'
 import { A, ATTR_LABEL, type Attr, type Club, type Fixture, type Game, type Player, type Press, type PressAnswer, type Staff, type StaffRole, type Tactic, type TrainFocus, type Training } from './types'
 
 // ---------- cuerpo técnico ----------
@@ -86,6 +87,15 @@ export function assistantPlan(g: Game, daysToMatch: number): Training {
   return { ...t, intensity, focus: fam < 72 ? 'tact' : daysToMatch <= 2 ? 'sp' : 'equil', restAfter: true }
 }
 export const docFactor = (g: Game) => clamp(1.15 - sab(g, 'doc') * 0.016, 0.82, 1.1)
+/**
+ * Suma progreso de entrenamiento (`p.tx`; al llegar a 1 sube un atributo), solo si todavía no llegó a su potencial.
+ * La reserva, "Exigirle más" y la práctica pasan por acá: nadie crece más allá de `pa`. Devuelve si sumó.
+ */
+export function addProgress(p: Player, v: number): boolean {
+  if (p.ca >= p.pa) { p.tx = 0; return false }
+  p.tx = (p.tx ?? 0) + v
+  return true
+}
 
 /** Un día de práctica del club del usuario. */
 export function dailyTraining(g: Game, rng: Rng, matchYesterday: boolean) {
@@ -116,9 +126,9 @@ export function dailyTraining(g: Game, rng: Rng, matchYesterday: boolean) {
     }
     const age = ageOn(p.birth, g.date)
     const ageF = age <= 19 ? 1.8 : age <= 21 ? 1.5 : age <= 23 ? 1.15 : age <= 26 ? 0.6 : age <= 29 ? 0.3 : 0.1
-    p.tx = (p.tx ?? 0) + 0.007 * [0.55, 1, 1.4][k] * ageF * (0.55 + p.prof / 20) * (0.85 + asst * 0.015) * (p.ca < p.pa ? 1 : 0.15)
-    if (p.tx < 1) continue
-    p.tx -= 1
+    // el que ya llegó a su potencial se mantiene, pero no mejora (el potencial no sube entrenando)
+    if (!addProgress(p, 0.007 * [0.55, 1, 1.4][k] * ageF * (0.55 + p.prof / 20) * (0.85 + asst * 0.015)) || (p.tx ?? 0) < 1) continue
+    p.tx = (p.tx ?? 0) - 1
     const pos = p.positions[0], w = POS_WEIGHTS[pos]
     const ind = IND_FOCUS.find(f => f.k === p.tfocus)?.attrs ?? []
     let pool = (ind.length ? ind : focusAttrs).map(a => A[a])
@@ -127,7 +137,9 @@ export function dailyTraining(g: Game, rng: Rng, matchYesterday: boolean) {
     const i = rng.weighted(pool, j => (21 - p.attrs[j]) * (1 + w[j]))
     if (p.attrs[i] >= 20) continue
     p.attrs[i]++
-    p.ca = Math.round(rawRating(p.attrs, pos)); p.pa = Math.max(p.pa, p.ca)
+    const ca = Math.round(rawRating(p.attrs, pos))
+    if (ca > p.pa) { p.attrs[i]--; p.tx = 0; continue } // ese punto lo pasaría de su techo
+    p.ca = ca
     p.ups = (p.ups ?? 0) + 1
     t.week.ups.push({ pid: p.id, a: ATTR_LABEL[Object.keys(A)[i] as Attr] })
   }
@@ -144,13 +156,19 @@ export interface Report {
   stars: { pid: number; est: string }[]; weak: string; threat: { pid: number; txt: string } | null; tips: { txt: string; patch: Partial<Tactic> }[]; accuracy: number
 }
 export function scoutReport(g: Game, f: Fixture): Report {
-  const me = g.clubs[g.userClubId], opp = g.clubs[f.home === me.id ? f.away : f.home], t = opp.tactic
+  const me = g.clubs[g.userClubId], opp = g.clubs[f.home === me.id ? f.away : f.home]
+  // el plan que la IA prevé para este partido (dibujo, once e instrucciones), no la táctica de su partido anterior
+  const t = predictPlan(g, opp.id, me.id, f)
   const acc = Math.round((sab(g, 'scout') * 0.6 + sab(g, 'asst') * 0.4))
   const spread = acc >= 16 ? 0 : Math.round((20 - acc) / 2.5)
-  const est = (v: number) => (spread ? `${Math.max(1, Math.round(v) - spread)}-${Math.min(99, Math.round(v) + spread)}` : String(Math.round(v)))
-  const { lineup } = autoPick(g, opp.id, t.formation)
+  // el informe afina lo que ya se sabe de cada uno (nunca lo empeora) y, como el ojeo, no se centra en el valor real
+  const rate = (p: Player, v: number) => {
+    const w = Math.min(spread, knowWidth(g, p, 9)), [lo, hi] = rangeAround(p.id, Math.round(v), w, 61, 1, 99)
+    return { mid: (lo + hi) / 2, est: lo === hi ? String(lo) : `${lo}-${hi}` }
+  }
+  const pace = (p: Player) => { const a = shown(g, p, p.attrs[A.pac], 5, A.pac), b = shown(g, p, p.attrs[A.acc], 5, A.acc); return (a[0] + a[1] + b[0] + b[1]) / 2 }
   const slots = FORMATIONS[t.formation]
-  const xi = lineup.map((id, i) => ({ p: g.players[id], pos: slots[i].pos })).filter(x => x.p)
+  const xi = t.lineup.map((id, i) => ({ p: g.players[id], pos: slots[i]?.pos })).filter(x => x.p && x.pos)
   const style: string[] = []
   style.push(t.mentality <= 1 ? 'Juega replegado y espera tu error.' : t.mentality >= 3 ? 'Sale a buscar el partido con mucha gente en ataque.' : 'Es un equipo equilibrado.')
   if (t.pressing === 2) style.push('Presiona alto la salida.'); else if (t.pressing === 0) style.push('No presiona: espera en su campo.')
@@ -163,8 +181,9 @@ export function scoutReport(g: Game, f: Fixture): Report {
   const form = played.map(x => { const d = (x.home === opp.id ? 1 : -1) * (x.hg - x.ag); return d > 0 ? 'G' : d < 0 ? 'P' : 'E' })
   const gf = played.reduce((s, x) => s + (x.home === opp.id ? x.hg : x.ag), 0) / Math.max(1, played.length)
   const gc = played.reduce((s, x) => s + (x.home === opp.id ? x.ag : x.hg), 0) / Math.max(1, played.length)
-  const rated = xi.map(x => ({ ...x, r: posRating(x.p, x.pos) })).sort((a, b) => b.r - a.r)
-  const stars = rated.slice(0, 3).map(x => ({ pid: x.p.id, est: est(x.r) }))
+  // todo se ordena y compara por lo que el cuerpo técnico estima, no por el valor real
+  const rated = xi.map(x => ({ ...x, ...rate(x.p, posRating(x.p, x.pos)) })).sort((a, b) => b.mid - a.mid)
+  const stars = rated.slice(0, 3).map(x => ({ pid: x.p.id, est: x.est }))
   const tips: Report['tips'] = []
   // punto débil: el defensor más flojo y su sector
   const defs = rated.filter(x => POS_LINE[x.pos] === 'DF')
@@ -173,23 +192,23 @@ export function scoutReport(g: Game, f: Fixture): Report {
     const w = defs[defs.length - 1]
     const focus = w.pos === 'DR' ? 0 : w.pos === 'DL' ? 2 : 1
     const where = ['por tu izquierda', 'por el medio', 'por tu derecha'][focus]
-    weak = `${w.p.name} (${POS_LABEL[w.pos]}) es el más flojo de su defensa${acc >= 10 ? `, con una valoración de ${est(w.r)}` : ''}. Conviene atacar ${where}.`
+    weak = `${w.p.name} (${POS_LABEL[w.pos]}) es el más flojo de su defensa${acc >= 10 ? `, con una valoración de ${w.est}` : ''}. Conviene atacar ${where}.`
     tips.push({ txt: `Cargar el juego ${where}, sobre ${w.p.name}.`, patch: { focus } })
-    const slow = defs.filter(x => x.pos === 'DC').sort((a, b) => (a.p.attrs[A.pac] + a.p.attrs[A.acc]) - (b.p.attrs[A.pac] + b.p.attrs[A.acc]))[0]
+    const slow = defs.filter(x => x.pos === 'DC').sort((a, b) => pace(a.p) - pace(b.p))[0]
     const myFw = me.tactic.lineup.map(id => g.players[id]).filter(p => p && POS_LINE[p.positions[0]] === 'FW')
     const fast = myFw.sort((a, b) => (b.attrs[A.pac] + b.attrs[A.acc]) - (a.attrs[A.pac] + a.attrs[A.acc]))[0]
-    if (slow && fast && fast.attrs[A.pac] + fast.attrs[A.acc] - slow.p.attrs[A.pac] - slow.p.attrs[A.acc] >= 5)
+    if (slow && fast && fast.attrs[A.pac] + fast.attrs[A.acc] - pace(slow.p) >= 5)
       tips.push({ txt: `${slow.p.name} es lento y ${fast.name} le gana en velocidad: pases filtrados a la espalda${t.line === 2 ? ', aprovechando su línea adelantada' : ''}.`, patch: { finalThird: 0, tempo: 2 } })
   }
   if (t.pressing === 2) tips.push({ txt: 'Como presiona alto, salir largo evita perder la pelota cerca de tu arco.', patch: { passing: 2 } })
   if (t.onWin === 1 && t.mentality >= 3) tips.push({ txt: 'Ataca con mucha gente y deja espacios: no te desarmes y salí rápido de contra.', patch: { onWin: 1, onLoss: 0 } })
   const mine = me.tactic.lineup.map((id, i) => (g.players[id] ? posRating(g.players[id], FORMATIONS[me.tactic.formation][i].pos) : 0))
-  const myAvg = mine.reduce((a, b) => a + b, 0) / 11, opAvg = rated.reduce((a, x) => a + x.r, 0) / Math.max(1, rated.length)
+  const myAvg = mine.reduce((a, b) => a + b, 0) / 11, opAvg = rated.reduce((a, x) => a + x.mid, 0) / Math.max(1, rated.length)
   if (opAvg - myAvg > 4) tips.push({ txt: 'Son superiores en el papel: bloque bajo y salida rápida de contra.', patch: { mentality: 1, line: 0, onWin: 1 } })
   else if (myAvg - opAvg > 4) tips.push({ txt: 'Sos claramente superior: adelantá el equipo y presioná para jugar en su campo.', patch: { mentality: 3, pressing: 2 } })
   const thr = rated.filter(x => POS_LINE[x.pos] === 'FW' || x.pos === 'AMC')[0]
   const threat = thr ? { pid: thr.p.id, txt: `${thr.p.name} es su jugador más peligroso. Durante el partido podés ponerle marca personal desde la pestaña Rival.` } : null
-  return { opp, formation: t.formation, xi: rated.map(x => ({ pid: x.p.id, pos: POS_LABEL[x.pos], est: est(x.r) })), style, form, gf, gc, stars, weak, threat, tips, accuracy: acc }
+  return { opp, formation: t.formation, xi: rated.map(x => ({ pid: x.p.id, pos: POS_LABEL[x.pos], est: x.est })), style, form, gf, gc, stars, weak, threat, tips, accuracy: acc }
 }
 
 // ---------- conferencias de prensa ----------
@@ -268,26 +287,43 @@ export function makePostPress(g: Game, f: Fixture): Press {
   }
   return { kind: 'post', fixtureId: f.id, questions: qs }
 }
-/** Aplica las respuestas elegidas (una por pregunta). */
-export function answerPress(g: Game, picks: number[], delegated = false) {
+/**
+ * Peso de una respuesta. Contestar a mano pesa más (×1,5, para bien y para mal): elegir bien rinde más que delegar.
+ * El ayudante es la opción segura y tibia: dice lo más prudente (la primera respuesta) y su efecto es la mitad, hacia cero.
+ */
+const pressWeight = (v: number, delegated: boolean) => (delegated ? Math.trunc(v / 2) : Math.sign(v) * Math.round(Math.abs(v) * 1.5))
+const signed = (v: number) => (v > 0 ? `+${v}` : `−${-v}`)
+/** Aplica las respuestas elegidas (una por pregunta). Devuelve el efecto en una línea ("" si no movió nada). */
+export function answerPress(g: Game, picks: number[], delegated = false): string {
   const pr = g.press
-  if (!pr) return
+  if (!pr) return ''
   const me = g.clubs[g.userClubId], squad = squadOf(g, me.id)
   const quotes: string[] = []
+  const tot = { morale: 0, board: 0, rep: 0 }, stars = new Map<number, number>()
   pr.questions.forEach((q, i) => {
-    const a = q.opts[picks[i] ?? 0] ?? q.opts[0]
+    const a = q.opts[delegated ? 0 : picks[i] ?? 0] ?? q.opts[0]
     quotes.push(a.quote)
-    if (a.morale) for (const p of squad) p.morale = clamp(p.morale + a.morale, 5, 100)
-    if (a.star && q.pid && g.players[q.pid]) g.players[q.pid].morale = clamp(g.players[q.pid].morale + a.star, 5, 100)
-    if (a.board) g.board.confidence = clamp(g.board.confidence + a.board, 0, 100)
-    if (a.rep) g.manager.rep = clamp(g.manager.rep + a.rep, 5, 99)
+    const morale = pressWeight(a.morale ?? 0, delegated), star = pressWeight(a.star ?? 0, delegated), board = pressWeight(a.board ?? 0, delegated), rep = pressWeight(a.rep ?? 0, delegated)
+    if (morale) for (const p of squad) p.morale = clamp(p.morale + morale, 5, 100)
+    if (star && q.pid && g.players[q.pid]) { g.players[q.pid].morale = clamp(g.players[q.pid].morale + star, 5, 100); stars.set(q.pid, (stars.get(q.pid) ?? 0) + star) }
+    if (board) g.board.confidence = clamp(g.board.confidence + board, 0, 100)
+    if (rep) g.manager.rep = clamp(g.manager.rep + rep, 5, 99)
+    tot.morale += morale; tot.board += board; tot.rep += rep
   })
+  const fx = [
+    tot.morale && `moral del plantel ${signed(tot.morale)}`,
+    ...[...stars].filter(([, v]) => v).map(([pid, v]) => `ánimo de ${g.players[pid].name} ${signed(v)}`),
+    tot.board && `confianza de la dirigencia ${signed(tot.board)}`,
+    tot.rep && `prestigio ${signed(tot.rep)}`,
+  ].filter(Boolean).join(', ')
+  const effect = fx ? `Efecto: ${fx}.` : 'No movió nada: ni el vestuario ni la dirigencia se dieron por aludidos.'
   const who = delegated ? staffOf(g, 'asst')?.name ?? 'El ayudante de campo' : g.manager.name
-  news(g, { tag: 'club', clubId: me.id, title: `${who}: "${quotes[0]}"`, body: `${delegated ? `${who} habló con la prensa en lugar de ${g.manager.name}` : `${g.manager.name} habló en conferencia de prensa`} ${pr.kind === 'pre' ? 'antes del partido' : 'después del partido'}. ${quotes.map(q => `"${q}."`).join(' ')}` })
+  news(g, { tag: 'club', clubId: me.id, title: `${who}: "${quotes[0]}"`, body: `${delegated ? `${who} habló con la prensa en lugar de ${g.manager.name}` : `${g.manager.name} habló en conferencia de prensa`} ${pr.kind === 'pre' ? 'antes del partido' : 'después del partido'}. ${quotes.map(q => `"${q}."`).join(' ')} ${effect}` })
   g.press = null
+  return effect
 }
-/** El ayudante responde con lo más prudente. */
-export function delegatePress(g: Game) { if (g.press) answerPress(g, g.press.questions.map(() => 0), true) }
+/** El ayudante responde con lo más prudente (y con la mitad del efecto). */
+export function delegatePress(g: Game): string { return g.press ? answerPress(g, g.press.questions.map(() => 0), true) : '' }
 
 // ---------- eventos del día ----------
 export function dayEvents(g: Game, rng: Rng) {
@@ -302,10 +338,17 @@ export function dayEvents(g: Game, rng: Rng) {
       const r = scoutReport(g, next)
       news(g, { tag: 'club', clubId: r.opp.id, act: 'rival', ref: next.id, title: `Informe del rival: ${r.opp.name}`, body: `${staffOf(g, 'scout')?.name ?? 'El cuerpo técnico'} entregó el informe del próximo rival. ${r.style.slice(0, 2).join(' ')} ${r.weak} El informe completo está en la tarjeta del próximo partido.` })
     }
-    if (days === 1 && tt.pressFor !== next.id && !g.press) {
-      tt.pressFor = next.id
-      g.press = makePrePress(g, next)
-      if (g.delegate.press) delegatePress(g)
+    if (days === 1 && tt.pressFor !== next.id) {
+      if (!g.press) {
+        tt.pressFor = next.id
+        g.press = makePrePress(g, next)
+        if (g.delegate.press) delegatePress(g)
+      } else if (g.press.kind === 'post' && g.press.fixtureId !== next.id) {
+        // partido dos días después del anterior: la conferencia de después sigue abierta (se contesta en el post partido).
+        // No se pierde la previa: sus preguntas se suman a esa conferencia, que se responde o se delega antes del partido.
+        tt.pressFor = next.id
+        g.press = { ...g.press, questions: [...g.press.questions, ...makePrePress(g, next).questions.slice(0, 2)] }
+      }
     }
   }
   if (new Date(g.date + 'T12:00:00Z').getUTCDay() === 1) {

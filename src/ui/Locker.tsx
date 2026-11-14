@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { doTransfer } from '../engine/career'
 import { addDays, fmtDate, news, squadOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
-import { STATUS, STATUS_KEYS, applyRenewal, canTalk, demand, evalOffer, harmony, minutesShare, naturalStatusFor, persLabels, talk, type NegMode, type TalkKind } from '../engine/squad'
+import { STATUS, STATUS_KEYS, applyRenewal, canTalk, demand, evalOffer, harmony, minutesShare, naturalStatusFor, nextTalk, persLabels, talk, type NegMode, type TalkKind } from '../engine/squad'
 import type { Player, SquadStatus, Terms } from '../engine/types'
 import { useGame } from '../store'
 import { Badge, Face, Gauge, Modal, Ovr, PosPill, Seg, Status, money } from './common'
 import { PageTip } from './Guide'
 
 const Bar = ({ v, c }: { v: number; c?: string }) => <div className="bar" style={{ width: 70 }}><i style={{ width: `${Math.max(2, Math.min(100, v))}%`, background: c ?? (v >= 60 ? 'var(--good)' : v >= 35 ? 'var(--warn)' : 'var(--bad)') }} /></div>
+/** Barra con su número siempre a la vista (regla D6: el color nunca es el único dato). */
+const BarN = ({ v, label }: { v: number; label: string }) => <div className="row" style={{ gap: 6 }} title={`${label}: ${Math.round(v)} de 100`}><Bar v={v} /><span className="num sm dim">{Math.round(v)}</span></div>
 
 export function LockerPage() {
   const { g, refresh, save, openPlayer } = useGame()
@@ -38,10 +40,10 @@ export function LockerPage() {
                 <td className="dim sm" style={{ whiteSpace: 'normal', maxWidth: 220 }}>{persLabels(p).join(' · ')}</td>
                 <td title={st.help}>{st.name}</td>
                 <td title={`Juega el ${Math.round(sh * 100)} % de los minutos; su rol espera alrededor del ${Math.round(st.share * 100)} %.`}><div className="row" style={{ gap: 6 }}><Bar v={sh * 100} c={sh >= st.share * 0.85 ? 'var(--good)' : 'var(--warn)'} /><span className="num sm dim">{Math.round(sh * 100)}/{Math.round(st.share * 100)}%</span></div></td>
-                <td><Bar v={p.happy ?? 70} /></td>
-                <td><Bar v={p.morale} /></td>
+                <td><BarN v={p.happy ?? 70} label="Conformidad" /></td>
+                <td><BarN v={p.morale} label="Moral" /></td>
                 <td><button className={`btn sm ${p.reserve ? 'on' : ''}`} onClick={() => { p.reserve = !p.reserve; done() }}>{p.reserve ? '✓ Juega' : 'No'}</button></td>
-                <td>{canTalk(g, p) ? <button className="btn sm" onClick={() => setWho(p.id)}>Hablar</button> : <span className="dim sm">Hablaron hace poco</span>}</td>
+                <td>{canTalk(g, p) ? <button className="btn sm" onClick={() => setWho(p.id)}>Hablar</button> : <span className="dim sm" title={`Podés volver a hablarle desde el ${fmtDate(nextTalk(p))}.`}>Hablaron hace poco</span>}</td>
               </tr>)
           })}</tbody></table>
         <div className="dim sm" style={{ marginTop: 8 }}>La reserva juega los miércoles: suma rodaje y progreso a los que no tienen minutos y deja conformes a las promesas y suplentes. Necesita al menos siete jugadores.</div>
@@ -55,6 +57,8 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: () => void }) {
   const { g, save } = useGame()
   const [reply, setReply] = useState<string | null>(null)
   const [ns, setNs] = useState<SquadStatus>(p.status ?? 'sub')
+  // una charla por semana: el límite lo pone el motor (`talk`); acá solo se explica
+  const [allowed] = useState(() => canTalk(g, p))
   const happy = p.happy ?? 70
   const opts: [TalkKind, string, string, boolean][] = [
     ['praise', 'Felicitarlo por su momento', 'Funciona si viene jugando bien; si no, suena falso.', true],
@@ -68,7 +72,8 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: () => void }) {
   return (
     <Modal onClose={onClose}>
       <div className="row" style={{ marginBottom: 12 }}><Face p={p} size={52} /><div className="grow"><h3>Charla individual</h3><h2>{p.name}</h2><div className="dim sm">{STATUS[p.status ?? 'sub'].name} · {persLabels(p).join(' · ')} · conformidad {Math.round(happy)}%</div></div><button className="btn sm" onClick={onClose}>Cerrar</button></div>
-      {reply ? <div className="card col"><div style={{ lineHeight: 1.55 }}>{reply}</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div> : (
+      {reply ? <div className="card col"><div style={{ lineHeight: 1.55 }}>{reply}</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div> : !allowed ? (
+        <div className="card col"><div style={{ lineHeight: 1.55 }}>Ya hablaste con él esta semana. Podés volver a hablarle desde el {fmtDate(nextTalk(p))}.</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div>) : (
         <div className="col" style={{ gap: 8 }}>
           {opts.filter(o => o[3]).map(([k, t, d]) => <button key={k} className="opt" onClick={() => act(k)}><b>{t}</b><span className="dim sm">{d}</span></button>)}
           <div className="opt" style={{ cursor: 'default' }}><b>Cambiarle el rol en el plantel</b>

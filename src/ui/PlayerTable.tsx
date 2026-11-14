@@ -2,8 +2,8 @@
 // filtros, selección múltiple con acciones y comparador. Se adapta al ancho sin desplazamiento horizontal.
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { askingPrice } from '../engine/career'
-import { ageOn, bestRating } from '../engine/positions'
-import { STATUS, fmtRange, knowOf, scout, shown } from '../engine/squad'
+import { ageOn } from '../engine/positions'
+import { STATUS, fmtRange, knowOf, knownRating, scout, shown, toggleShortlist } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Attr, type Game, type Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Cond, Face, Modal, PosPill, Status, Val, avgRat, money, ratClass } from './common'
@@ -17,14 +17,14 @@ const pj = (p: Player) => p.stats.apps + p.stats.subs
 const rat = (p: Player) => (pj(p) ? p.stats.ratSum / pj(p) : 0)
 /** Valor visible (punto medio del rango que se conoce): ordenar no revela lo que el ojeo todavía no sabe. */
 const seen = (g: Game, p: Player, v: number, w: number, salt: number, lo = 1, hi = 20) => { const r = shown(g, p, v, w, salt, lo, hi); return (r[0] + r[1]) / 2 }
-const valSeen = (g: Game, p: Player) => seen(g, p, Math.round(bestRating(p)), 9, 99, 1, 99)
+const valSeen = knownRating
 const potGap = (g: Game, p: Player) => (p.clubId === g.userClubId || (ageOn(p.birth, g.date) <= 23 && knowOf(g, p) >= 70) ? p.pa - p.ca : -1)
 const stars = (gap: number) => (gap < 0 ? <span className="dim">–</span> : <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span>)
 
 const BASE: Record<string, Col> = {
   num: { l: 'N°', n: 'Número', w: 40, r: true, v: p => p.num, c: p => <span className="num dim">{p.num}</span> },
   name: { l: 'Jugador', w: 190, v: p => p.name, c: (p, g) => <span className="row" style={{ gap: 8, minWidth: 0 }}><Face p={p} club={g.clubs[p.clubId]} size={26} /><span className="ell" style={{ fontWeight: 600 }}>{p.name}</span></span> },
-  pos: { l: 'Pos', w: 58, v: p => LINE_ORDER[p.line] * 100 - bestRating(p), c: p => <PosPill p={p} /> },
+  pos: { l: 'Pos', w: 58, v: (p, g) => LINE_ORDER[p.line] * 100 - valSeen(g, p), c: p => <PosPill p={p} /> },
   age: { l: 'Edad', w: 50, r: true, v: (p, g) => ageOn(p.birth, g.date), c: (p, g) => <span className="num">{ageOn(p.birth, g.date)}</span> },
   nat: { l: 'Nacionalidad', w: 104, v: p => p.nat, c: p => <span className="dim ell">{p.nat}</span> },
   club: { l: 'Club', w: 118, v: (p, g) => g.clubs[p.clubId]?.short ?? '', c: (p, g) => <span className="row ell" style={{ gap: 6 }} data-cid={p.clubId}><Badge club={g.clubs[p.clubId]} size={18} />{g.clubs[p.clubId]?.short}</span> },
@@ -301,8 +301,8 @@ export function ownBulk(g: Game): Bulk[] {
 /** Para jugadores ajenos: seguimiento y ojeo. */
 export function scoutBulk(g: Game): Bulk[] {
   return [
-    { label: 'Seguir', show: ps => ps.some(p => p.clubId !== g.userClubId && !g.shortlist.includes(p.id)), run: ps => { g.shortlist = [...new Set([...g.shortlist, ...ps.filter(p => p.clubId !== g.userClubId).map(p => p.id)])] } },
-    { label: 'Dejar de seguir', show: ps => ps.some(p => g.shortlist.includes(p.id)), run: ps => { g.shortlist = g.shortlist.filter(id => !ps.some(p => p.id === id)) } },
+    { label: 'Seguir', show: ps => ps.some(p => p.clubId !== g.userClubId && !g.shortlist.includes(p.id)), run: ps => { for (const p of ps) if (p.clubId !== g.userClubId && !g.shortlist.includes(p.id)) toggleShortlist(g, p.id) } },
+    { label: 'Dejar de seguir', show: ps => ps.some(p => g.shortlist.includes(p.id)), run: ps => { for (const p of ps) if (g.shortlist.includes(p.id)) toggleShortlist(g, p.id) } },
     { label: 'Mandar a ojear', show: ps => ps.some(p => p.clubId !== g.userClubId && !g.scouting.includes(p.id) && knowOf(g, p) < 100), run: ps => {
       const before = g.scouting.length
       ps.filter(p => knowOf(g, p) < 100).forEach(p => scout(g, p))
