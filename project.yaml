@@ -1,0 +1,17 @@
+# Configuración de las skills de Claude Code Game Studios (.claude/). Ver .claude/docs/config-resolution.md.
+schema_version: 1
+
+framework:
+  version: 1.3.0
+
+engine:
+  name: Web
+
+accessibility:
+  target: standard
+
+platform:
+  targets: [Web]
+  primary_input: Keyboard & Mouse
+  gamepad_support: None
+  touch_support: Partial
