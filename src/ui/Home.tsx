@@ -3,7 +3,8 @@ import { wageBill, windowOpen } from '../engine/career'
 import { FOCUS, INTENSITY } from '../engine/week'
 import { harmony } from '../engine/squad'
 import { ReportModal } from './Week'
-import { annualTable, clubsIn, fmtDate, leagueFx, markRead, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf } from '../engine/game'
+import { annualTable, clubsIn, fmtDate, leagueFx, markRead, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf, zoneRule } from '../engine/game'
+import { Legend, MARK_CLASS } from './Tables'
 import type { Fixture } from '../engine/types'
 import { exportGame, useGame } from '../store'
 import { Badge, Face, Gauge, MatchReport, Val, avgRat, money, resultText } from './common'
@@ -22,6 +23,7 @@ export function Home() {
   const comp = club.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : club.division === 3 ? 'T3' : 'PN'
   const table = tableOf(leagueFx(g, comp), clubsIn(g, club.division, club.zone))
   const pos = table.findIndex(r => r.clubId === club.id)
+  const rule = zoneRule(g, comp)
   const mine = g.fixtures.filter(f => f.played && (f.home === club.id || f.away === club.id))
   const res = (f: Fixture, id: number) => { const h = f.home === id, d = (h ? 1 : -1) * (f.hg - f.ag); return f.pens ? (f.pens[h ? 0 : 1] > f.pens[h ? 1 : 0] ? 'G' : 'P') : d > 0 ? 'G' : d < 0 ? 'P' : 'E' }
   const chip = (r: string, i: number) => <span key={i} className="chip" style={{ color: r === 'G' ? 'var(--good)' : r === 'P' ? 'var(--bad)' : 'var(--dim)', padding: '3px 8px' }}>{r}</span>
@@ -36,6 +38,10 @@ export function Home() {
   const setLay = (l: Tile[]) => setSettings({ ...settings, home: l, homeV: 2 })
   const move = (i: number, d: number) => { const l = [...lay], j = i + d; if (j < 0 || j >= l.length) return; [l[i], l[j]] = [l[j], l[i]]; setLay(l) }
   const pend = pendingOf(g)
+  // ofertas de trabajo que se pierden al comenzar la temporada: se avisa antes, en la misma tarjeta
+  const jobs = pend.filter(p => p.k === 'job')
+  const [confirmStart, setConfirmStart] = useState(false)
+  const begin = () => { setConfirmStart(false); startNewSeason(g); save(); refresh() }
   const inbox = g.news.filter(n => n.me ?? n.clubId === club.id).slice(0, 7)
   const upcoming = g.fixtures.filter(f => !f.played && (f.home === club.id || f.away === club.id)).slice(0, 6)
   // datos para los mosaicos del portal
@@ -81,9 +87,9 @@ export function Home() {
     standings: { name: 'Tabla de la zona', render: () => <>
       <div className="row between"><h3>{g.comps[comp]?.name.replace(/ \d{4}$/, '')} · Zona {club.zone}</h3><button className="btn sm" onClick={() => go('tables')}>Posiciones</button></div>
       <table className="mini-table"><thead><tr><th>Pos</th><th>Equipo</th><th className="r">PJ</th><th className="r">Pts</th></tr></thead>
-        <tbody>{table.map((r, i) => <tr key={r.clubId} className={r.clubId === club.id ? 'me' : ''}><td className={`num qual ${i < 8 ? 'q' : ''}`}>{i + 1}</td>
+        <tbody>{table.map((r, i) => <tr key={r.clubId} className={`${r.clubId === club.id ? 'me' : ''} ${MARK_CLASS[rule.mark(i, table.length, r.clubId)]}`}><td className="num qual">{i + 1}</td>
           <td><span className="clubpill" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={16} />{g.clubs[r.clubId].short}</span></td><td className="r num">{r.pj}</td><td className="r num"><b>{r.pts}</b></td></tr>)}</tbody></table>
-      <div className="dim sm row" style={{ gap: 6 }}><i className="qbar" />Clasifican a los octavos</div>
+      <Legend items={rule.legend} />
     </> },
     round: { name: 'Última fecha', render: () => <>
       <div className="row between"><h3>Última fecha</h3>{lastLeague && <span className="dim sm">{lastLeague.stage} · {fmtDate(lastLeague.date)}</span>}</div>
@@ -159,7 +165,14 @@ export function Home() {
           <h2>Terminó la temporada {g.season}</h2>
           <div className="dim" style={{ lineHeight: 1.6 }}>Campeones: {Object.values(g.comps).map(c => `${c.name}: ${g.clubs[c.champion!]?.name}`).join(' · ')}.<br />
             Tabla anual: 1.º {g.clubs[annualTable(g)[0].clubId].name}. Descienden {relegationZone(g).map(id => g.clubs[id].name).join(' y ')}. Peor promedio: {promedios(g).slice(-1).map(r => `${g.clubs[r.clubId].short} (${r.avg.toFixed(3)})`)}.</div>
-          <div><button className="btn primary cta" onClick={() => { startNewSeason(g); save(); refresh() }}>Comenzar temporada {g.season + 1} ▸</button></div>
+          {confirmStart && jobs.length > 0
+            ? <div className="col" role="alert" style={{ gap: 8 }}>
+              <span className="warn">Tenés {jobs.length} {jobs.length === 1 ? 'oferta' : 'ofertas'} de trabajo sin responder: si comenzás la temporada, se pierden.</span>
+              <div className="row wrap" style={{ gap: 8 }}>
+                <button className="btn primary" onClick={() => { setConfirmStart(false); nav({ page: 'inbox', tab: 'pend', sel: jobs[0].key }) }}>Ver ofertas</button>
+                <button className="btn" onClick={begin}>Comenzar igual</button>
+              </div></div>
+            : <div><button className="btn primary cta" onClick={() => (jobs.length ? setConfirmStart(true) : begin())}>Comenzar temporada {g.season + 1} ▸</button></div>}
         </div>)}
       <div className="row wrap" style={{ gap: 8, justifyContent: 'flex-end', marginBottom: -6 }}>
         {edit && <span className="dim sm grow">Ordená los mosaicos con ◂ ▸, cambiá su ancho o sacalos. Se guarda en este navegador.</span>}
