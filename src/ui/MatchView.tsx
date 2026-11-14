@@ -86,23 +86,33 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
   return (
     <div className="main" style={{ height: '100%' }}>
       <div className="page">
-        <div className="hero">
-          <div className="dim center" style={{ fontSize: '.84rem' }}>{g.comps[fixture.comp].name} · {fixture.stage} · {fixture.neutral ? 'Cancha neutral' : home.stadium}</div>
-          <div className="row" style={{ justifyContent: 'center', gap: 24, margin: '6px 0' }}>
-            <div className="row grow" style={{ justifyContent: 'flex-end' }}><b style={{ fontSize: '1.15rem' }}>{home.name}</b><Badge club={home} size={72} /></div>
-            <div className="center"><div className="score">{sim.sides[0].goals} – {sim.sides[1].goals}</div>
-              <div className="acc num" style={{ fontWeight: 650 }}>{sim.finished ? (sim.pens ? `Penales ${sim.pens[0]}-${sim.pens[1]}` : 'Final') : started ? `${sim.minute}'` : 'Previa'}{sim.opts.agg && <div className="dim sm">Global {sim.sides[0].goals + sim.opts.agg[0]}-{sim.sides[1].goals + sim.opts.agg[1]}</div>}</div></div>
-            <div className="row grow"><Badge club={away} size={72} /><b style={{ fontSize: '1.15rem' }}>{away.name}</b></div>
+        <div className="mboard" style={{ ['--hc' as string]: cols[0], ['--ac' as string]: cols[1] }}>
+          <div className="mb-top dim">{g.comps[fixture.comp].name} · {fixture.stage} · {fixture.neutral ? 'Cancha neutral' : home.stadium}</div>
+          <div className="mb-main">
+            {([0, 1] as const).map(si => { const c = si === 0 ? home : away
+              const evs = sim.events.filter(e => (e.type === 'goal' || e.type === 'pen-goal' || e.type === 'own' || e.type === 'rc' || e.type === 'yc2') && e.side === si)
+              return <div key={si} className={`mb-team ${si === 1 ? 'away' : ''}`}>
+                <Badge club={c} size={64} />
+                <div className="mb-tinfo"><b className="mb-name">{c.name}</b>
+                  <div className="mb-evs">{evs.map((e, k) => <span key={k} className={e.type === 'rc' || e.type === 'yc2' ? 'mb-rc' : ''}>{e.type === 'rc' || e.type === 'yc2' ? '▮ ' : ''}{(e.pid && g.players[e.pid] ? g.players[e.pid].name.split(' ').slice(-1)[0] : '')} {e.min}'{e.type === 'pen-goal' ? ' (p)' : e.type === 'own' ? ' (e.c.)' : ''}</span>)}</div></div>
+              </div> })}
+            <div className="mb-center">
+              <div className="mb-score"><span>{sim.sides[0].goals}</span><i>–</i><span>{sim.sides[1].goals}</span></div>
+              <div className={`mb-clock ${speed && !sim.finished ? 'live' : ''}`}>{sim.finished ? (sim.pens ? `Penales ${sim.pens[0]}-${sim.pens[1]}` : 'Final') : sim.halfTime ? 'Entretiempo' : started ? `${sim.minute}'` : 'Previa'}</div>
+              <div className="mb-prog" aria-hidden><i style={{ width: `${Math.min(100, (sim.minute / 90) * 100)}%` }} /></div>
+              {sim.opts.agg && <div className="dim sm">Global {sim.sides[0].goals + sim.opts.agg[0]}-{sim.sides[1].goals + sim.opts.agg[1]}</div>}
+            </div>
           </div>
-          <div className="row wrap" style={{ justifyContent: 'center' }}>
-            {sim.finished ? <button className="btn primary cta" onClick={finish}>Continuar ▸</button> : (<>
+          {started && <div className="mb-poss" title={`Posesión ${s.poss[0]} % - ${s.poss[1]} %`}><span className="num">{s.poss[0]}%</span><div className="duo grow"><i style={{ width: `${s.poss[0]}%`, background: cols[0] }} /><i style={{ flex: 1, background: cols[1] }} /></div><span className="num">{s.poss[1]}%</span></div>}
+          <div className="mb-ctrl">
+            {sim.finished ? <button className="btn primary cta" onClick={finish}><span>Continuar</span><svg viewBox="0 0 24 24" aria-hidden><path d="M9 6l6 6-6 6" /></svg></button> : (<>
               <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l], i) => <button key={v} title={`Tecla ${i + 1}${v ? '' : ' · Espacio pausa o reanuda'}`} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
               <div className="seg" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones (tecla M).">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} onClick={() => setMode(v)}>{l}</button>)}</div>
               <button className="btn" onClick={() => { setSpeed(0); while (!sim.finished) sim.step(); syncLive(live, 0, true); bump() }}>Ir al final</button>
             </>)}
             <div style={{ position: 'relative', zIndex: 5 }}><button className={`btn ${menu ? 'on' : ''}`} title="Elegí qué paneles ver y dónde (tecla P)" onClick={() => setMenu(!menu)}>Paneles</button></div>
+            {!sim.finished && <span className="dim kbd-hint" style={{ fontSize: '.74rem' }}>Espacio pausa · 1-4 velocidad · M jugadas clave · C cambios · T táctica · R rival · P paneles</span>}
           </div>
-          {!sim.finished && <div className="dim center kbd-hint" style={{ fontSize: '.74rem', marginTop: 8 }}>Espacio pausa · 1-4 velocidad · M jugadas clave · C cambios · T táctica · R rival · P paneles</div>}
         </div>
         {(() => {
           const P: Record<string, ReactNode> = {
@@ -123,7 +133,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
                 <table><tbody>{v.on.map(o => { const p = g.players[o.pid]; return (
                   <tr key={o.pid} className="click" style={(tab === 'team' ? out : riv) === o.pid ? { outline: '2px solid var(--accent)' } : undefined} onClick={() => { if (sim.finished) return; if (tab === 'team') setOut(out === o.pid ? null : o.pid); else setRiv(riv === o.pid ? null : o.pid) }}>
                     <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{tab === 'rival' && (mine.tactic.oppo?.[o.pid]?.tight || mine.tactic.oppo?.[o.pid]?.hard || mine.tactic.oppo?.[o.pid]?.press || mine.tactic.manMark?.target === o.pid) ? <span className="acc"> ◎</span> : ''}{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
-                    <td><Cond v={o.cond} /></td><td className={`r num ${ratClass(o.rating)}`}><b>{o.rating.toFixed(1)}</b></td></tr>) })}</tbody></table>
+                    <td><Cond v={o.cond} /></td><td className="r"><span className={`ratbox ${ratClass(o.rating)}`}>{o.rating.toFixed(1)}</span></td></tr>) })}</tbody></table>
                 {tab === 'rival' && !sim.finished && (riv != null && g.players[riv] ? (() => { const oo = mine.tactic.oppo?.[riv] ?? {}, mm = mine.tactic.manMark; return (
                   <div className="col" style={{ marginTop: 12, gap: 8 }}><h3>Órdenes sobre {g.players[riv].name}</h3>
                     <div className="row wrap">{([['tight', 'Marcarlo encima', 'Lo anula si no tiene cambio de ritmo. Un rápido se saca la marca y queda solo. Cansa a tu marcador.'], ['hard', 'Entrarle fuerte', 'Le cuesta más pasar, pero vas a cometer más faltas y arriesgás tarjetas.'], ['press', 'Presionarlo en la salida', 'Complica al rival cuando la jugada empieza o pasa por él.']] as const).map(([k, l, h]) => (
@@ -149,7 +159,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
             table: <div key="table" className="card"><h3 style={{ marginBottom: 8 }}>Tabla en vivo</h3><LiveTable f={fixture} live={live} mine={sim} /></div>,
             feed: <div key="feed">
           <div className="card"><h3 style={{ marginBottom: 8 }}>Relato</h3>
-            <div className="feed" style={{ maxHeight: 300 }}>{feed.map((e, i) => <div key={feed.length - i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span>{e.text}</span></div>)}</div></div>
+            <div className="feed" style={{ maxHeight: 300 }}>{feed.map((e, i) => <div key={feed.length - i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span className={`evi ${e.type}`} aria-hidden /><span>{e.text}</span></div>)}</div></div>
 </div>,
             stats: <div key="stats">
           <div className="card"><h3 style={{ marginBottom: 8 }}>Estadísticas</h3>
