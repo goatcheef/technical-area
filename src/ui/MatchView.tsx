@@ -132,7 +132,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
               return (<>
                 <table><tbody>{v.on.map(o => { const p = g.players[o.pid]; return (
                   <tr key={o.pid} className="click" style={(tab === 'team' ? out : riv) === o.pid ? { outline: '2px solid var(--accent)' } : undefined} onClick={() => { if (sim.finished) return; if (tab === 'team') setOut(out === o.pid ? null : o.pid); else setRiv(riv === o.pid ? null : o.pid) }}>
-                    <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{tab === 'rival' && (mine.tactic.oppo?.[o.pid]?.tight || mine.tactic.oppo?.[o.pid]?.hard || mine.tactic.oppo?.[o.pid]?.press || mine.tactic.manMark?.target === o.pid) ? <span className="acc"> ◎</span> : ''}{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
+                    <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{tab === 'rival' && (mine.tactic.oppo?.[o.pid]?.tight || mine.tactic.oppo?.[o.pid]?.hard || mine.tactic.oppo?.[o.pid]?.press || mine.tactic.manMark?.target === o.pid) ? <span className="acc"> ◎</span> : ''}<MarkTag pid={o.pid} own={v.tactic.manMark} opp={(tab === 'team' ? theirs : mine).tactic.manMark} alert={tab === 'team'} names={g.players} />{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
                     <td><Cond v={o.cond} /></td><td className="r"><span className={`ratbox ${ratClass(o.rating)}`}>{o.rating.toFixed(1)}</span></td></tr>) })}</tbody></table>
                 {tab === 'rival' && !sim.finished && (riv != null && g.players[riv] ? (() => { const oo = mine.tactic.oppo?.[riv] ?? {}, mm = mine.tactic.manMark; return (
                   <div className="col" style={{ marginTop: 12, gap: 8 }}><h3>Órdenes sobre {g.players[riv].name}</h3>
@@ -191,6 +191,13 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
       {menu && <PanelMenu onClose={() => setMenu(false)} />}
     </div>
   )
+}
+/** Marca personal en la lista de jugadores: a quién sigue este jugador o quién lo sigue a él. */
+function MarkTag({ pid, own, opp, alert, names }: { pid: number; own?: { by: number; target: number } | null; opp?: { by: number; target: number } | null; alert: boolean; names: Record<number, { name: string }> }) {
+  const short = (id: number) => names[id]?.name.split(' ').slice(-1)[0] ?? ''
+  if (opp?.target === pid) { const t = `Lo marca personalmente ${names[opp.by]?.name ?? 'un rival'}`; return <span className={alert ? 'warn' : 'acc'} title={t} aria-label={t}> ⊙ {short(opp.by)}</span> }
+  if (own?.by === pid) { const t = `Marca personal sobre ${names[own.target]?.name ?? 'un rival'}`; return <span className="dim" title={t} aria-label={t}> → {short(own.target)}</span> }
+  return null
 }
 const share = (v: [number, number]) => (v[0] + v[1] ? v[0] / (v[0] + v[1]) : 0.5)
 const pct = (a: number, b: number) => `${b ? Math.round((a / b) * 100) : 0}%`

@@ -80,6 +80,13 @@ export class MatchSim {
     for (let i = 0; i < s2; i++) this.ticks.push(90)
     const rf = opts.ref ? ` Arbitra ${opts.ref.name}${opts.ref.strict >= 1.15 ? ', de mano dura con las tarjetas' : opts.ref.strict <= 0.85 ? ', que deja jugar' : ''}.` : ''
     this.ev(0, 'info', 0, `Comienza el partido en ${opts.neutral ? 'cancha neutral' : home.stadium}.${rf}`)
+    // marca personal del plan: se anuncia si los dos están en cancha
+    this.sides.forEach((S, si) => {
+      const mm = S.tactic.manMark
+      if (!mm) return
+      if (S.on.some(x => x.p.id === mm.by && x.pos !== 'GK') && this.sides[1 - si].on.some(x => x.p.id === mm.target)) this.markEv(si as 0 | 1, 0, mm, true)
+      else S.tactic.manMark = null
+    })
   }
 
   private mkOn(p: Player, pos: Pos, role: Role, ch: 0 | 1 | 2, side: 0 | 1, started: boolean, tick: number): OnPitch {
@@ -407,9 +414,10 @@ export class MatchSim {
     const S = this.sides[si], O = this.sides[1 - si], r = this.rng
     const gk = O.on.find(x => x.pos === 'GK')
     const gkQ = gk ? (posRating(gk.p, 'GK') / 100) * (gk.eff / Math.max(0.5, roleFit(gk.p, gk.role))) : 0.3
-    const xg = kind === 'pen' ? base : base * (0.54 + 0.72 * r.next())
+    const q = kind === 'pen' ? base : base * (0.54 + 0.72 * r.next())
     if (this.oi(O, sh, 'tight') && kind !== 'pen' && kind !== 'fk') sk *= 0.94
-    const pGoal = clamp(xg * (0.49 + 0.92 * sk) * sh.role.shoot ** 0.25 * (1.62 - 0.9 * gkQ) * (kind === 'long' && gk?.role.id === 'sk' ? 1.2 : 1), 0.008, 0.95)
+    // el xG que se muestra es la probabilidad de gol que usa el motor
+    const xg = clamp(q * (0.49 + 0.92 * sk) * sh.role.shoot ** 0.25 * (1.62 - 0.9 * gkQ) * (kind === 'long' && gk?.role.id === 'sk' ? 1.2 : 1), 0.008, 0.95)
     this.stats.shots[si]++; this.stats.xg[si] += xg; this.an[si].xg[this.frame.channel] += xg
     sh.line.shots++
     const n = this.nm(sh), club = S.club.short
@@ -418,7 +426,11 @@ export class MatchSim {
     const log: Shot = { kind, min, side: si, pid: sh.p.id, xg, out: 'off', x: kind === 'pen' ? 50 : clamp(si === 0 ? lat : 100 - lat, 12, 88), y: far, ast: as?.p.id }
     this.shots.push(log); this.frame.shot = log
     const pre = intro ? `${intro}. ` : ''
-    if (r.chance(pGoal)) {
+    if (r.chance(xg)) {
+      // gol en contra: el remate o el centro se desvía en un defensor (sobre todo en las pelotas aéreas)
+      const ogP = kind === 'head' ? 0.07 : kind === 'pen' ? 0 : kind === 'one' ? 0.01 : 0.028
+      const dfs = O.on.filter(x => x.pos !== 'GK' && (POS_LINE[x.pos] === 'DF' || x.pos === 'DM'))
+      if (dfs.length && r.chance(ogP)) return this.ownGoal(si, min, sh, r.weighted(dfs, x => (x.pos === 'DC' ? 2 : 1) * (kind === 'head' ? at(x.p, 'hea') : 10)), log, kind, as)
       log.out = 'goal'
       this.stats.sot[si]++; sh.line.sot++; sh.line.goals++; sh.acc += 1.1; S.goals++; this.momUntil[si] = this.tick + 8
       if (as) { as.line.ast++; as.acc += 0.8 }
@@ -460,6 +472,20 @@ export class MatchSim {
       sh.acc -= 0.03
       if (xg > 0.16) this.ev(min, 'chance', si, `${pre}${n} desperdicia una ocasión clarísima.`, sh.p.id)
     }
+  }
+
+  /** El gol lo convierte un defensor en su propio arco: cuenta para el equipo que atacaba. */
+  private ownGoal(si: 0 | 1, min: number, sh: OnPitch, d: OnPitch, log: Shot, kind: string, as?: OnPitch) {
+    const S = this.sides[si], O = this.sides[1 - si], r = this.rng
+    log.out = 'block'
+    S.goals++; this.momUntil[si] = this.tick + 8
+    sh.acc += 0.3; d.acc -= 0.7
+    for (const x of O.on) if (x !== d) x.acc -= x.pos === 'GK' ? 0.25 : POS_LINE[x.pos] === 'DF' || x.pos === 'DM' ? 0.1 : 0.03
+    for (const x of S.on) x.acc += 0.04
+    const how = kind === 'head' ? (as ? `El centro de ${this.nm(as)} lo desvía ${this.nm(d)}` : `${this.nm(d)} quiere despejar de cabeza`) + ' y la pelota termina adentro de su propio arco'
+      : r.pick([`El remate de ${this.nm(sh)} se desvía en ${this.nm(d)} y descoloca al arquero`, `${this.nm(d)} se cruza ante ${this.nm(sh)} y la manda contra su propio arco`])
+    this.ev(min, 'own', si, `¡GOL de ${S.club.short}! ${how}. Gol en contra de ${this.nm(d)}. ${this.scoreText()}.`, d.p.id)
+    this.dirty = true
   }
 
   private periodEnd() {
@@ -520,18 +546,41 @@ export class MatchSim {
     this.stats.rc[si]++; f.line.rc++; f.acc -= 1.6
     this.ev(min, second ? 'yc2' : 'rc', si, second ? `Segunda amarilla y expulsión para ${this.nm(f)}. ${S.club.short} se queda con ${S.on.length - 1}.` : `¡Roja directa para ${this.nm(f)}! ${S.club.short} se queda con ${S.on.length - 1}.`, f.p.id)
     this.remove(S, f)
+    this.markGone(si, f, min)
     if (f.pos === 'GK') this.coverGk(si, min)
     else if (S.ai) this.reshape(S, true) // la IA reacomoda el equipo con uno menos
     this.dirty = true
   }
   private remove(S: Side, x: OnPitch) { S.on = S.on.filter(o => o !== x); S.off.push(x) }
+  /** Relato de una marca personal que empieza o termina. */
+  private markEv(si: 0 | 1, min: number, mm: { by: number; target: number }, start: boolean, why = '') {
+    const by = this.players[mm.by]?.name ?? 'Un jugador', tg = this.players[mm.target]?.name ?? 'su rival', club = this.sides[si].club.short
+    this.ev(min, 'info', si, start ? `Marca personal en ${club}: ${by} sigue a ${tg} por toda la cancha.` : `Termina la marca personal de ${by} (${club}) sobre ${tg}${why}.`, mm.target, mm.by)
+  }
+  /** Sale de la cancha un jugador: si era el encargado de una marca personal o el marcado, la marca termina (en la IA, la toma el que entra a su puesto). */
+  private markGone(si: 0 | 1, x: OnPitch, min: number, sub?: OnPitch) {
+    for (const k of [0, 1] as const) {
+      const S = this.sides[k], mm = S.tactic.manMark
+      if (!mm) continue
+      if (k === si && mm.by === x.p.id) {
+        S.tactic.manMark = null
+        if (S.ai && sub && (sub.pos === 'DM' || sub.pos === 'DC') && this.sides[1 - k].on.some(o => o.p.id === mm.target)) {
+          S.tactic.manMark = { by: sub.p.id, target: mm.target }
+          this.ev(min, 'info', k, `${this.nm(sub)} toma la marca personal de ${this.players[mm.target]?.name ?? 'su rival'} en ${S.club.short}.`, mm.target, sub.p.id)
+        } else this.markEv(k, min, mm, false, x.pos === 'GK' ? ': pasó al arco' : ': salió de la cancha')
+      } else if (k !== si && mm.target === x.p.id) {
+        S.tactic.manMark = null
+        this.markEv(k, min, mm, false, `: ${this.nm(x)} ${x.pos === 'GK' ? 'pasó al arco' : 'dejó la cancha'}`)
+      }
+    }
+  }
   private coverGk(si: 0 | 1, min: number) {
     const S = this.sides[si]
     const gkId = S.bench.find(id => this.players[id].positions[0] === 'GK')
     const out = [...S.on].sort((a, b) => ZONE_W[b.pos][2] - ZONE_W[a.pos][2])[0]
     if (!out) return
     if (gkId && S.subs < 5) { this.doSub(si, out, gkId, min); this.setPos(S.on.find(x => x.p.id === gkId)!, 'GK') }
-    else { this.setPos(out, 'GK'); this.ev(min, 'info', si, `${this.nm(out)} se pone los guantes en ${S.club.short}.`) }
+    else { this.setPos(out, 'GK'); this.ev(min, 'info', si, `${this.nm(out)} se pone los guantes en ${S.club.short}.`); this.markGone(si, out, min) }
   }
   private setPos(x: OnPitch, pos: Pos, role?: string, chx?: number) {
     x.pos = pos; x.line.pos = pos; x.role = ROLE[role && ROLE[role]?.pos.includes(pos) ? role : defaultRole(pos)]; x.ch = chOf(chx ?? POS_X[pos])
@@ -547,7 +596,7 @@ export class MatchSim {
     this.ev(min, 'inj', si, `${this.nm(x)} (${S.club.short}) queda tendido y no puede seguir.`, x.p.id)
     const inId = this.pickSub(S, x)
     if (inId != null && S.subs < 5) this.doSub(si, x, inId, min)
-    else { this.remove(S, x); if (x.pos === 'GK') this.coverGk(si, min) }
+    else { this.remove(S, x); this.markGone(si, x, min); if (x.pos === 'GK') this.coverGk(si, min) }
     this.dirty = true
   }
 
@@ -570,6 +619,7 @@ export class MatchSim {
     S.bench = S.bench.filter(i => i !== inId)
     S.subs++
     this.ev(min, 'sub', si, `Cambio en ${S.club.short}: entra ${n.p.name} por ${out.p.name}.`, out.p.id, inId)
+    this.markGone(si, out, min, n)
     this.dirty = true
   }
   substitute(si: 0 | 1, outPid: number, inPid: number): boolean {
@@ -617,6 +667,8 @@ export class MatchSim {
     if (tired.length) out.push(`${tired.map(x => this.nm(x)).join(', ')} ${tired.length > 1 ? 'están fundidos' : 'está fundido'}.`)
     const risk = S.on.find(x => x.yellow && at(x.p, 'agg') >= 13)
     if (risk) out.push(`${this.nm(risk)} tiene amarilla y va fuerte a cada pelota: corre riesgo de expulsión.`)
+    const omm = O.tactic.manMark, marked = omm && S.on.find(x => x.p.id === omm.target)
+    if (omm && marked) out.unshift(`${this.players[omm.by]?.name ?? 'Un rival'} sigue a ${this.nm(marked)} por toda la cancha. Cambiarlo de puesto o de banda lo obliga a correr más; el espacio que deja libre es para los demás.`)
     const star = O.on.filter(x => x.acc >= 0.8).sort((a, b) => b.acc - a.acc)[0]
     if (star && !S.tactic.manMark) out.push(`${this.nm(star)} es la figura del rival. Podés marcarlo encima desde la pestaña Rival.`)
     return out.slice(0, 4)
@@ -628,7 +680,13 @@ export class MatchSim {
     const o = (t.oppo[pid] ??= {})
     o[k] = !o[k]
   }
-  setManMark(si: 0 | 1, by: number, target: number) { this.sides[si].tactic.manMark = by && target ? { by, target } : null }
+  setManMark(si: 0 | 1, by: number, target: number) {
+    const t = this.sides[si].tactic, old = t.manMark, mm = by && target ? { by, target } : null
+    if (old?.by === mm?.by && old?.target === mm?.target) return
+    t.manMark = mm
+    if (old) this.markEv(si, this.minute, old, false)
+    if (mm) this.markEv(si, this.minute, mm, true)
+  }
   /** Charla del entretiempo: 0 calma, 1 exigir, 2 felicitar. */
   /** Charla antes del partido: 0 tranquilidad, 1 exigencia, 2 orgullo. Depende de si el equipo es favorito. */
   preTalk(si: 0 | 1, kind: 0 | 1 | 2): string {
@@ -695,6 +753,7 @@ export class MatchSim {
     if (min >= 78 && diff < 0) want = Math.min(4, base + 2)
     if (min >= 75 && diff > 0) want = Math.max(0, base - 1)
     if (min >= 85 && diff > 0) want = Math.max(0, base - 2)
+    if (S.shift === 2 && diff <= 0) want = 4 // se juega todo hasta el final, salvo que dé vuelta el partido
     if (want !== S.tactic.mentality) { S.tactic.mentality = want; S.tactic.onWin = diff > 0 ? 1 : S.club.tactic.onWin; this.dirty = true }
   }
 
