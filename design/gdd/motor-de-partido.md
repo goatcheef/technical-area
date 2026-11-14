@@ -114,7 +114,7 @@ Simulador de partido por jugadas (`MatchSim`): cada minuto un equipo tiene la pe
 | `pressing` 0–2 | +4 %/paso | rival −0,035/paso ± habilidad | | | | | +0,05/paso |
 | `tempo` 0–2 | (con salida corta y tempo 0: +3 %) | −0,015/paso | −0,03/paso | +0,025/paso | | | +0,035/paso; pases +1/paso |
 | `width` 0–2 | −1,2 %/paso | | | carriles | | | |
-| `line` 0–2 | +3,5 %/paso | | rival −0,04/paso | rival: baja −0,05, alta +0,02 | offside y pase filtrado | contra rival ×(1+0,3·(l−1)) | |
+| `line` 0–2 | +3,5 %/paso | | rival −0,04/paso | rival: baja −0,03, alta +0,02 | offside y pase filtrado | contra rival ×(1+0,3·(l−1)) | |
 | `passing` 0–2 | −3,5 %/paso | larga: duelo aéreo | corta +0,02 | | | | pases −2 si larga |
 | `tackling` 0–2 | | | | faltas ×0,75/1/1,35 | | | tarjetas ×0,75/1/1,35 |
 | `focus` 0–3 | | | | carril 0,66 | | | |
@@ -233,7 +233,7 @@ Variables como F4; `home` 0–0,027. **Ejemplo** p2: medio 12 contra 11, todo en
 ```
 a3 = afuera ? sk(cre; dri,pac,acc,cro) : sk(cre; vis,pas,fto,dri)     (×0,93/1,04 marcado encima; ×0,96 entrarle fuerte)
 d3 = afuera ? sk(mk; tck,pac,pos,mar) : sk(mk; mar,pos,dec,tck)       (×1,06 marca personal)
-p3 = clamp( 0.352 + (a3 − d3)·0.035 + bonus3 + 0.02(mentality−2) + 0.025(tempo−1) + {lineRival 0: −0.05, 2: +0.02} − (mk stp ? 0.02) + (envión ? 0.03) + (condMedio_propio − condMedio_rival)·0.0025 − (min ≤ 15 ? 0.03) + (min ≥ 76 ? 0.035) + 2.5·(boost.ataque−1) − 2.5·(boostRival.defensa−1) + home + 0.04·(propios − rivales), 0.12, 0.85 )
+p3 = clamp( 0.352 + (a3 − d3)·0.035 + bonus3 + 0.02(mentality−2) + 0.025(tempo−1) + {lineRival 0: −0.03, 2: +0.02} − (mk stp ? 0.02) + (envión ? 0.03) + (condMedio_propio − condMedio_rival)·0.0025 − (min ≤ 15 ? 0.03) + (min ≥ 76 ? 0.035) + 2.5·(boost.ataque−1) − 2.5·(boostRival.defensa−1) + home + 0.04·(propios − rivales), 0.12, 0.85 )
 ```
 
 | Variable | Tipo | Rango | Fuente | Descripción |
@@ -248,7 +248,7 @@ p3 = clamp( 0.352 + (a3 − d3)·0.035 + bonus3 + 0.02(mentality−2) + 0.025(te
 ### F7 · xG y probabilidad de gol (`match.ts:409-412`)
 
 ```
-q     = tipo = penal ? 0.77 : base · (0.54 + 0.72·U),  U ~ [0,1)
+q     = tipo = penal ? 0.77 : base · (0.56 + 0.72·U),  U ~ [0,1)
 gkQ   = hay arquero ? posRating(GK)/100 · eff/max(0.5, roleFit) : 0.3
 xg    = clamp( q · (0.49 + 0.92·skRem) · role.shoot^0.25 · (1.62 − 0.9·gkQ) · (lejos y arquero sk ? 1.2 : 1), 0.008, 0.95 )
 gol   = U' < xg   (si es gol: gol en contra con 7 % cabezazo, 2,8 % resto, 1 % mano a mano, 0 penal)
@@ -260,10 +260,10 @@ gol   = U' < xg   (si es gol: gol en contra con 7 % cabezazo, 2,8 % resto, 1 % m
 | skRem | float | 0,05–1 | atributos/20–80 | Calidad de definición (p. ej. `(2·fin+com+fto)/80`) |
 | role.shoot | float | 0,5–1,8 | `ROLES` | Peso del rol al rematar |
 | gkQ | float | 0–≈1,1 | arquero rival | Calidad del arquero |
-| q | float | 0,019–0,32 (penal 0,77) | calculado | Calidad de la ocasión antes del rematador y el arquero |
+| q | float | 0,020–0,32 (penal 0,77) | calculado | Calidad de la ocasión antes del rematador y el arquero |
 | xg | float | 0,008–0,95 | calculado | Probabilidad real de gol: es el xG que se muestra y se suma |
 
-**Rango**: acotado. El máximo sin tope (penal, definidor 20, rol 1,8, sin arquero) pasa 2, por eso el techo 0,95. **Ejemplo**: medialuna, U 0,5 → q 0,081; `fin 14, com 12, fto 12` → skRem 0,65; arquero de 70 con eff 0,95 → gkQ 0,665; `xg = 0,081·1,088·1·1,021 = 0,090`. Desde el 2026-11-14 el xG mostrado es la misma probabilidad con la que se sortea el gol (antes se mostraba `q`, ≈8 % por debajo).
+**Rango**: acotado. El máximo sin tope (penal, definidor 20, rol 1,8, sin arquero) pasa 2, por eso el techo 0,95. **Ejemplo**: medialuna, U 0,5 → q 0,083; `fin 14, com 12, fto 12` → skRem 0,65; arquero de 70 con eff 0,95 → gkQ 0,665; `xg = 0,083·1,088·1·1,021 = 0,092`. Desde el 2026-11-14 el xG mostrado es la misma probabilidad con la que se sortea el gol (antes se mostraba `q`, ≈8 % por debajo).
 
 ### F8 · Contraataque tras una pérdida (`match.ts:345`)
 
@@ -360,13 +360,13 @@ final: +0.5 arquero/defensor y +0.25 volante central con valla invicta y ≥ 60'
 
 ## Tuning Knobs
 
-**Metas de calibración** (`CLAUDE.md`, medidas con `npm run sim -- 2`) y la perilla principal de cada una:
+**Metas de calibración** (`CLAUDE.md`, medidas con `npm run sim -- 3 <semilla>` y al menos tres semillas: una temporada sola tiene un ruido de ±0,05 goles y ±0,9 puntos de 0-0) y la perilla principal de cada una:
 
 | Métrica | Meta | Perillas principales |
 |---|---|---|
-| Goles por partido | 2,1–2,3 | bases de F7, `0,49`/`0,92`/`1,62`/`0,9` de `xg` (F7), `0,352` de F6 |
+| Goles por partido | 2,1–2,3 | piso `0,56` de `q` (F7: sube la conversión sin tocar el volumen de remates ni los penales), bases de F7, `0,49`/`0,92`/`1,62`/`0,9` de `xg` (F7), `0,352` y línea baja rival `−0,03` de F6 |
 | Triunfos locales | 39–42 % | `0,045` (medio), `0,02` (`home`), crowd `0,35 + rep/160` |
-| Empates / 0-0 | 26–28 % / 12–14 % | indirecto: volumen de ocasiones y `pGoal` |
+| Empates / 0-0 | 26–28 % / 12–14 % | indirecto: volumen de ocasiones y `pGoal`. Subir los goles por conversión (`q`) baja el 0-0 más que subirlos por ocasiones contra la línea baja (2,17 goles: 12,1 % contra 13,0 % a 2,14) |
 | Remates | 22 | `0,352` (F6), `0,6` (F5), `0,93` (F4) |
 | Córners | 9 | banda 0,1 tras duelo perdido; 0,36 tras atajada o bloqueo; 0,3 tras centro perdido |
 | Offsides | 3,4 | `0,05`/`0,15`·`(0,6+0,4·línea)`; `0,13+0,06·línea` |
@@ -374,11 +374,20 @@ final: +0.5 arquero/defensor y +0.25 volante central con valla invicta y ≥ 60'
 | Último tramo con más goles | último cuarto de hora máximo | `+0,035` desde 76', `−0,03` hasta 15', `0,0025` por físico |
 | Recuperación | ≈6 por día | `3,8 + 0,2·sta` (`game.ts:545`) |
 
+**Deriva entre temporadas** (medida el 2026-11-14, 4 semillas × 4 temporadas, antes de recalibrar): los goles bajan de 2,11 en la primera temporada a 2,02 en la tercera y 2,01 en la cuarta. La Primera se mantiene; bajan la Primera Nacional (≈2,05 → 1,90) y la tercera categoría (≈1,95 → 1,70), por volumen de ocasiones (remates de la PN 21,5 → 20,3; de la tercera ≈21 → 18) con el xG por remate quieto (0,093–0,097). Las causas están fuera del motor:
+- **El duelo del último tercio se inclina hacia los defensores.** `a3 − d3` medio en la PN pasa de −0,25…−0,44 a −0,33…−0,67 y en la tercera de −0,4 a −0,5…−1,05. Los juveniles (`makeYouth`: `base + (peso − 1,7)·0,75`) y el crecimiento (`develop`, entrenamiento) reparten los puntos según los pesos del puesto: el central tiene peso 5 justo en los atributos de `d3` (marca, entradas, colocación), el volante central reparte su peso en más atributos que los de `a3`.
+- **Más rivales de la IA con línea baja.** La diferencia de velocidad + aceleración entre delanteros y centrales sube de ≈2,6 a 3,9–4,8 en la PN (los centrales no suben aceleración y los mayores de 31 pierden físico), y la regla B.8 de `ia-rivales` (brecha ≥ 4 → línea baja) pasa del 52–63 % al 61–77 % de los equipos. Sin esa regla los goles suben 0,08 y la caída de la primera a la tercera temporada baja de 0,09 a 0,03 (a la cuarta sigue en 0,1: no es la única causa).
+- El nivel medio de los jugadores argentinos sube ≈1 punto por temporada (58,9 → 62,2 en cuatro), parejo en ataque y defensa: por sí solo no baja los goles.
+
+Ninguna es un error (B.8 está documentada como intención), así que la calibración apunta a 2,18–2,2 en la primera temporada para que la tercera y la cuarta queden arriba de 2,1. La línea baja rival en F6 pasó de −0,05 a −0,03 para que la deriva de B.8 pese menos en los goles.
+
 **Constantes**
 
 | Parámetro | Valor | Rango seguro `[inferred]` | Si sube | Si baja |
 |---|---|---|---|---|
 | Exponente de posesión `k` (`match.ts:147`) | 2,4 | 1,5–3,5 | El mejor medio domina más | Posesión más pareja |
+| Piso del factor de calidad `q` (`match.ts:417`, F7) | 0,56 (antes 0,54) | 0,5–0,62 | Más goles por remate (+0,02 ≈ +0,045 goles por partido) y menos 0-0 | Menos goles |
+| Línea baja rival en el último tercio (`match.ts:274`, F6) | −0,03 (antes −0,05) | −0,06–0 | (hacia 0) El repliegue protege menos: más ocasiones y goles contra los equipos que se meten atrás, y la deriva de B.8 pesa menos | El repliegue protege más: menos ocasiones contra la línea baja |
 | Tope de posesión | 0,24–0,76 | 0,2–0,8 | — | — |
 | Falta suelta por minuto | 0,215 | 0,15–0,3 | Más faltas y tarjetas | Menos |
 | Lesión por minuto | 0,0034 (×0,55) | 0,002–0,005 | Más bajas | Menos |
@@ -487,7 +496,7 @@ El juego no tiene audio: todas las columnas de sonido son "—".
 | `INTENT UNKNOWN`: no hay goles en contra pese a que `own` existe en tipos y UI. ¿Se agregan o se quita el tipo? | usuario | — | Resuelta (2026-11-14): se agregan (`ownGoal`, ver F7) |
 | `INTENT UNKNOWN`: `preTalk` trata a los dos equipos como visitantes en cancha neutral. ¿Es a propósito? | usuario | — | — |
 | ¿El xG mostrado debe coincidir con la probabilidad real de gol? Hoy la subestima en ≈8 % con valores típicos. | usuario + systems-designer | — | Resuelta (2026-11-14): sí; el xG mostrado es la probabilidad del sorteo (F7) |
-| Las metas de calibración no se verificaron al escribir este documento (no se corrió la simulación). | — | — | Medido el 2026-11-14 con `npm run sim -- 3` (semilla del script; por temporada): 1,94–2,12 goles, 38,8–40,6 % local, 28,2–28,8 % empates, 13,7–15,1 % 0-0, 20,7–21,9 remates, 9,0–9,3 córners, 3,3 offsides, 5,2–5,4 amarillas y 0,31–0,35 rojas por partido. Goles y empates quedan en el borde inferior y superior de la meta (ya pasaba antes de esta ronda: 2,04–2,07 goles) |
+| Las metas de calibración no se verificaron al escribir este documento (no se corrió la simulación). | — | — | Medido el 2026-11-14 con `npm run sim -- 3` (semilla del script; por temporada): 1,94–2,12 goles, 38,8–40,6 % local, 28,2–28,8 % empates, 13,7–15,1 % 0-0, 20,7–21,9 remates, 9,0–9,3 córners, 3,3 offsides, 5,2–5,4 amarillas y 0,31–0,35 rojas por partido. Goles y empates quedan en el borde inferior y superior de la meta (ya pasaba antes de esta ronda: 2,04–2,07 goles). Recalibrado el 2026-11-14 (rama `calibracion-goles`): con 3 semillas × 3 temporadas los goles pasaron de 2,07 (1,94–2,17) a 2,17 (2,11–2,27) y el 0-0 de 13,3 % a 12,9 %; con 6 semillas, 2,18 goles, 12,4 % de 0-0, 26,5 % de empates, 22,4 remates. Queda una deriva de unas −0,03 a −0,04 por temporada que no es del motor (ver Tuning Knobs) |
 
 ## Version History
 
@@ -495,3 +504,4 @@ El juego no tiene audio: todas las columnas de sonido son "—".
 |---|---|---|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/match.ts` (`d9b251a`) |
 | 2026-11-14 | Claude | Edge Cases y Open Questions: resueltos la marca personal que se pierde sin aviso, los goles en contra y el xG que no era la probabilidad real (F7 actualizada) |
+| 2026-11-14 | Claude | Calibración de goles: piso de `q` 0,54 → 0,56 (F7) y línea baja rival en el último tercio −0,05 → −0,03 (F6). Medido con `npm run sim -- 3 <semilla>` (12345, 777, 2024, 31, 99, 4242): 2,18 goles por partido, 12,4 % de 0-0, xG/goles 1,00, 3,4 % de goles en contra. Se documenta la deriva de los goles entre temporadas |

@@ -6,7 +6,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 
 - `npm run dev`: servidor local (Vite).
 - `npm run build`: chequeo de tipos + build.
-- `npm run sim -- 3`: simula N temporadas sin interfaz y muestra métricas (goles por partido, localía, finanzas, pases). Correrlo después de tocar el motor o la economía.
+- `npm run sim -- 3`: simula N temporadas sin interfaz y muestra métricas (goles por partido, localía, xG/goles, goles en contra, goles por tramo, finanzas, pases). Correrlo después de tocar el motor o la economía. Segundo argumento opcional: la semilla (`npm run sim -- 3 777`; por defecto 12345).
 - `npm run db`: regenera `src/data/db.json` desde `data/clubs_raw.json`.
 - `python3 tools/import_wiki.py`: reimporta clubes y planteles de Wikipedia en español. `python3 tools/fetch_crests.py`: escudos.
 - `node tests/ui/bandeja.cjs`: prueba de aceptación de la bandeja con Playwright (con `npm run dev` corriendo) en cinco resoluciones; comprueba que cada botón y cada foco se vean (`elementFromPoint`), no solo que se puedan clickear. `node tests/ui/guardado.cjs` (también con `npm run dev` corriendo): aviso de guardado fallido con IndexedDB roto. `node tools/check-contrast.mjs`: contraste del acento y de `--sel` en los 86 clubes.
@@ -63,7 +63,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 
 ## Calibración de referencia del motor
 
-Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 39-42 % de triunfos locales, 26-28 % de empates, 12-14 % de 0-0, 22 remates, 9 córners, 3,4 offsides, 5 amarillas y 0,3 rojas por partido. Goles por tramo de 15 minutos parecidos a los reales (el último tramo es el de más goles). La recuperación física es de unos 6 puntos por día: un partido a mitad de semana se nota. Las constantes están en `attack`, `chance` y `shot` de `match.ts`; después de tocarlas, correr `npm run sim -- 2`.
+Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 39-42 % de triunfos locales, 26-28 % de empates, 12-14 % de 0-0, 22 remates, 9 córners, 3,4 offsides, 5 amarillas y 0,3 rojas por partido. Goles por tramo de 15 minutos parecidos a los reales (el último tramo es el de más goles). La recuperación física es de unos 6 puntos por día: un partido a mitad de semana se nota. Las constantes están en `attack`, `chance` y `shot` de `match.ts`; después de tocarlas, correr `npm run sim -- 3 <semilla>` con al menos tres semillas (una temporada sola varía ±0,05 goles). Los goles bajan unas centésimas por temporada por la evolución de los planteles y la línea baja de la IA (ver la deriva en `design/gdd/motor-de-partido.md`): la primera temporada tiene que dar alrededor de 2,2 para que las siguientes no bajen de 2,1.
 
 ## Plan de jugabilidad (acordado con el usuario)
 

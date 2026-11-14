@@ -271,7 +271,7 @@ export class MatchSim {
       mk.cond = Math.max(15, mk.cond - 0.25)
     }
     if (hard) a3 *= 0.96
-    const p3 = 0.352 + (a3 - d3) * 0.035 + bonus3 + 0.02 * (t.mentality - 2) + 0.025 * (t.tempo - 1) + (ot.line === 0 ? -0.05 : ot.line === 2 ? 0.02 : 0)
+    const p3 = 0.352 + (a3 - d3) * 0.035 + bonus3 + 0.02 * (t.mentality - 2) + 0.025 * (t.tempo - 1) + (ot.line === 0 ? -0.03 : ot.line === 2 ? 0.02 : 0)
       + (mk.role.id === 'stp' ? -0.02 : 0)
       + (this.tick < this.momUntil[si] ? 0.03 : 0) + (this.condOf(S) - this.condOf(O)) * 0.0025 - (min <= 15 ? 0.03 : 0) + (min >= 76 ? 0.035 : 0)
       + bAtt * 2.5 - bDef * 2.5 + this.home(si) + (S.on.length - O.on.length) * 0.04
@@ -414,7 +414,7 @@ export class MatchSim {
     const S = this.sides[si], O = this.sides[1 - si], r = this.rng
     const gk = O.on.find(x => x.pos === 'GK')
     const gkQ = gk ? (posRating(gk.p, 'GK') / 100) * (gk.eff / Math.max(0.5, roleFit(gk.p, gk.role))) : 0.3
-    const q = kind === 'pen' ? base : base * (0.54 + 0.72 * r.next())
+    const q = kind === 'pen' ? base : base * (0.56 + 0.72 * r.next())
     if (this.oi(O, sh, 'tight') && kind !== 'pen' && kind !== 'fk') sk *= 0.94
     // el xG que se muestra es la probabilidad de gol que usa el motor
     const xg = clamp(q * (0.49 + 0.92 * sk) * sh.role.shoot ** 0.25 * (1.62 - 0.9 * gkQ) * (kind === 'long' && gk?.role.id === 'sk' ? 1.2 : 1), 0.008, 0.95)
