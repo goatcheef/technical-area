@@ -4,6 +4,7 @@ import { MatchSim, type MatchResult } from './match'
 import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, bestRole, fixRoles, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
 import { emptyLedger, emptyStats, type Club, type Competition, type Fixture, type Game, type Manager, type News, type Player, type Tactic } from './types'
+import { planMatch } from './ai'
 import { aggFor, computeQual, isCup, progressCup, scheduleCups } from './cups'
 import { afterUserMatch, dailySquad, harmonyBoost, initSquad, learnFromMatch, weeklyReserve } from './squad'
 import { isDerby } from './week'
@@ -83,7 +84,7 @@ function bestFormation(g: Game, clubId: number, rng: Rng): string {
   let bf = '4-4-2', bs = -1
   for (const f of FORMATION_NAMES) {
     const { lineup } = autoPick(g, clubId, f)
-    const s = lineup.reduce((t, id, i) => t + posRating(g.players[id], FORMATIONS[f][i].pos), 0) * (0.97 + rng.next() * 0.06)
+    const s = lineup.reduce((t, id, i) => t + posRating(g.players[id], FORMATIONS[f][i].pos), 0) * (0.95 + rng.next() * 0.1)
     if (s > bs) { bs = s; bf = f }
   }
   return bf
@@ -116,14 +117,6 @@ export function fixLineup(g: Game, clubId: number): boolean {
   return true
 }
 
-function prepareAi(g: Game, clubId: number, oppId: number, home: boolean) {
-  const c = g.clubs[clubId], o = g.clubs[oppId]
-  const { lineup, bench } = autoPick(g, clubId, c.tactic.formation)
-  c.tactic.lineup = lineup; c.tactic.bench = bench
-  c.tactic.roles = FORMATIONS[c.tactic.formation].map((sl, i) => (g.players[lineup[i]] ? bestRole(g.players[lineup[i]], sl.pos) : fixRoles(c.tactic.formation, undefined)[i]))
-  const d = c.rep - o.rep + (home ? 4 : -4)
-  c.tactic.mentality = d > 12 ? 3 : d > -7 ? 2 : 1
-}
 
 // ---------- tablas ----------
 export interface Row { clubId: number; pj: number; g: number; e: number; p: number; gf: number; gc: number; pts: number }
@@ -314,9 +307,9 @@ function withRng<T>(g: Game, fn: (r: Rng) => T): T {
 
 export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
   const userSide = f.home === g.userClubId ? 0 : f.away === g.userClubId ? 1 : null
-  if (f.home !== g.userClubId) prepareAi(g, f.home, f.away, !f.neutral)
+  if (f.home !== g.userClubId) withRng(g, r => planMatch(g, f.home, f, r))
   else fixLineup(g, f.home)
-  if (f.away !== g.userClubId) prepareAi(g, f.away, f.home, false)
+  if (f.away !== g.userClubId) withRng(g, r => planMatch(g, f.away, f, r))
   else fixLineup(g, f.away)
   const seed = withRng(g, r => r.int(1, 2147483646))
   const boost: [number, number, number][] = [[1, 1, 1], [1, 1, 1]]
@@ -532,7 +525,7 @@ function passDays(g: Game, n: number) {
   for (const p of Object.values(g.players)) {
     if (p.injury) { p.injury.days -= n; if (p.injury.days <= 0) p.injury = null }
     const cap = p.injury ? 85 : 100
-    if (p.cond < cap) p.cond = Math.min(cap, p.cond + n * (6.5 + p.attrs[20] * 0.22))
+    if (p.cond < cap) p.cond = Math.min(cap, p.cond + n * (3.8 + p.attrs[20] * 0.2))
     const mid = p.clubId === g.userClubId ? 67 + (g.manager.attrs.mot - 10) * 0.8 : 67
     if (p.morale > mid + 5) p.morale -= 0.3 * n; else if (p.morale < mid - 5) p.morale += 0.3 * n
   }

@@ -1,5 +1,6 @@
 // La semana: cuerpo técnico, entrenamiento, informe del rival y conferencias de prensa.
 import { APELLIDOS, NOMBRES, managerMarket } from './career'
+import { weeklyAiTraining } from './ai'
 import { addDays, autoPick, available, clubsIn, fmtDate, news, nextUserFixture, squadOf } from './game'
 import { FORMATIONS, POS_LABEL, POS_LINE, POS_WEIGHTS, ageOn, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
@@ -318,6 +319,7 @@ export function dayEvents(g: Game, rng: Rng) {
     g.training.week = { ups: [], inj: [] }
     if (rng.chance(0.25)) refreshPool(g, rng)
     managerMarket(g, rng)
+    weeklyAiTraining(g, rng)
   }
   // sueldos del cuerpo técnico
   const c = g.clubs[g.userClubId], bill = staffBill(g) / 30

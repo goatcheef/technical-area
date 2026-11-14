@@ -12,6 +12,7 @@ interface OnPitch {
 interface Side {
   club: Club; tactic: Tactic; on: OnPitch[]; bench: number[]; off: OnPitch[]
   subs: number; goals: number; mid: number; fam: number; ai: boolean; talk: number
+  shift: number // cambio de planteo de la IA en el partido: 1 ofensivo, 2 todo o nada, -1 cerrarse
 }
 export interface MatchOpts { knockout?: boolean; neutral?: boolean; seed: number; userSide?: 0 | 1 | null; importance?: number
   /** Multiplicadores del DT por lado: [ataque, defensa, medio] */
@@ -60,7 +61,7 @@ export class MatchSim {
       tactic.roles = fixRoles(tactic.formation, tactic.roles)
       const slots = FORMATIONS[tactic.formation]
       const on = tactic.lineup.slice(0, 11).map((pid, k) => this.mkOn(players[pid], slots[k].pos, ROLE[tactic.roles[k]], chOf(slots[k].x), i as 0 | 1, true, 0))
-      return { club, tactic, on, bench: [...tactic.bench], off: [], subs: 0, goals: 0, mid: 1, fam: 0.94 + 0.06 * (club.fam ?? 70) / 100, ai: opts.userSide !== i, talk: 0 }
+      return { club, tactic, on, bench: [...tactic.bench], off: [], subs: 0, goals: 0, mid: 1, fam: 0.94 + 0.06 * (club.fam ?? 70) / 100, ai: opts.userSide !== i, talk: 0, shift: 0 }
     }
     this.sides = [mk(home, 0), mk(away, 1)]
     const z = (): [number, number] => [0, 0]
@@ -257,7 +258,8 @@ export class MatchSim {
       const u = r.next(), foulP = (hard ? 1.6 : 1) * 0.15 * [0.75, 1, 1.35][ot.tackling] * (0.6 + at(mk.p, 'agg') / 25) * (mk.role.id === 'stp' ? 1.25 : 1)
       if (u < foulP) return this.attackFoul(si, min, cre, mk)
       if (u < foulP + 0.1) return this.corner(si, min)
-      if (!wide && u < foulP + 0.1 + 0.11 * (1 + 0.8 * (ot.line - 1))) { this.stats.offs[si]++; return }
+      // offside: más seguido contra líneas adelantadas, pero también contra las bajas
+      if (u < foulP + 0.1 + (wide ? 0.05 : 0.15) * (0.6 + 0.4 * ot.line)) { this.stats.offs[si]++; return }
       return this.lose(si, min, mk, 0.55, depth)
     }
     cre.acc += 0.06
@@ -301,7 +303,7 @@ export class MatchSim {
       const run = r.weighted(box, x => (at(x.p, 'otb') + at(x.p, 'pac')) * bw(x) * (x.role.id === 'mov' ? 1.4 : 1))
       fr.route.push(run.p.id); fr.kind = 'through'
       const line = O.tactic.line
-      if (r.chance(0.1 + 0.07 * line)) { this.stats.offs[si]++; return }
+      if (r.chance(0.13 + 0.06 * line)) { this.stats.offs[si]++; return }
       const p = 0.24 + (this.sk(run, 'otb', 'pac', 'acc') - this.sk(dc, 'pos', 'pac', 'dec')) * 0.04 + 0.08 * (line - 1) + (counter ? 0.12 : 0)
       const clean = r.chance(clamp(p, 0.08, 0.8))
       if (!clean) dc.acc += 0.04
@@ -500,6 +502,7 @@ export class MatchSim {
     this.ev(min, second ? 'yc2' : 'rc', si, second ? `Segunda amarilla y expulsión para ${this.nm(f)}. ${S.club.short} se queda con ${S.on.length - 1}.` : `¡Roja directa para ${this.nm(f)}! ${S.club.short} se queda con ${S.on.length - 1}.`, f.p.id)
     this.remove(S, f)
     if (f.pos === 'GK') this.coverGk(si, min)
+    else if (S.ai) this.reshape(S, true) // la IA reacomoda el equipo con uno menos
     this.dirty = true
   }
   private remove(S: Side, x: OnPitch) { S.on = S.on.filter(o => o !== x); S.off.push(x) }
@@ -599,7 +602,7 @@ export class MatchSim {
     S.talk = eff; this.dirty = true
     return eff >= 0.02 ? 'El plantel salió enchufado.' : eff > 0 ? 'El equipo escuchó con atención.' : 'La charla cayó mal en el vestuario.'
   }
-  private reshape(S: Side) {
+  private reshape(S: Side, keepRoles = false) {
     const all = FORMATIONS[S.tactic.formation].filter(s => s.pos !== 'GK')
     const pl = S.on.filter(x => x.pos !== 'GK')
     const use = [...all].sort((a, b) => ZONE_W[a.pos][2] - ZONE_W[b.pos][2]).slice(0, pl.length)
@@ -608,7 +611,7 @@ export class MatchSim {
       const b = best([...free], x => posRating(x.p, sl.pos))
       this.setPos(b, sl.pos, undefined, sl.x); free.delete(b)
     }
-    S.tactic.roles = fixRoles(S.tactic.formation, undefined)
+    if (!keepRoles) S.tactic.roles = fixRoles(S.tactic.formation, undefined)
   }
 
   private aiManage(si: 0 | 1, min: number) {
@@ -618,6 +621,31 @@ export class MatchSim {
       const out = best(cands, x => (100 - x.cond) + (x.yellow ? 12 : 0) - x.acc * 12 + (this.tick - x.enteredTick < 25 ? -100 : 0))
       const inId = out ? this.pickSub(S, out) : null
       if (out && inId != null && (out.cond < 78 || min > 70)) this.doSub(si, out, inId, min)
+    }
+    // cambios de planteo: perdiendo, más gente arriba; ganando por uno al final, cerrarse
+    const MORE: Record<string, string> = { '5-3-2': '4-4-2', '4-1-4-1': '4-2-3-1', '4-4-1-1': '4-4-2', '4-2-3-1': '4-3-3', '4-4-2': '4-3-3', '4-3-1-2': '4-3-3', '4-3-3': '3-4-3', '3-5-2': '3-4-3', '3-4-3': '3-4-3' }
+    if (diff < 0 && min >= 62 && S.shift < 1 && S.on.length >= 10 && this.rng.chance(0.25)) {
+      S.shift = 1
+      const cands = S.on.filter(x => (x.pos === 'DM' || x.pos === 'MC' || x.pos === 'DC') && this.tick - x.enteredTick > 20)
+      const out = cands.length ? best(cands, x => -x.acc * 10 + (100 - x.cond) * 0.3 + (x.pos === 'DM' ? 8 : 0)) : undefined
+      const fw = S.bench.map(id => this.players[id]).filter(p => p && POS_LINE[p.positions[0]] === 'FW').sort((a, b) => b.ca - a.ca)[0]
+      if (out && fw && S.subs < 5) this.doSub(si, out, fw.id, min)
+      this.setTactic(si, { formation: MORE[S.tactic.formation] ?? S.tactic.formation })
+      this.ev(min, 'info', si, `${S.club.short} cambia el dibujo y manda más gente al ataque.`)
+    }
+    if (diff <= -2 && min >= 72 && S.shift < 2 && S.on.length >= 10 && this.rng.chance(0.3)) {
+      S.shift = 2
+      this.setTactic(si, { formation: '3-4-3', mentality: 4, line: 2, pressing: 2 })
+      this.ev(min, 'info', si, `${S.club.short} se juega todo: línea de tres y todos arriba.`)
+    }
+    if (diff === 1 && min >= 80 && S.shift === 0 && S.club.tactic.formation !== '5-3-2' && this.rng.chance(0.2)) {
+      S.shift = -1
+      const att = S.on.filter(x => POS_LINE[x.pos] === 'FW' && this.tick - x.enteredTick > 15)
+      const out = att.length ? best(att, x => 100 - x.cond) : undefined
+      const def = S.bench.map(id => this.players[id]).filter(p => p && (p.positions[0] === 'DC' || p.positions[0] === 'DM')).sort((a, b) => b.ca - a.ca)[0]
+      if (out && def && S.subs < 5) this.doSub(si, out, def.id, min)
+      this.setTactic(si, { formation: '5-3-2' })
+      this.ev(min, 'info', si, `${S.club.short} se cierra atrás con línea de cinco para cuidar el resultado.`)
     }
     const base = S.club.tactic.mentality
     let want = base

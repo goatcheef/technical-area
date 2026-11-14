@@ -128,6 +128,7 @@ export interface Club {
   tactic: Tactic
   country?: string // clubes del exterior (división 0)
   firedAt?: number // temporada en la que despidió a su DT
+  style?: Partial<Tactic> // identidad táctica del club (la IA la conserva entre partidos)
   fam: number // familiaridad con el sistema táctico (0-100)
   famKey: string
   balance: number // caja en USD
