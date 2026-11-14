@@ -15,7 +15,9 @@ interface Side {
 }
 export interface MatchOpts { knockout?: boolean; neutral?: boolean; seed: number; userSide?: 0 | 1 | null; importance?: number
   /** Multiplicadores del DT por lado: [ataque, defensa, medio] */
-  boost?: [number, number, number][] }
+  boost?: [number, number, number][]
+  /** Multiplicador de pelota parada por lado (entrenamiento). */
+  sp?: [number, number] }
 export interface MatchResult {
   hg: number; ag: number; pens?: [number, number]; et: boolean
   stats: MatchStats; events: MatchEvent[]; lines: PlayerLine[]; shots: Shot[]
@@ -341,7 +343,7 @@ export class MatchSim {
     const dd = O.on.filter(x => x.pos !== 'GK')
     const mk = dd.length ? best(dd, x => this.sk(x, 'hea', 'jmp', 'mar') + r.next() * 4) : O.on[0]
     this.frame.route = [tk.p.id, tg.p.id]
-    const p = base + (this.sk(tk, 'cro', 'set') - 11) * 0.012 + (this.sk(tg, 'hea', 'jmp', 'str') - this.sk(mk, 'hea', 'jmp', 'mar')) * 0.03
+    const p = base * (this.opts.sp?.[si] ?? 1) + (this.sk(tk, 'cro', 'set') - 11) * 0.012 + (this.sk(tg, 'hea', 'jmp', 'str') - this.sk(mk, 'hea', 'jmp', 'mar')) * 0.03
     if (!r.chance(clamp(p, 0.06, 0.6))) { mk.acc += 0.05; return }
     this.shot(si, min, 'head', tg, plan === 1 ? 0.08 : plan === 2 ? 0.105 : 0.095, (at(tg.p, 'hea') * 2 + at(tg.p, 'jmp')) / 60, tk, intro)
   }
@@ -373,7 +375,7 @@ export class MatchSim {
     }
     const tk = this.taker(S, 'fk')
     this.frame.kind = 'fk'
-    if (r.chance(0.16)) { this.frame.route = [tk.p.id]; return this.shot(si, min, 'fk', tk, 0.068, (at(tk.p, 'set') * 2 + at(tk.p, 'lsh')) / 60, undefined, `Tiro libre peligroso por la falta de ${this.nm(f)}`) }
+    if (r.chance(0.16)) { this.frame.route = [tk.p.id]; return this.shot(si, min, 'fk', tk, 0.068 * (this.opts.sp?.[si] ?? 1), (at(tk.p, 'set') * 2 + at(tk.p, 'lsh')) / 60, undefined, `Tiro libre peligroso por la falta de ${this.nm(f)}`) }
     this.aerial(si, min, tk, 0.13, `Tiro libre de ${this.nm(tk)} al área`)
   }
 
@@ -574,6 +576,14 @@ export class MatchSim {
   }
   setManMark(si: 0 | 1, by: number, target: number) { this.sides[si].tactic.manMark = by && target ? { by, target } : null }
   /** Charla del entretiempo: 0 calma, 1 exigir, 2 felicitar. */
+  /** Charla antes del partido: 0 tranquilidad, 1 exigencia, 2 orgullo. Depende de si el equipo es favorito. */
+  preTalk(si: 0 | 1, kind: 0 | 1 | 2): string {
+    const S = this.sides[si], O = this.sides[1 - si]
+    const fav = S.club.rep - O.club.rep + (si === 0 && !this.opts.neutral ? 4 : -4)
+    const eff = kind === 0 ? 0.012 : kind === 1 ? (fav > 3 ? 0.025 : fav < -3 ? -0.01 : 0.012) : fav < -3 ? 0.03 : fav > 3 ? -0.005 : 0.01
+    S.talk = eff; this.dirty = true
+    return eff >= 0.02 ? 'El plantel salió a la cancha enchufado.' : eff > 0 ? 'El equipo escuchó con atención.' : 'La charla no cayó bien: se los vio tensos.'
+  }
   teamTalk(si: 0 | 1, kind: 0 | 1 | 2): string {
     const S = this.sides[si], d = S.goals - this.sides[1 - si].goals
     const eff = kind === 0 ? (d < 0 ? 0.005 : 0.01) : kind === 1 ? (d < 0 ? 0.03 : d === 0 ? 0.015 : -0.02) : d > 0 ? 0.02 : -0.025

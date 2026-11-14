@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { wageBill, windowOpen } from '../engine/career'
+import { FOCUS, INTENSITY } from '../engine/week'
+import { ReportModal } from './Week'
 import { annualTable, clubsIn, fmtDate, leagueFx, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf } from '../engine/game'
 import type { Fixture } from '../engine/types'
 import { exportGame, useGame } from '../store'
@@ -8,7 +10,8 @@ import { Badge, Face, Gauge, MatchReport, Ovr, avgRat, money, resultText } from 
 const TAG: Record<string, string> = { partido: 'Partido', torneo: 'Torneo', lesion: 'Parte médico', club: 'Club', mercado: 'Mercado', premio: 'Premio', directiva: 'Dirigencia' }
 
 export function Home() {
-  const { g, refresh, go, save, openPlayer } = useGame()
+  const { g, refresh, go, save, openPlayer, openPress } = useGame()
+  const [scout, setScout] = useState(false)
   const [open, setOpen] = useState<number | null>(g.news[0]?.id ?? null)
   const [tag, setTag] = useState('todas')
   const [report, setReport] = useState<Fixture | null>(null)
@@ -48,7 +51,7 @@ export function Home() {
             <div className="row wrap">
               <span className="dim sm">Rival: DT {opp.manager} · {opp.tactic.formation}</span><span className="row" style={{ gap: 3 }}>{oppFx.map((f, i) => chip(res(f, opp.id), i))}</span>
               {oppStar && <button className="btn sm" onClick={() => openPlayer(oppStar.id)}>Figura: {oppStar.name} <Ovr v={oppStar.ca} /></button>}
-              <span className="grow" /><button className="btn" onClick={() => go('tactics')}>Preparar el equipo</button>
+              <span className="grow" />{g.training.reportFor === next.id ? <button className="btn primary" onClick={() => setScout(true)}>Informe del rival</button> : <span className="dim sm">El informe del rival llega 3 días antes</span>}<button className="btn" onClick={() => go('tactics')}>Preparar el equipo</button>
             </div></>) : <div className="dim">No hay partidos programados.</div>}
         </div>
         <div className="card s4 col" style={{ alignItems: 'center', textAlign: 'center' }}>
@@ -72,6 +75,8 @@ export function Home() {
         </div>
         <div className="card s4 col">
           <h3>Para atender</h3>
+          {g.press && <div className="row between"><span className="acc">Conferencia de prensa {g.press.kind === 'pre' ? 'previa' : 'después del partido'}</span><button className="btn sm primary" onClick={openPress}>Responder</button></div>}
+          <div className="row between"><span className="dim">Entrenamiento: {INTENSITY[g.training.intensity].name.toLowerCase()}, foco {FOCUS.find(f => f.k === g.training.focus)!.name.toLowerCase()}{g.delegate.training ? ' (ayudante)' : ''}</span><button className="btn sm" onClick={() => go('training')}>Ajustar</button></div>
           {windowOpen(g.date) && <div className="row between"><span>Libro de pases abierto</span><button className="btn sm" onClick={() => go('market')}>Ir al mercado</button></div>}
           {g.offers.length > 0 && <div className="row between"><span className="acc">{g.offers.length} oferta(s) por tus jugadores</span><button className="btn sm" onClick={() => go('market')}>Ver</button></div>}
           <div className="row between"><span className={inj.length ? 'bad' : 'dim'}>{inj.length} lesionado(s)</span><span className="dim sm ell" style={{ maxWidth: '60%' }}>{inj.map(p => p.name.split(' ').slice(-1)[0]).join(', ')}</span></div>
@@ -101,6 +106,7 @@ export function Home() {
         </div>
       </div>
       {report && <MatchReport g={g} f={report} onClose={() => setReport(null)} />}
+      {scout && next && <ReportModal f={next} onClose={() => setScout(false)} onApply={p => { Object.assign(club.tactic, p); save(); refresh() }} />}
     </div>
   )
 }

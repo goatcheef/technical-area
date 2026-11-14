@@ -4,6 +4,7 @@ import { MatchSim, type MatchResult } from './match'
 import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, bestRole, fixRoles, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
 import { emptyLedger, emptyStats, type Club, type Competition, type Fixture, type Game, type Manager, type News, type Player, type Tactic } from './types'
+import { answerPress, dailyTraining, dayEvents, delegatePress, docFactor, initStaff, makePostPress, refreshPool, trainEdge } from './week'
 import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
 
 const db = dbJson as unknown as { start: string; dbVersion: number; clubs: any[]; players: any[] }
@@ -228,9 +229,10 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   const managerName = manager.name
   const rng = new Rng(seed)
   const g: Game = {
-    version: 3, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
+    version: 4, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
     clubs: {}, players: {}, fixtures: [], comps: {}, news: [], nextId: 100000, honours: [], seasonOver: false,
     manager, board: { confidence: clamp(48 + manager.rep / 5, 40, 70), objective: '', target: 0, fired: false, offers: [] }, offers: [], transfers: [], shortlist: [],
+    staff: [], training: { intensity: 1, focus: 'equil', restAfter: true }, delegate: { training: false, press: false }, press: null,
   }
   for (const p of db.players) {
     const pl: Player = {
@@ -264,6 +266,7 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   scheduleSeason(g, rng)
   g.rngState = rng.s
   initFinances(g); setObjective(g)
+  { const r = new Rng(g.rngState); initStaff(g, r); g.rngState = r.s }
   news(g, {
     tag: 'club', clubId: userClubId, title: `${managerName} asume en ${u.name}`,
     body: `La dirigencia de ${u.name} presentó a ${managerName} como nuevo director técnico. Objetivo de la temporada: ${g.board.objective.toLowerCase()}. Hay US$ ${u.budget.toLocaleString('es-AR')} para refuerzos y el libro de pases está abierto hasta el 20 de febrero.`,
@@ -311,8 +314,9 @@ export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
   else fixLineup(g, f.away)
   const seed = withRng(g, r => r.int(1, 2147483646))
   const boost: [number, number, number][] = [[1, 1, 1], [1, 1, 1]]
-  if (userSide != null) boost[userSide] = mgrBoost(g.manager)
-  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost })
+  const sp: [number, number] = [1, 1]
+  if (userSide != null) { const m = mgrBoost(g.manager), e = trainEdge(g); boost[userSide] = [m[0] * e.att, m[1] * e.def, m[2]]; sp[userSide] = e.sp }
+  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp })
 }
 
 export function applyResult(g: Game, f: Fixture, res: MatchResult) {
@@ -350,7 +354,7 @@ export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   }
   for (const inj of res.injuries) {
     const p = g.players[inj.pid]
-    p.injury = { days: inj.days, desc: inj.desc }
+    p.injury = { days: p.clubId === g.userClubId ? Math.max(1, Math.round(inj.days * docFactor(g))) : inj.days, desc: inj.desc }
     if (p.clubId === g.userClubId) news(g, { tag: 'lesion', clubId: p.clubId, title: `${p.name}, lesionado`, body: `${p.name} sufrió ${inj.desc} y estará fuera de las canchas unos ${inj.days} días.` })
   }
   if (isUser) {
@@ -519,35 +523,47 @@ function passDays(g: Game, n: number) {
   withRng(g, r => marketTick(g, n, r))
 }
 
-/** Simula el resto del día y avanza hasta el próximo partido del usuario (o el fin de temporada). */
-export function continueGame(g: Game) {
-  for (let guard = 0; guard < 400; guard++) {
-    if (g.seasonOver || g.board.fired) return
-    if (userFixtureToday(g)) return
-    for (const f of g.fixtures.filter(x => x.date === g.date && !x.played)) simFixture(g, f)
-    progress(g)
-    if (g.seasonOver) return
-    const next = g.fixtures.find(f => !f.played && f.date > g.date)
-    if (!next) { g.date = addDays(g.date, 1); continue }
-    const days = Math.round((Date.parse(next.date) - Date.parse(g.date)) / 86400000)
-    passDays(g, days)
-    g.date = next.date
-    if (userFixtureToday(g)) return
-  }
-}
+export type DayResult = 'day' | 'match' | 'press' | 'season'
+const userPlayedOn = (g: Game, d: string) => g.fixtures.some(f => f.date === d && f.played && (f.home === g.userClubId || f.away === g.userClubId))
 
-/** Registra el partido del usuario y completa la jornada. */
+/** Avanza un día: se juegan los partidos de hoy, se entrena y pasa la noche. */
+export function advanceDay(g: Game): DayResult {
+  if (g.seasonOver || g.board.fired) return 'season'
+  if (userFixtureToday(g)) return 'match'
+  if (g.press) delegatePress(g) // si no contestaste, habla el ayudante
+  for (const f of g.fixtures.filter(x => x.date === g.date && !x.played)) simFixture(g, f)
+  progress(g)
+  if (g.seasonOver || g.board.fired) return 'season'
+  passDays(g, 1)
+  if (!userPlayedOn(g, g.date)) withRng(g, r => dailyTraining(g, r, userPlayedOn(g, addDays(g.date, -1))))
+  g.date = addDays(g.date, 1)
+  withRng(g, r => dayEvents(g, r))
+  if (userFixtureToday(g)) return 'match'
+  return g.press ? 'press' : 'day'
+}
+/** Avanza hasta el próximo partido. Se frena si hay una conferencia de prensa para responder. */
+export function advanceToMatch(g: Game, stopOnPress = true): DayResult {
+  for (let i = 0; i < 400; i++) {
+    const r = advanceDay(g)
+    if (r === 'match' || r === 'season' || (r === 'press' && stopOnPress)) return r
+  }
+  return 'day'
+}
+/** Para simulaciones sin interfaz: avanza hasta el partido y deja que el ayudante hable con la prensa. */
+export function continueGame(g: Game) { advanceToMatch(g, false); if (g.press) delegatePress(g) }
+
+/** Registra el partido del usuario, completa la jornada y pasa al día siguiente. */
 export function finishUserMatch(g: Game, f: Fixture, res: MatchResult) {
+  if (g.press) delegatePress(g)
   applyResult(g, f, res)
   for (const x of g.fixtures.filter(x => x.date === g.date && !x.played)) simFixture(g, x)
   progress(g)
   if (g.seasonOver || g.board.fired) return
-  const next = g.fixtures.find(x => !x.played && x.date > g.date)
-  if (next) {
-    passDays(g, Math.round((Date.parse(next.date) - Date.parse(g.date)) / 86400000))
-    g.date = next.date
-    if (!userFixtureToday(g)) continueGame(g)
-  }
+  g.press = makePostPress(g, f)
+  if (g.delegate.press) delegatePress(g)
+  passDays(g, 1)
+  g.date = addDays(g.date, 1)
+  withRng(g, r => dayEvents(g, r))
 }
 
 // ---------- nueva temporada ----------
@@ -591,11 +607,14 @@ export function startNewSeason(g: Game) {
     develop(p, ageOn(p.birth, g.date), rng, p.clubId === g.userClubId ? 1 + (g.manager.attrs.you - 10) * 0.04 : 1)
     p.stats = emptyStats()
     p.cond = 100; p.injury = null; p.susp = 0; p.ycAcc = 0; p.form = []; p.morale = 70
-    p.listed = false
+    p.listed = false; p.ups = 0
   }
   seasonTurnover(g, rng)
   for (const p of Object.values(g.players)) { const w = p.wage; Object.assign(p, valuation(p, g.date)); if (p.clubId === g.userClubId && !p.gen) p.wage = w }
   g.offers = []
+  for (const st of g.staff) if (st.clubId === g.userClubId && st.contractEnd < g.season) st.contractEnd = g.season + 1
+  { const r = new Rng(g.rngState); refreshPool(g, r); g.rngState = r.s }
+  g.press = null; g.training.reportFor = undefined; g.training.pressFor = undefined
   g.fixtures = []; g.comps = {}; g.seasonOver = false
   for (const c of Object.values(g.clubs)) if (c.id !== g.userClubId) c.tactic.formation = bestFormation(g, c.id, rng)
   scheduleSeason(g, rng)

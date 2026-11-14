@@ -1,4 +1,5 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
+import { sab } from './week'
 import { addDays, autoPick, clubsIn, news, squadOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
@@ -267,8 +268,8 @@ export function renew(g: Game, p: Player, years: number): string | null {
 }
 
 // ---------- juveniles ----------
-const NOMBRES = 'Mateo,Thiago,Bautista,Santino,Benjamín,Joaquín,Valentín,Lautaro,Franco,Tomás,Agustín,Nicolás,Facundo,Ignacio,Santiago,Juan Cruz,Lucas,Matías,Ramiro,Gonzalo,Federico,Lisandro,Julián,Emiliano,Ezequiel,Máximo,Alan,Kevin,Brian,Axel,Dylan,Ian,Gael,Bruno,Luciano,Maximiliano,Rodrigo,Leandro,Cristian,Iván,Nahuel,Elías,Simón,Felipe,Tobías,Renzo,Enzo,Exequiel,Alexis,Germán'.split(',')
-const APELLIDOS = 'González,Rodríguez,Gómez,Fernández,López,Díaz,Martínez,Pérez,García,Sánchez,Romero,Sosa,Torres,Álvarez,Ruiz,Ramírez,Flores,Benítez,Acosta,Medina,Herrera,Suárez,Aguirre,Giménez,Gutiérrez,Pereyra,Rojas,Molina,Castro,Ortiz,Silva,Núñez,Luna,Juárez,Cabrera,Ríos,Morales,Godoy,Moreno,Ferreyra,Domínguez,Carrizo,Peralta,Castillo,Ledesma,Quiroga,Vega,Vera,Muñoz,Ojeda,Ponce,Villalba,Cardozo,Navarro,Coronel,Vázquez,Ramos,Vargas,Cáceres,Arias,Figueroa,Córdoba,Correa,Maldonado,Paz,Rivero,Miranda,Mansilla,Farías,Roldán,Méndez,Guzmán,Agüero,Páez,Escobar,Barrios,Bustos,Ávila,Soria,Leiva,Lucero,Maidana,Velázquez,Bravo,Blanco,Toledo,Ibáñez,Montenegro,Zárate,Barrionuevo'.split(',')
+export const NOMBRES = 'Mateo,Thiago,Bautista,Santino,Benjamín,Joaquín,Valentín,Lautaro,Franco,Tomás,Agustín,Nicolás,Facundo,Ignacio,Santiago,Juan Cruz,Lucas,Matías,Ramiro,Gonzalo,Federico,Lisandro,Julián,Emiliano,Ezequiel,Máximo,Alan,Kevin,Brian,Axel,Dylan,Ian,Gael,Bruno,Luciano,Maximiliano,Rodrigo,Leandro,Cristian,Iván,Nahuel,Elías,Simón,Felipe,Tobías,Renzo,Enzo,Exequiel,Alexis,Germán'.split(',')
+export const APELLIDOS = 'González,Rodríguez,Gómez,Fernández,López,Díaz,Martínez,Pérez,García,Sánchez,Romero,Sosa,Torres,Álvarez,Ruiz,Ramírez,Flores,Benítez,Acosta,Medina,Herrera,Suárez,Aguirre,Giménez,Gutiérrez,Pereyra,Rojas,Molina,Castro,Ortiz,Silva,Núñez,Luna,Juárez,Cabrera,Ríos,Morales,Godoy,Moreno,Ferreyra,Domínguez,Carrizo,Peralta,Castillo,Ledesma,Quiroga,Vega,Vera,Muñoz,Ojeda,Ponce,Villalba,Cardozo,Navarro,Coronel,Vázquez,Ramos,Vargas,Cáceres,Arias,Figueroa,Córdoba,Correa,Maldonado,Paz,Rivero,Miranda,Mansilla,Farías,Roldán,Méndez,Guzmán,Agüero,Páez,Escobar,Barrios,Bustos,Ávila,Soria,Leiva,Lucero,Maidana,Velázquez,Bravo,Blanco,Toledo,Ibáñez,Montenegro,Zárate,Barrionuevo'.split(',')
 const YOUTH_POS: [Pos, number][] = [['GK', 1], ['DC', 2], ['DR', 1], ['DL', 1], ['DM', 1.2], ['MC', 2], ['AMC', 1], ['MR', 0.5], ['ML', 0.5], ['AMR', 1], ['AML', 1], ['ST', 2]]
 export function makeYouth(g: Game, club: Club, rng: Rng, boost = 0, force?: Pos): Player {
   const pos = force ?? rng.weighted(YOUTH_POS, x => x[1])[0]
@@ -320,7 +321,7 @@ export function seasonTurnover(g: Game, rng: Rng) {
     if (!mine) for (const p of [...sq].sort((a, b) => a.ca - b.ca)) { if (sq.length <= 34) break; if (ageOn(p.birth, g.date) >= 24) { removePlayer(g, p); sq = sq.filter(x => x !== p) } }
     const n = Math.max(mine ? 3 + (you >= 15 ? 1 : 0) : 3, 24 - sq.length)
     const made: Player[] = []
-    for (let i = 0; i < n; i++) made.push(makeYouth(g, c, rng, mine ? (you - 10) * 0.5 : 0))
+    for (let i = 0; i < n; i++) made.push(makeYouth(g, c, rng, mine ? (you - 10) * 0.5 + (sab(g, 'youth') - 10) * 0.4 : 0))
     if (sq.filter(p => p.line === 'GK').length < 2) makeYouth(g, c, rng, 0, 'GK')
     if (mine) {
       const top = made.sort((a, b) => b.pa - a.pa)[0]

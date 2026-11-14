@@ -32,6 +32,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
     let t: ReturnType<typeof setTimeout>
     const run = () => {
       const evs = sim.step()
+      if (sim.halfTime) setTalk(null)
       if (evs.some(e => (e.type === 'rc' || e.type === 'yc2' || e.type === 'inj') && e.side === us) || sim.halfTime || sim.finished) setSpeed(0)
       // cada minuto dura según lo que pasó: las ocasiones y los goles se miran con calma
       const sh = sim.frame.shot, quiet = !sh && sim.frame.kind !== 'corner' && sim.frame.kind !== 'fk'
@@ -81,6 +82,9 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
         <div style={{ display: 'grid', gridTemplateColumns: '1.15fr .9fr 1.15fr', gap: 16, alignItems: 'start' }} className="mgrid">
           <div className="card pitchcard" style={{ gridColumn: 'span 2', padding: 10 }}>
             <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={dur.current} />
+            {sim.tick === 0 && (
+              <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Previa.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">Antes de salir a la cancha, ¿qué les decís?</span>
+                {(['Tranquilos, jueguen como saben', 'Hoy se gana sí o sí', 'Nadie confía en nosotros: demuéstrenlo'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.preTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}</div>)}
             {sim.halfTime && !sim.finished && (
               <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Entretiempo.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">¿Qué les decís en el vestuario?</span>
                 {(['Tranquilos, sigan así', 'Quiero más de ustedes', 'Los felicito'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.teamTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}

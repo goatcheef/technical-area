@@ -68,6 +68,9 @@ export interface Player {
   listed?: boolean // en lista de transferibles
   loanFrom?: number // club dueño del pase si está a préstamo
   gen?: boolean // jugador generado (juvenil de inferiores)
+  tx?: number // progreso acumulado en el entrenamiento (al llegar a 1 sube un atributo)
+  ups?: number // atributos ganados entrenando esta temporada
+  tfocus?: string // foco de entrenamiento individual
 }
 
 export interface Tactic {
@@ -214,6 +217,28 @@ export interface News {
   read?: boolean
 }
 
+// ---------- la semana ----------
+export type StaffRole = 'asst' | 'fit' | 'doc' | 'scout' | 'youth'
+export const STAFF_ROLES: { k: StaffRole; name: string; help: string }[] = [
+  { k: 'asst', name: 'Ayudante de campo', help: 'Hace que el equipo asimile más rápido el sistema, arma informes del rival más precisos y te reemplaza en las tareas que le delegues.' },
+  { k: 'fit', name: 'Preparador físico', help: 'Acelera la recuperación entre partidos y baja el riesgo de lesiones en los entrenamientos.' },
+  { k: 'doc', name: 'Médico', help: 'Acorta el tiempo de recuperación de los lesionados.' },
+  { k: 'scout', name: 'Jefe de scouting', help: 'Cuanto mejor es, más exacto es lo que sabés de los rivales y de los jugadores que seguís.' },
+  { k: 'youth', name: 'Coordinador de inferiores', help: 'Mejora la calidad de las camadas que suben de inferiores cada temporada.' },
+]
+export interface Staff { id: number; name: string; role: StaffRole; ability: number; wage: number; contractEnd: number; clubId: number; age: number }
+export type TrainFocus = 'equil' | 'tact' | 'fis' | 'att' | 'def' | 'sp'
+export interface Training {
+  intensity: number // 0 suave, 1 normal, 2 intensa
+  focus: TrainFocus
+  restAfter: boolean // descanso el día después del partido
+  week?: { ups: { pid: number; a: string }[]; inj: number[] } // para el informe semanal
+  reportFor?: number // partido con informe del rival ya enviado
+  pressFor?: number // partido con conferencia previa ya generada
+}
+export interface PressAnswer { t: string; morale?: number; board?: number; rep?: number; star?: number; quote: string }
+export interface Press { kind: 'pre' | 'post'; fixtureId: number; questions: { q: string; pid?: number; opts: PressAnswer[] }[] }
+
 export interface Game {
   version: number
   dbVersion?: number
@@ -236,4 +261,8 @@ export interface Game {
   offers: Offer[]
   transfers: Transfer[]
   shortlist: number[]
+  staff: Staff[]
+  training: Training
+  delegate: { training: boolean; press: boolean }
+  press: Press | null
 }

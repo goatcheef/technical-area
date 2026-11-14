@@ -8,6 +8,7 @@ export interface Ctx {
   go: (page: string) => void
   openPlayer: (id: number) => void
   save: () => void
+  openPress: () => void
 }
 export const GameCtx = createContext<Ctx>(null as unknown as Ctx)
 export const useGame = () => useContext(GameCtx)
