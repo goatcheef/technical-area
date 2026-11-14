@@ -1,6 +1,6 @@
 # UX Spec: Bandeja de entrada
 
-> **Status**: In Design
+> **Status**: In Design (revisada tras /ux-review: NEEDS REVISION; decisiones del usuario aplicadas, ver sección 15)
 > **Author**: usuario + ux-designer
 > **Last Updated**: 2026-11-14
 > **Journey Phase(s)**: bucle semanal entre partidos (supuesto: no hay mapa del recorrido del jugador; ver "Supuestos")
@@ -95,7 +95,7 @@ En celular y por debajo de 900 px, el mensaje elegido es una vista aparte ("deta
 **Ruta de la bandeja.** Toda la configuración visible va en la ruta (N4: "si hace falta volver a ella, tiene que estar en `page`, `id` o `tab`"):
 
 - `tab`: `"<alcance>.<tema>"`, por ejemplo `"club.todo"`, `"club.mercado"`, `"futbol.torneos"`. Valores: alcance `club` | `futbol`; tema `todo` | `plantel` | `mercado` | `partidos` | `torneos` | `dirigencia`. Compatibilidad: `tab: "pend"` (usado hoy por F3 y F4) equivale a `"club.todo"` con la primera decisión pendiente elegida; cualquier otro valor viejo (`me`, `all`, `partido`, `torneo`) se traduce al nuevo.
-- Selección: una clave de texto única para pendientes y mensajes (`"n<id>"` para un mensaje; la `key` de `pendingOf` para un pendiente, como `"offer12"` o `"press34pre"`). **Requiere sumar un campo opcional `sel?: string` a `Route`** (`src/store.ts`), porque `id` es numérico y los pendientes no tienen id. Ver pregunta abierta 1.
+- Selección: una clave de texto única para pendientes y mensajes (`"n<id>"` para un mensaje; la `key` de `pendingOf` para un pendiente, como `"offer12"` o `"press34pre"`). **Se suma un campo opcional `sel?: string` a `Route`** (`src/store.ts`), porque `id` es numérico y los pendientes no tienen id. Decidido (pregunta 1 de la sección 15).
 - Alcance y tema también se guardan con `useSticky` (`ib.tab`) para que, al entrar sin `tab`, aparezca lo último usado (C4).
 
 **Entry table**:
@@ -168,7 +168,7 @@ Resolución de referencia: 1440 × 900 en escritorio; 360 × 740 en celular.
    LISTA (≈ 40 %, desplazable)           LECTURA (≈ 60 %, fija al desplazar la página)
 ```
 
-`●` en la columna de lectura marca el foco al pulsar Enter en la lista (botón primario). Al entrar a la pantalla, el foco está en la fila elegida de la lista.
+`●` en la columna de lectura marca el foco al pulsar Enter en la lista (botón primario). Al entrar a la pantalla, el foco está en la fila elegida de la lista. "[Mostrar 150 más]" se dibuja al pie de la columna pero **está fuera del `listbox`**: es un botón propio, una parada de Tab justo después de la lista.
 
 **Celular (≤ 760 px) y ventana angosta (761–900 px): lista → detalle**
 
@@ -203,7 +203,7 @@ LISTA                                   DETALLE (entrada nueva del historial)
 | Encabezado | Título, búsqueda, "Marcar N como leídos" | Ancho completo, ~48 px | No | Por debajo de 1060 px, la búsqueda pasa a botón de lupa que despliega el campo en la misma fila |
 | Filtros | Alcance (C1, 2 opciones) y temas (chips con contador) | Ancho completo, ~40 px | Horizontal solo en la fila de chips (celular) | Los chips nunca pasan a dos filas: se desplazan de costado con un degradé en el borde como señal; la página no se desplaza de costado (AV-06) |
 | Lista: bloque "Para decidir" | Pendientes de `pendingOf`, siempre arriba, independiente de filtros y búsqueda | Columna de lista; alto según cantidad (normal 0 a 3 filas) | Con la lista | Nunca se oculta ni se colapsa; con 0 pendientes queda una línea (estado vacío) |
-| Lista: mensajes por día | Mensajes de la vista agrupados por fecha | 40 % del ancho (mín. 360 px), alto `100vh − 230 px` | Sí, vertical, independiente de la página | Rinde 150 filas y "Mostrar 150 más" (F8 para el final de la lista) |
+| Lista: mensajes por día | Mensajes de la vista agrupados por fecha | 40 % del ancho (mín. 360 px), alto `100vh − 230 px` | Sí, vertical, independiente de la página | Rinde 150 filas; "Mostrar 150 más" es un botón **fuera del `listbox`**, pegado al pie de la lista (una parada de Tab propia). Al cargar más, el foco se queda en el botón y se anuncia "150 mensajes más." |
 | Lectura | Plantilla del mensaje o la decisión elegida | 60 % del ancho, mín. 260 px de alto, `position: sticky` | Sí, vertical, si el contenido supera el alto visible | El cuerpo largo se lee completo; las acciones quedan al final del contenido (escritorio) |
 | Barra de acciones (celular) | Botones de la decisión, fija sobre la barra inferior N3 | Ancho completo, 56–112 px | No | Primario a todo el ancho en su propia fila; secundarios en una segunda fila; si hay más de 3, el cuarto pasa a "Más acciones" dentro del contenido (no a un menú) |
 
@@ -215,14 +215,14 @@ LISTA                                   DETALLE (entrada nueva del historial)
 | Título "Bandeja de entrada" | `h2` | Encabezado | Nombre de la pantalla (AC-09) | Sí | Sí |
 | Buscador | Campo `input type="search"` con `aria-label="Buscar en los mensajes"` | Encabezado | Filtra la vista por título, cuerpo, jugador o club | Sí | No — nuevo (estilo de `.searchbox`, N8) |
 | Marcar como leídos | Botón chico `.btn.sm` | Encabezado | Marca leídos los mensajes sin leer **de la vista actual** (alcance, tema y búsqueda); dice cuántos | Sí (solo si hay sin leer en la vista) | Sí — C2 |
-| Selector de alcance | Segmentado, 2 opciones: Mi club / Todo el fútbol | Filtros | Separa lo del DT del diario | Sí | Sí — C1 `Seg`, con el arreglo de contraste y `aria-pressed` (ver 12) |
-| Chip de tema | Botón alternable con contador | Filtros | Todo, Plantel, Mercado, Partidos, Torneos, Dirigencia; uno activo por vez | Sí | **No — patrón nuevo "Filtro con chips y contador"** (sumar a la biblioteca como C5; ver pregunta abierta 3). Se arma sobre `.chip` del estilo portal |
+| Selector de alcance | Segmentado, 2 opciones: Mi club / Todo el fútbol | Filtros | Separa lo del DT del diario | Sí | Sí — C1 `Seg`, con el **estado activo nuevo** (decisión 3: borde de acento, fondo suave de acento y ✓ antes de la etiqueta, texto de color normal) y `aria-pressed`. Cambio global de `Seg` en todas las pantallas |
+| Chip de tema | Botón alternable con contador | Filtros | Todo, Plantel, Mercado, Partidos, Torneos, Dirigencia; uno activo por vez; mismo estado activo que `Seg` | Sí | **No — patrón nuevo "Filtro con chips y contador"** (sumar a la biblioteca como C5; ver pregunta abierta 3). Se arma sobre `.chip` del estilo portal |
 | Encabezado del bloque "Para decidir · N" | Encabezado de grupo (`role="group"` con nombre) | Lista | Responde la pregunta principal | Sí | No — variante de `.msg-day` con borde de advertencia |
 | Fila de decisión | Opción de lista | Lista | Una decisión: ícono, remitente, título, plazo | Sí | Sí — anatomía de `.msg` del Inicio + `.ib-row.pend` (F1); `PendRow` a rediseñar |
 | Encabezado de día | Separador `.msg-day` | Lista | "Hoy · sáb 14 nov", "Ayer · vie 13 nov", luego `fmtDate` | Sí | Sí — `.msg-day` del Inicio (subir a 12 px, ver 12) |
 | Fila de mensaje | Opción de lista | Lista | Ícono redondo por tema (`TAG_ICON`), remitente + entidad, título, marca de sin leer, chip de acción | Sí | Sí — `.msg`, `.msg-ico`, `.msg-from`, `.msg-t`, `.msg-dot` del Inicio (mover `TAG_ICON` y `TAG_NAME` a un módulo compartido) |
 | Chip de acción en la fila | Chip | Lista | "Para decidir" (si el mensaje tiene una decisión abierta), "Ver informe" (resultado), "Informe" (ojeo/rival). Texto, no ícono | No | Sí — D6 `.chip` |
-| Mostrar más | Botón chico | Lista | Carga 150 filas más | Sí (si hay más) | Sí — mismo texto que D1 ("Mostrar N más") |
+| Mostrar más | Botón chico, **fuera del `listbox`** | Lista (pie, debajo del `listbox`) | Carga 150 filas más. Es una parada de Tab propia justo después de la lista, porque un botón dentro de `role="listbox"` no se alcanza con las flechas | Sí (si hay más) | Sí — mismo texto que D1 ("Mostrar N más") |
 | Estado vacío de lista y de bloque | Texto | Lista | F8 con causa y cuándo se llena | Sí | Sí — F8 |
 | Encabezado de lectura | Fila | Lectura | Tema (como `h3` teñido, estilo portal), fecha, "Marcar como no leído" | Sí | Sí, más un botón chico nuevo |
 | Título de lectura | `h2` | Lectura | El título del mensaje | Sí | Sí |
@@ -305,7 +305,7 @@ Si la entidad ya no existe (jugador retirado o ido al exterior, club sin datos),
 
 Entradas cubiertas: mouse y teclado (escritorio), toque (celular). Gamepad: fuera de alcance.
 
-**Decisión de teclado.** No se agregan atajos de una letra (j/k, a, r, e…): la biblioteca los prohíbe fuera del día de partido (N9, "No hagas") y el nivel Estándar exige poder apagarlos (AM-03), cosa que todavía no existe. En su lugar, la lista es un `listbox` con foco itinerante: ↑ ↓ eligen, Enter lleva al primario del mensaje, Esc vuelve a la lista. Con eso, responder una oferta con teclado es: ↓ hasta la oferta, Enter (foco en Aceptar), Enter (pasa a Confirmar), Enter (confirma).
+**Decisión de teclado.** No se agregan atajos de una letra (j/k, a, r, e…): la biblioteca los prohíbe fuera del día de partido (N9, "No hagas") y el nivel Estándar exige poder apagarlos (AM-03), cosa que todavía no existe. En su lugar, la lista es un `listbox` con foco itinerante: ↑ ↓ eligen, Enter lleva al primario del mensaje, Esc vuelve a la lista. Con eso, responder una oferta con teclado es: ↓ hasta la oferta, Enter (abre el mensaje: el foco va a Aceptar), Enter (pasa a Confirmar), Enter (confirma). Espacio sobre una fila sigue siendo Continuar (decisión 2, resuelta).
 
 ### 7.1 Navigation Inputs
 
@@ -314,12 +314,13 @@ Entradas cubiertas: mouse y teclado (escritorio), toque (celular). Gamepad: fuer
 | ↑ / ↓ | Teclado, foco en la lista | Elige la fila anterior o siguiente (pendientes y mensajes en un solo recorrido; los encabezados de día se saltean) y mueve el foco a ella | Fila elegida y foco visibles; la lista se desplaza para dejarla a la vista (`block: 'nearest'`, sin desplazamiento suave) | — | El oyente va **en el contenedor de la lista**, no en `window` (resuelve G7: con un menú N2 abierto, el foco está en el menú y la lista no recibe la tecla). Además ignora la tecla si `defaultPrevented`. En los extremos no da la vuelta. |
 | Inicio / Fin | Teclado, foco en la lista | Primera o última fila cargada | Igual | — | — |
 | Re Pág / Av Pág | Teclado, foco en la lista | Salta 10 filas | Igual | — | — |
-| Tab / Mayús + Tab | Teclado | Recorre zonas en el orden de la sección 12 | Foco visible (A2) | — | La lista es **una sola parada** de Tab (solo la fila elegida tiene `tabindex="0"`). |
-| Enter | Teclado, foco en una fila | Lleva el foco al botón primario del panel de lectura (en ≤ 900 px, abre el detalle) | Foco en el primario | — | Si el mensaje no tiene acciones, al título del panel. |
+| Tab / Mayús + Tab | Teclado | Recorre zonas en el orden de la sección 12 | Foco visible (A2) | — | La lista es **una sola parada** de Tab (solo la fila elegida tiene `tabindex="0"`). "Mostrar más" es **otra parada, inmediatamente después de la lista** y fuera del `listbox`. |
+| Enter | Teclado, foco en una fila | **Abre el mensaje**: lleva el foco al botón primario del panel de lectura (en ≤ 900 px, abre el detalle) | Foco en el primario | — | Si el mensaje no tiene acciones, al título del panel. Elegir con ↑ ↓ ya lo muestra y lo marca leído; Enter es el paso a actuar. |
 | Esc | Teclado, foco en el panel de lectura | Vuelve el foco a la fila elegida | — | — | Si hay una confirmación F6 abierta, primero la cancela. |
 | Esc | Teclado, detalle del celular | Vuelve a la lista (atrás en el historial) | — | — | — |
 | Esc | Teclado, foco en el buscador con texto | Borra la búsqueda | — | — | Sin texto, el Esc sigue al manejo global (N9). |
-| Espacio | Teclado, foco en una fila de la lista | Pasa al atajo global Continuar (N9) | El avance de F4 | — | La fila es `role="option"` de un `listbox` de selección única que sigue al foco: Espacio no tiene función propia, así que no choca con G1. Con los atajos de una tecla apagados (AM-03), no hace nada. Ver pregunta abierta 2. |
+| Espacio | Teclado, foco en una fila de la lista | Sigue siendo **Continuar** (atajo global, N9) | El avance de F4 | — | **Resuelto (decisión 2).** La fila es `role="option"` de un `listbox` de selección única que sigue al foco: Espacio no tiene función propia, así que no choca con G1. Abrir el mensaje es Enter. Con los atajos de una tecla apagados (AM-03), no hace nada. |
+| Enter / Espacio / clic | Todas, foco en "Mostrar más" | Carga 150 filas más | Aparecen las filas nuevas debajo de las actuales; el foco queda en el botón | — | Como es un botón, Espacio lo activa (G1). El contador "Mostrar N más" se actualiza o el botón desaparece si no queda nada (el foco pasa a la última fila de la lista). |
 | Espacio | Teclado, foco en un botón, chip, segmentado o campo | Activa ese control (o escribe) | Nativo | — | Requiere el arreglo global de G1/AM-02 (`App.tsx`): Espacio no actúa como atajo sobre `button`, `[role=button]`, `a`, `input`, `tr.click`. La bandeja no tiene que hacer nada propio. |
 | ← / → | Teclado, foco en el segmentado o en la fila de chips | Mueve el foco entre opciones del grupo | Foco visible | — | Grupos con foco itinerante; Enter o Espacio eligen. |
 | Mouse: hover en fila | Escritorio | — | Fondo `--panel2` | — | No elige ni marca leído. |
@@ -336,7 +337,7 @@ Entradas cubiertas: mouse y teclado (escritorio), toque (celular). Gamepad: fuer
 | Input | Platform | Context (What must be focused) | Action | Response | Animation | Audio Cue | Notes |
 |-------|----------|-------------------------------|--------|----------|-----------|-----------|-------|
 | Clic / Enter / Espacio / toque | Todas | Opción del selector de alcance | Cambia el alcance | Lista y chips se recalculan; **reemplaza** la entrada del historial | Ninguna | — | `aria-pressed`. La selección se conserva si el elegido sigue en la vista; si no, regla de "selección al entrar". |
-| Igual | Todas | Chip de tema | Cambia el tema | Igual | Ninguna | — | `aria-pressed`. Chip activo: borde de acento, fondo `--accent-soft`, ✓ antes del nombre y negrita. |
+| Igual | Todas | Chip de tema | Cambia el tema | Igual | Ninguna | — | `aria-pressed`. **Estado activo (decisión 3, igual en `Seg` y en los chips):** borde de acento, fondo `--accent-soft`, ✓ antes de la etiqueta y texto de color normal (`--text`); nunca texto blanco sobre relleno sólido de acento. |
 | Escribir | Teclado | Buscador | Filtra la vista | La lista se filtra a cada tecla (sin esperar) | Ninguna | — | Con menos de 2 letras no filtra. |
 | Clic / Enter | Todas | "Marcar N como leídos" | Marca leídos los de la vista | Nota F7 con "Deshacer" | Ninguna | — | — |
 | Clic / Enter | Todas | "Marcar como no leído" (encabezado de lectura) | Lo vuelve a sin leer | Fila en negrita; el botón pasa a "Marcar como leído" | Ninguna | — | No se vuelve a marcar leído hasta que se elija de nuevo. |
@@ -484,14 +485,14 @@ Principio: rápido siempre (principio 7). Dentro de la bandeja no hay animacione
 
 ## 12. Accessibility
 
-Nivel **Estándar**. Requisitos de `design/accessibility-requirements.md` que la bandeja tiene que cumplir: AV-01, AV-02 (en lo que use el acento), AV-03, AV-04, AV-06, AV-07, AV-08, AV-09, AV-13; AM-01, AM-02, AM-03 (no sumar atajos de una tecla), AM-07 (modales), AM-09; AC-02, AC-03, AC-05, AC-06, AC-07, AC-09.
+Nivel **Estándar**. Requisitos de `design/accessibility-requirements.md` que la bandeja tiene que cumplir: AV-01, AV-02 (resueltos por la regla global de tinta y acento ajustado de la decisión 1; ver la tabla de contraste), AV-03, AV-04, AV-06, AV-07, AV-08, AV-09, AV-13; AM-01, AM-02, AM-03 (no sumar atajos de una tecla), AM-07 (modales), AM-09; AC-02, AC-03, AC-05, AC-06, AC-07, AC-09.
 
 **Cómo resuelve la bandeja los huecos de la biblioteca**
 
 | Hueco | Resolución en la bandeja | ¿Depende de un arreglo global? |
 |-------|--------------------------|-------------------------------|
-| G1 (Espacio con un control enfocado avanza el día) | Espacio activa el botón, chip o segmentado enfocado. Sobre una fila de la lista (`role="option"`) pasa a Continuar a propósito, porque la opción no tiene función propia con Espacio | Sí: la guarda de `App.tsx` (AM-02) |
-| G3 (pestañas y segmentados sin ARIA) | Los filtros dejan de ser pestañas: son grupos de botones con `aria-pressed` (alcance: `role="group"` con `aria-label="Alcance"`; temas: `aria-label="Tema"`). La lista es `role="listbox"` con `aria-label="Mensajes"` y filas `role="option"` con `aria-selected`; el bloque de pendientes es un `role="group"` con nombre dentro del listbox. La nota F7 lleva `role="status"`. Las modales, `aria-labelledby` | `Seg` necesita `aria-pressed` (G3); `Modal`, `aria-labelledby` |
+| G1 (Espacio con un control enfocado avanza el día) | Espacio activa el botón, chip, segmentado o "Mostrar más" enfocado. Sobre una fila de la lista (`role="option"`) sigue siendo Continuar a propósito (decisión 2, resuelta), porque la opción no tiene función propia con Espacio; abrir es Enter | Sí: la guarda de `App.tsx` (AM-02) |
+| G3 (pestañas y segmentados sin ARIA) | Los filtros dejan de ser pestañas: son grupos de botones con `aria-pressed` (alcance: `role="group"` con `aria-label="Alcance"`; temas: `aria-label="Tema"`). La lista es `role="listbox"` con `aria-label="Mensajes"` y filas `role="option"` con `aria-selected`; el bloque de pendientes es un `role="group"` con nombre dentro del listbox. "Mostrar más" va **fuera** del listbox. La nota F7 lleva `role="status"`. Las modales, `aria-labelledby` | `Seg` necesita `aria-pressed` y el estado activo nuevo (G3, decisión 3); `Modal`, `aria-labelledby` |
 | G4 (ficha breve sin teclado ni toque) | Ningún dato de decisión depende de la ficha breve: las tarjetas del panel muestran puesto, valoración, edad, rol, contrato y valor | Mostrar I1 con el foco es el arreglo global |
 | G5 (destructivas sin confirmación) | F6 en Aceptar y Rechazar de ofertas y de trabajos. Sin F6: Pedir más (riesgo escrito), Que hable el ayudante, Declararlo transferible y Marcar como leídos (reversibles o de bajo costo) | No |
 | G6 (pestañas que apilan historial) | Alcance, tema y selección reemplazan la entrada; solo abrir el detalle en ≤ 900 px apila | Sí: la regla de reemplazo de `nav` (`App.tsx`) para la misma `page` sin `id` |
@@ -507,9 +508,9 @@ Nivel **Estándar**. Requisitos de `design/accessibility-requirements.md` que la
 | Remitente (`.msg-from`) y encabezado de día (`.msg-day`) `--dim` | `--panel` / `--panel2` | 4,5:1 | 6,99 / TBD | [ ] |
 | Plazo en advertencia `--warn` | `--panel` / fila elegida | 4,5:1 | 9,30 / TBD | [ ] |
 | `--faint` en cualquier texto de la bandeja | `--panel3` | 4,5:1 | **4,05 (falla)** | [ ] — prohibido: no usar `--faint` sobre `--panel3` (hover o elegida) |
-| Texto del chip activo y del segmento activo | `--accent-soft` con borde de acento (no relleno de acento) | 4,5:1 | TBD | [ ] — **diseño:** el chip activo no usa texto blanco sobre el acento (el patrón que hoy falla en `.seg button.on`, 2,45:1) |
+| Texto del chip activo y del segmento activo (`Seg`) | `--accent-soft` con borde de acento y ✓ (decisión 3); texto `--text`, no blanco sobre acento sólido | 4,5:1 | TBD: `--text` #f1f2fa contra `--accent-soft` sobre `--panel`, calcular para los 86 clubes. El patrón anterior (`.seg button.on`, 2,45:1) desaparece | [ ] — cambio global de `Seg` (ui-programmer) |
 | Contador del chip | `--panel2` / `--panel3` | 4,5:1 | TBD | [ ] |
-| Botón primario (Aceptar, Responder, Siguiente pendiente…) | Acento del club | 4,5:1 | **1,77 con el acento por defecto; < 4,5 en 83 de 86 clubes (falla)** | [ ] — bloqueado por AV-01/AV-02 (decisión de estética pendiente) |
+| Botón primario (Aceptar, Responder, Siguiente pendiente…), también CTA y todo texto sobre el acento | Acento del club | 4,5:1 | Hoy: 1,77 con el acento por defecto; < 4,5 en 83 de 86 clubes. **Resuelto por regla (decisión 1):** se conserva el color del club; el juego elige tinta clara u oscura por contraste WCAG y, si ninguna llega a 4,5:1, desplaza el acento (más oscuro o más claro) hasta que llegue. Resultado esperado: ≥ 4,5:1 en los 86 clubes | [ ] — **arreglo global, alcance del ui-programmer** (`clubTheme` e `ink` en `common.tsx`, `.btn.primary`, `.btn.cta`, `.mb-clock.live`, etc.); la bandeja solo hereda. Se tilda al correr el script de AV-01 sobre los 86 clubes |
 | Botón de peligro `#ff8a95` | `--panel` | 4,5:1 | TBD | [ ] |
 | Nota F7 de error `--bad` | `--panel` (nunca `--panel3`) | 4,5:1 | 5,47 | [x] |
 | Marca de sin leer (no texto) | `--panel` | 3:1 | TBD | [ ] — respaldada por negrita y `aria-label` |
@@ -526,7 +527,7 @@ Nivel **Estándar**. Requisitos de `design/accessibility-requirements.md` que la
 | Plazo corto en advertencia | Todos | "Vence hoy", "Vence mañana" en palabras |
 | Diferencia de la oferta (verde o rojo si se colorea) | Rojo-verde | Signo, porcentaje y "sobre/bajo su valor" |
 | Resultado (marcador en `good`/`bad`) | Rojo-verde | "Victoria", "Empate" o "Derrota" en texto |
-| Chip o segmento activo | Todos | Borde, ✓, negrita y `aria-pressed` (AV-13) |
+| Chip o segmento activo | Todos | Borde de acento, fondo suave, ✓ y `aria-pressed` (AV-13); no depende del tono |
 | Fila elegida (fondo de acento suave) | Todos | Borde izquierdo de 3 px y `aria-selected` |
 | Tono de atributos en el informe de ojeo | Rojo-verde | Número siempre visible (D6); cubierto por `.cvd` |
 | Estado Resuelto (tono tenue) | Todos | "✓ Resuelto" en texto |
@@ -539,11 +540,12 @@ Nivel **Estándar**. Requisitos de `design/accessibility-requirements.md` que la
 4. "Marcar N como leídos" (si está)
 5. Selector de alcance (una parada; ← → entre opciones)
 6. Fila de chips de tema (una parada; ← → entre chips)
-7. Lista (una parada: la fila elegida; ↑ ↓ Inicio Fin Re Pág Av Pág adentro; "Mostrar más" al final se alcanza con ↓ y Enter)
-8. Panel de lectura: "Marcar como no leído" → tarjeta del jugador → tarjeta del club → botones de acción en orden visual → "Siguiente pendiente" (si está) → botones dentro de la nota F7 ("Deshacer")
-9. Sigue a la barra inferior del documento (no hay ciclo dentro de la pantalla: no es modal)
+7. Lista (una parada: la fila elegida; ↑ ↓ Inicio Fin Re Pág Av Pág adentro). El `listbox` **no contiene botones**
+8. "Mostrar más" (si hay más filas; **parada propia justo después de la lista**, fuera del `listbox`)
+9. Panel de lectura: "Marcar como no leído" → tarjeta del jugador → tarjeta del club → botones de acción en orden visual → "Siguiente pendiente" (si está) → botones dentro de la nota F7 ("Deshacer")
+10. Sigue a la barra inferior del documento (no hay ciclo dentro de la pantalla: no es modal)
 
-Enter en la lista salta al primer botón de acción del punto 8; Esc desde el punto 8 vuelve al 7. En el detalle del celular: ◂ Bandeja → ‹ › → título → tarjetas → cuerpo (no enfocable) → barra de acciones.
+Enter en la lista abre el mensaje: salta al primer botón de acción del punto 9; Esc desde el punto 9 vuelve al 7. En el detalle del celular: ◂ Bandeja → ‹ › → título → tarjetas → cuerpo (no enfocable) → barra de acciones.
 
 **Screen reader announcements for key state changes** (alcance barato que permite el nivel Estándar; el lector de pantalla completo es del nivel Completo):
 
@@ -621,7 +623,10 @@ Textos de estado vacío por tema (alcance "Mi club"): Plantel: "Sin novedades de
 
 **Accesibilidad**
 - [ ] Ningún texto de la pantalla queda por debajo de 12 px al 100 % (salvo los de 11 px permitidos que no sean contadores ni remitentes), medido con el inspector.
-- [ ] Todo texto pasa 4,5:1 con el acento de los 86 clubes, incluido el botón primario (bloqueado hasta resolver AV-01/AV-02).
+- [ ] Todo texto pasa 4,5:1 con el acento de los 86 clubes, incluido el botón primario: el script de AV-01 sobre `db.json` no informa ningún club por debajo de 4,5:1 con la regla de tinta por contraste WCAG y acento ajustado (depende del arreglo global de la decisión 1).
+- [ ] El estado activo del selector de alcance y de los chips muestra borde de acento, fondo suave, ✓ antes de la etiqueta y texto de color normal; no hay texto blanco sobre relleno sólido de acento (inspector, con 3 clubes de acento claro, medio y oscuro).
+- [ ] "Mostrar más" no es descendiente del elemento `role="listbox"`; es la siguiente parada de Tab después de la lista, y Espacio lo activa sin avanzar el día.
+- [ ] Con el foco en una fila, Espacio avanza el día (Continuar) y Enter pasa el foco al botón primario del mensaje.
 - [ ] Con el modo para daltonismo y la emulación de deuteranopía, pendientes, sin leer, elegido, chip activo, plazo corto y resultado se distinguen por texto, forma o peso.
 - [ ] axe-core no informa infracciones A/AA en la bandeja con pendientes, con un mensaje elegido y en el detalle del celular.
 - [ ] Los filtros exponen `aria-pressed`; la lista, `role="listbox"` con `aria-selected`; la nota de resultado, `role="status"`.
@@ -634,13 +639,14 @@ Textos de estado vacío por tema (alcance "Mi club"): Plantel: "Sin novedades de
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| 1. Sumar `sel?: string` a `Route` (`src/store.ts`) para guardar la selección (los pendientes no tienen id numérico). Alternativa: darles id a los pendientes. Recomiendo el campo de texto. | ui-programmer + usuario | Antes de implementar | Pendiente |
-| 2. ¿Espacio sobre una fila de la lista hace Continuar? Recomiendo que sí (mantiene el hábito "reviso y sigo" y la opción no usa Espacio), con el riesgo de que alguien lo apriete esperando abrir el mensaje: abrir es Enter. Si el usuario prefiere lo contrario, la lista consume Espacio y no pasa nada. | usuario | Antes de implementar | Pendiente |
+| 1. Sumar `sel?: string` a `Route` (`src/store.ts`) para guardar la selección (los pendientes no tienen id numérico). Alternativa: darles id a los pendientes. | ui-programmer + usuario | Antes de implementar | **Resuelto**: se agrega `sel?: string` opcional a `Route` (decidido por el orquestador con la recomendación del ux-designer). Aplicado en la sección 4. |
+| 2. ¿Espacio sobre una fila de la lista hace Continuar? | usuario | Antes de implementar | **Resuelto**: sí, Espacio sigue siendo Continuar sobre una fila; Enter abre el mensaje. Aplicado en 7 (decisión de teclado), 7.1 y 12. |
 | 3. Sumar a `design/ux/interaction-patterns.md` el patrón "Filtro con chips y contador" (C5) y la variante de F1 con `listbox`, bloque "Para decidir", agrupación por día y estado "Resuelto". Esta especificación no toca ese archivo. | ux-designer | Con la implementación | Pendiente |
-| 4. Contraste del botón primario sobre el acento del club: bloqueado por la decisión de estética de AV-01/AV-02 (`design/accessibility-requirements.md`, pregunta 1). La bandeja usa `.btn.primary` y hereda el arreglo. | usuario + art-director | Antes de dar por cumplido el nivel Estándar en la bandeja | Pendiente |
+| 4. Contraste del botón primario sobre el acento del club (AV-01/AV-02, `design/accessibility-requirements.md`, pregunta 1). | usuario + art-director | Antes de dar por cumplido el nivel Estándar en la bandeja | **Resuelto**: se conserva el color del club; el juego elige tinta clara u oscura por contraste WCAG y, si ninguna llega a 4,5:1, desplaza el acento (más oscuro o más claro) hasta que llegue. Vale para `.btn.primary`, el CTA y todo texto sobre el acento. Es un arreglo global del ui-programmer; la bandeja solo lo hereda. Aplicado en la tabla de contraste de la sección 12. Queda abierto verificarlo con el script sobre los 86 clubes. |
 | 5. Funciones del motor nuevas: `markRead`, `rejectJob`, `setListed`, `offerDeadline`, `injuryOutlook`; mover `pendingOf` e `isMine` a `src/engine/`. | ui-programmer (con lead-programmer) | Antes de implementar | Pendiente |
 | 6. `save()` no informa si falla IndexedDB; el estado "Error al guardar" lo necesita. | ui-programmer | Con la implementación | Pendiente |
 | 7. Textos del motor que contradicen la acción en el mensaje: la oferta dice "desde la pantalla de Mercado" (`career.ts:339`) y el pedido de salida "desde el Vestuario" (`squad.ts:83`). Proponer "Podés responder desde este mensaje." | usuario (texto) + gameplay-programmer | Con la implementación | Pendiente |
 | 8. AC-02: el avance no frena antes de que venza una decisión ya pendiente. La bandeja muestra el plazo, pero la protección completa es de F4. Recomiendo frenar el avance el día anterior al vencimiento. | usuario + ui-programmer | Con AC-02 | Pendiente (fuera de esta pantalla) |
 | 9. Icono de fila: esta especificación usa siempre el ícono redondo por tema (como el mosaico del Inicio) y lleva cara y escudo al panel. Confirmar con el art-director que se pierde la cara en la lista a cambio de coherencia con el Inicio. | art-director + usuario | Antes de implementar | Pendiente |
-| 10. El selector de alcance usa C1 (`Seg`), cuyo estado activo hoy es texto blanco sobre acento (2,45:1). La bandeja pide el mismo tratamiento que el chip activo (borde + fondo suave + ✓); si se cambia en `Seg`, afecta a todas las pantallas. | art-director + ui-programmer | Antes de implementar | Pendiente |
+| 10. Estado activo de `Seg` (C1) y de los chips; hoy `Seg` usa texto blanco sobre acento (2,45:1). | art-director + ui-programmer | Antes de implementar | **Resuelto**: borde de acento, fondo suave de acento y ✓ antes de la etiqueta, texto de color normal; nunca texto blanco sobre relleno sólido de acento. Vale para `Seg` en todas las pantallas y para los chips. Aplicado en 5.3, 7.2, 12 y 14. Pendiente de ejecución: actualizar C1 en `design/ux/interaction-patterns.md` y migrar los `.seg` armados a mano (ui-programmer, fuera de esta pantalla). |
+| 11. Revisión de /ux-review (aviso): "Mostrar más" dentro del `listbox` no se alcanza con flechas. | ux-designer | — | **Resuelto**: es un botón fuera del `listbox`, parada de Tab propia justo después de la lista. Aplicado en 5.2, 5.3, 7.1 y 12 (orden de foco). |
