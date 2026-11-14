@@ -29,6 +29,9 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - `Nav.tsx`: ficha breve al pasar el mouse (`HoverCard`: cualquier elemento con `data-pid` o `data-cid`; un escudo o nombre de club suelto con `data-cid` abre su ficha al hacer clic), barra de comandos (Ctrl+K o /), atajos (`SHORTCUTS`) y ajustes (densidad, texto, velocidad y modo del partido; en `localStorage`).
   - `useSticky(clave, inicial)` de `store.ts`: estado de pantalla (filtros, orden, pestañas) que sobrevive a la navegación. Usarlo en vez de `useState` para todo lo que el jugador esperaría encontrar igual al volver.
   - Favoritos: `g.favs` (jugadores y clubes, hasta 8) en la barra lateral.
+  - Bandeja de entrada (`Inbox.tsx`, página `inbox`): las noticias llevan `pid` (jugador), `act` (acción: oferta, trabajo, jugador que quiere irse, informe, resultado) y `ref` (oferta, club o partido), y `me` si son para el DT. Al crear una noticia nueva desde el motor, completar esos campos para que la bandeja ofrezca la acción. Los pendientes (`pendingOf`: prensa, ofertas, ofertas de trabajo, jugadores que quieren irse) se calculan del estado, no se guardan.
+  - Avance: "Ir al partido" avanza día por día cediéndole el turno al navegador (se ve el progreso, se puede frenar con Esc) y se detiene si aparece una decisión nueva (`decisionKeys`). No hace falta un web worker: un día cuesta 1 ms de mediana y copiar el estado a un worker costaría más.
+  - Inicio configurable: mosaicos con orden y ancho en `settings.home` (`localStorage`).
 - La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 6; si cambia el formato, subir la versión.
 
 ## Decisiones tomadas
@@ -59,7 +62,7 @@ Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 
 
 ## Plan de UI/UX (acordado con el usuario)
 
-Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa. Etapa 1 hecha.
+Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa. Etapas 1 y 2 hechas.
 
 ## Pendiente (en orden sugerido)
 

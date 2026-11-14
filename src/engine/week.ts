@@ -111,7 +111,7 @@ export function dailyTraining(g: Game, rng: Rng, matchYesterday: boolean) {
       const [desc, a, b] = rng.pick(TRAIN_INJ)
       p.injury = { days: Math.max(1, Math.round(rng.int(a, b) * docFactor(g))), desc }
       t.week.inj.push(p.id)
-      news(g, { tag: 'lesion', clubId: c.id, title: `${p.name} se lesionó en la práctica`, body: `${p.name} sufrió ${desc} durante el entrenamiento y estará afuera unos ${p.injury.days} días.` })
+      news(g, { tag: 'lesion', clubId: c.id, pid: p.id, act: 'injury', title: `${p.name} se lesionó en la práctica`, body: `${p.name} sufrió ${desc} durante el entrenamiento y estará afuera unos ${p.injury.days} días.` })
       continue
     }
     const age = ageOn(p.birth, g.date)
@@ -300,7 +300,7 @@ export function dayEvents(g: Game, rng: Rng) {
     if (days <= 3 && tt.reportFor !== next.id) {
       tt.reportFor = next.id
       const r = scoutReport(g, next)
-      news(g, { tag: 'club', clubId: r.opp.id, title: `Informe del rival: ${r.opp.name}`, body: `${staffOf(g, 'scout')?.name ?? 'El cuerpo técnico'} entregó el informe del próximo rival. ${r.style.slice(0, 2).join(' ')} ${r.weak} El informe completo está en la tarjeta del próximo partido.` })
+      news(g, { tag: 'club', clubId: r.opp.id, act: 'rival', ref: next.id, title: `Informe del rival: ${r.opp.name}`, body: `${staffOf(g, 'scout')?.name ?? 'El cuerpo técnico'} entregó el informe del próximo rival. ${r.style.slice(0, 2).join(' ')} ${r.weak} El informe completo está en la tarjeta del próximo partido.` })
     }
     if (days === 1 && tt.pressFor !== next.id && !g.press) {
       tt.pressFor = next.id
@@ -314,7 +314,7 @@ export function dayEvents(g: Game, rng: Rng) {
       const byP = new Map<number, string[]>()
       for (const u of w.ups) byP.set(u.pid, [...(byP.get(u.pid) ?? []), u.a])
       const ups = [...byP].filter(([pid]) => g.players[pid]).map(([pid, a]) => `${g.players[pid].name} (${a.join(', ')})`)
-      news(g, { tag: 'club', clubId: g.userClubId, title: 'Informe semanal del entrenamiento', body: `${ups.length ? `Mejoraron en la semana: ${ups.join('; ')}.` : 'Nadie mostró mejoras puntuales esta semana.'} ${w.inj.length ? `Lesionados en la práctica: ${w.inj.filter(id => g.players[id]).map(id => g.players[id].name).join(', ')}.` : 'No hubo lesiones en los entrenamientos.'} Intensidad: ${INTENSITY[g.training.intensity].name.toLowerCase()}, foco ${FOCUS.find(f => f.k === g.training.focus)!.name.toLowerCase()}.` })
+      news(g, { tag: 'club', clubId: g.userClubId, act: 'train', title: 'Informe semanal del entrenamiento', body: `${ups.length ? `Mejoraron en la semana: ${ups.join('; ')}.` : 'Nadie mostró mejoras puntuales esta semana.'} ${w.inj.length ? `Lesionados en la práctica: ${w.inj.filter(id => g.players[id]).map(id => g.players[id].name).join(', ')}.` : 'No hubo lesiones en los entrenamientos.'} Intensidad: ${INTENSITY[g.training.intensity].name.toLowerCase()}, foco ${FOCUS.find(f => f.k === g.training.focus)!.name.toLowerCase()}.` })
     }
     g.training.week = { ups: [], inj: [] }
     if (rng.chance(0.25)) refreshPool(g, rng)

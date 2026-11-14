@@ -80,7 +80,7 @@ export function afterUserMatch(g: Game, mins: Record<number, number>) {
     if (p.happy < 35) p.morale = clamp(p.morale - 1.5 - (q.temp - 10) * 0.12, 5, 100)
     if (!p.wantsOut && p.happy < 18 && q.loy < 15 && st.lvl >= 1 && h(p.id, p.recent.length + g.season) < 0.5) {
       p.wantsOut = true
-      news(g, { tag: 'club', clubId: c.id, title: `${p.name} quiere irse`, body: `${p.name} está disconforme con los minutos que tiene y le pidió al cuerpo técnico salir del club. Podés hablar con él desde el Vestuario.` })
+      news(g, { tag: 'club', clubId: c.id, pid: p.id, act: 'out', title: `${p.name} quiere irse`, body: `${p.name} está disconforme con los minutos que tiene y le pidió al cuerpo técnico salir del club. Podés hablar con él desde el Vestuario.` })
     }
   }
 }
@@ -96,12 +96,12 @@ export function dailySquad(g: Game, rng: Rng) {
     p.promise = null
     if (got >= pr.share * 0.85) {
       p.happy = clamp((p.happy ?? 50) + 25, 0, 100); p.morale = clamp(p.morale + 8, 5, 100)
-      news(g, { tag: 'club', clubId: c.id, title: `${p.name}, conforme`, body: `${g.manager.name} cumplió con lo que le prometió a ${p.name}: tuvo los minutos que esperaba.` })
+      news(g, { tag: 'club', clubId: c.id, pid: p.id, title: `${p.name}, conforme`, body: `${g.manager.name} cumplió con lo que le prometió a ${p.name}: tuvo los minutos que esperaba.` })
     } else {
       p.happy = clamp((p.happy ?? 50) - 30, 0, 100); p.morale = clamp(p.morale - 14, 5, 100)
       g.manager.rep = clamp(g.manager.rep - 1, 5, 99)
       for (const o of sq) if (o !== p) o.morale = clamp(o.morale - 1, 5, 100)
-      news(g, { tag: 'club', clubId: c.id, title: `${p.name} se siente engañado`, body: `${g.manager.name} le había prometido más minutos a ${p.name} y no cumplió. El malestar se nota en el vestuario.` })
+      news(g, { tag: 'club', clubId: c.id, pid: p.id, title: `${p.name} se siente engañado`, body: `${g.manager.name} le había prometido más minutos a ${p.name} y no cumplió. El malestar se nota en el vestuario.` })
     }
   }
   // ojeo
@@ -113,7 +113,7 @@ export function dailySquad(g: Game, rng: Rng) {
     g.know[pid] = k
     if (k >= 100) {
       g.scouting = g.scouting.filter(x => x !== pid)
-      news(g, { tag: 'mercado', clubId: p.clubId, title: `Informe completo: ${p.name}`, body: `El scouting terminó de seguir a ${p.name} (${g.clubs[p.clubId].name}). Ya conocés sus atributos, su potencial y su personalidad.` })
+      news(g, { tag: 'mercado', clubId: p.clubId, pid: p.id, act: 'scout', title: `Informe completo: ${p.name}`, body: `El scouting terminó de seguir a ${p.name} (${g.clubs[p.clubId].name}). Ya conocés sus atributos, su potencial y su personalidad.` })
     }
   }
 }
@@ -256,5 +256,5 @@ export function applyRenewal(g: Game, p: Player, t: Terms) {
   p.wage = t.wage; p.contractEnd = g.season + t.years; p.status = t.status; p.clause = t.clause || undefined
   c.balance -= t.bonus; c.ledger.wages += t.bonus
   p.happy = clamp((p.happy ?? 60) + 15, 0, 100); p.morale = clamp(p.morale + 6, 5, 100); p.wantsOut = false
-  news(g, { tag: 'club', clubId: c.id, title: `${p.name} renovó con ${c.short}`, body: `${p.name} firmó su nuevo contrato hasta diciembre de ${p.contractEnd}${t.clause ? `, con una cláusula de rescisión de US$ ${t.clause.toLocaleString('es-AR')}` : ''}.` })
+  news(g, { tag: 'club', clubId: c.id, pid: p.id, title: `${p.name} renovó con ${c.short}`, body: `${p.name} firmó su nuevo contrato hasta diciembre de ${p.contractEnd}${t.clause ? `, con una cláusula de rescisión de US$ ${t.clause.toLocaleString('es-AR')}` : ''}.` })
 }

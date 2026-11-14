@@ -53,11 +53,13 @@ La comunidad sigue comparándolo con FM24, que considera la referencia.
 
 Resultado: cambio de pantalla entre 2 y 84 ms (en modo desarrollo), plantel sin desplazamiento horizontal a 1440 px, filtros y scroll que se conservan al volver. Las pantallas siguen siendo fijas en la barra lateral; los favoritos son jugadores y clubes.
 
-### Etapa 2: bandeja de entrada y ritmo
+### Etapa 2: bandeja de entrada y ritmo — hecha
 - Bandeja única que reemplaza las noticias sueltas: ofertas, prensa, informes, avisos del cuerpo técnico, pedidos de jugadores, con botones de acción en el mismo mensaje.
 - Continuar con bloqueos visibles: "Tenés una oferta y una conferencia pendientes".
 - Avance de días en segundo plano (web worker) con indicador de progreso.
 - Inicio configurable: mosaicos que el jugador elige y ordena, que informan pero no esconden la navegación.
+
+Resultado: bandeja con pestañas (para vos, pendientes, plantel, mercado, partidos, torneos, todo el fútbol), lista y lectura lado a lado, y acciones en el mensaje (aceptar, pedir más o rechazar una oferta; aceptar un trabajo; hablar con un jugador o declararlo transferible; ver informes). Responder una oferta pasa de 3 clics a 1 desde Pendientes. El avance a la siguiente fecha muestra el progreso, nunca bloquea la interfaz más de 18 ms y frena cuando llega algo para decidir. En lugar del web worker se avanza día por día cediendo el turno al navegador, porque un día cuesta 1 ms y copiar el estado al worker costaría más.
 
 ### Etapa 3: tablas profesionales
 - Componente de tabla único para todo el juego: columnas elegibles, orden por varias columnas, filtros, vistas guardadas (General, Físico, Contrato, Ojeo, Estadísticas).

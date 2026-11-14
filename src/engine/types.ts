@@ -237,6 +237,14 @@ export interface News {
   tag: 'partido' | 'torneo' | 'lesion' | 'club' | 'mercado' | 'premio' | 'directiva'
   clubId?: number
   read?: boolean
+  /** Jugador del que habla la noticia. */
+  pid?: number
+  /** Qué se puede hacer desde la bandeja: responder una oferta, aceptar un trabajo, hablar con un jugador, ver un informe. */
+  act?: 'offer' | 'job' | 'out' | 'scout' | 'rival' | 'train' | 'result' | 'injury'
+  /** Referencia de la acción: id de la oferta, del club o del partido. */
+  ref?: number
+  /** Es para el DT (su club, sus jugadores, sus decisiones) y no una noticia del resto del fútbol. */
+  me?: boolean
 }
 
 // ---------- la semana ----------
