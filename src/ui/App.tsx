@@ -9,6 +9,7 @@ import { ClubPage, CommandPalette, HoverCard, SettingsModal, ShortcutsHelp } fro
 import { PlayerPage } from './PlayerPage'
 import { PostMatch } from './MatchPanels'
 import { DataCenter } from './DataCenter'
+import { Guide } from './Guide'
 import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
 import { Home } from './Home'
 import { Market } from './Market'
@@ -61,6 +62,15 @@ export function App() {
   const api = useRef<{ key: (e: KeyboardEvent) => void }>({ key: () => {} })
   useEffect(() => { document.documentElement.style.fontSize = `${(14 * settings.text) / 100}px` }, [settings.text])
   useEffect(() => {
+    const r = document.documentElement
+    r.classList.toggle('reduce-motion', settings.motion === 'reduce')
+    r.classList.toggle('cvd', !!settings.cvd)
+  }, [settings.motion, settings.cvd])
+  // al cambiar de pantalla se cierra el menú del celular
+  useEffect(() => setMenuOpen(false), [hist])
+  // filas clickeables: también se alcanzan con Tab y se abren con Enter
+  useEffect(() => { document.querySelectorAll<HTMLElement>('tr.click:not([tabindex])').forEach(el => (el.tabIndex = 0)) })
+  useEffect(() => {
     const key = (e: KeyboardEvent) => api.current.key(e)
     const mouse = (e: MouseEvent) => { if (e.button === 3) { e.preventDefault(); back() } else if (e.button === 4) { e.preventDefault(); fwd() } }
     window.addEventListener('keydown', key); window.addEventListener('mouseup', mouse)
@@ -70,12 +80,14 @@ export function App() {
   const [q, setQ] = useState('')
   const [press, setPress] = useState(false)
   const [post, setPost] = useState<number | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [tour, setTour] = useState(false)
   const [busy, setBusy] = useState<null | { done: number; total: number }>(null)
   const stopRef = useRef(false)
   const [, refresh] = useReducer((x: number) => x + 1, 0)
   useEffect(() => { loadGame().then(s => setSaved(s && s.version === 6 ? s : null)) }, [])
 
-  if (!g) return <Start saved={saved ?? null} onStart={game => { refreshDb(game); setG(game); setHist({ stack: [{ page: 'home' }], i: 0 }); saveGame(game) }} />
+  if (!g) return <Start saved={saved ?? null} onStart={game => { refreshDb(game); setG(game); setHist({ stack: [{ page: 'home' }], i: 0 }); saveGame(game); if (!settings.tourDone && !game.fixtures.some(f => f.played)) setTour(true) }} />
   const club = g.clubs[g.userClubId]
   const today = userFixtureToday(g), next = nextUserFixture(g)
   const opp = next ? g.clubs[next.home === club.id ? next.away : next.home] : null
@@ -85,6 +97,7 @@ export function App() {
     const t = e.target as HTMLElement
     const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOverlay('palette'); return }
+    if (e.key === 'Enter' && !typing && t?.matches?.('tr.click, [data-click]')) { e.preventDefault(); t.click(); return }
     if (e.key === 'Escape' && busy) { stopRef.current = true; return }
     if (e.key === 'Escape') { if (overlay) setOverlay(null); else if (!typing && (page === 'player' || page === 'clubv') && !document.querySelector('.modal')) back(); return }
     if (typing || match || post != null || overlay || document.querySelector('.modal')) return
@@ -146,10 +159,12 @@ export function App() {
     <GameCtx.Provider value={ctx}>
       <div className={settings.density === 'compact' ? 'dense' : ''} style={{ height: '100%', ...theme }}>
         {match ? <MatchView fixture={match} onDone={id => { setMatch(null); saveGame(g); setPost(id); refresh() }} /> : post != null ? <PostMatch fixtureId={post} onDone={() => { setPost(null); setPage('home'); saveGame(g); refresh() }} /> : (
-          <div className="shell">
-            <aside className="side">
+          <div className={`shell ${menuOpen ? 'side-open' : ''}`}>
+            <a className="skip" href="#main" onClick={e => { e.preventDefault(); document.getElementById('main')?.focus() }}>Saltar al contenido</a>
+            <aside className="side" aria-label="Navegación">
               <div className="brand">TECHNICAL <i>AREA</i></div>
-              {PAGES.map(([id, label, icon], i) => <button key={id} className={`nav ${page === id ? 'on' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'inbox' && unread + pend.length > 0 && <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : ''}>{unread + pend.length}</span>}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
+              <button className="nav more-btn" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <span aria-hidden>✕</span> : <span aria-hidden>☰</span>}{menuOpen ? 'Cerrar' : 'Más'}</button>
+              {PAGES.map(([id, label, icon], i) => <button key={id} data-page={id} aria-current={page === id ? 'page' : undefined} className={`nav ${page === id ? 'on' : ''} ${['home', 'inbox', 'squad', 'tactics'].includes(id) ? 'prim' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'inbox' && unread + pend.length > 0 && <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : ''}>{unread + pend.length}</span>}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
               {(g.favs ?? []).length > 0 && <div className="favs"><div className="favs-h">Favoritos</div>{(g.favs ?? []).map(f => {
                 const p = f.k === 'p' ? g.players[f.id] : undefined, c = f.k === 'c' ? g.clubs[f.id] : undefined
                 if (!p && !c) return null
@@ -164,10 +179,10 @@ export function App() {
             <header className="top">
               <div className="row" style={{ gap: 4 }}>
                 <button className="btn sm icon" disabled={hist.i === 0} title="Atrás (Alt + ←)" aria-label="Atrás" onClick={back}>◂</button>
-                <button className="btn sm icon" disabled={hist.i >= hist.stack.length - 1} title="Adelante (Alt + →)" aria-label="Adelante" onClick={fwd}>▸</button>
+                <button className="btn sm icon hide-sm" disabled={hist.i >= hist.stack.length - 1} title="Adelante (Alt + →)" aria-label="Adelante" onClick={fwd}>▸</button>
               </div>
               <button className="linkish" onClick={() => ctx.openClub(club.id)} title="Ficha del club"><Badge club={club} size={38} /></button>
-              <div style={{ minWidth: 0 }}><div className="ell"><b>{club.name}</b></div><div className="dim ell sm">{fmtDate(g.date)} · {windowOpen(g.date) ? 'Libro de pases abierto' : `Temporada ${g.season}`}</div></div>
+              <div className="club-meta" style={{ minWidth: 0 }}><div className="ell"><b>{club.name}</b></div><div className="dim ell sm">{fmtDate(g.date)} · {windowOpen(g.date) ? 'Libro de pases abierto' : `Temporada ${g.season}`}</div></div>
               <div className="searchbox" style={{ marginLeft: 12 }}>
                 <input id="global-search" type="search" placeholder="Buscar jugador…" title="Para buscar también clubes, pantallas y acciones: Ctrl + K" value={q} onChange={e => setQ(e.target.value)} />
                 {found.length > 0 && <div className="results">{found.map(p => (
@@ -182,15 +197,15 @@ export function App() {
                 </div>
               ) : (<>
                 {pend.length > 0 && <button className="btn pendbtn" title={`Pendiente: ${pendingText(pend)}. Clic para verlo en la bandeja.`} onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span><span className="ell">{pendingText(pend).replace(/^./, c => c.toUpperCase())}</span></button>}
-                {!today && !g.seasonOver && <button className="btn" title="Avanza día por día hasta el próximo partido. Se frena si llega algo para decidir." onClick={() => advance(true)}>Ir al partido ▸▸</button>}
+                {!today && !g.seasonOver && <button className="btn" title="Avanza día por día hasta el próximo partido. Se frena si llega algo para decidir." onClick={() => advance(true)} aria-label="Ir al partido"><span className="hide-sm">Ir al partido </span>▸▸</button>}
                 <button className="btn primary cta" title={g.seasonOver ? 'Ir al resumen de la temporada' : today ? '' : 'Avanza un día'} onClick={() => advance()}>{g.seasonOver ? 'Nueva temporada ▸' : today ? 'Jugar ▸' : 'Continuar ▸'}</button>
               </>)}
             </header>
-            <main className="main" ref={mainRef}>
+            <main className="main" id="main" tabIndex={-1} ref={mainRef}><div key={`${page}:${route.id ?? ''}`} className="page-in">
               {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
               {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}
               {page === 'player' && route.id != null && <PlayerPage key={route.id} id={route.id} tab={route.tab} />}{page === 'clubv' && route.id != null && <ClubPage key={route.id} id={route.id} tab={route.tab} />}
-            </main>
+            </div></main>
           </div>
         )}
         <HoverCard />
@@ -201,7 +216,8 @@ export function App() {
           { label: 'Ajustes', hint: 'Densidad, texto, partido', run: () => setOverlay('settings') }, { label: 'Atajos de teclado', hint: '?', run: () => setOverlay('help') },
         ]} />}
         {overlay === 'help' && <ShortcutsHelp onClose={() => setOverlay(null)} />}
-        {overlay === 'settings' && <SettingsModal s={settings} onChange={setSettings} onClose={() => setOverlay(null)} />}
+        {overlay === 'settings' && <SettingsModal s={settings} onChange={setSettings} onClose={() => setOverlay(null)} onTour={() => { setPage('home'); setTour(true) }} />}
+        {tour && !match && post == null && <Guide onDone={() => { setTour(false); setSettings({ ...settings, tourDone: true }) }} />}
         {press && g.press && <PressModal onClose={() => setPress(false)} />}
       </div>
     </GameCtx.Provider>

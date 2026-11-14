@@ -5,6 +5,7 @@ import { STAFF_ROLES, type Fixture, type StaffRole, type Tactic } from '../engin
 import { FOCUS, IND_FOCUS, INTENSITY, answerPress, assistantPlan, daysTo, delegatePress, fireStaff, hireStaff, sab, scoutReport, staffBill, staffOf } from '../engine/week'
 import { useGame } from '../store'
 import { Badge, Cond, MatchReport, Modal, PosPill, Seg, Status, money, resultText } from './common'
+import { PageTip } from './Guide'
 
 const AbBar = ({ v }: { v: number }) => (
   <div className="row" style={{ gap: 6 }}><div className="bar" style={{ width: 60 }}><i style={{ width: `${v * 5}%`, background: v >= 15 ? 'var(--good)' : v >= 10 ? 'var(--warn)' : 'var(--bad)' }} /></div><b className="num">{v}</b><span className="dim sm">/20</span></div>)
@@ -24,6 +25,7 @@ export function TrainingPage() {
   const fxOn = (d: string) => g.fixtures.find(f => f.date === d && (f.home === c.id || f.away === c.id))
   return (
     <div className="page">
+      <PageTip id="training" />
       <div className="hero row wrap" style={{ gap: 22 }}>
         <div className="grow"><h3>Entrenamiento</h3><h1 style={{ fontSize: '2.2rem', marginTop: 4 }}>{INTENSITY[plan.intensity].name} · {FOCUS.find(f => f.k === plan.focus)!.name}</h1>
           <div className="dim sm">{next ? `Próximo partido en ${days} día${days === 1 ? '' : 's'}: ${next.home === c.id ? 'vs' : 'en'} ${g.clubs[next.home === c.id ? next.away : next.home].name}.` : 'No hay partidos programados.'} {dg ? `Lo maneja ${staffOf(g, 'asst')?.name ?? 'el ayudante'}.` : ''}</div></div>

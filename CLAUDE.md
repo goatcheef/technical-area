@@ -35,6 +35,8 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - Inicio configurable: mosaicos con orden y ancho en `settings.home` (`localStorage`).
   - Día de partido (`MatchView.tsx` y `MatchPanels.tsx`): los otros partidos del mismo torneo y día (`sameRound`) se juegan en vivo a la par (`syncLive`) y `finishUserMatch` registra esos mismos resultados. Paneles configurables (`settings.matchPanels`, `bigPitch`), tabla en vivo para los torneos de liga, y flujo posterior en pasos (`PostMatch`: resultado, análisis, conferencia).
   - Centro de datos (`DataCenter.tsx`, página `data`, pestañas Mi equipo, Jugadores, Rivales y Liga). Gráficos en `charts.tsx` (columnas, líneas, barras horizontales, dispersión): SVG propio, paleta validada con la guía de gráficos (`--s1` azul a favor o propio, `--s2` naranja en contra o rival, `--s-muted` el resto), leyenda para dos series o más, tooltip y vista de tabla en cada gráfico.
+  - Pulido (`Guide.tsx`): guía de la primera partida (aparece al empezar una partida nueva; `settings.tourDone`) y ayudas por pantalla (`PageTip`, descartables, `settings.seenTips`). Accesibilidad: enlace "Saltar al contenido", filas `tr.click` alcanzables con Tab y abiertas con Enter, ventanas (`Modal`) con Esc, foco atrapado y devuelto, colores para daltonismo (`settings.cvd`, clase `cvd`) y movimiento reducido (`settings.motion`, clase `reduce-motion`). `--faint` tiene 5:1 de contraste sobre los paneles: no bajarlo.
+  - Celular (hasta 760 px): navegación inferior con Inicio, Bandeja, Plantel, Tácticas y "Más" (abre el menú completo), barra superior compacta. Las clases `prim` y `hide-sm` controlan qué se ve.
   - Tablas de jugadores: `PlayerTable.tsx` es el componente único (plantel, ficha de club, mercado, seguimiento, estadísticas). Columnas en `COLS` (cada atributo es una columna `a_xxx`), vistas en `VIEWS`, vistas propias del jugador y columnas en `localStorage` (`ta-table-<id>`). Sin desplazamiento horizontal: si no entra, oculta las columnas de menor prioridad (`PRIO`). Ordenar por un dato ajeno usa el punto medio del rango que se conoce, para no revelar lo que el ojeo no sabe. Acciones masivas en `ownBulk` y `scoutBulk`; el comparador es `Compare`.
 - La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 6; si cambia el formato, subir la versión.
 
@@ -66,7 +68,7 @@ Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 
 
 ## Plan de UI/UX (acordado con el usuario)
 
-Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa. Etapas 1 a 5 hechas.
+Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa. Las seis etapas están hechas.
 
 ## Pendiente (en orden sugerido)
 

@@ -102,7 +102,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
             </>)}
             <div style={{ position: 'relative', zIndex: 5 }}><button className={`btn ${menu ? 'on' : ''}`} title="Elegí qué paneles ver y dónde (tecla P)" onClick={() => setMenu(!menu)}>Paneles</button></div>
           </div>
-          {!sim.finished && <div className="dim center" style={{ fontSize: '.74rem', marginTop: 8 }}>Espacio pausa · 1-4 velocidad · M jugadas clave · C cambios · T táctica · R rival · P paneles</div>}
+          {!sim.finished && <div className="dim center kbd-hint" style={{ fontSize: '.74rem', marginTop: 8 }}>Espacio pausa · 1-4 velocidad · M jugadas clave · C cambios · T táctica · R rival · P paneles</div>}
         </div>
         {(() => {
           const P: Record<string, ReactNode> = {

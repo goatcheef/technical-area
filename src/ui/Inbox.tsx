@@ -7,6 +7,7 @@ import type { Fixture, Game, News, Offer } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Face, MatchReport, PosPill, Val, money } from './common'
 import { ReportModal } from './Week'
+import { PageTip } from './Guide'
 
 // ---------- pendientes: decisiones que esperan respuesta ----------
 export type Pending =
@@ -91,6 +92,7 @@ export function Inbox({ tab }: { tab?: string }) {
   const unreadHere = list.filter(n => !n.read).length
   return (
     <div className="page">
+      <PageTip id="inbox" />
       <div className="row wrap" style={{ gap: 12 }}>
         <h2 className="grow">Bandeja de entrada</h2>
         {pend.length > 0 && <span className="chip warn">Pendiente: {pendingText(pend)}</span>}

@@ -6,6 +6,7 @@ import type { Player, Pos } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Face, Ovr, PosPill, money } from './common'
 import { PlayerTable, scoutBulk } from './PlayerTable'
+import { PageTip } from './Guide'
 
 const POSS: Pos[] = ['GK', 'DR', 'DC', 'DL', 'DM', 'MC', 'MR', 'ML', 'AMC', 'AMR', 'AML', 'ST']
 
@@ -28,6 +29,7 @@ export function Market() {
   const L = club.ledger
   return (
     <div className="page">
+      <PageTip id="market" />
       <div className="hero row wrap" style={{ gap: 22 }}>
         <div className="grow"><h3>Mercado de pases</h3><h1 style={{ fontSize: '2.2rem', marginTop: 4 }}>{open ? 'Libro abierto' : 'Libro cerrado'}</h1><div className="dim sm">{open ? 'Podés comprar, vender y pedir préstamos.' : 'Reabre el 1 de enero y el 25 de junio. Mientras tanto podés seguir jugadores.'}</div></div>
         <div className="kpi"><h3>Presupuesto</h3><b>{money(club.budget)}</b></div><div className="kpi"><h3>Caja</h3><b className={club.balance < 0 ? 'bad' : ''}>{money(club.balance)}</b></div>

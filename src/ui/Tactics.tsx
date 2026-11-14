@@ -4,6 +4,7 @@ import { FORMATIONS, FORMATION_NAMES, POS_LABEL, ROLE, bestRating, bestRole, fix
 import type { Club, Player, Tactic } from '../engine/types'
 import { useGame } from '../store'
 import { Cond, PosPill, Seg, Status } from './common'
+import { PageTip } from './Guide'
 
 type Opt = [keyof Tactic, string, string[], string]
 export const TACTIC_GROUPS: { name: string; opts: Opt[] }[] = [
@@ -100,6 +101,7 @@ export function Tactics() {
       <option value={0}>Automático</option>{xiPlayers.filter(p => p.line !== 'GK').map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>)
   return (
     <div className="page">
+      <PageTip id="tactics" />
       <div className="row wrap">
         <h2 className="grow">Tácticas</h2>
         <span className="dim">Once: <b className="acc num">{(xi.reduce((a, b) => a + b, 0) / 11).toFixed(1)}</b></span>
