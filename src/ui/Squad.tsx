@@ -3,6 +3,7 @@ import { ageOn } from '../engine/positions'
 import { useGame, useSticky } from '../store'
 import { PlayerTable, ownBulk, scoutBulk } from './PlayerTable'
 import { Badge, money } from './common'
+import { PageTip } from './Guide'
 
 
 export function Squad() {
@@ -12,6 +13,7 @@ export function Squad() {
   const avgAge = list.reduce((s, p) => s + ageOn(p.birth, g.date), 0) / Math.max(1, list.length)
   return (
     <div className="page">
+      <PageTip id="squad" />
       <div className="row wrap">
         <Badge club={club} size={40} />
         <div className="grow"><h2>{club.name}</h2><div className="dim">{list.length} jugadores · edad promedio {avgAge.toFixed(1)} · valor del plantel {money(list.reduce((s, p) => s + p.value, 0))} · masa salarial {money(list.reduce((s, p) => s + p.wage, 0))}/mes</div></div>

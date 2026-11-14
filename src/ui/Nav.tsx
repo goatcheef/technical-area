@@ -174,7 +174,7 @@ export function ShortcutsHelp({ onClose }: { onClose: () => void }) {
   return <Modal onClose={onClose}><div className="row between" style={{ marginBottom: 12 }}><h2>Atajos de teclado</h2><button className="btn sm" onClick={onClose}>Cerrar</button></div>
     <table><tbody>{SHORTCUTS.map(([k, d]) => <tr key={k}><td><span className="kbd">{k}</span></td><td>{d}</td></tr>)}</tbody></table></Modal>
 }
-export function SettingsModal({ s, onChange, onClose }: { s: Settings; onChange: (s: Settings) => void; onClose: () => void }) {
+export function SettingsModal({ s, onChange, onClose, onTour }: { s: Settings; onChange: (s: Settings) => void; onClose: () => void; onTour?: () => void }) {
   return <Modal onClose={onClose}>
     <div className="row between" style={{ marginBottom: 14 }}><h2>Ajustes</h2><button className="btn sm" onClick={onClose}>Listo</button></div>
     <div className="col" style={{ gap: 16 }}>
@@ -182,6 +182,12 @@ export function SettingsModal({ s, onChange, onClose }: { s: Settings; onChange:
       <div><h3 style={{ marginBottom: 6 }}>Tamaño de texto</h3><Seg value={[90, 100, 110, 120].indexOf(s.text)} options={['Chico', 'Normal', 'Grande', 'Muy grande']} onChange={v => onChange({ ...s, text: [90, 100, 110, 120][v] })} /></div>
       <div><h3 style={{ marginBottom: 6 }}>Velocidad del partido</h3><Seg value={Math.max(0, [1, 2, 5].indexOf(s.matchSpeed))} options={['Normal', 'Rápido', 'Muy rápido']} onChange={v => onChange({ ...s, matchSpeed: [1, 2, 5][v] })} /><div className="dim sm" style={{ marginTop: 4 }}>La que se usa al darle play con Espacio. El partido siempre arranca en pausa para la charla previa.</div></div>
       <div><h3 style={{ marginBottom: 6 }}>Modo de partido</h3><Seg value={s.matchMode === 'key' ? 1 : 0} options={['Partido completo', 'Jugadas clave']} onChange={v => onChange({ ...s, matchMode: v ? 'key' : 'full' })} /></div>
+      <h3 style={{ marginTop: 6 }}>Accesibilidad</h3>
+      <div><div className="sm" style={{ marginBottom: 6 }}>Movimiento</div><Seg value={s.motion === 'reduce' ? 1 : 0} options={['Según el sistema', 'Reducido']} onChange={v => onChange({ ...s, motion: v ? 'reduce' : 'auto' })} /><div className="dim sm" style={{ marginTop: 4 }}>Reducido quita las transiciones y animaciones de la interfaz.</div></div>
+      <div><div className="sm" style={{ marginBottom: 6 }}>Colores aptos para daltonismo</div><Seg value={s.cvd ? 1 : 0} options={['No', 'Sí']} onChange={v => onChange({ ...s, cvd: !!v })} /><div className="dim sm" style={{ marginTop: 4 }}>Cambia el verde y el rojo de las escalas (valoración, físico, resultados) por azul y naranja.</div></div>
+      <h3 style={{ marginTop: 6 }}>Ayudas</h3>
+      <div className="row wrap"><Seg value={s.tips === false ? 1 : 0} options={['Mostrar ayudas en cada pantalla', 'Ocultarlas']} onChange={v => onChange({ ...s, tips: !v, seenTips: v ? s.seenTips : [] })} />
+        {onTour && <button className="btn sm" onClick={() => { onClose(); onTour() }}>Volver a ver la guía</button>}</div>
       <div className="dim sm">Los ajustes se guardan en este navegador.</div>
     </div>
   </Modal>

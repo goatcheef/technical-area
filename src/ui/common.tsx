@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useEffect, useState, type ReactNode } from 'react'
 import crestsJson from '../data/crests.json'
 import { PLAYER_PHOTO } from '../data/playerPhoto'
 import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
@@ -89,7 +89,27 @@ export function Status({ p }: { p: Player }) {
   </>)
 }
 export function Modal({ children, onClose, wide }: { children: ReactNode; onClose: () => void; wide?: boolean }) {
-  return <div className="modal-bg" onClick={onClose}><div className="modal" style={wide ? { width: 'min(1120px, 100%)' } : undefined} onClick={e => e.stopPropagation()}>{children}</div></div>
+  const box = useRef<HTMLDivElement>(null)
+  const close = useRef(onClose)
+  close.current = onClose
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null
+    const el = box.current
+    const items = () => [...(el?.querySelectorAll<HTMLElement>('button:not(:disabled), select, input, textarea, [tabindex]:not([tabindex="-1"])') ?? [])]
+    ;(items()[0] ?? el)?.focus()
+    const key = (e: KeyboardEvent) => {
+      if (!el || !el.isConnected || el !== [...document.querySelectorAll('.modal')].pop()) return // solo la ventana de más arriba
+      if (e.key === 'Escape') { e.preventDefault(); close.current() }
+      else if (e.key === 'Tab') {
+        const it = items(); if (!it.length) return
+        const first = it[0], last = it[it.length - 1]
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+      }
+    }
+    document.addEventListener('keydown', key)
+    return () => { document.removeEventListener('keydown', key); prev?.focus?.() }
+  }, [])
+  return <div className="modal-bg" onClick={onClose}><div ref={box} className="modal" role="dialog" aria-modal="true" tabIndex={-1} style={wide ? { width: 'min(1120px, 100%)' } : undefined} onClick={e => e.stopPropagation()}>{children}</div></div>
 }
 export function Seg({ value, options, onChange }: { value: number; options: string[]; onChange: (v: number) => void }) {
   return <div className="seg">{options.map((o, i) => <button key={o} className={i === value ? 'on' : ''} onClick={() => onChange(i)}>{o}</button>)}</div>

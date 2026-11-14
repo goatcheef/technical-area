@@ -90,11 +90,19 @@ Resultado: pantalla "Centro de datos" con cuatro pestañas.
 
 Cada gráfico tiene tooltip y vista de tabla; la paleta pasó el validador de daltonismo y contraste sobre el fondo de los paneles.
 
-### Etapa 6: pulido
+### Etapa 6: pulido — hecha
 - Microinteracciones y transiciones cortas, consistencia visual con un sistema de componentes.
 - Primera partida guiada con ayudas contextuales.
 - Accesibilidad: contraste, colores aptos para daltonismo en las escalas, teclado completo, movimiento reducido.
 - Diseño propio para celular.
+
+Resultado:
+- **Movimiento:** transiciones cortas al cambiar de pantalla y al abrir ventanas, que se apagan con "movimiento reducido" (ajuste propio o el del sistema).
+- **Primera partida guiada:** recorrido de ocho pasos que señala cada parte de la pantalla, más ayudas descartables la primera vez que se entra a siete pantallas.
+- **Contraste:** el texto tenue pasó de 3,2:1 a 5,1:1.
+- **Daltonismo:** modo que cambia el verde y el rojo de las escalas por azul y naranja.
+- **Teclado completo:** enlace para saltar al contenido, filas de tablas con Tab y Enter, ventanas con Esc y el foco adentro.
+- **Celular:** navegación inferior con menú completo en "Más", barra superior compacta, y el inicio, el plantel y el partido sin desbordes.
 
 ## Cómo medimos que somos mejores
 

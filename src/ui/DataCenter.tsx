@@ -7,6 +7,7 @@ import type { Game } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Cond, Face, PosPill, Spark, avgRat, ratClass } from './common'
 import { ChartCard, Columns, HBars, Lines, Meter, SERIES, Scatter, fmtN } from './charts'
+import { PageTip } from './Guide'
 
 const BINS = ["1'-15'", "16'-30'", "31'-45'", "46'-60'", "61'-75'", "76'-90'"]
 const TABS: [string, string][] = [['equipo', 'Mi equipo'], ['jugadores', 'Jugadores'], ['rivales', 'Rivales'], ['liga', 'Liga']]
@@ -20,6 +21,7 @@ export function DataCenter({ tab }: { tab?: string }) {
   const cur = tab ?? t0
   return (
     <div className="page">
+      <PageTip id="data" />
       <div className="row wrap"><h2 className="grow">Centro de datos</h2><span className="dim sm">Temporada {g.season} · datos de los partidos jugados</span></div>
       <div className="tabs">{TABS.map(([k, l]) => <button key={k} className={cur === k ? 'on' : ''} onClick={() => { setT(k); nav({ page: 'data', tab: k }) }}>{l}</button>)}</div>
       {cur === 'equipo' && <TeamView clubId={g.userClubId} />}

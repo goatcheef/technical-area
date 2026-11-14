@@ -6,6 +6,7 @@ import { STATUS, STATUS_KEYS, applyRenewal, canTalk, demand, evalOffer, harmony,
 import type { Player, SquadStatus, Terms } from '../engine/types'
 import { useGame } from '../store'
 import { Badge, Face, Gauge, Modal, Ovr, PosPill, Seg, Status, money } from './common'
+import { PageTip } from './Guide'
 
 const Bar = ({ v, c }: { v: number; c?: string }) => <div className="bar" style={{ width: 70 }}><i style={{ width: `${Math.max(2, Math.min(100, v))}%`, background: c ?? (v >= 60 ? 'var(--good)' : v >= 35 ? 'var(--warn)' : 'var(--bad)') }} /></div>
 
@@ -18,6 +19,7 @@ export function LockerPage() {
   const done = () => { save(); refresh() }
   return (
     <div className="page">
+      <PageTip id="locker" />
       <div className="hero row wrap" style={{ gap: 24 }}>
         <div className="grow"><h3>Vestuario</h3><h1 style={{ fontSize: '2.2rem', marginTop: 4 }}>{hm.value >= 70 ? 'Grupo unido' : hm.value >= 45 ? 'Clima normal' : hm.value >= 25 ? 'Hay ruido' : 'Vestuario partido'}</h1>
           <div className="dim sm" style={{ maxWidth: 560, lineHeight: 1.5 }}>Cada jugador espera minutos según su rol. Si juega mucho menos, se molesta; los ambiciosos se impacientan antes y los leales aguantan más. Un vestuario unido rinde un poco más en la cancha.</div></div>
