@@ -22,6 +22,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - `cups.ts`: tercera categoría (`T3`, Primera B y Federal A, dos zonas), Copa Argentina (`CA`, 64 equipos, miércoles), Libertadores y Sudamericana (`LIB`, `SUD`: grupos, cuartos y semis de ida y vuelta con `leg`/`pair` y global en `opts.agg`, final única). `computeQual` define los clasificados de la temporada siguiente (`g.qual`).
   - `week.ts`: la semana. Cuerpo técnico (`g.staff`, `sab(g, rol)` da la capacidad 1-20), entrenamiento diario (`dailyTraining`: físico, lesiones, familiaridad y mejora de atributos con `p.tx`), informe del rival (`scoutReport`), conferencias de prensa (`g.press`) y eventos del día (`dayEvents`).
   - El tiempo avanza día por día: `advanceDay` (un día) y `advanceToMatch` (hasta el partido, frenando si hay prensa). `continueGame` es solo para simulaciones sin interfaz.
+  - `analytics.ts`: cálculos de solo lectura para el centro de datos (partidos de un club con xG, resumen y puesto en la categoría, peligro por sector, goles por tramo, carrera de puntos, uso del plantel con desgaste, tabla de xG de la liga).
   - `positions.ts`: puestos, formaciones, valoración por puesto y roles (`ROLES`: cada rol cambia el aporte del puesto, cuánto crea y cuánto remata). `rng.ts`: azar con semilla.
 - `src/ui/` es React. `common.tsx` tiene los componentes compartidos (escudo, cara, radar, mapa de remates, informe de partido).
   - Navegación con historial (`App.tsx`): `nav({ page, id, tab })`, `back`, `openPlayer`, `openClub` en el contexto (`Ctx` de `store.ts`). Cambiar de pestaña dentro de una ficha reemplaza la entrada en vez de apilarla, y cada entrada recuerda su scroll.
@@ -33,6 +34,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - Avance: "Ir al partido" avanza día por día cediéndole el turno al navegador (se ve el progreso, se puede frenar con Esc) y se detiene si aparece una decisión nueva (`decisionKeys`). No hace falta un web worker: un día cuesta 1 ms de mediana y copiar el estado a un worker costaría más.
   - Inicio configurable: mosaicos con orden y ancho en `settings.home` (`localStorage`).
   - Día de partido (`MatchView.tsx` y `MatchPanels.tsx`): los otros partidos del mismo torneo y día (`sameRound`) se juegan en vivo a la par (`syncLive`) y `finishUserMatch` registra esos mismos resultados. Paneles configurables (`settings.matchPanels`, `bigPitch`), tabla en vivo para los torneos de liga, y flujo posterior en pasos (`PostMatch`: resultado, análisis, conferencia).
+  - Centro de datos (`DataCenter.tsx`, página `data`, pestañas Mi equipo, Jugadores, Rivales y Liga). Gráficos en `charts.tsx` (columnas, líneas, barras horizontales, dispersión): SVG propio, paleta validada con la guía de gráficos (`--s1` azul a favor o propio, `--s2` naranja en contra o rival, `--s-muted` el resto), leyenda para dos series o más, tooltip y vista de tabla en cada gráfico.
   - Tablas de jugadores: `PlayerTable.tsx` es el componente único (plantel, ficha de club, mercado, seguimiento, estadísticas). Columnas en `COLS` (cada atributo es una columna `a_xxx`), vistas en `VIEWS`, vistas propias del jugador y columnas en `localStorage` (`ta-table-<id>`). Sin desplazamiento horizontal: si no entra, oculta las columnas de menor prioridad (`PRIO`). Ordenar por un dato ajeno usa el punto medio del rango que se conoce, para no revelar lo que el ojeo no sabe. Acciones masivas en `ownBulk` y `scoutBulk`; el comparador es `Compare`.
 - La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 6; si cambia el formato, subir la versión.
 
@@ -64,7 +66,7 @@ Alrededor de 2,1 a 2,3 goles por partido (la liga argentina es de pocos goles), 
 
 ## Plan de UI/UX (acordado con el usuario)
 
-Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa. Etapas 1 a 4 hechas.
+Ver `docs/plan-ui-ux.md`: investigación de la competencia (FM26, FM27, FM24, OOTP), principios y seis etapas (navegación y densidad, bandeja de entrada y ritmo, tablas profesionales, día de partido, centro de datos, pulido). Va antes de que el usuario juegue una temporada completa. Etapas 1 a 5 hechas.
 
 ## Pendiente (en orden sugerido)
 
