@@ -30,35 +30,52 @@ function layout(sim: MatchSim, players: Record<number, Player>, prev: Map<number
   return out
 }
 
-/** Arma la jugada del minuto: cadena de pases del equipo con la pelota y, si hubo, el remate. */
+/** Arma la jugada del minuto siguiendo lo que resolvió el motor: quiénes la tocaron, por dónde y cómo terminó. */
 function buildPlay(sim: MatchSim, dots: Dot[], seed: number, dur: number): Play {
   let s = seed >>> 0
   const rnd = () => ((s = (Math.imul(s ^ (s >>> 15), 0x2c1b3c6d) + 0x9e3779b9) >>> 0) / 4294967296)
-  const f = sim.frame, dir = f.poss === 0 ? 1 : -1
-  const mine = dots.filter(d => d.side === f.poss && d.pos !== 'GK').sort((a, b) => (a.bx - b.bx) * dir)
+  const f = sim.frame, dir = f.poss === 0 ? 1 : -1, shot = f.shot
+  const goalX = f.poss === 0 ? 100 : 0
+  // carril en coordenadas de cancha: el equipo local ataca hacia la derecha
+  const laneY = f.channel === 1 ? 50 : (f.channel === 0) === (f.poss === 0) ? 16 : 84
+  const by = new Map(dots.map(d => [d.pid, d]))
+  const route = f.route.map(id => by.get(id)).filter(Boolean) as Dot[]
   const pts: Play['pts'] = []
-  if (!mine.length) return { t0: performance.now(), dur, pts: [{ x: 50, y: 50 }], shot: null, shotAt: 1, end: null, poss: f.poss }
-  const shot = f.shot
-  const n = shot ? 3 : 2 + Math.floor(rnd() * 3)
-  let i = Math.floor(rnd() * Math.max(1, mine.length * 0.45))
-  const reach = shot ? mine.length - 1 : Math.floor(mine.length * (0.35 + rnd() * 0.6))
-  for (let k = 0; k < n; k++) {
-    const d = mine[Math.min(mine.length - 1, i)]
-    pts.push({ x: d.bx + dir * (6 + rnd() * 10) + (k / n) * dir * 10, y: d.by + (rnd() - 0.5) * 14, pid: d.pid })
-    i += 1 + Math.floor(rnd() * Math.max(1, (reach - i) / Math.max(1, n - k - 1)))
+  const n = route.length
+  if (f.kind === 'corner') {
+    pts.push({ x: goalX - dir * 0.5, y: rnd() < 0.5 ? 1 : 99, pid: route[0]?.pid })
+    if (route[1]) pts.push({ x: goalX - dir * (7 + rnd() * 7), y: 42 + rnd() * 16, pid: route[1].pid })
+  } else if (f.kind === 'pen') {
+    pts.push({ x: goalX - dir * 10.5, y: 50, pid: route[0]?.pid })
+  } else if (f.kind === 'fk') {
+    pts.push({ x: goalX - dir * (22 + rnd() * 8), y: laneY * 0.5 + 25 + (rnd() - 0.5) * 10, pid: route[0]?.pid })
+    if (route[1]) pts.push({ x: goalX - dir * (7 + rnd() * 6), y: 42 + rnd() * 16, pid: route[1].pid })
+  } else {
+    route.forEach((d, i) => {
+      const prog = n > 1 ? i / (n - 1) : 1
+      // la jugada arranca atrás y termina en el último tercio (o donde la cortaron)
+      const depth = (f.kind === 'counter' ? 42 : 24) + prog * ((shot ? 60 : f.lostTo ? 30 + rnd() * 22 : 56) - (f.kind === 'counter' ? 14 : 0))
+      const x = f.poss === 0 ? depth : 100 - depth
+      const y = i === 0 ? d.by : i === n - 1 && (f.kind === 'cross' || f.kind === 'through' || f.kind === 'aerial') ? 44 + rnd() * 12 : laneY + (rnd() - 0.5) * 16
+      pts.push({ x, y, pid: d.pid })
+    })
+    if (f.kind === 'cross' && pts.length >= 2) { const c = pts[pts.length - 2]; c.x = goalX - dir * (6 + rnd() * 8); c.y = laneY < 50 ? 7 + rnd() * 8 : 85 + rnd() * 8 }
   }
+  if (!pts.length) pts.push({ x: 50, y: 50 })
   let end: Play['end'] = null
   if (shot) {
-    const sx = f.poss === 0 ? 100 - (shot.y / 105) * 100 : (shot.y / 105) * 100, sy = f.poss === 0 ? shot.x : 100 - shot.x
-    const as = dots.find(d => d.pid === shot.ast)
-    if (as) pts[pts.length - 1] = { x: sx - dir * (8 + rnd() * 12), y: Math.min(94, Math.max(6, sy + (rnd() - 0.5) * 44)), pid: as.pid }
-    pts.push({ x: sx, y: sy, pid: shot.pid })
-    const gx = f.poss === 0 ? 100 : 0, sg = rnd() < 0.5 ? -1 : 1
-    end = shot.out === 'goal' ? { x: gx + dir * 1.6, y: 50 + sg * rnd() * 4.5 } : shot.out === 'saved' ? { x: gx - dir * 2.5, y: 50 + sg * rnd() * 3 }
-      : shot.out === 'post' ? { x: gx, y: 50 + sg * 5.6 } : shot.out === 'block' ? { x: sx + (gx - sx) * 0.45, y: sy + (50 - sy) * 0.4 } : { x: gx + dir * 3, y: 50 + sg * (9 + rnd() * 9) }
+    const sx = f.poss === 0 ? 100 - (shot.y / 105) * 100 : (shot.y / 105) * 100
+    const last = pts[pts.length - 1]
+    if (f.kind !== 'corner' && f.kind !== 'pen') { last.x = sx; if (f.kind === 'long' || f.kind === 'open') last.y = shot.x }
+    const sg = rnd() < 0.5 ? -1 : 1
+    end = shot.out === 'goal' ? { x: goalX + dir * 1.6, y: 50 + sg * rnd() * 4.5 } : shot.out === 'saved' ? { x: goalX - dir * 2.5, y: 50 + sg * rnd() * 3 }
+      : shot.out === 'post' ? { x: goalX, y: 50 + sg * 5.6 } : shot.out === 'block' ? { x: last.x + (goalX - last.x) * 0.45, y: last.y + (50 - last.y) * 0.4 } : { x: goalX + dir * 3, y: 50 + sg * (9 + rnd() * 9) }
+  } else if (f.lostTo != null) {
+    const w = by.get(f.lostTo), last = pts[pts.length - 1]
+    if (w) pts.push({ x: last.x + dir * 4, y: last.y + (rnd() - 0.5) * 8, pid: w.pid })
   }
-  for (const p of pts) { p.x = Math.min(98, Math.max(2, p.x)); p.y = Math.min(96, Math.max(4, p.y)) }
-  return { t0: performance.now(), dur, pts, shot, shotAt: shot ? 0.72 : 1, end, poss: f.poss }
+  for (const p of pts) { p.x = Math.min(99.5, Math.max(0.5, p.x)); p.y = Math.min(99, Math.max(1, p.y)) }
+  return { t0: performance.now(), dur, pts, shot, shotAt: shot ? 0.68 : 1, end, poss: f.poss }
 }
 
 function ballAt(pl: Play, u: number): { x: number; y: number; z: number; holder?: number } {

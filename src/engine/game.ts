@@ -1,7 +1,7 @@
 // Estado del mundo: nueva partida, selección de equipos, calendario, torneos y temporadas.
 import dbJson from '../data/db.json'
 import { MatchSim, type MatchResult } from './match'
-import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, posRating, rawRating } from './positions'
+import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, bestRole, fixRoles, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
 import { emptyLedger, emptyStats, type Club, type Competition, type Fixture, type Game, type Manager, type News, type Player, type Tactic } from './types'
 import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
@@ -87,6 +87,7 @@ function bestFormation(g: Game, clubId: number, rng: Rng): string {
 /** Corrige la alineación del usuario si tiene jugadores no disponibles. Devuelve true si cambió algo. */
 export function fixLineup(g: Game, clubId: number): boolean {
   const c = g.clubs[clubId], t = c.tactic
+  t.roles = fixRoles(t.formation, t.roles)
   const ok = (id: number) => { const p = g.players[id]; return !!p && p.clubId === clubId && available(p) }
   const valid = t.lineup.length === 11 && new Set(t.lineup).size === 11 && t.lineup.every(ok)
   const benchOk = t.bench.every(ok) && t.bench.every(id => !t.lineup.includes(id)) && t.bench.length >= Math.min(7, squadOf(g, clubId).filter(available).length - 11)
@@ -114,6 +115,7 @@ function prepareAi(g: Game, clubId: number, oppId: number, home: boolean) {
   const c = g.clubs[clubId], o = g.clubs[oppId]
   const { lineup, bench } = autoPick(g, clubId, c.tactic.formation)
   c.tactic.lineup = lineup; c.tactic.bench = bench
+  c.tactic.roles = FORMATIONS[c.tactic.formation].map((sl, i) => (g.players[lineup[i]] ? bestRole(g.players[lineup[i]], sl.pos) : fixRoles(c.tactic.formation, undefined)[i]))
   const d = c.rep - o.rep + (home ? 4 : -4)
   c.tactic.mentality = d > 12 ? 3 : d > -7 ? 2 : 1
 }
@@ -226,7 +228,7 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   const managerName = manager.name
   const rng = new Rng(seed)
   const g: Game = {
-    version: 2, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
+    version: 3, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
     clubs: {}, players: {}, fixtures: [], comps: {}, news: [], nextId: 100000, honours: [], seasonOver: false,
     manager, board: { confidence: clamp(48 + manager.rep / 5, 40, 70), objective: '', target: 0, fired: false, offers: [] }, offers: [], transfers: [], shortlist: [],
   }
@@ -242,21 +244,23 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
     const tactic: Tactic = {
       formation: '4-4-2', mentality: 2, pressing: rng.int(0, 2), tempo: rng.int(0, 2), width: rng.int(0, 2),
       line: rng.int(0, 2), passing: rng.int(0, 2), tackling: rng.int(0, 2), lineup: [], bench: [],
+      focus: 3, finalThird: rng.pick([0, 1, 1, 1, 2, 2, 3]), onLoss: rng.int(0, 1), onWin: rng.int(0, 1), roles: [], takers: { pen: 0, fk: 0, corner: 0 },
     }
     g.clubs[c.id] = {
       id: c.id, name: c.name, short: c.short, code: c.code, city: c.city, stadium: c.stadium, capacity: c.capacity,
       division: c.division, zone: c.zone, rep: c.rep, colors: c.colors, manager: c.manager, tactic,
-      balance: 0, budget: 0, wageBudget: 0, ledger: emptyLedger(),
+      fam: c.id === userClubId ? 55 : 78, famKey: '', balance: 0, budget: 0, wageBudget: 0, ledger: emptyLedger(),
       avgHist: c.division === 1 ? [{ season: g.season - 1, pts: Math.round(c.ppg * 32), pj: 32 }] : [],
     }
   }
   for (const c of Object.values(g.clubs)) {
     c.tactic.formation = bestFormation(g, c.id, rng)
     Object.assign(c.tactic, autoPick(g, c.id, c.tactic.formation))
+    c.tactic.roles = fixRoles(c.tactic.formation, undefined); c.famKey = c.tactic.formation
   }
   const u = g.clubs[userClubId]
   u.manager = managerName
-  Object.assign(u.tactic, { mentality: 2, pressing: 1, tempo: 1, width: 1, line: 1, passing: 1, tackling: 1 })
+  Object.assign(u.tactic, { mentality: 2, pressing: 1, tempo: 1, width: 1, line: 1, passing: 1, tackling: 1, focus: 3, finalThird: 1, onLoss: 0, onWin: 0 })
   scheduleSeason(g, rng)
   g.rngState = rng.s
   initFinances(g); setObjective(g)
@@ -319,6 +323,8 @@ export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   const hc = g.clubs[f.home]
   f.att = Math.round(hc.capacity * clamp(0.35 + hc.rep / 160 + (g.rngState % 100) / 500, 0.2, 1))
   if (!f.neutral) gateIncome(g, f.home, f.att)
+  // familiaridad táctica: crece jugando con el mismo dibujo y cae al cambiarlo
+  for (const cid of [f.home, f.away]) { const c = g.clubs[cid]; if (c.famKey === c.tactic.formation) c.fam = Math.min(100, c.fam + 4); else { c.famKey = c.tactic.formation; c.fam = Math.max(30, c.fam - 30) } }
   const played = new Set(res.lines.map(l => l.pid))
   // se cumplen las suspensiones pendientes
   for (const cid of [f.home, f.away]) for (const p of squadOf(g, cid)) if (p.susp > 0 && !played.has(p.id)) p.susp--

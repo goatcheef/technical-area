@@ -29,7 +29,7 @@ export function App() {
   const [match, setMatch] = useState<Fixture | null>(null)
   const [q, setQ] = useState('')
   const [, refresh] = useReducer((x: number) => x + 1, 0)
-  useEffect(() => { loadGame().then(s => setSaved(s && s.version === 2 ? s : null)) }, [])
+  useEffect(() => { loadGame().then(s => setSaved(s && s.version === 3 ? s : null)) }, [])
 
   if (!g) return <Start saved={saved ?? null} onStart={game => { refreshDb(game); setG(game); setPage('home'); saveGame(game) }} />
   const club = g.clubs[g.userClubId]

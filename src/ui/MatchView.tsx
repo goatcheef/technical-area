@@ -1,14 +1,14 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { createMatch, finishUserMatch } from '../engine/game'
 import type { MatchSim } from '../engine/match'
-import { FORMATION_NAMES, POS_LABEL, posRating } from '../engine/positions'
+import { FORMATION_NAMES, POS_LABEL, ROLE, posRating, rolesFor } from '../engine/positions'
 import type { Fixture } from '../engine/types'
 import { useGame } from '../store'
 import { Badge, Cond, Momentum, PosPill, ShotMap, duoColors, ratClass } from './common'
 import { Pitch2D } from './Pitch2D'
 import { TacticControls } from './Tactics'
 
-const TICK = 900 // milisegundos por minuto de juego a velocidad normal
+const TICK = 1500 // milisegundos por minuto de juego a velocidad normal
 
 export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () => void }) {
   const { g } = useGame()
@@ -22,21 +22,25 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
   const us: 0 | 1 = fixture.home === g.userClubId ? 0 : 1
   const home = g.clubs[fixture.home], away = g.clubs[fixture.away]
 
+  const [mode, setMode] = useState<'full' | 'key'>('full')
+  const [talk, setTalk] = useState<string | null>(null)
+  const dur = useRef(TICK)
+
   useEffect(() => {
     if (!speed || sim.finished) return
     let t: ReturnType<typeof setTimeout>
     const run = () => {
       const evs = sim.step()
-      if (evs.some(e => e.text.startsWith('Entretiempo') || (e.type === 'rc' || e.type === 'yc2' || e.type === 'inj') && e.side === us) || sim.finished) setSpeed(0)
+      if (evs.some(e => (e.type === 'rc' || e.type === 'yc2' || e.type === 'inj') && e.side === us) || sim.halfTime || sim.finished) setSpeed(0)
+      // cada minuto dura según lo que pasó: las ocasiones y los goles se miran con calma
+      const sh = sim.frame.shot, quiet = !sh && sim.frame.kind !== 'corner' && sim.frame.kind !== 'fk'
+      dur.current = mode === 'key' && quiet ? 130 : (sh?.out === 'goal' ? 3600 : sh ? 2400 : TICK) / speed
       bump()
-      // los goles y las ocasiones se miran un poco más
-      const sh = sim.frame.shot
-      const extra = speed >= 10 ? 0 : sh?.out === 'goal' ? 2000 / speed : sh ? 500 / speed : 0
-      t = setTimeout(run, TICK / speed + extra)
+      t = setTimeout(run, dur.current + (sh?.out === 'goal' ? 1600 / speed : 0))
     }
-    t = setTimeout(run, TICK / speed)
+    t = setTimeout(run, 250)
     return () => clearTimeout(t)
-  }, [speed, sim, us])
+  }, [speed, sim, us, mode])
 
   const mine = sim.view(us), theirs = sim.view(us === 0 ? 1 : 0)
   const s = sim.stats
@@ -67,14 +71,19 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
           </div>
           <div className="row wrap" style={{ justifyContent: 'center' }}>
             {sim.finished ? <button className="btn primary cta" onClick={finish}>Continuar ▸</button> : (<>
-              <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [3, '▶▶ Rápido'], [10, '▶▶▶ Muy rápido']].map(([v, l]) => <button key={v} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
+              <div className="seg">{[[0, '⏸ Pausa'], [1, '▶ Normal'], [2, '▶▶ Rápido'], [5, '▶▶▶ Muy rápido']].map(([v, l]) => <button key={v} className={speed === v ? 'on' : ''} onClick={() => setSpeed(v as number)}>{l}</button>)}</div>
+              <div className="seg" title="Partido completo muestra todos los minutos. Jugadas clave pasa rápido lo intrascendente y se detiene en las ocasiones.">{([['full', 'Partido completo'], ['key', 'Jugadas clave']] as const).map(([v, l]) => <button key={v} className={mode === v ? 'on' : ''} onClick={() => setMode(v)}>{l}</button>)}</div>
               <button className="btn" onClick={() => { setSpeed(0); while (!sim.finished) sim.step(); bump() }}>Ir al final</button>
             </>)}
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1.15fr .9fr 1.15fr', gap: 16, alignItems: 'start' }} className="mgrid">
           <div className="card pitchcard" style={{ gridColumn: 'span 2', padding: 10 }}>
-            <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={speed ? TICK / speed : TICK} />
+            <Pitch2D sim={sim} players={g.players} colors={cols} tickMs={dur.current} />
+            {sim.halfTime && !sim.finished && (
+              <div className="row wrap" style={{ padding: '10px 4px 2px' }}><b>Entretiempo.</b>{talk ? <span className="acc">{talk}</span> : <><span className="dim">¿Qué les decís en el vestuario?</span>
+                {(['Tranquilos, sigan así', 'Quiero más de ustedes', 'Los felicito'] as const).map((l, i) => <button key={l} className="btn sm" onClick={() => { setTalk(sim.teamTalk(us, i as 0 | 1 | 2)); bump() }}>{l}</button>)}</>}
+                <span className="dim sm">Podés hacer cambios y tocar la táctica antes de seguir.</span></div>)}
           </div>
           <div className="card" style={{ gridColumn: 3, gridRow: '1 / span 2' }} data-team>
             <div className="row" style={{ marginBottom: 8 }}><div className="seg">
@@ -91,8 +100,11 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: () =>
               return (<>
                 <table><tbody>{v.on.map(o => { const p = g.players[o.pid]; return (
                   <tr key={o.pid} className={tab === 'team' ? 'click' : ''} style={out === o.pid ? { outline: '2px solid var(--accent)' } : undefined} onClick={() => tab === 'team' && !sim.finished && setOut(out === o.pid ? null : o.pid)}>
-                    <td><span className="pill">{POS_LABEL[o.pos]}</span></td><td>{p.name}{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
+                    <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
                     <td><Cond v={o.cond} /></td><td className={`r num ${ratClass(o.rating)}`}><b>{o.rating.toFixed(1)}</b></td></tr>) })}</tbody></table>
+                {tab === 'team' && out != null && (() => { const o = v.on.find(x => x.pid === out); return o && rolesFor(o.pos).length > 1 ? (
+                  <div style={{ marginTop: 10 }}><div className="dim" style={{ fontSize: '.76rem', marginBottom: 3 }}>Rol de {g.players[out].name}</div>
+                    <div className="seg">{rolesFor(o.pos).map(r => <button key={r.id} title={r.desc} className={o.role === r.id ? 'on' : ''} onClick={() => { sim.setRole(us, out, r.id); bump() }}>{r.name}</button>)}</div></div>) : null })()}
                 {tab === 'team' && <>
                   <h3 style={{ margin: '12px 0 6px' }}>{out != null ? `¿Quién entra por ${g.players[out].name}?` : 'Banco (tocá un titular para hacer un cambio)'}</h3>
                   <table><tbody>{v.bench.map(id => { const p = g.players[id], op = out != null ? v.on.find(o => o.pid === out)?.pos : null; return (

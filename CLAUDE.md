@@ -13,12 +13,12 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 ## Arquitectura
 
 - `src/engine/` es TypeScript puro, sin React, con estado JSON serializable (`Game` en `types.ts`).
-  - `match.ts`: motor de partido minuto a minuto (`MatchSim`), controlable en vivo (cambios, táctica). `sim.frame` describe el último minuto para la cancha 2D.
+  - `match.ts`: motor de partido por jugadas (`MatchSim`). Cada minuto un equipo tiene la pelota y la jugada pasa por salida, elaboración, último tercio y definición; cada fase es un duelo entre jugadores concretos según puesto, rol e instrucciones. Controlable en vivo (cambios, táctica, roles, charla). `sim.frame` describe el último minuto (quiénes la tocaron, carril, tipo de jugada) para la cancha 2D.
   - `game.ts`: nueva partida, armado de equipos, fixture, tablas, fases, avance de días, cambio de temporada.
   - `career.ts`: DT, dirigencia, finanzas, mercado de pases, contratos, juveniles.
-  - `positions.ts`: puestos, formaciones, valoración por puesto. `rng.ts`: azar con semilla.
+  - `positions.ts`: puestos, formaciones, valoración por puesto y roles (`ROLES`: cada rol cambia el aporte del puesto, cuánto crea y cuánto remata). `rng.ts`: azar con semilla.
 - `src/ui/` es React. `common.tsx` tiene los componentes compartidos (escudo, cara, radar, mapa de remates, ficha de jugador).
-- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 2; si cambia el formato, subir la versión.
+- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 3; si cambia el formato, subir la versión.
 
 ## Decisiones tomadas
 
@@ -32,11 +32,18 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 
 ## Calibración de referencia del motor
 
-Alrededor de 2,2 a 2,4 goles por partido, 42 % de triunfos locales, 28 % de empates, 22 remates, 5 amarillas y 0,2 rojas por partido.
+Alrededor de 2,2 a 2,4 goles por partido, 40-42 % de triunfos locales, 27 % de empates, 22-23 remates, 9 córners, 5 amarillas y 0,3 rojas por partido. Las constantes están en `attack`, `chance` y `shot` de `match.ts`; después de tocarlas, correr `npm run sim -- 2`.
+
+## Plan de jugabilidad (acordado con el usuario)
+
+1. **El partido como centro.** Hecho: motor por jugadas, roles, instrucciones con pelota / sin pelota / transiciones, pateadores, familiaridad táctica (`club.fam`), ritmo más lento con modos "partido completo" y "jugadas clave", charla del entretiempo. Falta: marcas individuales, rutinas de pelota parada, instrucciones al rival.
+2. **La semana:** avance día por día con calendario, entrenamiento, informe del rival, charlas y prensa, cuerpo técnico.
+3. **El plantel como grupo:** personalidades, promesas de minutos, ojeo con rangos en vez de números exactos, negociación de contratos, reserva.
+4. **El mundo:** copas, tercera categoría, economía, ofertas de trabajo.
 
 ## Pendiente (en orden sugerido)
 
-1. Mejorar la cancha 2D (`src/ui/Pitch2D.tsx`): hoy dibuja una jugada por minuto a partir de `sim.frame` (posesión y remate); faltan córners, tiros libres, faltas y saques dibujados.
+1. Los delanteros centro concentran demasiados goles (cerca del 54 %); repartir más hacia extremos y volantes.
 2. Corregir puestos y calidad de los jugadores más conocidos.
 3. Ajustar la economía: los clubes grandes acumulan demasiada caja con los años.
 4. Copa Argentina, Libertadores y Sudamericana.

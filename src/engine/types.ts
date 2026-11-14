@@ -77,8 +77,14 @@ export interface Tactic {
   tempo: number // 0 lento, 1 normal, 2 rápido
   width: number // 0 cerrado, 1 normal, 2 abierto
   line: number // 0 baja, 1 media, 2 adelantada
-  passing: number // 0 corto, 1 mixto, 2 directo
+  passing: number // salida: 0 corta, 1 mixta, 2 larga
   tackling: number // 0 limpio, 1 normal, 2 fuerte
+  focus: number // por dónde atacar: 0 izquierda, 1 centro, 2 derecha, 3 mixto
+  finalThird: number // 0 elaborar, 1 mixto, 2 centros, 3 remates de lejos
+  onLoss: number // al perderla: 0 replegar, 1 presionar enseguida
+  onWin: number // al recuperarla: 0 asegurar, 1 contraatacar
+  roles: string[] // rol de cada puesto, en el orden de la formación
+  takers: { pen: number; fk: number; corner: number } // 0 = automático
   lineup: number[] // 11 ids en el orden de los puestos de la formación
   bench: number[]
 }
@@ -97,6 +103,8 @@ export interface Club {
   colors: [string, string]
   manager: string
   tactic: Tactic
+  fam: number // familiaridad con el sistema táctico (0-100)
+  famKey: string
   balance: number // caja en USD
   budget: number // presupuesto de pases
   wageBudget: number // tope de sueldos mensual
@@ -128,6 +136,9 @@ export interface Manager {
 export interface Board { confidence: number; objective: string; target: number; fired: boolean; offers: number[] }
 export interface Offer { id: number; pid: number; from: number; fromName: string; fee: number; date: string; loan?: boolean }
 export interface Transfer { date: string; pid: number; name: string; from: string; to: string; fee: number; loan?: boolean }
+export type PlayKind = 'open' | 'cross' | 'through' | 'long' | 'corner' | 'fk' | 'pen' | 'counter' | 'aerial'
+/** Lo que pasó en el último minuto, para dibujarlo en la cancha. */
+export interface Frame { poss: 0 | 1; route: number[]; shot: Shot | null; kind: PlayKind; channel: 0 | 1 | 2; lostTo?: number }
 export interface Shot { min: number; side: 0 | 1; pid: number; xg: number; out: 'goal' | 'saved' | 'off' | 'block' | 'post'; x: number; y: number; ast?: number }
 
 export interface MatchStats {

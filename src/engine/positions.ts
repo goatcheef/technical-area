@@ -102,3 +102,52 @@ export function ageOn(birth: string, date: string): number {
   if (d[1] < b[1] || (d[1] === b[1] && d[2] < b[2])) age--
   return age
 }
+
+// ---------- roles ----------
+export interface Role { id: string; name: string; pos: Pos[]; z: [number, number, number]; shoot: number; create: number; keys: Attr[]; desc: string }
+const R = (id: string, name: string, pos: Pos[], z: [number, number, number], shoot: number, create: number, keys: Attr[], desc: string): Role => ({ id, name, pos, z, shoot, create, keys, desc })
+/** z multiplica el aporte del puesto a defensa / medio / ataque. El primer rol de cada puesto es el estándar. */
+export const ROLES: Role[] = [
+  R('gk', 'Arquero', ['GK'], [1, 1, 1], 1, 1, ['han', 'ref', 'pos'], 'Se queda bajo los palos y ataja.'),
+  R('sk', 'Arquero líbero', ['GK'], [1, 1, 1], 1, 1, ['one', 'kic', 'pas'], 'Sale lejos del arco y ayuda en la salida. Sufre más los remates de lejos.'),
+  R('cd', 'Central', ['DC'], [1, 1, 1], 1, 1, ['mar', 'tck', 'pos'], 'Defiende y descarga simple.'),
+  R('bpd', 'Central salidor', ['DC'], [0.95, 1.25, 1], 1, 1.2, ['pas', 'com', 'dec'], 'Inicia el juego con pase limpio. Arriesga más en la salida.'),
+  R('stp', 'Stopper', ['DC'], [1.06, 0.9, 1], 1, 0.8, ['tck', 'agg', 'str'], 'Sale a cortar lejos. Gana duelos, comete más faltas.'),
+  R('fb', 'Lateral', ['DR', 'DL'], [1, 1, 1], 1, 1, ['tck', 'sta', 'cro'], 'Ida y vuelta por la banda.'),
+  R('fbd', 'Lateral defensivo', ['DR', 'DL'], [1.12, 0.85, 0.45], 0.5, 0.5, ['mar', 'tck', 'pos'], 'No pasa la mitad de cancha.'),
+  R('wb', 'Carrilero', ['DR', 'DL'], [0.84, 1.1, 1.75], 1.2, 1.5, ['cro', 'pac', 'sta'], 'Ataca como un extremo. Deja espacio a su espalda.'),
+  R('dm', 'Volante central', ['DM'], [1, 1, 1], 1, 1, ['tck', 'pos', 'pas'], 'Equilibra: corta y distribuye.'),
+  R('anc', 'Tapón', ['DM'], [1.16, 0.9, 0.5], 0.5, 0.6, ['tck', 'pos', 'str'], 'Se para delante de los centrales y no se mueve.'),
+  R('reg', 'Organizador retrasado', ['DM'], [0.85, 1.16, 1.2], 1, 1.6, ['pas', 'vis', 'com'], 'Maneja los tiempos desde atrás. Marca menos.'),
+  R('b2b', 'Mixto', ['MC'], [1, 1, 1], 1, 1, ['sta', 'wor', 'pas'], 'Va de área a área.'),
+  R('pm', 'Organizador', ['MC'], [0.9, 1.12, 1], 0.8, 1.6, ['pas', 'vis', 'dec'], 'Todo el juego pasa por él.'),
+  R('arr', 'Llegador', ['MC'], [0.8, 0.95, 1.5], 1.8, 0.9, ['otb', 'fin', 'sta'], 'Pisa el área rival. Descuida el retroceso.'),
+  R('wm', 'Volante por afuera', ['MR', 'ML'], [1, 1, 1], 1, 1, ['cro', 'sta', 'dri'], 'Abre la cancha y vuelve a marcar.'),
+  R('inw', 'Interior', ['MR', 'ML'], [1, 1.1, 0.95], 1, 1.25, ['pas', 'fto', 'dec'], 'Se cierra para asociarse por adentro.'),
+  R('eng', 'Enganche', ['AMC'], [1, 1, 1], 0.8, 1.7, ['vis', 'pas', 'fto'], 'El dueño del último pase.'),
+  R('ssm', 'Mediapunta llegador', ['AMC'], [1, 0.9, 1.15], 1.6, 0.9, ['otb', 'fin', 'lsh'], 'Llega al área como un segundo delantero.'),
+  R('win', 'Extremo', ['AMR', 'AML'], [1, 1, 1], 1, 1.3, ['cro', 'dri', 'pac'], 'Desborda por afuera y tira el centro.'),
+  R('inv', 'Extremo invertido', ['AMR', 'AML'], [1, 1, 1.05], 1.6, 0.9, ['fin', 'dri', 'lsh'], 'Encara hacia adentro para rematar.'),
+  R('pch', 'Delantero de área', ['ST'], [1, 0.8, 1.05], 1.25, 0.7, ['fin', 'otb', 'com'], 'Vive en el área esperando la suya.'),
+  R('tgt', 'Pivote', ['ST'], [1, 1.1, 1], 1, 1.1, ['hea', 'str', 'jmp'], 'Aguanta de espaldas y gana de arriba. Ideal con salida larga y centros.'),
+  R('f9', 'Falso nueve', ['ST'], [1, 1.5, 0.9], 0.8, 1.7, ['pas', 'vis', 'dri'], 'Baja a armar juego y arrastra a los centrales.'),
+  R('mov', 'Delantero móvil', ['ST'], [1, 1, 1], 1.05, 1, ['pac', 'acc', 'otb'], 'Ataca los espacios a la espalda de la defensa.'),
+]
+export const ROLE: Record<string, Role> = Object.fromEntries(ROLES.map(r => [r.id, r]))
+export const rolesFor = (pos: Pos) => ROLES.filter(r => r.pos.includes(pos))
+export const defaultRole = (pos: Pos) => rolesFor(pos)[0].id
+/** Qué tan bien le queda un rol a un jugador (alrededor de 1). */
+export function roleFit(p: Player, role: Role): number {
+  let s = 0
+  for (const k of role.keys) s += p.attrs[A[k]]
+  return 1 + (s / role.keys.length - 12) * 0.008
+}
+export function bestRole(p: Player, pos: Pos): string {
+  let b = defaultRole(pos), bs = -1
+  for (const r of rolesFor(pos)) { const f = roleFit(p, r) + (r.id === defaultRole(pos) ? 0.012 : 0); if (f > bs) { bs = f; b = r.id } }
+  return b
+}
+/** Completa o corrige la lista de roles para una formación. */
+export function fixRoles(formation: string, roles: string[] | undefined): string[] {
+  return FORMATIONS[formation].map((s, i) => (roles?.[i] && ROLE[roles[i]]?.pos.includes(s.pos) ? roles[i] : defaultRole(s.pos)))
+}
