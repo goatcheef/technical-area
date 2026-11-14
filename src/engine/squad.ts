@@ -80,7 +80,7 @@ export function afterUserMatch(g: Game, mins: Record<number, number>) {
     if (p.happy < 35) p.morale = clamp(p.morale - 1.5 - (q.temp - 10) * 0.12, 5, 100)
     if (!p.wantsOut && p.happy < 18 && q.loy < 15 && st.lvl >= 1 && h(p.id, p.recent.length + g.season) < 0.5) {
       p.wantsOut = true
-      news(g, { tag: 'club', clubId: c.id, pid: p.id, act: 'out', title: `${p.name} quiere irse`, body: `${p.name} está disconforme con los minutos que tiene y le pidió al cuerpo técnico salir del club. Podés hablar con él desde el Vestuario.` })
+      news(g, { tag: 'club', clubId: c.id, pid: p.id, act: 'out', title: `${p.name} quiere irse`, body: `${p.name} está disconforme con los minutos que tiene y le pidió al cuerpo técnico salir del club. Podés responderle desde este mensaje.` })
     }
   }
 }
@@ -146,6 +146,8 @@ export const harmonyBoost = (g: Game) => 1 + (harmony(g).value - 60) * 0.0006
 
 // ---------- charlas individuales ----------
 export type TalkKind = 'praise' | 'demand' | 'promise' | 'patience' | 'status' | 'free' | 'stay'
+/** Declara (o quita) transferible a un jugador del plantel. */
+export function setListed(g: Game, pid: number, listed: boolean) { const p = g.players[pid]; if (p?.clubId === g.userClubId) p.listed = listed }
 export function canTalk(g: Game, p: Player) { return !p.lastTalk || g.date >= addDays(p.lastTalk, 7) }
 export function talk(g: Game, p: Player, kind: TalkKind, newStatus?: SquadStatus): string {
   const q = persOf(p), form = p.form.length ? p.form.reduce((a, b) => a + b, 0) / p.form.length : 6.5

@@ -160,7 +160,7 @@ export interface Manager {
   titles: string[]
 }
 export interface Board { confidence: number; objective: string; target: number; fired: boolean; offers: number[] }
-export interface Offer { id: number; pid: number; from: number; fromName: string; fee: number; date: string; loan?: boolean }
+export interface Offer { id: number; pid: number; from: number; fromName: string; fee: number; date: string; loan?: boolean; /** Veces que el DT pidió más. */ asks?: number }
 export interface Transfer { date: string; pid: number; name: string; from: string; to: string; fee: number; loan?: boolean }
 export type PlayKind = 'open' | 'cross' | 'through' | 'long' | 'corner' | 'fk' | 'pen' | 'counter' | 'aerial'
 /** Lo que pasó en el último minuto, para dibujarlo en la cancha. */
@@ -269,6 +269,8 @@ export interface Training {
 export interface PressAnswer { t: string; morale?: number; board?: number; rep?: number; star?: number; quote: string }
 export interface Press { kind: 'pre' | 'post'; fixtureId: number; questions: { q: string; pid?: number; opts: PressAnswer[] }[] }
 
+export interface JobOffer { clubId: number; until: string; kind?: 'mid' | 'season' }
+
 export interface Game {
   version: number
   dbVersion?: number
@@ -298,7 +300,8 @@ export interface Game {
   know: Record<number, number> // conocimiento de jugadores ajenos (0-100)
   scouting: number[] // jugadores que se están ojeando
   qual?: { lib: number[]; sud: number[] } // clasificados a las copas de esta temporada
-  jobOffers?: { clubId: number; until: string }[]
+  /** Ofertas de trabajo: `until` es el último día para responder; `kind` falta en partidas viejas (ver `jobKind`). */
+  jobOffers?: JobOffer[]
   /** Próximo id de jugador. Va aparte de nextId para que los ids de jugadores sean consecutivos (la lista de jugadores se mantiene rápida). */
   nextPid?: number
   /** Favoritos fijados en la barra lateral. */
