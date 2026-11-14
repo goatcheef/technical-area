@@ -71,7 +71,21 @@ export interface Player {
   tx?: number // progreso acumulado en el entrenamiento (al llegar a 1 sube un atributo)
   ups?: number // atributos ganados entrenando esta temporada
   tfocus?: string // foco de entrenamiento individual
+  pers?: Personality
+  status?: SquadStatus // rol acordado en el plantel
+  happy?: number // 0-100 conformidad con los minutos
+  recent?: number[] // minutos en los últimos partidos del club (solo plantel del usuario)
+  promise?: { until: string; share: number; mins: number[] } | null
+  wantsOut?: boolean
+  reserve?: boolean
+  clause?: number // cláusula de rescisión (0 o ausente = sin cláusula)
+  lastTalk?: string
+  negBlock?: string // no acepta volver a negociar hasta esta fecha
 }
+
+export interface Personality { amb: number; temp: number; loy: number; pres: number }
+export type SquadStatus = 'key' | 'reg' | 'rot' | 'sub' | 'young'
+export interface Terms { wage: number; years: number; status: SquadStatus; clause: number; bonus: number }
 
 export interface Tactic {
   formation: string
@@ -265,4 +279,6 @@ export interface Game {
   training: Training
   delegate: { training: boolean; press: boolean }
   press: Press | null
+  know: Record<number, number> // conocimiento de jugadores ajenos (0-100)
+  scouting: number[] // jugadores que se están ojeando
 }

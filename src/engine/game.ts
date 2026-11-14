@@ -4,6 +4,8 @@ import { MatchSim, type MatchResult } from './match'
 import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, bestRole, fixRoles, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
 import { emptyLedger, emptyStats, type Club, type Competition, type Fixture, type Game, type Manager, type News, type Player, type Tactic } from './types'
+import { afterUserMatch, dailySquad, harmonyBoost, initSquad, learnFromMatch, weeklyReserve } from './squad'
+import { isDerby } from './week'
 import { answerPress, dailyTraining, dayEvents, delegatePress, docFactor, initStaff, makePostPress, refreshPool, trainEdge } from './week'
 import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
 
@@ -229,10 +231,10 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   const managerName = manager.name
   const rng = new Rng(seed)
   const g: Game = {
-    version: 4, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
+    version: 5, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
     clubs: {}, players: {}, fixtures: [], comps: {}, news: [], nextId: 100000, honours: [], seasonOver: false,
     manager, board: { confidence: clamp(48 + manager.rep / 5, 40, 70), objective: '', target: 0, fired: false, offers: [] }, offers: [], transfers: [], shortlist: [],
-    staff: [], training: { intensity: 1, focus: 'equil', restAfter: true }, delegate: { training: false, press: false }, press: null,
+    staff: [], training: { intensity: 1, focus: 'equil', restAfter: true }, delegate: { training: false, press: false }, press: null, know: {}, scouting: [],
   }
   for (const p of db.players) {
     const pl: Player = {
@@ -267,6 +269,7 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   g.rngState = rng.s
   initFinances(g); setObjective(g)
   { const r = new Rng(g.rngState); initStaff(g, r); g.rngState = r.s }
+  initSquad(g, userClubId)
   news(g, {
     tag: 'club', clubId: userClubId, title: `${managerName} asume en ${u.name}`,
     body: `La dirigencia de ${u.name} presentó a ${managerName} como nuevo director técnico. Objetivo de la temporada: ${g.board.objective.toLowerCase()}. Hay US$ ${u.budget.toLocaleString('es-AR')} para refuerzos y el libro de pases está abierto hasta el 20 de febrero.`,
@@ -315,8 +318,9 @@ export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
   const seed = withRng(g, r => r.int(1, 2147483646))
   const boost: [number, number, number][] = [[1, 1, 1], [1, 1, 1]]
   const sp: [number, number] = [1, 1]
-  if (userSide != null) { const m = mgrBoost(g.manager), e = trainEdge(g); boost[userSide] = [m[0] * e.att, m[1] * e.def, m[2]]; sp[userSide] = e.sp }
-  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp })
+  if (userSide != null) { const m = mgrBoost(g.manager), e = trainEdge(g); boost[userSide] = [m[0] * e.att, m[1] * e.def, m[2] * harmonyBoost(g)]; sp[userSide] = e.sp }
+  const importance = f.knockout || isDerby(g.clubs[f.home], g.clubs[f.away]) ? 1 : 0
+  return new MatchSim(g.clubs[f.home], g.clubs[f.away], g.players, { seed, knockout: f.knockout, neutral: f.neutral, userSide: live ? userSide : null, boost, sp, importance })
 }
 
 export function applyResult(g: Game, f: Fixture, res: MatchResult) {
@@ -359,6 +363,10 @@ export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   }
   if (isUser) {
     matchNews(g, f, res)
+    const mins: Record<number, number> = {}
+    for (const l of res.lines) mins[l.pid] = l.mins
+    afterUserMatch(g, mins)
+    learnFromMatch(g, res.lines.filter(l => g.players[l.pid]?.clubId !== g.userClubId).map(l => l.pid))
     const us = f.home === g.userClubId ? 0 : 1
     const pts = res.pens ? (res.pens[us] > res.pens[1 - us] ? 3 : 0) : diff[us] > 0 ? 3 : diff[us] === 0 ? 1 : 0
     if (!g.board.fired) boardAfterMatch(g, pts, g.clubs[g.userClubId].rep - g.clubs[us === 0 ? f.away : f.home].rep, us === 0 && !f.neutral)
@@ -538,6 +546,7 @@ export function advanceDay(g: Game): DayResult {
   if (!userPlayedOn(g, g.date)) withRng(g, r => dailyTraining(g, r, userPlayedOn(g, addDays(g.date, -1))))
   g.date = addDays(g.date, 1)
   withRng(g, r => dayEvents(g, r))
+  withRng(g, r => { dailySquad(g, r); if (new Date(g.date + 'T12:00:00Z').getUTCDay() === 3) weeklyReserve(g, r) })
   if (userFixtureToday(g)) return 'match'
   return g.press ? 'press' : 'day'
 }
@@ -564,6 +573,7 @@ export function finishUserMatch(g: Game, f: Fixture, res: MatchResult) {
   passDays(g, 1)
   g.date = addDays(g.date, 1)
   withRng(g, r => dayEvents(g, r))
+  withRng(g, r => dailySquad(g, r))
 }
 
 // ---------- nueva temporada ----------
@@ -614,6 +624,7 @@ export function startNewSeason(g: Game) {
   g.offers = []
   for (const st of g.staff) if (st.clubId === g.userClubId && st.contractEnd < g.season) st.contractEnd = g.season + 1
   { const r = new Rng(g.rngState); refreshPool(g, r); g.rngState = r.s }
+  initSquad(g, g.userClubId)
   g.press = null; g.training.reportFor = undefined; g.training.pressFor = undefined
   g.fixtures = []; g.comps = {}; g.seasonOver = false
   for (const c of Object.values(g.clubs)) if (c.id !== g.userClubId) c.tactic.formation = bestFormation(g, c.id, rng)

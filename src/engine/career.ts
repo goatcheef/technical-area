@@ -1,9 +1,10 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
 import { sab } from './week'
+import { initSquad } from './squad'
 import { addDays, autoPick, clubsIn, news, squadOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
-import { ATTRS, A, emptyLedger, emptyStats, type Club, type Game, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos } from './types'
+import { ATTRS, A, emptyLedger, emptyStats, type Club, type Game, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type Terms } from './types'
 
 // ---------- DT ----------
 export const BACKGROUNDS: { id: string; name: string; desc: string; points: number; rep: number }[] = [
@@ -87,6 +88,7 @@ export function takeJob(g: Game, clubId: number) {
   c.manager = g.manager.name
   g.manager.rep = Math.max(15, g.manager.rep - 6)
   g.board = { confidence: 55, objective: '', target: 0, fired: false, offers: [] }
+  initSquad(g, clubId)
   setObjective(g); g.offers = []
   news(g, { tag: 'club', clubId, title: `${g.manager.name}, nuevo DT de ${c.name}`, body: `Tras su salida de ${old.name}, ${g.manager.name} firmó con ${c.name}. Objetivo de la dirigencia: ${g.board.objective.toLowerCase()}.` })
 }
@@ -119,6 +121,7 @@ export function evaluateBid(g: Game, p: Player, fee: number, loan: boolean): Bid
   const dest = g.clubs[g.userClubId], src = g.clubs[p.clubId]
   if (!windowOpen(g.date)) return { ok: false, reason: 'El libro de pases está cerrado. Reabre el 1 de enero y el 25 de junio.' }
   if (p.loanFrom) return { ok: false, reason: 'El jugador está a préstamo en su club actual.' }
+  if (!loan && p.clause && fee >= p.clause) return windowOpen(g.date) && fee <= dest.budget ? { ok: true } : { ok: false, reason: 'No te alcanza el presupuesto para pagar la cláusula.' }
   const sq = squadOf(g, src.id), rank = squadRank(g, p)
   if (sq.length <= 20 || (p.line === 'GK' && sq.filter(x => x.line === 'GK').length <= 2)) return { ok: false, reason: `${src.name} no puede desprenderse del jugador: se queda sin recambio.` }
   if (squadOf(g, dest.id).length >= 45) return { ok: false, reason: 'Tu plantel ya tiene 45 jugadores.' }
@@ -149,14 +152,17 @@ function dropFromTactics(g: Game, p: Player) {
   if (!t) return
   t.lineup = t.lineup.map(id => (id === p.id ? 0 : id)); t.bench = t.bench.filter(id => id !== p.id)
 }
-export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan = false, quiet = false) {
+export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan = false, quiet = false, terms?: Terms) {
   const from = g.clubs[p.clubId], to = g.clubs[toId]
   dropFromTactics(g, p)
   from.balance += fee; from.ledger.sales += fee
   to.balance -= fee; to.budget -= fee; to.ledger.buys += fee
   if (!loan) from.budget += Math.round(fee * 0.6)
   p.num = freeNumber(g, toId, p)
-  if (loan) { p.loanFrom = from.id; p.loan = true } else { p.wage = wageDemand(g, p, to); p.contractEnd = g.season + 2; p.loan = false; p.loanFrom = undefined }
+  if (loan) { p.loanFrom = from.id; p.loan = true } else { p.wage = terms?.wage ?? wageDemand(g, p, to); p.contractEnd = g.season + (terms?.years ?? 2); p.loan = false; p.loanFrom = undefined; p.clause = terms?.clause || undefined }
+  if (terms) { to.balance -= terms.bonus; to.ledger.buys += terms.bonus }
+  p.status = toId === g.userClubId ? (terms?.status ?? undefined) : undefined
+  p.recent = []; p.promise = null; p.wantsOut = false; p.reserve = false; p.happy = 72; p.tfocus = undefined
   p.clubId = toId; p.listed = false; p.morale = clamp(p.morale + 8, 0, 100)
   g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: to.name, fee, loan })
   if (g.transfers.length > 300) g.transfers.length = 300
@@ -227,7 +233,10 @@ export function marketTick(g: Game, days: number, rng: Rng) {
         }
         if (best) {
           const price = askingPrice(g, best)
-          if (best.clubId === g.userClubId) { if (best.listed || rng.chance(0.5)) pushOffer(g, best, buyer.id, buyer.name, Math.round((price * (0.8 + rng.next() * 0.3)) / 10000) * 10000) }
+          if (best.clubId === g.userClubId && best.clause && buyer.budget >= best.clause && (best.pers?.amb ?? 10) >= 12 && rng.chance(0.3)) {
+            news(g, { tag: 'mercado', clubId: g.userClubId, title: `${buyer.name} pagó la cláusula de ${best.name}`, body: `${buyer.name} depositó los US$ ${best.clause.toLocaleString('es-AR')} de la cláusula de rescisión y ${best.name} deja el club.` })
+            doTransfer(g, best, buyer.id, best.clause)
+          } else if (best.clubId === g.userClubId) { if (best.listed || best.wantsOut || rng.chance(0.5)) pushOffer(g, best, buyer.id, buyer.name, Math.round((price * (0.8 + rng.next() * 0.3)) / 10000) * 10000) }
           else doTransfer(g, best, buyer.id, price)
         }
       }
@@ -243,7 +252,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
       }
     }
     // interés por jugadores transferibles del usuario
-    for (const p of squadOf(g, g.userClubId)) if (p.listed && rng.chance(0.12) && !g.offers.some(o => o.pid === p.id)) {
+    for (const p of squadOf(g, g.userClubId)) if ((p.listed || p.wantsOut) && rng.chance(p.listed ? 0.12 : 0.05) && !g.offers.some(o => o.pid === p.id)) {
       const buyers = clubs.filter(c => c.id !== g.userClubId && c.budget >= p.value * 0.7 && c.rep >= g.clubs[g.userClubId].rep - 14 && squadOf(g, c.id).length < 40)
       if (buyers.length) { const b = rng.pick(buyers); pushOffer(g, p, b.id, b.name, Math.round((Math.min(b.budget, p.value * (0.7 + rng.next() * 0.4))) / 10000) * 10000) }
     }

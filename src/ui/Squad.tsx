@@ -3,7 +3,7 @@ import { squadOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
 import type { Player } from '../engine/types'
 import { useGame } from '../store'
-import { Badge, Cond, Face, Ovr, PosPill, Status, avgRat, money, ratClass } from './common'
+import { Badge, Cond, Face, PosPill, Status, Val, avgRat, money, ratClass } from './common'
 
 type Col = { k: string; l: string; v: (p: Player) => number | string; r?: boolean }
 const LINE_ORDER = { GK: 0, DF: 1, MF: 2, FW: 3 }
@@ -39,7 +39,7 @@ export function Squad() {
           <tbody>{list.map(p => (
             <tr key={p.id} className="click" onClick={() => openPlayer(p.id)}>
               <td className="r num dim">{p.num}</td><td><span className="row"><Face p={p} club={club} size={28} /><b style={{ fontWeight: 600 }}>{p.name}</b></span> {p.nat !== 'Argentina' && <span className="dim" style={{ fontSize: '.8rem' }}>{p.nat}</span>}</td><td><PosPill p={p} /></td>
-              <td className="r num">{ageOn(p.birth, g.date)}</td><td className="r"><Ovr v={bestRating(p)} /></td><td><Cond v={p.cond} /></td><td><Cond v={p.morale} /></td>
+              <td className="r num">{ageOn(p.birth, g.date)}</td><td className="r"><Val p={p} /></td><td><Cond v={p.cond} /></td><td><Cond v={p.morale} /></td>
               <td className="r num">{p.stats.apps}{p.stats.subs ? <span className="dim"> ({p.stats.subs})</span> : ''}</td><td className="r num">{p.stats.goals}</td><td className="r num">{p.stats.ast}</td>
               <td className={`r num ${ratClass(p.stats.apps + p.stats.subs ? p.stats.ratSum / (p.stats.apps + p.stats.subs) : 6.5)}`}>{avgRat(p.stats)}</td>
               <td className="r num">{money(p.value)}</td><td className="r num dim">{money(p.wage)}</td><td className={`r num ${p.contractEnd <= g.season ? 'warn' : 'dim'}`}>{p.contractEnd}</td><td><Status p={p} /></td>

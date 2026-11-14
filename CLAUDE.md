@@ -16,11 +16,12 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - `match.ts`: motor de partido por jugadas (`MatchSim`). Cada minuto un equipo tiene la pelota y la jugada pasa por salida, elaboración, último tercio y definición; cada fase es un duelo entre jugadores concretos según puesto, rol e instrucciones. Controlable en vivo (cambios, táctica, roles, charla). `sim.frame` describe el último minuto (quiénes la tocaron, carril, tipo de jugada) para la cancha 2D.
   - `game.ts`: nueva partida, armado de equipos, fixture, tablas, fases, avance de días, cambio de temporada.
   - `career.ts`: DT, dirigencia, finanzas, mercado de pases, contratos, juveniles.
+  - `squad.ts`: el plantel como grupo. Personalidad (`persOf`: ambición, temperamento, lealtad, presión), rol en el plantel (`p.status`) y minutos esperados, conformidad (`p.happy`), promesas, charlas, armonía del vestuario (afecta el rendimiento), reserva, ojeo con incertidumbre (`knowOf`, `shown`: los jugadores ajenos se ven como rangos) y negociación de contratos (`demand`, `evalOffer`).
   - `week.ts`: la semana. Cuerpo técnico (`g.staff`, `sab(g, rol)` da la capacidad 1-20), entrenamiento diario (`dailyTraining`: físico, lesiones, familiaridad y mejora de atributos con `p.tx`), informe del rival (`scoutReport`), conferencias de prensa (`g.press`) y eventos del día (`dayEvents`).
   - El tiempo avanza día por día: `advanceDay` (un día) y `advanceToMatch` (hasta el partido, frenando si hay prensa). `continueGame` es solo para simulaciones sin interfaz.
   - `positions.ts`: puestos, formaciones, valoración por puesto y roles (`ROLES`: cada rol cambia el aporte del puesto, cuánto crea y cuánto remata). `rng.ts`: azar con semilla.
 - `src/ui/` es React. `common.tsx` tiene los componentes compartidos (escudo, cara, radar, mapa de remates, ficha de jugador).
-- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 4; si cambia el formato, subir la versión.
+- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 5; si cambia el formato, subir la versión.
 
 ## Decisiones tomadas
 
@@ -41,12 +42,12 @@ Alrededor de 2,2 a 2,4 goles por partido, 40-42 % de triunfos locales, 27 % de e
 
 1. **El partido como centro.** Hecho: motor por jugadas, roles, instrucciones con pelota / sin pelota / transiciones, pateadores, rutinas de córner, órdenes sobre rivales puntuales y marca personal (solo durante el partido, `tactic.oppo` y `tactic.manMark`), familiaridad táctica (`club.fam`), ritmo más lento con modos "partido completo" y "jugadas clave", charla del entretiempo.
 2. **La semana.** Hecho: avance día por día con calendario, entrenamiento (intensidad, foco colectivo e individual, descanso posterior al partido, delegable), informe del rival con sugerencias aplicables, conferencias previas y posteriores (delegables), charla previa al partido, cuerpo técnico de cinco puestos con contrataciones y despidos. Falta: que los rivales también entrenen y que la prensa tenga consecuencias más allá del partido.
-3. **El plantel como grupo:** personalidades, promesas de minutos, ojeo con rangos en vez de números exactos, negociación de contratos, reserva.
+3. **El plantel como grupo.** Hecho: personalidades con efecto en juego (presión en partidos grandes, temperamento y tarjetas, ambición y lealtad en la conformidad y los contratos), roles en el plantel con minutos esperados, conformidad, pedidos para irse, promesas que se cumplen o se rompen, charlas individuales, armonía y referentes, reserva semanal, ojeo con rangos y conocimiento progresivo, negociación de contratos con representantes (sueldo, años, rol, cláusula, prima) y cláusulas que los rivales pueden pagar. Falta: préstamos de juveniles a otros clubes y que los planteles rivales también tengan conflictos.
 4. **El mundo:** copas, tercera categoría, economía, ofertas de trabajo.
 
 ## Pendiente (en orden sugerido)
 
-1. Etapa 3 del plan: el plantel como grupo.
+1. Etapa 4 del plan: el mundo (copas, tercera categoría, economía, ofertas de trabajo).
 2. Corregir puestos y calidad de los jugadores más conocidos.
 3. Ajustar la economía: los clubes grandes acumulan demasiada caja con los años.
 4. Copa Argentina, Libertadores y Sudamericana.

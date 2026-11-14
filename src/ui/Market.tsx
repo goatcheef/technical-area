@@ -4,7 +4,8 @@ import { fmtDate } from '../engine/game'
 import { POS_LABEL, ageOn } from '../engine/positions'
 import type { Player, Pos } from '../engine/types'
 import { useGame } from '../store'
-import { Badge, Face, Ovr, PosPill, Status, money } from './common'
+import { knowOf } from '../engine/squad'
+import { Badge, Face, Ovr, PosPill, Status, Val, money } from './common'
 
 const POSS: Pos[] = ['GK', 'DR', 'DC', 'DL', 'DM', 'MC', 'MR', 'ML', 'AMC', 'AMR', 'AML', 'ST']
 
@@ -25,13 +26,13 @@ export function Market() {
     .sort((a, b) => b.ca - a.ca).slice(0, 60), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
   const rows = (list: Player[]) => (
     <div className="card scroll-x"><table>
-      <thead><tr><th>Jugador</th><th>Pos</th><th>Club</th><th className="r">Edad</th><th className="r">Val</th><th className="r">Pot.</th><th className="r">Valor</th><th className="r">Pedido</th><th className="r">Sueldo</th><th className="r">Contrato</th></tr></thead>
+      <thead><tr><th>Jugador</th><th>Pos</th><th>Club</th><th className="r">Edad</th><th className="r">Val</th><th className="r">Pot.</th><th className="r">Valor</th><th className="r">Pedido</th><th className="r">Sueldo</th><th className="r">Contrato</th><th className="r">Conoc.</th></tr></thead>
       <tbody>{list.map(p => { const c = g.clubs[p.clubId], age = ageOn(p.birth, g.date), gap = p.pa - p.ca; return (
         <tr key={p.id} className="click" onClick={() => openPlayer(p.id)}>
           <td><span className="row"><Face p={p} club={c} size={30} /><b style={{ fontWeight: 600 }}>{p.name}</b><Status p={p} /></span></td><td><PosPill p={p} /></td>
-          <td><span className="row"><Badge club={c} size={20} />{c.short}</span></td><td className="r num">{age}</td><td className="r"><Ovr v={p.ca} /></td>
-          <td className="r">{age <= 23 ? <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span> : <span className="dim">–</span>}</td>
-          <td className="r num">{money(p.value)}</td><td className="r num"><b>{money(askingPrice(g, p))}</b></td><td className="r num dim">{money(p.wage)}</td><td className="r num dim">{p.contractEnd}</td></tr>) })}</tbody>
+          <td><span className="row"><Badge club={c} size={20} />{c.short}</span></td><td className="r num">{age}</td><td className="r"><Val p={p} /></td>
+          <td className="r">{age <= 23 && knowOf(g, p) >= 70 ? <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span> : <span className="dim">–</span>}</td>
+          <td className="r num">{money(p.value)}</td><td className="r num"><b>{money(askingPrice(g, p))}</b></td><td className="r num dim">{money(p.wage)}</td><td className="r num dim">{p.contractEnd}</td><td className="r num dim">{g.scouting.includes(p.id) ? 'Ojeando' : `${Math.round(knowOf(g, p))}%`}</td></tr>) })}</tbody>
     </table>{!list.length && <div className="dim sm" style={{ padding: 12 }}>No hay jugadores que cumplan esos filtros.</div>}</div>)
   const L = club.ledger
   return (

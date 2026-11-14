@@ -74,7 +74,7 @@ export class MatchSim {
 
   private mkOn(p: Player, pos: Pos, role: Role, ch: 0 | 1 | 2, side: 0 | 1, started: boolean, tick: number): OnPitch {
     return {
-      p, pos, role, ch, cond: p.cond, day: 1 + this.rng.gauss() * 0.035, acc: 0, eff: 1, yellow: false, enteredTick: tick,
+      p, pos, role, ch, cond: p.cond, day: 1 + this.rng.gauss() * 0.035 + (this.opts.importance && p.pers ? (p.pers.pres - 10) * 0.004 : 0), acc: 0, eff: 1, yellow: false, enteredTick: tick,
       line: { pid: p.id, side, started, mins: 0, rating: 6, goals: 0, ast: 0, shots: 0, sot: 0, saves: 0, yc: 0, rc: 0, pos },
     }
   }
@@ -476,7 +476,7 @@ export class MatchSim {
   }
   private card(si: 0 | 1, f: OnPitch, min: number, k: number) {
     const S = this.sides[si]
-    const mod = [0.75, 1, 1.35][S.tactic.tackling] * (0.6 + at(f.p, 'agg') / 25) * k
+    const mod = [0.75, 1, 1.35][S.tactic.tackling] * (0.6 + at(f.p, 'agg') / 25) * k * (1 + ((f.p.pers?.temp ?? 10) - 10) * 0.03)
     const u = this.rng.next()
     if (u < 0.0028 * mod) this.sendOff(si, f, min, false)
     else if (u < 0.178 * mod * (f.yellow ? 0.3 : 1)) {
