@@ -31,7 +31,8 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 - La interfaz es un diseño propio: moderna, del género, sin copiar la de Football Manager.
 - Foto de jugadores: la silueta genérica que eligió el usuario (`src/assets/player.webp`). El DT usa el avatar ilustrado. No usar fotos reales.
 - En las fichas de Wikipedia, "delantero" o "mediocampista" a secas no dicen el puesto: `tools/build-db.ts` los reparte entre los puestos de la línea. Solo "centrodelantero", "extremo", "enganche", etc. se toman literales.
-- La valoración sale de la reputación del club, la edad y la trayectoria real (`data/players_meta.json`: puesto, debut, selección, exterior, notoriedad). No dice quién es titular hoy: eso se corrige en `data/overrides.json` (clave `Club corto|Nombre`) y después `npm run db`.
+- La valoración sale de la reputación del club, la edad, la trayectoria real (`data/players_meta.json`: puesto, debut, selección, exterior, notoriedad) y el presente: partidos jugados en 2026 según la tabla de estadísticas de cada ficha (`tools/fetch_stats.py` → `data/players_stats.json`).
+- Puesto: manda el que dice la primera frase del artículo si es específico ("se desempeña como lateral izquierdo"); si no, el de la ficha. Un "delantero" a secas que convierte seguido en 2026 pasa a nueve. No dice quién es titular hoy: eso se corrige en `data/overrides.json` (clave `Club corto|Nombre`) y después `npm run db`.
 - Juveniles con proyección: `tools/prospects.py` cruza los planteles con las listas de selecciones juveniles de Wikipedia (`data/raw/sel/`, sub-15 a sub-23) y genera `data/prospects.json`; suben habilidad y potencial. Los que el usuario conoce y no figuran ahí se cargan en `data/overrides.json` con `prospect` (1 a 6).
 - No se usan datos de Football Manager ni de sitios que los republican: es una base propietaria. El usuario lo pidió y se le explicó que no.
 - La temporada inicial es 2026 con las zonas reales de ese año.
@@ -52,7 +53,7 @@ Alrededor de 2,2 a 2,4 goles por partido, 40-42 % de triunfos locales, 27 % de e
 
 ## Pendiente (en orden sugerido)
 
-1. Corregir puestos y calidad de los jugadores más conocidos (`data/overrides.json`).
+1. Seguir corrigiendo a mano lo que el usuario detecte (`data/overrides.json`). Unos 20 jugadores con ficha quedaron sin estadísticas por rechazos de Wikipedia: `python3 tools/fetch_stats.py` los completa.
 2. Préstamos de juveniles a otros clubes; conflictos en los planteles rivales; que los rivales entrenen.
 3. La caja de los clubes más grandes todavía crece unos 10 millones por año (sobre todo por ventas al exterior).
 4. Escudos faltantes: Aldosivi, Ciudad de Bolívar, Gimnasia y Tiro, Deportivo Armenio, Real Pilar, Corinthians y Colo-Colo.

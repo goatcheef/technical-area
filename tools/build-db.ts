@@ -165,7 +165,7 @@ function merit(p: any, age: number): number {
 }
 const SPECIFIC = /lateral|carriler|central|zaguer|l[ií]bero|extremo|puntero|enganche|media ?punta|ofensivo|defensivo|pivote|mediocentro|volante central|contenci|centrodelanter|delantero centro|nueve|ariete|interior/
 /** Presente: partidos jugados en 2026 (tools/fetch_stats.py) frente a lo que juega un titular a esta altura del año. */
-const PSTATS = load('../data/players_stats.json') as Record<string, { upd?: number | null; a26?: number; a25?: number; car?: number; lead?: string | null } | null>
+const PSTATS = load('../data/players_stats.json') as Record<string, { upd?: number | null; a26?: number; a25?: number; g26?: number; car?: number; lead?: string | null } | null>
 function present(p: any, age: number): number {
   const st = PSTATS[p.wiki ?? '']
   if (!st || st.a26 == null) return 0 // sin tabla de estadísticas: no se sabe
@@ -225,7 +225,10 @@ raw.forEach((c, idx) => {
     const lead = PSTATS[p.wiki ?? '']?.lead ?? undefined, box = PMETA[p.wiki ?? '']?.ok ? PMETA[p.wiki].pos : undefined
     const specific = (t?: string) => !!t && SPECIFIC.test(t)
     const ptxt = specific(lead) ? `${lead} / ${specific(box) ? box : ''}` : box ?? lead
-    const real = ov?.pos ? [ov.pos] : parsePositions(ptxt).filter(x => (x === 'GK') === (line === 'GK'))
+    let real = ov?.pos ? [ov.pos] : parsePositions(ptxt).filter(x => (x === 'GK') === (line === 'GK'))
+    // "delantero" a secas: si en 2026 convierte seguido, es un nueve; si no, se queda como estaba
+    const st = PSTATS[p.wiki ?? '']
+    if (!ov?.pos && line === 'FW' && !specific(ptxt) && st?.a26 && st.a26 >= 5 && (st as any).g26 / st.a26 >= 0.25) real = ['ST' as Pos, ...real.filter(x => x !== 'ST')].slice(0, 2)
     const pos = real[0] ?? PATTERN[line][cnt[line]++ % PATTERN[line].length]
     const positions: Pos[] = real.length ? [...real] : [pos]
     if (pos !== 'GK' && positions.length === 1 && rng.chance(0.55)) positions.push(rng.pick(SECOND[pos]!))
