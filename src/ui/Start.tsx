@@ -38,7 +38,7 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
   }
   const importFile = async (f?: File) => {
     if (!f) return
-    try { const g = JSON.parse(await f.text()) as Game; if (!g.clubs || !g.players || g.version !== 5) throw new Error(); onStart(g) } catch { setBad(true) }
+    try { const g = JSON.parse(await f.text()) as Game; if (!g.clubs || !g.players || g.version !== 6) throw new Error(); onStart(g) } catch { setBad(true) }
   }
   const sw = (list: string[], k: 'skin' | 'hairColor' | 'suit') => <div className="row wrap" style={{ gap: 7 }}>{list.map((c, i) => <button key={c} className={`sw ${av[k] === i ? 'on' : ''}`} style={{ background: c }} aria-label={`Opción ${i + 1}`} onClick={() => setAv({ ...av, [k]: i })} />)}</div>
   return (
@@ -47,7 +47,7 @@ export function Start({ saved, onStart }: { saved: Game | null; onStart: (g: Gam
         <div className="row wrap" style={{ padding: '18px 0 4px' }}>
           <div className="grow"><div className="brand" style={{ padding: 0 }}>TECHNICAL <i>AREA</i></div><h1 style={{ marginTop: 8 }}>Tu carrera empieza acá</h1>
             <p className="dim" style={{ maxWidth: 620, lineHeight: 1.55, margin: '8px 0 0' }}>Fútbol argentino con clubes y planteles reales. Creá tu director técnico, elegí un club y llevalo a lo más alto.</p></div>
-          {saved && saved.version === 5 && (
+          {saved && saved.version === 6 && (
             <div className="card row" style={{ ...(clubTheme(saved.clubs[saved.userClubId]) as object) }}>
               <Badge club={saved.clubs[saved.userClubId]} size={44} />
               <div><b>{saved.clubs[saved.userClubId].name}</b><div className="dim sm">{saved.managerName} · {fmtDate(saved.date)}</div></div>

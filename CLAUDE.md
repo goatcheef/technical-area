@@ -23,7 +23,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - El tiempo avanza día por día: `advanceDay` (un día) y `advanceToMatch` (hasta el partido, frenando si hay prensa). `continueGame` es solo para simulaciones sin interfaz.
   - `positions.ts`: puestos, formaciones, valoración por puesto y roles (`ROLES`: cada rol cambia el aporte del puesto, cuánto crea y cuánto remata). `rng.ts`: azar con semilla.
 - `src/ui/` es React. `common.tsx` tiene los componentes compartidos (escudo, cara, radar, mapa de remates, ficha de jugador).
-- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 5 (la etapa 4 no cambió el formato, pero las partidas anteriores no tienen copas ni tercera);  si cambia el formato, subir la versión.
+- La partida se guarda en IndexedDB (`src/store.ts`). `Game.version` es 6; si cambia el formato, subir la versión.
 
 ## Decisiones tomadas
 

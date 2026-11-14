@@ -234,7 +234,7 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   const managerName = manager.name
   const rng = new Rng(seed)
   const g: Game = {
-    version: 5, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
+    version: 6, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
     clubs: {}, players: {}, fixtures: [], comps: {}, news: [], nextId: 100000, honours: [], seasonOver: false,
     manager, board: { confidence: clamp(48 + manager.rep / 5, 40, 70), objective: '', target: 0, fired: false, offers: [] }, offers: [], transfers: [], shortlist: [],
     staff: [], training: { intensity: 1, focus: 'equil', restAfter: true }, delegate: { training: false, press: false }, press: null, know: {}, scouting: [],

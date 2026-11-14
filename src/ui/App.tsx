@@ -33,7 +33,7 @@ export function App() {
   const [q, setQ] = useState('')
   const [press, setPress] = useState(false)
   const [, refresh] = useReducer((x: number) => x + 1, 0)
-  useEffect(() => { loadGame().then(s => setSaved(s && s.version === 5 ? s : null)) }, [])
+  useEffect(() => { loadGame().then(s => setSaved(s && s.version === 6 ? s : null)) }, [])
 
   if (!g) return <Start saved={saved ?? null} onStart={game => { refreshDb(game); setG(game); setPage('home'); saveGame(game) }} />
   const club = g.clubs[g.userClubId]
