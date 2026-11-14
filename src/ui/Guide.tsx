@@ -8,12 +8,12 @@ function steps(club: string, objective: string): Step[] {
   return [
     { title: `Bienvenido a ${club}`, text: <>Sos el nuevo DT. La dirigencia te pide: <b>{objective.toLowerCase()}</b>. En un minuto te mostramos dónde está cada cosa; podés saltear la guía cuando quieras.</> },
     { sel: '.top .cta', title: 'El tiempo avanza día por día', text: <>"Continuar" pasa un día (o juega el partido si es hoy). "Ir al partido" avanza hasta la fecha y frena solo si llega algo para decidir. Con el teclado: <span className="kbd">Espacio</span>.</> },
-    { sel: '.topnav [data-page="inbox"]', title: 'La bandeja de entrada', text: 'Ofertas, prensa, informes y pedidos de jugadores llegan acá, con los botones para responder en el mismo mensaje. Lo pendiente también aparece arriba, al lado de Continuar.' },
-    { sel: '.topnav [data-group="squad"]', title: 'Tu plantel', text: 'En este menú están el plantel, el vestuario y el cuerpo técnico. El plantel es una tabla con vistas (general, físico, contrato), columnas a elección y selección múltiple. Pasá el mouse sobre cualquier nombre para ver su ficha breve.' },
-    { sel: '.topnav [data-group="tactics"]', title: 'Tácticas', text: 'Elegí el dibujo, el once, los roles y las instrucciones. Antes de cada partido llega el informe del rival con sugerencias que podés aplicar.' },
-    { sel: '.topnav [data-group="comp"]', title: 'La semana y la competición', text: 'En Tácticas también está el entrenamiento: intensidad y foco del entrenamiento, descanso después del partido y charlas. Si preferís, se lo delegás al ayudante. En Competición tenés el calendario, el fixture, las posiciones y las estadísticas.' },
-    { sel: '.topnav [data-page="data"]', title: 'Centro de datos', text: 'Después de las primeras fechas vas a ver tu xG, por dónde atacás y te atacan, el desgaste del plantel y cómo juegan los rivales.' },
-    { sel: '.topnav .tn-me', title: 'Atajos y ajustes', text: <>Con <span className="kbd">Ctrl + K</span> buscás jugadores, clubes y pantallas; con <span className="kbd">?</span> ves todos los atajos. Arriba a la derecha están tus favoritos, la ayuda y los ajustes: densidad, texto, movimiento y colores para daltonismo.</> },
+    { sel: '.subnav [data-page="inbox"]', title: 'La bandeja de entrada', text: 'Ofertas, prensa, informes y pedidos de jugadores llegan acá, con los botones para responder en el mismo mensaje. Lo pendiente también aparece en esta fila, a la derecha.' },
+    { sel: '.subnav [data-page="tables"]', title: 'Inicio: la competición', text: 'Cada sección muestra sus pantallas en esta segunda fila. En Inicio están el resumen, la bandeja, el calendario, el fixture, las posiciones y las estadísticas.' },
+    { sel: '.sections [data-group="squad"]', title: 'Plantel', text: 'El plantel (una tabla con vistas, columnas a elección y selección múltiple), el vestuario y el cuerpo técnico. Pasá el mouse sobre cualquier nombre para ver su ficha breve.' },
+    { sel: '.sections [data-group="match"]', title: 'Partido', text: 'Tácticas (dibujo, once, roles e instrucciones), el entrenamiento de la semana y el centro de datos con tu xG, el desgaste del plantel y cómo juegan los rivales.' },
+    { sel: '.sections [data-group="market"]', title: 'Mercado', text: 'Buscá jugadores, mandalos a ojear, ofertá y respondé las ofertas por los tuyos. El libro de pases abre en enero y en julio.' },
+    { sel: '.subnav .tn-me', title: 'Atajos y ajustes', text: <>Con <span className="kbd">Ctrl + K</span> buscás jugadores, clubes y pantallas; con <span className="kbd">?</span> ves todos los atajos. Arriba están tus favoritos, la ayuda y los ajustes: densidad, texto, movimiento y colores para daltonismo.</> },
   ]
 }
 

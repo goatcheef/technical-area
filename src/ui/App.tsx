@@ -10,7 +10,7 @@ import { PlayerPage } from './PlayerPage'
 import { PostMatch } from './MatchPanels'
 import { DataCenter } from './DataCenter'
 import { Guide } from './Guide'
-import { TopNav, type Group } from './TopNav'
+import { Sections, SubNav, Tools, type Group } from './TopNav'
 import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
 import { Home } from './Home'
 import { Market } from './Market'
@@ -34,13 +34,10 @@ const PAGES: [string, string, ReactNode][] = [
 // secciones de la barra superior: las que tienen más de una pantalla abren un menú
 const P = (id: string) => PAGES.find(p => p[0] === id)!
 const GROUPS: Group[] = [
-  { id: 'home', label: 'Inicio', icon: P('home')[2], pages: [P('home')] },
-  { id: 'inbox', label: 'Bandeja', icon: P('inbox')[2], pages: [P('inbox')] },
+  { id: 'portal', label: 'Inicio', icon: P('home')[2], pages: [P('home'), P('inbox'), P('calendar'), P('fixtures'), P('tables'), P('stats')] },
   { id: 'squad', label: 'Plantel', icon: P('squad')[2], pages: [P('squad'), P('locker'), P('staff')] },
-  { id: 'tactics', label: 'Tácticas', icon: P('tactics')[2], pages: [P('tactics'), P('training')] },
-  { id: 'comp', label: 'Competición', icon: P('tables')[2], pages: [P('calendar'), P('fixtures'), P('tables'), P('stats')] },
+  { id: 'match', label: 'Partido', icon: P('tactics')[2], pages: [P('tactics'), P('training'), P('data')] },
   { id: 'market', label: 'Mercado', icon: P('market')[2], pages: [P('market')] },
-  { id: 'data', label: 'Centro de datos', icon: P('data')[2], pages: [P('data')] },
   { id: 'club', label: 'Club', icon: P('club')[2], pages: [P('club')] },
 ]
 
@@ -95,6 +92,7 @@ export function App() {
   const [press, setPress] = useState(false)
   const [post, setPost] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const lastGroup = useRef('portal')
   const [tour, setTour] = useState(false)
   const [busy, setBusy] = useState<null | { done: number; total: number }>(null)
   const stopRef = useRef(false)
@@ -157,6 +155,11 @@ export function App() {
     refresh()
   }
   const pend = pendingOf(g), unread = unreadOf(g)
+  // la sección activa: en las fichas de jugador o de club queda la última usada
+  const found0 = GROUPS.find(gr => gr.pages.some(p => p[0] === page))
+  if (found0) lastGroup.current = found0.id
+  const group = GROUPS.find(gr => gr.id === lastGroup.current) ?? GROUPS[0]
+  const badge = (id: string): ReactNode => (id === 'inbox' && unread + pend.length > 0 ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : `${unread} sin leer`}>{unread + pend.length}</span> : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores">{g.offers.length}</span> : null)
   const ql = q.trim().toLowerCase()
   const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8) : []
   const theme = clubTheme(club) as object
@@ -195,29 +198,33 @@ export function App() {
                 <button className="btn sm icon" disabled={hist.i === 0} title="Atrás (Alt + ←)" aria-label="Atrás" onClick={back}>◂</button>
                 <button className="btn sm icon hide-sm" disabled={hist.i >= hist.stack.length - 1} title="Adelante (Alt + →)" aria-label="Adelante" onClick={fwd}>▸</button>
               </div>
-              <button className="linkish" onClick={() => ctx.openClub(club.id)} title="Ficha del club"><Badge club={club} size={38} /></button>
-              <div className="club-meta" style={{ minWidth: 0 }}><div className="ell"><b>{club.name}</b></div><div className="dim ell sm">{fmtDate(g.date)} · {windowOpen(g.date) ? 'Libro de pases abierto' : `Temporada ${g.season}`}</div></div>
-              <div className="searchbox" style={{ marginLeft: 12 }}>
-                <input id="global-search" type="search" placeholder="Buscar jugador…" title="Para buscar también clubes, pantallas y acciones: Ctrl + K" value={q} onChange={e => setQ(e.target.value)} />
-                {found.length > 0 && <div className="results">{found.map(p => (
-                  <button key={p.id} data-pid={p.id} onClick={() => { ctx.openPlayer(p.id); setQ('') }}><Face p={p} club={g.clubs[p.clubId]} size={30} /><span className="grow ell"><b>{p.name}</b><br /><span className="dim sm">{g.clubs[p.clubId].short}</span></span><PosPill p={p} /><Val p={p} /></button>))}</div>}
-              </div>
+              <button className="crestblock" onClick={() => ctx.openClub(club.id)} title={`Ficha de ${club.name}`}><Badge club={club} size={40} /></button>
+              <div className="club-meta hide-lg" style={{ minWidth: 0 }}><div className="ell"><b>{club.name}</b></div><div className="dim ell sm">{fmtDate(g.date)}</div></div>
+              <Sections groups={GROUPS} active={group.id} go={setPage} badge={badge} />
               <span className="grow" />
-              {opp && next && !g.seasonOver && <div className="row topnext" style={{ gap: 8 }}><div className="dim right sm">{next.home === club.id ? 'Local vs' : 'Visitante en'} <b style={{ color: 'var(--text)' }}>{opp.short}</b><br />{fmtDate(next.date)} · {next.stage}</div><Badge club={opp} size={30} /></div>}
+              <Tools g={g} onFind={() => setOverlay('palette')} onOpenPlayer={ctx.openPlayer} onOpenClub={ctx.openClub} onSettings={() => setOverlay('settings')} onHelp={() => setOverlay('help')}
+                search={<div className="searchbox">
+                  <svg className="sb-ico" viewBox="0 0 24 24" aria-hidden><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+                  <input id="global-search" type="search" placeholder="Buscar" aria-label="Buscar jugador" title="Buscar jugador. Para clubes, pantallas y acciones: Ctrl + K" value={q} onChange={e => setQ(e.target.value)} />
+                  {found.length > 0 && <div className="results">{found.map(p => (
+                    <button key={p.id} data-pid={p.id} onClick={() => { ctx.openPlayer(p.id); setQ('') }}><Face p={p} club={g.clubs[p.clubId]} size={30} /><span className="grow ell"><b>{p.name}</b><br /><span className="dim sm">{g.clubs[p.clubId].short}</span></span><PosPill p={p} /><Val p={p} /></button>))}</div>}
+                </div>} />
+              <div className="dateblock hide-sm" title={windowOpen(g.date) ? 'Libro de pases abierto' : `Temporada ${g.season}`}><b>{fmtDate(g.date).replace(/ \d{4}$/, '')}</b><span>{new Date(g.date + 'T12:00:00Z').toLocaleDateString('es-AR', { weekday: 'short', timeZone: 'UTC' })} · {g.date.slice(0, 4)}{windowOpen(g.date) ? ' · pases' : ''}</span></div>
               {busy ? (
                 <div className="advancing" role="status">
                   <div className="sm"><b>Avanzando</b> · {fmtDate(g.date)}<div className="adv-bar"><span style={{ width: `${Math.min(100, (busy.done / busy.total) * 100)}%` }} /></div></div>
                   <button className="btn" title="Frenar (Esc o Espacio)" onClick={() => (stopRef.current = true)}>Frenar</button>
                 </div>
               ) : (<>
-                {pend.length > 0 && <button className="btn pendbtn" title={`Pendiente: ${pendingText(pend)}. Clic para verlo en la bandeja.`} onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span><span className="ell">{pendingText(pend).replace(/^./, c => c.toUpperCase())}</span></button>}
                 {!today && !g.seasonOver && <button className="btn" title="Avanza día por día hasta el próximo partido. Se frena si llega algo para decidir." onClick={() => advance(true)} aria-label="Ir al partido"><span className="hide-sm">Ir al partido </span>▸▸</button>}
-                <button className="btn primary cta" title={g.seasonOver ? 'Ir al resumen de la temporada' : today ? '' : 'Avanza un día'} onClick={() => advance()}>{g.seasonOver ? 'Nueva temporada ▸' : today ? 'Jugar ▸' : 'Continuar ▸'}</button>
+                <button className="btn primary cta" title={g.seasonOver ? 'Ir al resumen de la temporada' : today ? '' : 'Avanza un día'} onClick={() => advance()}><span>{g.seasonOver ? 'Nueva temporada' : today ? 'Jugar' : 'Continuar'}</span><svg viewBox="0 0 24 24" aria-hidden><path d="M9 6l6 6-6 6" /></svg></button>
               </>)}
             </header>
-            <TopNav g={g} groups={GROUPS} page={page} go={setPage} favActive={(k, id) => route.id === id && (page === 'player') === (k === 'p')}
-              badge={id => (id === 'inbox' && unread + pend.length > 0 ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : `${unread} sin leer`}>{unread + pend.length}</span> : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores">{g.offers.length}</span> : null)}
-              onOpenPlayer={ctx.openPlayer} onOpenClub={ctx.openClub} onSettings={() => setOverlay('settings')} onHelp={() => setOverlay('help')} onMainMenu={() => { saveGame(g); setSaved(g); setG(null) }} />
+            <SubNav g={g} group={group} page={page} go={setPage} badge={badge} onSettings={() => setOverlay('settings')} onHelp={() => setOverlay('help')} onMainMenu={() => { saveGame(g); setSaved(g); setG(null) }}
+              right={<>
+                {pend.length > 0 && !busy && <button className="btn sm pendbtn" title={`Pendiente: ${pendingText(pend)}. Clic para verlo en la bandeja.`} onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span><span className="ell">{pendingText(pend).replace(/^./, c => c.toUpperCase())}</span></button>}
+                {opp && next && !g.seasonOver && <button className="linkish row topnext" style={{ gap: 8 }} onClick={() => ctx.openClub(opp.id)} title="Próximo rival"><span className="dim right sm">{next.home === club.id ? 'Local vs' : 'Visitante en'} <b style={{ color: 'var(--text)' }}>{opp.short}</b> · {fmtDate(next.date).replace(/ \d{4}$/, '')}</span><Badge club={opp} size={22} /></button>}
+              </>} />
             <main className="main" id="main" tabIndex={-1} ref={mainRef}><div key={`${page}:${route.id ?? ''}`} className="page-in">
               {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
               {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}

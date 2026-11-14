@@ -4,7 +4,7 @@ import type { Game } from './engine/types'
 
 /** Una pantalla del juego. Las fichas llevan el id del jugador o del club. */
 export interface Route { page: string; id?: number; tab?: string }
-export interface Settings { density: 'comfy' | 'compact'; text: number; matchSpeed: number; matchMode: 'full' | 'key'; home?: { id: string; size: number }[]; matchPanels?: { id: string; slot: 'side' | 'bottom' | 'off' }[]; bigPitch?: boolean
+export interface Settings { density: 'comfy' | 'compact'; text: number; matchSpeed: number; matchMode: 'full' | 'key'; home?: { id: string; size: number; rows?: number }[]; homeV?: number; matchPanels?: { id: string; slot: 'side' | 'bottom' | 'off' }[]; bigPitch?: boolean
   /** Accesibilidad y ayudas */
   motion?: 'auto' | 'reduce'; cvd?: boolean; tips?: boolean; tourDone?: boolean; seenTips?: string[] }
 export const DEFAULT_SETTINGS: Settings = { density: 'comfy', text: 100, matchSpeed: 1, matchMode: 'full' }
