@@ -1,0 +1,810 @@
+La [[Copa Mundial de Fútbol Sub-17 de 2026|XXI Copa Mundial de Fútbol Sub-17]] se celebrará en [[Catar]] entre el 19 de noviembre y el 13 de diciembre de 2026. Para su fase final se clasificaron 48 selecciones. Dichas selecciones fueron divididas en doce grupos de cuatro, posteriormente proseguieron por eliminación directa hasta determinar al campeón.
+
+== Equipos ==
+Previamente, de las [[Anexo:Asociaciones nacionales afiliadas a la FIFA|211 asociaciones nacionales afiliadas a la FIFA]], 198 equipos, más 4 asociaciones afiliadas a su confedración pero no a la FIFA, se inscribieron para los torneos que fungieron como proceso clasificatorio de cada confederación, clasificando finalmente: 11 equipos de [[UEFA|Europa]], 8 de [[Concacaf|Norteamérica]], 10 de [[Confederación Africana de Fútbol|África]], 9 de [[Confederación Asiática de Fútbol|Asia]] (incluyendo al organizador), 7 de [[Conmebol|Sudamérica]] y 3 de [[OFC|Oceanía]].
+
+En el torneo participarán 31 de los 48 equipos clasificados a la [[Copa Mundial de Fútbol Sub-17 de 2025|edición anterior]], se destaca la ausencia de {{sel|Portugal|especial=sub17}} campeón de la edición anterior y {{sel|Nigeria|especial=sub17}} máximos ganadores de la competencia, por tercera ocasión consecutiva. Además, sobresale el regreso de las selecciones de {{sel|Cuba|especial=sub17}} que no participaba desde [[Copa Mundial de Fútbol Sub-17 de 1991|1991]], {{sel|China|especial=sub17}} desde [[Copa Mundial de Fútbol Sub-17 de 2005|2005]], {{sel|Argelia|especial=sub17}} desde [[Copa Mundial de Fútbol Sub-17 de 2009|2009]], {{sel|Dinamarca|especial=sub17}} y {{sel|Jamaica|especial=sub17}}, estas últimas dos no disputaron el torneo desde [[Copa Mundial de Fútbol Sub-17 de 2011|2011]]. Finalmente las selecciones de {{sel|Grecia|especial=sub17}}, {{sel|Montenegro|especial=sub17}}, {{sel|Mozambique|especial=sub17}}, {{sel|Rumania|especial=sub17}}, {{sel|Serbia|especial=sub17}}, {{sel|Tanzania|especial=sub17}} y {{sel|Vietnam|especial=sub17}} debutarán en esta edición. El 10 de noviembre la [[Federación de Fútbol de los Estados Unidos]] informó su retirada de la competencia por preocupaciones de seguridad en Medio Oriente,<ref name="USAretiro">{{cita web|título=Copa Mundial Sub-17 de la FIFA Catar 2026™: comunicado sobre la retirada de la Federación de Fútbol de Estados Unidos|url=https://www.fifa.com/es/tournaments/mens/u17worldcup/qatar-2026/articles/comunicado-retirada-federacion-futbol-estadios-unidos|fecha=10 de noviembre de 2026|fechaacceso=12 de noviembre de 2026|sitio web=[[FIFA]]}}</ref> el 12 de noviembre la [[FIFA]] confirmó a la selección de la {{sel|República Dominicana|especial=sub17}} como reemplazo, convirtiéndose en la primera participación de la selección caribeña.<ref>{{cita web|título=República Dominicana competirá en la Copa Mundial Sub-17|url=https://www.fifa.com/es/tournaments/mens/u17worldcup/qatar-2026/articles/republica-dominicana-mundial-sub-17|fecha=12 de noviembre de 2026|fechaacceso=12 de noviembre de 2026|sitio web=[[FIFA]]}}</ref>
+
+Los equipos participantes en dicho torneo son:
+{| class="sortable col2izq" align="center" cellpadding="2" cellspacing="0" style="background: #f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;"
+|- bgcolor="#006699" style="color:white;"
+!colspan=3 rowspan=2|Equipo<br>(ver en detalle)
+!colspan=3|Participaciones
+|- bgcolor="#006699" style="color:white;"
+!Total
+!Cons.
+!Última
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Saudi Arabia.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Arabia Saudita|Arabia Saudita]]'''||{{rating|1|1}}||5||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Algeria.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Argelia|Argelia]]'''|| ||2||1||[[Copa Mundial de Fútbol Sub-17 de 2009|2009]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Argentina.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Argentina|Argentina]]'''|| ||17||4||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Australia.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Australia|Australia]]'''|| ||14||1||[[Copa Mundial de Fútbol Sub-17 de 2019|2019]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Belgium (civil).svg|border|30px]]||'''[[Selección de fútbol sub-17 de Bélgica|Bélgica]]'''|| ||4||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Brazil.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Brasil|Brasil]]'''||{{rating|4|4}}||20||16||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Cameroon.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Camerún|Cameún]]'''|| ||3||1||[[Copa Mundial de Fútbol Sub-17 de 2019|2019]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Qatar.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Catar|Catar]]'''|| ||9||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Chile.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Chile|Chile]]'''|| ||7||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of China.svg|border|30px]]||'''[[Selección de fútbol sub-17 de China|China]]'''|| ||7||1||[[Copa Mundial de Fútbol Sub-17 de 2005|2005]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Colombia.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Colombia|Colombia]]'''|| ||8||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of South Korea.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Corea del Sur|Corea del Sur]]'''|| ||9||4||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Côte d'Ivoire.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Costa de Marfil|Costa de Marfil]]'''|| ||6||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Costa Rica.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Costa Rica|Costa Rica]]'''|| ||12||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Croatia.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Croacia|Croacia]]'''|| ||5||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Cuba.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Cuba|Cuba]]'''|| ||3||1||[[Copa Mundial de Fútbol Sub-17 de 1991|1991]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Denmark.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Dinamarca|Dinamarca]]'''|| ||2||1||[[Copa Mundial de Fútbol Sub-17 de 2011|2011]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Ecuador.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Ecuador|Ecuador]]'''|| ||7||1||[[Copa Mundial de Fútbol Sub-17 de 2023|2023]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Egypt.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Egipto|Egipto]]'''|| ||4||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Spain.svg|border|30px]]||'''[[Selección de fútbol sub-17 de España|España]]'''|| ||12||1||[[Copa Mundial de Fútbol Sub-17 de 2023|2023]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Fiji.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Fiyi|Fiyi]]'''|| ||2||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of France.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Francia|Francia]]'''||{{rating|1|1}}||10||6||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Greece.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Grecia|Grecia]]'''|| ||1||1||—
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Haiti.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Haití|Haití]]'''|| ||4||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Honduras.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Honduras|Honduras]]'''|| ||7||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Ireland.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Irlanda|Irlanda]]'''|| ||2||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Italy.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Italia|Italia]]'''|| ||10||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Jamaica.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Jamaica|Jamaica]]'''|| ||3||1||[[Copa Mundial de Fútbol Sub-17 de 2011|2011]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Japan.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Japón|Japón]]'''|| ||12||5||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Mali.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Malí|Malí]]'''|| ||8||3||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Morocco.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Marruecos|Marruecos]]'''|| ||4||3||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Mexico.svg|border|30px]]||'''[[Selección de fútbol sub-17 de México|México]]'''||{{rating|2|2}}||17||9||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Montenegro.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Montenegro|Montenegro]]'''|| ||1||1||—
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Mozambique.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Mozambique|Mozambique]]'''|| ||1||1||—
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of FLNKS.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Nueva Caledonia|Nueva Caledonia]]'''|| ||4||3||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of New Zealand.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Nueva Zelanda|Nueva Zelanda]]'''|| ||12||10||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Panama.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Panamá|Panamá]]'''|| ||5||3||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Dominican Republic.svg|border|30px]]||'''[[Selección de fútbol sub-17 de República Dominicana|República Dominicana]]'''|| ||1||1||—
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Romania.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Rumania|Rumania]]'''|| ||1||1||—
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Senegal.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Senegal|Senegal]]'''|| ||4||4||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Serbia.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Serbia|Serbia]]'''|| ||1||1||—
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Tanzania.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Tanzania|Tanzania]]'''|| ||1||1||—
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Tajikistan.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Tayikistán|Tayikistán]]'''|| ||4||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Uganda.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Uganda|Uganda]]'''|| ||2||2||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Uruguay.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Uruguay|Uruguay]]'''|| ||7||1||[[Copa Mundial de Fútbol Sub-17 de 2013|2013]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Uzbekistan.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Uzbekistán|Uzbekistán]]'''|| ||5||3||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#D0E7FF"
+|[[Archivo:Flag of Venezuela.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Venezuela|Venezuela]]'''|| ||4||3||[[Copa Mundial de Fútbol Sub-17 de 2025|2025]]
+|- align="center" bgcolor="#F5FAFF"
+|[[Archivo:Flag of Vietnam.svg|border|30px]]||'''[[Selección de fútbol sub-17 de Vietnam|Vietnam]]'''|| ||1||1||—
+|}
+
+== Lista de jugadores ==
+Las 48 selecciones nacionales participantes deberán de inscribir una plantilla de 21 jugadores, incluyendo al menos tres porteros (Artículo 26.1 del Reglamento). Solo los jugadores de estas plantillas eran elegibles para participar en el torneo. El requisito para ser elegibles era haber nacido entre el 1 de enero de 2009 y el 31 de diciembre de 2011, es decir, tener un máximo de 17 años y al menos 15 al final del año calendario en que se disputará la competición (Artículo 24.2 del Reglamento).<ref>{{cita web|url=https://digitalhub.fifa.com/asset/fb683800-1ebc-4cfb-8aed-34ab2962e0a2/FU17WC25-regulations.pdf|título=Reglamento de la Copa Mundial Sub-17 de la FIFA™ Catar 2025-2029|autor=[[FIFA]]|fecha=octubre de 2025|fechaacceso=3 de noviembre de 2026}}</ref>
+
+Cada selección nacional participante debe presentar a la FIFA una lista provisional de un mínimo de 35 y un máximo de 55 jugadores (incluidos al menos cuatro porteros) antes de la fecha límite estipulada por la FIFA. La FIFA no publica las listas provisionales, y los cambios de jugadores solo se permiten en casos excepcionales (Artículo 25 del Reglamento). La lista final de 21 jugadores por selección nacional debe presentarse a la FIFA antes de la fecha límite estipulada por la FIFA. Todos los jugadores de la lista final debían ser seleccionados de la respectiva lista provisional. Los jugadores de la plantilla final podrán ser sustituidos por un jugador de la plantilla preliminar debido a una lesión o enfermedad grave hasta 24 horas antes del inicio del primer partido del equipo (Artículo 26.3 del Reglamento).
+
+La edad indicada para cada jugador corresponde al 19 de noviembre de 2026, el primer día del torneo. La nacionalidad de cada club refleja la asociación nacional (no la liga) a la que está afiliado. Se incluye una bandera para los entrenadores de nacionalidad diferente a la de su selección nacional. Los nombres de los jugadores marcados en negrita han sido internacionalizados a nivel absoluto.
+
+== Grupo A ==
+=== Catar ===
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|align=center|'''1'''|| [[Bakri Mohamed]] || [[Guardameta (fútbol)|Portero]] || align=center|{{edad|8|5|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Rayyan Sports Club|Al-Rayyan]]
+|-
+|align=center|'''2'''|| [[Mateo Esparzaariza]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|4|1|2008|19|11|2026}}||{{Bandera|QAT}} [[Al-Arabi SC (Catar)|Al-Arabi]]
+|-
+|align=center|'''3'''|| [[Adham Adnan]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|20|1|2010|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|align=center|'''4'''|| [[Sami Darani]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|11|3|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Sadd Sports Club|Al-Sadd]]
+|-
+|align=center|'''5'''|| [[Taha Nassir]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|28|10|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|align=center|'''6'''|| [[Hadi Khalil]] || [[Centrocampista]] || align=center|{{edad|3|11|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|align=center|'''7'''|| [[Dhiaeddine Benyatla]] || [[Delantero]] || align=center|{{edad|2|1|2010|19|11|2026}}||{{Bandera|QAT}} [[Al-Gharafa Sports Club|Al-Gharafa]]
+|-
+|align=center|'''8'''|| [[Mohamed Fadl]] || [[Centrocampista]] || align=center|{{edad|10|4|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Sadd Sports Club|Al-Sadd]]
+|-
+|align=center|'''9'''|| [[Mohsain Al-Hajri]] || [[Delantero]] || align=center|{{edad|18|1|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Rayyan Sports Club|Al-Rayyan]]
+|-
+|align=center|'''10'''|| [[Ahmed Abouelkomsan]] || [[Centrocampista]] || align=center|{{edad|5|4|2010|19|11|2026}}||{{Bandera|QAT}} [[Al-Rayyan Sports Club|Al-Rayyan]]
+|-
+|align=center|'''11'''|| [[Ayokunle Tokode]] || [[Delantero]] || align=center|{{edad|13|7|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Sadd Sports Club|Al-Sadd]]
+|-
+|align=center|'''12'''|| [[Husam Haider]] || [[Guardameta (fútbol)|Portero]] || align=center|{{edad|24|4|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Mesaimeer SC|Al-Mesaimeer]]
+|-
+|align=center|'''13'''|| [[Youssef Islam]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|19|3|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Rayyan Sports Club|Al-Rayyan]]
+|-
+|align=center|'''14'''|| [[Omar Ayman]] || [[Centrocampista]] || align=center|{{edad|3|3|2010|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|align=center|'''15'''|| [[Ali Elnoury]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|24|1|2009|19|11|2026}}||{{Bandera|QAT}} [[Umm-Salal Sports Club|Umm-Salal]]
+|-
+|align=center|'''16'''|| [[Ahmed Fathy (futbolista catarí)|Ahmed Fathy]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|1|12|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Arabi SC (Catar)|Al-Arabi]]
+|-
+|align=center|'''17'''|| [[Cristiano Soriacabrera]] || [[Delantero]] || align=center|{{edad|8|7|2009|19|11|2026}}||{{Bandera|QAT}} [[Qatar Sports Club|Qatar]]
+|-
+|align=center|'''18'''|| [[Shaher Roustom]] || [[Centrocampista]] || align=center|{{edad|30|12|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|align=center|'''19'''|| [[Amr Ezzat]] || [[Delantero]] || align=center|{{edad|6|5|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|align=center|'''20'''|| [[Abdoulaye Ndiaye (futbolista catarí)|Abdoulaye Ndiaye]] || [[Delantero]] || align=center|{{edad|24|9|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Rayyan Sports Club|Al-Rayyan]]
+|-
+|align=center|'''21'''|| [[Mohamed Fadil]] || [[Guardameta (fútbol)|Portero]] || align=center|{{edad|14|2|2009|19|11|2026}}||{{Bandera|QAT}} [[Al-Duhail Sports Club|Al-Duhail]]
+|-
+|'''D. T.'''|| colspan="6"| {{Bandera|ESP}} '''[[Álvaro Mejía]]'''
+|}
+
+=== Panamá ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Egipto ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Grecia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo B ==
+=== Corea del Sur ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Uganda ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Nueva Caledonia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Ecuador ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo C ==
+=== Argentina ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Australia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Mozambique ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Dinamarca ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo D ==
+=== Francia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Haití ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Arabia Saudita ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Uruguay ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo E ==
+=== Italia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Jamaica ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Costa de Marfil ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Uzbekistán ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo F ==
+=== Senegal ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Croacia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Cuba ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Tayikistán ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo G ==
+=== Malí ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Nueva Zelanda ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Bélgica ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Vietnam ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo H ==
+=== España ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== China ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Fiyi ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Marruecos ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo I ==
+=== Brasil ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Irlanda ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Tanzania ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Costa Rica ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo J ==
+=== República Dominicana ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Montenegro ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Chile ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Argelia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo K ==
+=== México ===
+La convocatoria definitiva fue presentada el 4 de noviembre de 2026 a través del sitio oficial de la selección.<ref>{{cita web|título=Convactoria de la Selección Sub-17 para el Mundial|url=https://miseleccion.mx/noticia/6692-Convactoria-de-la-Selecci%C3%B3n-Sub-17-para-el-Mundial|fecha=4 de noviembre de 2026|fechaacceso=12 de noviembre de 2026|sitio web=miseleccion.mx}}</ref>
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|align=center|'''1'''|| [[José Corona (futbolista)|José Corona]] || [[Guardameta (fútbol)|Portero]] || align=center|{{edad|8|5|2010|19|11|2026}}||{{Bandera|MEX}} [[Club Tijuana|Tijuana]]
+|-
+|align=center|'''2'''|| [[Alan Hernández (futbolista)|Alan Hernández]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|5|8|2009|19|11|2026}}||{{Bandera|MEX}} [[Club León|León]]
+|-
+|align=center|'''3'''|| [[Dylan Martínez]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|18|3|2009|19|11|2026}}||{{Bandera|MEX}} [[Club Necaxa|Necaxa]]
+|-
+|align=center|'''4'''|| [[André Godínez]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|20|1|2009|19|11|2026}}||{{Bandera|MEX}} [[Club Deportivo Guadalajara (México)|Guadalajara]]
+|-
+|align=center|'''5'''|| [[Adonaí Valdez]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|14|2|2009|19|11|2026}}||{{Bandera|MEX}} [[Club América|América]]
+|-
+|align=center|'''6'''|| [[Jonathan de la Fuente]] || [[Centrocampista]] || align=center|{{edad|13|6|2009|19|11|2026}}||{{Bandera|USA}} [[Colorado Rapids]]
+|-
+|align=center|'''7'''|| [[Juan Martínez Jr.|Juan Martínez]] || [[Centrocampista]] || align=center|{{edad|12|3|2010|19|11|2026}}||{{Bandera|MEX}} [[Querétaro Fútbol Club|Querétaro]]
+|-
+|align=center|'''8'''|| [[Fernando Ruíz]] || [[Delantero]] || align=center|{{edad|14|4|2010|19|11|2026}}||{{Bandera|MEX}} [[Deportivo Toluca Fútbol Club|Toluca]]
+|-
+|align=center|'''9'''|| [[Adán Sánchez (futbolista)|Adán Sánchez]] || [[Delantero]] || align=center|{{edad|25|5|2009|19|11|2026}}||{{Bandera|MEX}} [[Club de Fútbol Monterrey|Monterrey]]
+|-
+|align=center|'''10'''|| [[Edy Lugo]] || [[Centrocampista]] || align=center|{{edad|2|7|2009|19|11|2026}}||{{Bandera|MEX}} [[Club de Fútbol Monterrey|Monterrey]]
+|-
+|align=center|'''11'''|| [[Alberto Cisneros]] || [[Centrocampista]] || align=center|{{edad|11|8|2009|19|11|2026}}||{{Bandera|MEX}} [[Club León|León]]
+|-
+|align=center|'''12'''|| [[Marcelo Ávalos]] || [[Guardameta (fútbol)|Portero]] || align=center|{{edad|8|11|2009|19|11|2026}}||{{Bandera|USA}} [[San José Earthquakes]]
+|-
+|align=center|'''13'''|| [[Matthew Arana]] || [[Delantero]] || align=center|{{edad|28|8|2010|19|11|2026}}||{{Bandera|USA}} [[Houston Dynamo]]
+|-
+|align=center|'''14'''|| [[Da'vian Kimbrough]] || [[Delantero]] || align=center|{{edad|18|2|2010|19|11|2026}}||{{Bandera|USA}} [[Football Club Dallas|Dallas]]
+|-
+|align=center|'''15'''|| [[Miguel de Jesús Rivera]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|9|2|2009|19|11|2026}}||{{Bandera|MEX}} [[Club América|América]]
+|-
+|align=center|'''16'''|| [[Saulo Tejeda]] || [[Delantero]] || align=center|{{edad|1|5|2009|19|11|2026}}||{{Bandera|CRO}} [[Dinamo Zagreb]]
+|-
+|align=center|'''17'''|| [[Gerson Gutiérrez]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|8|5|2009|19|11|2026}}||{{Bandera|MEX}} [[Club Deportivo Guadalajara (México)|Guadalajara]]
+|-
+|align=center|'''18'''|| [[Ángel Reyes]] || [[Centrocampista]] || align=center|{{edad|5|3|2009|19|11|2026}}||{{Bandera|MEX}} [[Atlético de San Luis]]
+|-
+|align=center|'''19'''|| [[Jesús Orduño]] || [[Centrocampista]] || align=center|{{edad|19|1|2009|19|11|2026}}||{{Bandera|MEX}} [[Club Tijuana|Tijuana]]
+|-
+|align=center|'''20'''|| [[Álvaro Velázquez]] || [[Defensa (fútbol)|Defensa]] || align=center|{{edad|20|3|2009|19|11|2026}}||{{Bandera|MEX}} [[Club de Fútbol Monterrey|Monterrey]]
+|-
+|align=center|'''21'''|| [[Johan Cuenca]] || [[Guardameta (fútbol)|Portero]] || align=center|{{edad|3|7|2009|19|11|2026}}||{{Bandera|MEX}} [[Tigres de la UANL]]
+|-
+|'''D. T.'''|| colspan="6"| {{Bandera|MEX}} '''[[Jürgen Castañeda]]'''
+|}
+
+=== Rumania ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Camerún ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Venezuela ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Grupo L ==
+=== Japón ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Colombia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Serbia ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+=== Honduras ===
+<!--
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=85%
+|-
+!bgcolor=#006699 style="color:white;" width=5%|#
+!bgcolor=#006699 align=left style="color:white;" width=20%|Nombre
+!bgcolor=#006699 align=left style="color:white;" width=10%|Posición
+!bgcolor=#006699 style="color:white;" width=5%|Edad
+!bgcolor=#006699 style="color:white;" width=20%|Club
+|-
+|}-->
+
+== Referencias ==
+{{listaref}}
+
+== Enlaces externos ==
+* [https://www.fifa.com/es/tournaments/mens/u17worldcup/qatar-2026 Sitio oficial de la Copa Mundial de la FIFA Sub-17 de 2026]
+* [https://fdp.fifa.org/assetspublic/ce303/pdf/SquadLists-English.pdf Lista oficial de jugadores]
+
+{{sucesión
+| título = [[Copa Mundial de Fútbol Sub-17|Equipos participantes en la Copa Mundial de Fútbol Sub-17]]
+| período = {{bandera|QAT}} Catar 2026
+| predecesor = {{bandera|QAT}} [[Anexo:Equipos participantes en la Copa Mundial de Fútbol Sub-17 de 2025|Catar 2025]]
+| sucesor = {{bandera|QAT}} [[Anexo:Equipos participantes en la Copa Mundial de Fútbol Sub-17 de 2027|Catar 2027]]
+}}
+
+{{Control de autoridades}}
+[[Categoría:Copa Mundial de Fútbol Sub-17 de 2026]]

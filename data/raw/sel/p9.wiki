@@ -1,0 +1,434 @@
+{{Ficha de selección de fútbol 2|especial=Sub-15
+| país                   = Argentina
+| cod                    = ARG
+| asociación             = [[Asociación del Fútbol Argentino]] (AFA)
+| confederación          = [[Confederación Sudamericana de Fútbol|CONMEBOL]]
+| seudónimo              = ''La Albiceleste''<br/>''Los Pibes''
+| país-dt                = Argentina
+| director técnico       = Adrián Gallará
+| año-dt                 = 2025
+| PPI país2              = Estados Unidos
+| PPI bandera1           = 
+| PPI marcador           = 2:1
+| PPI lugar              = [[Encarnación (Paraguay)|Encarnación]], [[Paraguay]]
+| PPI fecha              = 12 de noviembre de 2004
+| PPI evento             = [[Campeonato Sudamericano Sub-16 de 2004]]
+| MRI país2              = República Checa
+| MRI bandera1           = 
+| MRI marcador           = 8:2
+| MRI lugar              = [[San Juan (Argentina)|San Juan]], [[Argentina]]
+| MRI fecha              = {{fecha|9|11|2017}}
+| MRI evento             = [[Campeonato Sudamericano de Fútbol Sub-15 de 2017]]
+| PRI país1              = Brasil
+| PRI bandera1           = 
+| PRI bandera2           = 
+| PRI marcador           = 6:2
+| PRI lugar              = [[Santa Cruz de la Sierra]], [[Bolivia]]
+| PRI fecha              = 4 de noviembre de 2005
+| PRI evento             = [[Campeonato Sudamericano de Fútbol Sub-15 de 2005]] 
+| copa regional          = [[Campeonato Sudamericano Sub-15]]
+| participación regional = 9
+| primer regional        = [[Campeonato Sudamericano Sub-16 de 2004|2004]]
+| mejor regional         = [[Archivo:Gold medal icon.svg|15px|Campeón]] ([[Campeonato Sudamericano de Fútbol Sub-15 de 2017|2017]])
+| color_izq1             = FFFFFF
+| color_cuerpo1          = FFFFFF
+| color_der1             = FFFFFF
+| color_pantalón1        = FFFFFF
+| color_medias1          = FFFFFF
+| trama_izq1             =_arg26h
+| trama_cuerpo1          =_arg26hA
+| trama_der1             =_arg26h
+| trama_pantalón1        =_arg26h
+| trama_medias1          =_arg26h
+| color_izq2             = 0035D5
+| color_cuerpo2          = 0035D5
+| color_der2             = 0035D5
+| color_pantalón2        = 0035D5
+| color_medias2          = 0035D5
+| trama_izq2             =_arg24a
+| trama_cuerpo2          =_arg24a
+| trama_der2             =_arg24a
+| trama_pantalón2        =_arg24a
+| trama_medias2          =_socks
+}}
+
+La '''[[Selección de fútbol#Selección sub-15|selección de fútbol sub-15]] de [[Argentina]]''' es el equipo formado por jugadores de nacionalidad [[argentina]] menores de 15 años de edad, que representa a la [[Asociación del Fútbol Argentino]] en el  [[Campeonato Sudamericano de Fútbol Sub-15]] y en la [[Copa Mundial y Festival Sub-15 de Fútbol]]. Su mejor participación en un [[Campeonato Sudamericano de Fútbol Sub-15|Campeonato Sudamericano Sub-15]] ha sido en la [[Campeonato Sudamericano Sub-15 de 2005|edición de 2017]] cuando fue campeón.
+
+Muchos jugadores destacados han vestido la camiseta de esta selección, incluyendo a [[Sergio Agüero]], [[Alejandro Darío Gómez|Alejandro Gómez]], [[Mauro Zárate]], [[Eduardo Salvio]], [[Nicolás Tagliafico]], [[Juan Musso]], [[Lucas Ocampos]], [[Leandro Paredes]] y [[Sebastián Driussi]], entre otros.
+
+== Indumentaria ==
+
+=== Uniforme ===
+==== Uniforme titular ====
+{| style="margin:auto;"
+
+|{{Camiseta
+  | patrón_izq    = _arg04h2
+  | patrón_cuerpo = _arg04h2
+  | patrón_der    = _arg04h2
+  | patrón_pan    = _arg04h2
+  | patrón_med    = _arg04h2
+  | izquierdo     = 80BFFF
+  | cuerpo        = 80BFFF
+  | derecho       = 80BFFF
+  | shorts        = 000000
+  | medias        = FFFFFF
+  | título        = Primer uniforme
+ }}
+|{{Camisetas|pattern_la=|pattern_b=|pattern_ra=|pattern_sh=|pattern_so=|leftarm=FFFFFF|body=FFFFFF|rightarm=FFFFFF|shorts=FFFFFF|socks=FFFFFF|título=[[Uniforme de la selección de fútbol de Argentina#Evolución del uniforme titular|(Ver evolución)]]
+}}
+|{{Camiseta
+  | patrón_izq    = _arg24h
+  | patrón_cuerpo = _arg24h
+  | patrón_der    = _arg24h
+  | patrón_pan    = _arg24h2
+  | patrón_med    = _socks
+  | izquierdo     = 80BFFF
+  | cuerpo        = 80BFFF
+  | derecho       = 80BFFF
+  | shorts        = FFFFFF
+  | medias        = FFFFFF
+  | título        = Uniforme actual}}
+|}
+
+==== Uniforme alternativo ====
+{| style="margin:auto;"
+
+|{{Camiseta|pattern_la=_arg04a2|pattern_b=_arg04a2|pattern_ra=_arg04a2|pattern_sh=_arg04a2|pattern_so=_arg04a2|leftarm=80BFFF|body=80BFFF|rightarm=80BFFF|shorts=80BFFF|socks=80BFFF|título=Primer uniforme}}
+|{{Camisetas|pattern_la=|pattern_b=|pattern_ra=|pattern_sh=|pattern_so=|leftarm=FFFFFF|body=FFFFFF|rightarm=FFFFFF|shorts=FFFFFF|socks=FFFFFF|título=[[Uniforme de la selección de fútbol de Argentina#Evolución del uniforme titular|(Ver evolución)]]
+}}
+|
+{{Camiseta|patrón_izq=_arg24a|patrón_cuerpo=_arg24a|patrón_der=_arg24a|patrón_pan=_arg24a|patrón_med=_socks|izquierdo=FFFFFF|cuerpo=FFFFFF|derecho=FFFFFF|shorts=FFFFFF|medias=0035D5|título=Uniforme actual}}
+|}
+
+=== Proveedores ===
+{| class="wikitable"
+|+
+!Periodo
+!Proveedor
+
+|-
+|2001-act.
+|{{Bandera|DEU}} [[Adidas]]
+|}
+
+== Instalaciones ==
+
+=== Complejo Deportivo de Ezeiza "Lionel Andrés Messi"===
+La selección argentina cuenta con un predio de 48 [[hectárea]]s ubicado en el partido de [[Ezeiza (partido)|Ezeiza]], en la [[provincia de Buenos Aires]], a la vera de la [[Autopista Ricchieri]]. El predio cuenta con tres complejos de alto nivel: uno de ellos lo utiliza la selección mayor, otro las selecciones juveniles y el tercero de apoyo logístico.
+
+El predio pone a disposición de los jugadores y entrenadores nueve estadios, de los cuales siete tienen las medidas reglamentarias y los otros dos con medidas reducidas. Sus instalaciones cuentan además con todo lo necesario para el alojamiento de los planteles, con habitaciones, cocinas, comedores, vestuarios, gimnasios, consultorios médicos, salas de conferencia, salas de vídeo y microcine.
+
+El predio fue nombrado el 28 de octubre de 2014 como [[Julio Humberto Grondona]], en honor al fallecido presidente de la AFA, cargo que ejerció durante 35 años. Posteriormente el 25 de marzo de 2023 pasó a llamarse [[Lionel Andrés Messi]], en honor a su trayectoria como futbolista vistiendo la camiseta nacional por más de 20 años y la obtención del título mundial en 2022.<ref>{{cita web|url=https://www.infobae.com/deportes/2023/03/25/la-afa-homenajea-a-lionel-messi-fueron-invitados-los-subcampeones-de-2014-y-figuras-de-la-liga-profesional/|obra=infobae.com|fecha=25 de marzo de 2023|título=El predio de Ezeiza de AFA dejó de llamarse Julio Grondona y ahora lleva el nombre de Lionel Messi}}</ref>
+
+La historia de su construcción se remonta a 1979, cuando Grondona, recién asumido presidente, decidió adquirir un predio dedicado al entrenamiento de la albiceleste, que se concentraba en otras instalaciones, como la Fundación Salvatori y el sindicato de Empleados de Comercio. Para ello, la selección se enfrentó con un combinado amistoso llamado Resto del Mundo, el 25 de junio de 1979, como primer aniversario de la obtención del mundial '78, en el estadio Monumental. La selección perdió 2 a 1. Lo recaudado, 998 123 994 [[Peso Ley 18.188|pesos Ley 18.188]], tenía como destino la construcción del predio.<ref>{{cita web|url=https://www.pagina12.com.ar/diario/deportes/8-144107-2010-04-18.html?mobile=1|obra=Página 12|fecha=18 de abril de 2010|título=El Predio para Todos, por 99 años}}</ref>
+
+No fue hasta 1987 que, impulsado por el entrenador del equipo [[Carlos Salvador Bilardo]], comenzó su construcción definitiva, que otorgó el Estado Nacional a la AFA en concesión por 30 años. El propio entrenador buscó el terreno y ayudó con los cimentos. En 2010 se renovó la concesión por 30 años, hasta 2048. El predio fue inaugurado en diciembre de 1989, con la idea de trasladar las instalaciones del edificio de Viamonte y construir un estadio propio con capacidad para 40 000 personas. Es utilizado por los distintos planteles desde el mundial de Italia '90.<ref>{{cita web|url=https://zonales.com/casa-seleccion-ezeiza-carlos-bilardo-trabajo-obreros/|obra=Zonales|fecha=18 de diciembre de 2022|título=La historia de la casa de la Selección en Ezeiza: cuando Carlos Bilardo trabajó a la par de los obreros en su construcción}}</ref>
+
+== Historial de encuentros oficiales reconocidos por FIFA ==
+
+{{clear}}
+{| class="toccolours sortable" style="border-collapse:collapse font-size: 85%; margin-left:0.5em; margin-bottom:0.5em" border=1 cellpadding=2 cellspacing=0
+|-
+|- align="center" style="color:white" bgcolor="#7FBBFF"
+!width=20%|Rival
+!width=4%|{{abreviación|PJ|Partidos jugados}}
+!width=4%|{{abreviación|PG|Partidos ganados}}
+!width=4%|{{abreviación|PE|Partidos empatados}}
+!width=4%|{{abreviación|PP|Partidos perdidos}}
+!width=4%|{{abreviación|GF|Goles a favor}}
+!width=4%|{{abreviación|GC|Goles en contra}}
+!width=6%|{{abreviación|Dif PJ|Diferencia de partidos jugados}}
+!width=20%|Último partido
+|-
+|align=center |'''''Versus selecciones de la CONMEBOL'''''
+|align=center |'''53'''
+|align=center |'''31'''
+|align=center |'''11'''
+|align=center |'''11'''
+|align=center |'''108'''
+|align=center |'''71'''
+|align=center |'''+20'''
+!align=center |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|BOL|especial=sub-15}} || 4|| 3|| 1|| 0|| 10|| 5|| +3|| align="left" | '''28-10-2026''': '''V''': '''4 - 2''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor =#FFC0CB
+| align=left | {{fb|BRA|especial=sub-15}} ||  5||  1||  1||  3||  9||  16||  -2|| align="left" | '''08-12-2019''': '''E''': '''1 - 1 (3 - 2)''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CHI|especial=sub-15}} ||  7||  4||  2||  1||  18||  10||  +3|| align="left" | '''26-11-2019''': '''V''': '''6 - 0''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|COL|especial=sub-15}} ||  8||  3||  2||  3||  16||  15||  0|| align="left" | '''05-12-2019''': '''V''': '''4 - 2''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ECU|especial=sub15}} ||  7||  4||  2||  1||  10||  3||  +3|| align="left" | '''30-11-2019''': '''E''': '''1 - 1''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PAR|especial=sub-15}} ||  6||  5||  1||  0||  13||  3||  +5|| align="left" | '''02-12-2019''': '''E''': '''0 - 0''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PER|especial=sub-15}} || 5|| 4|| 1|| 0|| 12|| 6|| +4|| align="left" | '''17-11-2017''': '''V''': '''4 - 1''' ''Sudamericano 2017''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|URU|especial=sub-15}} ||  8||  4||  1||  3||  11||  12||  +1|| align="left" | '''28-11-2019''': '''D''': '''2 - 0''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|VEN|especial=sub-15}} || 3|| 3|| 0|| 0|| 9|| 1|| +2|| align="left" | '''23-11-2015''': '''V''': '''3 - 0''' ''Sudamericano 2015''
+|-
+!''Versus selecciones de la CONCACAF''
+!align=center |2
+!align=center |2
+!align=center |0
+!align=center |0
+!align=center |5
+!align=center |1
+!align=center |+2
+!align=center |
+|- style="text-align: center;" bgcolor =  #ccffcc
+| align=left | {{fb|USA|especial=sub-15}} || 1|| 1|| 0|| 0|| 2|| 1|| +1|| align="left" | '''12-09-2004''': '''V''': '''2 - 1''' ''Sudamericano 2004''
+|- style="text-align: center;" bgcolor =  #ccffcc
+| align=left | {{fb|SUR|especial=sub-15}} || 1|| 1|| 0|| 0|| 3|| 0|| +1|| align="left" | '''26-10-2026''': '''V''': '''0 - 3''' ''Mundial y Festival 2026''
+|-
+!''Versus selecciones de la UEFA''
+! align="center" |3
+! align="center" |2
+! align="center" |0
+! align="center" |1
+! align="center" |13
+! align="center" |6
+! align="center" |+1
+! align="center" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CRO|especial=sub-15}} || 1|| 1|| 0|| 0|| 4|| 1|| +1|| align="left" | '''28-10-2026''': '''V''': '''4 - 1''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|POR|especial=sub-15}} || 1|| 0|| 0|| 1|| 1|| 3|| -1|| align="left" | '''29-10-2026''': '''D''': '''1 - 3''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CZE|especial=sub-15}} || 1|| 1|| 0|| 0|| 8|| 2|| +1|| align="left" | '''09-11-2017''': '''V''': '''8 - 2''' ''Sudamericano 2017''
+|-
+!''Versus selecciones de la CAF''
+! align="center" |4
+! align="center" |2
+! align="center" |1
+! align="center" |1
+! align="center" |7
+! align="center" |5
+! align="center" |+1
+! align="center" |
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|ALG|especial=sub-15}} || 1|| 0|| 0|| 1|| 0|| 1|| -1|| align="left" | '''24-10-2026''': '''D''': '''1 - 0''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CIV|especial=sub-15}} || 1|| 1|| 0|| 0|| 2|| 1|| +1|| align="left" | '''28-10-2026''': '''V''': '''2 - 1''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|MWI|especial=sub-15}} || 1|| 1|| 0|| 0|| 4|| 2|| +1|| align="left" | '''26-10-2026''': '''V''': '''4 - 2''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|SEN|especial=sub-15}} ||  1||  0||  1||  0||  1||  1||  0|| align="left" | '''30-10-2026''': '''E''': '''1 - 1 (5 - 4)''' ''Mundial y Festival 2026''
+|-
+!''Versus selecciones de la AFC''
+! align="center" |2
+! align="center" |2
+! align="center" |0
+! align="center" |0
+! align="center" |6
+! align="center" |1
+! align="center" |+2
+! align="center" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|TPE|especial=sub-15}} || 1|| 1|| 0|| 0|| 1|| 0|| +1|| align="left" | '''25-10-2026''': '''V''': '''1 - 0''' ''Mundial y Festival 2026''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|OMA|especial=sub-15}} || 1|| 1|| 0|| 0|| 5|| 1|| +1|| align="left" | '''25-10-2026''': '''V''': '''1 - 5''' ''Mundial y Festival 2026''
+|-
+!'''TOTAL'''
+!align=center |64
+!align=center |39
+!align=center |12
+!align=center |13
+!align=center |139
+!align=center |85
+!align=center |+27
+|
+|}
+''Contiene datos de: [[Campeonato Sudamericano de Fútbol Sub-15|Campeonato Sudamericano]] y [[Copa Mundial y Festival Sub-15 de Fútbol]].''
+
+En cursiva los países actualmente desaparecidos. Según FIFA:
+* Alemania incluye a la Selección de Alemania Federal, pero no a su par de Alemania Democrática, que actualmente forma parte de la Alemania unificada.
+* República Checa es sucesora de Checoslovaquia.
+* Rusia es sucesora de Unión Soviética.
+* Serbia es sucesora de Yugoslavia y Serbia y Montenegro.
+* Si bien Australia es un país oceánico, pertenece a la [[Confederación Asiática de Fútbol|AFC]] desde 2006, tras haber abandonado la [[Confederación de Fútbol de Oceanía|OFC]].
+
+=== Campeonato Sudamericano Sub-15 ===
+{| width="90%" align=border border=1 cellpadding="2" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+!width="90"|Año
+!width="105"|Resultado
+!width="65"|Posición
+!width="34"|{{abreviación|PJ|Partidos jugados}}
+!width="34"|{{abreviación|PG|Partidos ganados}}
+!width="34"|{{abreviación|PE|Partidos empatados}}
+!width="34"|{{abreviación|PP|Partidos perdidos}}
+!width="34"|{{abreviación|GF|Goles a favor}}
+!width="34"|{{abreviación|GC|Goles en contra}}
+!width="34"|{{abreviación|Dif.|Diferencia de goles}}
+!width="170"|Goleador
+
+|- align=center bgcolor=cc9966
+!{{Bandera|Paraguay}} [[Campeonato Sudamericano Sub-16 de 2004|2004]]
+| Tercer lugar
+|3.°||5||4||0||1||8||3||+5||[[Juan Ignacio Antonio]] y [[Kun Agüero]]: 2
+|- align=center bgcolor=silver
+!{{Bandera|Bolivia}} [[Campeonato Sudamericano Sub-15 de 2005|2005]]
+| Subcampeón
+|2.°||6||5||0||1||15||9||+6||[[Federico Laurito]]: 7
+|- align=center bgcolor=cc9966
+!{{Bandera|Brasil}} [[Campeonato Sudamericano Sub-15 de 2007|2007]]
+| Tercer lugar
+|3.°||7||2||3||2||10||12|| -2||[[Mauricio Alfredo Aubone]]: 2
+|- align=center bgcolor=#f9f9f9
+!{{Bandera|Bolivia}} [[Campeonato Sudamericano Sub-15 de 2009|2009]]
+| Primera fase
+|7.°||4||1||1||2||5||7|| -2||[[Lucas Ocampos]]: 2
+|- align=center bgcolor=cc9966
+!{{Bandera|Uruguay}} [[Campeonato Sudamericano Sub-15 de 2011|2011]]
+| Tercer lugar
+|3.°||7||3||1||3||10||13|| -3||[[Sebastián Driussi]] y [[Jonathan Cañete]]: 2
+|- align=center bgcolor=cc9966
+!{{Bandera|Bolivia}} [[Campeonato Sudamericano Sub-15 de 2013|2013]]
+| Tercer lugar
+|3.°||6||4||1||1||13||10|| +3||[[Matías Roskopf]] y [[Federico Vietto]]: 4
+|- align=center bgcolor=cc9966
+!{{Bandera|Colombia}} [[Campeonato Sudamericano de Fútbol Sub-15 de 2015|2015]]
+| Tercer lugar
+|3.°||6||5||0||1||14||3|| +11||[[Facundo Colidio]]: 4
+|- align=center bgcolor=gold
+!style="border: 3px solid red"|{{Bandera|Argentina}} [[Campeonato Sudamericano de Fútbol Sub-15 de 2017|2017]]
+| '''Campeón'''
+|'''1.°'''||'''7'''||'''5'''||'''2'''||'''0'''||'''25'''||'''11'''||'''+14'''||'''[[Exequiel Zeballos]]: 5'''
+|- align=center bgcolor=silver
+!{{Bandera|Paraguay}} [[Campeonato Sudamericano de Fútbol Sub-15 de 2019|2019]]
+| Subcampeón
+|2.°||6||3||3||0||14||4|| +10||[[Valentín Barco]]: 3
+|- align=center bgcolor=cc9966
+!{{Bandera|Bolivia}} [[Campeonato Sudamericano de Fútbol Sub-15 de 2023|2023]]
+| Tercer lugar
+|3.°||6||3||3||0||10||7|| +3||[[Thomás de Martis]]: 3
+|- class="sortbottom" align=center bgcolor=#ffffff
+! Total
+! 10/10
+! 2.°
+! 60
+! 35
+! 14
+! 11
+! 124
+! 79
+! +45
+! [[Federico Laurito]]: 7
+|}
+
+=== Copa Mundial y Festival Sub-15 ===
+{| width="90%" align=border border=1 cellpadding="2" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+!width="90"|Año
+!width="105"|Resultado
+!width="65"|Posición
+!width="34"|{{abreviación|PJ|Partidos jugados}}
+!width="34"|{{abreviación|PG|Partidos ganados}}
+!width="34"|{{abreviación|PE|Partidos empatados}}
+!width="34"|{{abreviación|PP|Partidos perdidos}}
+!width="34"|{{abreviación|GF|Goles a favor}}
+!width="34"|{{abreviación|GC|Goles en contra}}
+!width="34"|{{abreviación|Dif.|Diferencia de goles}}
+|- align center
+!{{Bandera|Azerbaiyán}} [[Copa Mundial y Festival de Fútbol Sub-15 de 2026|2026]]
+| Tercer puesto (Categoría B)
+|35.°||10||8||1||1||25||12||+13
+|}
+
+=== Liga Evolución de la CONMEBOL Sub-15 ===
+{| width="90%" align=border border=1 cellpadding="2" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+!width="90"|Año
+!width="105"|Resultado
+!width="65"|Posición
+!width="34"|{{abreviación|PJ|Partidos jugados}}
+!width="34"|{{abreviación|PG|Partidos ganados}}
+!width="34"|{{abreviación|PE|Partidos empatados}}
+!width="34"|{{abreviación|PP|Partidos perdidos}}
+!width="34"|{{abreviación|GF|Goles a favor}}
+!width="34"|{{abreviación|GC|Goles en contra}}
+!width="34"|{{abreviación|Dif.|Diferencia de goles}}
+!width="170"|Goleador
+|- align=center bgcolor=silver
+!{{Bandera|Paraguay}} [[Liga Evolución Sub-15 Masculina de la CONMEBOL 2025|2025]]
+| Subcampeón
+|2.°||5||4||1||0||11||4||+7||[[Bruno Cabral]]: 10
+|}
+
+=== Juegos Olímpicos de la Juventud ===
+{| width="90%" align=border border=1 cellpadding="2" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+!width="120"|Año
+!width="105"|Resultado
+!width="65"|Posición
+!width="34"|{{abreviación|PJ|Partidos jugados}}
+!width="34"|{{abreviación|PG|Partidos ganados}}
+!width="34"|{{abreviación|PE|Partidos empatados}}
+!width="34"|{{abreviación|PP|Partidos perdidos}}
+!width="34"|{{abreviación|GF|Goles a favor}}
+!width="34"|{{abreviación|GC|Goles en contra}}
+!width="34"|{{abreviación|Dif.|Diferencia de goles}}
+!width="170"|Goleador
+|- align=center bgcolor=#f9f9f9
+!{{Bandera|Singapur}} [[Juegos Olímpicos de la Juventud 2010|Singapur 2010]]
+|colspan="11" |''No participó'' <ref name="Los participantes_1">Los participantes de aquel torneo fueron invitados, entre los cuales no estuvo Argentina.</ref>
+|- align=center bgcolor=#f9f9f9
+!{{Bandera|China}} [[Juegos Olímpicos de la Juventud 2014|Nankín 2014]]
+|colspan="11" |''No clasificó''
+|}
+
+== Palmarés ==
+
+=== Títulos Oficiales ===
+
+{| class="wikitable colizq" style="font-size:95%; text-align: center;"
+! rowspan="2" width="18%" |Competición
+|-
+! width="17%" style="background:Gold" |Títulos
+! width="17%" style="background:Silver" |Subcampeonatos
+! width="17%" style="background:#CD7F32" |Tercer lugar
+
+|-
+!align=left|[[Campeonato Sudamericano Sub-15]]
+|align=center|1 ([[Campeonato Sudamericano de Fútbol Sub-15 de 2017|2017]])
+|align=center|2 ([[Campeonato Sudamericano Sub-15 de 2005|2005]] y [[Campeonato Sudamericano de Fútbol Sub-15 de 2019|2019]])
+|align=center|6 ([[Campeonato Sudamericano Sub-16 de 2004|2004]], [[Campeonato Sudamericano Sub-15 de 2007|2007]], [[Campeonato Sudamericano Sub-15 de 2011|2011]], [[Campeonato Sudamericano Sub-15 de 2013|2013]], [[Campeonato Sudamericano Sub-15 de 2015|2015]] y [[Campeonato Sudamericano de Fútbol Sub-15 de 2023|2023]])
+|-
+!align=left|[[Liga Evolución Sub-15 Masculina de la CONMEBOL]]
+|align=center|
+|align=center|1 ([[Liga Evolución Sub-15 Masculina de la CONMEBOL 2025|2025]])
+|align=center|
+|-
+|}
+
+=== Títulos Amistosos ===
+
+{| border="1" cellspacing="0" style="background: #f9f9f9; border: 2px #aaa solid; border-collapse: collapse; border-color: white; color:black; font-size: 95%;" width="78%"
+|- bgcolor=#6AB5FF style="color:white;"
+! width=40%|Competición
+! width=30%|Títulos
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE| '''Copa México de Naciones Sub-15'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] [[Copa México de Naciones 2013|2013]]
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE| '''Vlatko Markovic (Croacia)'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] 2019
+|}
+
+== Véase también ==
+* [[Asociación del Fútbol Argentino]]
+* [[Selección de fútbol de Argentina]]
+* [[Selección de fútbol sub-23 de Argentina]]
+* [[Selección de fútbol sub-22 de Argentina]]
+* [[Selección de fútbol sub-20 de Argentina]]
+* [[Selección de fútbol sub-17 de Argentina]]
+
+== Referencias ==
+{{listaref}}
+
+{{Control de autoridades}}
+[[Categoría:Divisiones menores de la Selección Argentina]]
+[[Categoría:Selecciones de fútbol sub-15 de la Conmebol|Argentina]]

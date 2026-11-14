@@ -1,0 +1,884 @@
+{{Ficha de selección de fútbol 2|especial=sub-17
+| país                   = Argentina
+| cod                    = ARG
+| asociación             = [[Asociación del Fútbol Argentino|AFA]]
+| confederación          = [[Confederación Sudamericana de Fútbol|Conmebol]]
+| seudónimo              = ''La Albiceleste''<br />''Los Pibes''
+| país-dt                = Argentina
+| director técnico       = [[Diego Placente]]
+| año-dt                 = 2023
+| mayor goleador         =
+| mayor goleador goles   = 
+| más participaciones    =
+| mayor partidos         = 
+| estadio                = 
+| PPI país2              = Venezuela
+| PPI bandera1           = 
+| PPI marcador           = 5:0
+| PPI lugar              = [[Buenos Aires]], [[Argentina]]
+| PPI fecha              = Abril de 1985
+| PPI evento             = [[Campeonato Sudamericano Sub-16 de 1985]]
+| MRI país1              = Fiyi
+| MRI país2              = Argentina
+| MRI bandera1           = 
+| MRI marcador           = 0:7
+| MRI lugar              = [[Rayán (ciudad)|Rayán]], [[Catar]]
+| MRI fecha              = 9 de noviembre de 2025
+| MRI evento             = [[Copa Mundial de Fútbol Sub-17 de 2025]]
+| PRI país2              = Nigeria
+| PRI bandera1           = 
+| PRI bandera2           = 
+| PRI marcador           = 0:4
+| PRI lugar              = [[Japón]]
+| PRI fecha              = 24 de agosto de 1993
+| PRI evento             = [[Copa Mundial de Fútbol Sub-17 de 1993]]
+| PRI2 país2              = Alemania
+| PRI2 bandera1           = 
+| PRI2 bandera2           = 
+| PRI2 marcador           = 0:4
+| PRI2 lugar              = [[Chile]]
+| PRI2 fecha              = 21 de octubre de 2015
+| PRI2 evento             = [[Copa Mundial de Fútbol Sub-17 de 2015]]
+| PRI3 país2              = Colombia
+| PRI3 bandera1           = 
+| PRI3 bandera2           = 
+| PRI3 marcador           = 0:4
+| PRI3 lugar              = [[Paraguay]]
+| PRI3 fecha              = 19 de abril de 2026
+| PRI3 evento             = [[Campeonato Sudamericano de Fútbol Sub-17 de 2026]]
+| participación mundial  = 16
+| primer mundial         = [[Copa Mundial de Fútbol Sub-17 de 1985|1985]]
+| mejor mundial          = [[Archivo:Bronze medal icon.svg|15px|Tercer puesto]] ([[Copa Mundial de Fútbol Sub-17 de 1991|1991]], [[Copa Mundial de Fútbol Sub-17 de 1995|1995]] y [[Copa Mundial de Fútbol Sub-17 de 2003|2003]])
+| copa regional          = [[Campeonato Sudamericano Sub-17]]
+| participación regional = 20
+| primer regional        = [[Campeonato Sudamericano Sub-16 de 1985|1985]]
+| mejor regional         = [[Archivo:Gold medal icon.svg|15px|Campeón]] ([[Campeonato Sudamericano Sub-16 de 1985|1985]], [[Campeonato Sudamericano Sub-17 de 2003|2003]], [[Campeonato Sudamericano Sub-17 de 2013|2013]] y [[Campeonato Sudamericano de Fútbol Sub-17 de 2019|2019]])
+| copa regional2         = [[Fútbol en los Juegos Panamericanos|Juegos Panamericanos]]
+| participación regional2 = 1
+| primer regional2       = [[Torneo masculino de fútbol de los Juegos Panamericanos de 2007|2007]]
+| mejor regional2        = Primera fase ([[Torneo masculino de fútbol de los Juegos Panamericanos de 2007|2007]])
+| color_izq1             = FFFFFF
+| color_cuerpo1          = FFFFFF
+| color_der1             = FFFFFF
+| color_pantalón1        = FFFFFF
+| color_medias1          = FFFFFF
+| trama_izq1             =_arg26h
+| trama_cuerpo1          =_arg26h
+| trama_der1             =_arg26h
+| trama_pantalón1        =_arg26h2
+| trama_medias1          =_arg26h2
+| color_izq2             = 0035D5
+| color_cuerpo2          = 0035D5
+| color_der2             = 0035D5
+| color_pantalón2        = 0035D5
+| color_medias2          = 0035D5
+| trama_izq2             = _arg26a
+| trama_cuerpo2          = _arg26a
+| trama_der2             = _arg26a
+| trama_pantalón2        = _arg26A
+| trama_medias2          = _arg26h
+}}
+
+La '''[[Selección de fútbol#Selección sub-17|selección de fútbol sub-17]] de [[Argentina]]''' es el equipo formado por jugadores de nacionalidad [[argentina]] menores de 17 años de edad, que representa a la [[Asociación del Fútbol Argentino]] en la [[Copa Mundial de Fútbol Sub-17|Copa del Mundo Sub-17]] y en el [[Campeonato Sudamericano de Fútbol Sub-17]]. [[Argentina]] ha ganado cuatro [[Campeonato Sudamericano de Fútbol Sub-17|Campeonatos Sudamericanos]] y ha subido al podio en el [[Copa Mundial de Fútbol Sub-17|Campeonato Mundial]] de la categoría terminando en el tercer lugar en [[Copa Mundial de Fútbol Sub-17 de 1991|1991]], [[Copa Mundial de Fútbol Sub-17 de 1995|1995]] y [[Copa Mundial de Fútbol Sub-17 de 2003|2003]].
+
+Muchos jugadores destacados han vestido la camiseta de esta selección, incluyendo a [[Esteban Cambiasso]], [[Pablo Aimar]], [[Roberto Abbondanzieri]], [[Juan Sebastián Verón]], [[Fernando Cáceres]], [[Fernando Redondo]], [[Gabriel Milito]], [[Luciano Galletti]], [[Gonzalo Javier Rodríguez|Gonzalo Rodríguez]], [[Roberto Bonano]], [[Franco Costanzo]], [[Leonardo Biagini]], [[Marcelo Gallardo]], [[Ezequiel González]], [[Aldo Duscher]], [[Maxi López|Maximiliano López]], [[Rodolfo Arruabarrena]], [[Néstor Fabbri]], [[Javier Mascherano]], [[Pablo Zabaleta]], [[Carlos Tévez]], [[Oscar Ustari]], [[Nahuel Guzmán]], [[Ezequiel Garay]], [[Lucas Biglia]], [[Fernando Gago]], [[Mateo Musacchio]], [[Lucas Ocampos]], [[Exequiel Palacios]], [[Lionel Messi]], entre otros.
+
+== Encuentros recientes y próximos partidos ==
+{| align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=90%
+|- bgcolor=#6AB5FF style="color:white;"
+!width=8%|Fecha
+!width=10%|Lugar
+!width=18%|Competencia
+!width=16%|Local
+!width=9%|Resultado
+!width=16%|Visitante
+
+|- align=center bgcolor=#D0E7FF
+|04/04/2026 
+|{{bandera|Paraguay}} [[Villeta (Paraguay)|Villeta]]
+![[Campeonato Sudamericano de Fútbol Sub-17 de 2026|Campeonato Sudamericano Sub-17]]
+!{{fb|PER|especial=sub17}}
+!align=center|1:4 
+!{{fb|ARG|especial=sub17}}
+
+|- align=center
+|08/04/2026 
+|{{bandera|Paraguay}} [[Villeta (Paraguay)|Villeta]]
+![[Campeonato Sudamericano de Fútbol Sub-17 de 2026|Campeonato Sudamericano Sub-17]]
+!{{fb|VEN|especial=sub17}}
+!align=center|2:3
+!{{fb|ARG|especial=sub17}}
+
+|- align=center bgcolor=#D0E7FF
+|10/04/2026 
+|{{bandera|Paraguay}} [[Villeta (Paraguay)|Villeta]]
+![[Campeonato Sudamericano de Fútbol Sub-17 de 2026|Campeonato Sudamericano Sub-17]]
+!{{fb|ARG|especial=sub17}}
+!align=center|0:3
+!{{fb|BRA|especial=sub17}}
+
+|- align=center
+|12/04/2026 
+|{{bandera|Paraguay}} [[Ypané]]
+![[Campeonato Sudamericano de Fútbol Sub-17 de 2026|Campeonato Sudamericano Sub-17]]
+!{{fb|ARG|especial=sub17}}
+!align=center|1:1
+!{{fb|BOL|especial=sub17}}
+
+|- align=center bgcolor=#D0E7FF
+|16/04/2026 
+|{{bandera|Paraguay}} [[Asunción]]
+![[Campeonato Sudamericano de Fútbol Sub-17 de 2026|Campeonato Sudamericano Sub-17]]
+!{{fb|ECU|especial=sub17}}
+!align=center|1:3
+!{{fb|ARG|especial=sub17}}
+
+|- align=center 
+|19/04/2026 
+|{{bandera|Paraguay}} [[Luque (Paraguay)|Luque]]
+![[Campeonato Sudamericano de Fútbol Sub-17 de 2026|Campeonato Sudamericano Sub-17]]
+!{{fb|ARG|especial=sub17}}
+!align=center|0:4
+!{{fb|COL|especial=sub17}}
+
+|}
+
+== Indumentaria ==
+=== Uniforme ===
+==== Uniforme titular ====
+{| style="margin:auto;"
+
+|{{Camiseta
+  | patrón_izq    = _arg8085h
+  | patrón_cuerpo = _arg8085h
+  | patrón_der    = _arg8085h
+  | patrón_pan    = _arg8085h
+  | patrón_med    = _arg8085h
+  | izquierdo     = 80BFFF
+  | cuerpo        = 80BFFF
+  | derecho       = 80BFFF
+  | shorts        = 80BFFF
+  | medias        = FFFFFF
+  | título        = Primer Uniforme
+ }}
+|{{Camisetas|pattern_la=|pattern_b=|pattern_ra=|pattern_sh=|pattern_so=|leftarm=FFFFFF|body=FFFFFF|rightarm=FFFFFF|shorts=FFFFFF|socks=FFFFFF|título=[[Uniforme de la selección de fútbol de Argentina#Evolución del uniforme titular|(Ver evolución)]]
+}}
+|{{Camiseta
+  | patrón_izq    = _arg24h
+  | patrón_cuerpo = _arg24h
+  | patrón_der    = _arg24h
+  | patrón_pan    = _arg24h2
+  | patrón_med    = _socks
+  | izquierdo     = 80BFFF
+  | cuerpo        = 80BFFF
+  | derecho       = 80BFFF
+  | shorts        = FFFFFF
+  | medias        = FFFFFF
+  | título        = Uniforme actual}}
+|}
+
+==== Uniforme alternativo ====
+{| style="margin:auto;"
+
+|{{Camiseta|pattern_la=_arg8085a|pattern_b=_arg8085a|pattern_ra=_arg8085a|pattern_sh=_shorts|pattern_so=_arg8085a|leftarm=80BFFF|body=80BFFF|rightarm=80BFFF|shorts=0228C1|socks=80BFFF|título=Primer Uniforme}}
+|{{Camisetas|pattern_la=|pattern_b=|pattern_ra=|pattern_sh=|pattern_so=|leftarm=FFFFFF|body=FFFFFF|rightarm=FFFFFF|shorts=FFFFFF|socks=FFFFFF|título=[[Uniforme de la selección de fútbol de Argentina#Evolución del uniforme titular|(Ver evolución)]]
+}}
+|
+{{Camiseta|patrón_izq=_arg24a|patrón_cuerpo=_arg24a|patrón_der=_arg24a|patrón_pan=_arg24a|patrón_med=_socks|izquierdo=FFFFFF|cuerpo=FFFFFF|derecho=FFFFFF|shorts=FFFFFF|medias=0035D5|título=Uniforme actual}}
+|}
+
+=== Proveedores ===
+{| class="wikitable"
+|+
+!Periodo
+!Proveedor
+|-
+|1985-1989
+|{{Bandera|FRA}} [[Le Coq Sportif]]
+|-
+|1990-1998
+|{{Bandera|DEU}} [[Adidas]]
+|-
+|1999-2001
+|{{Bandera|GBR}} [[Reebok]]
+|-
+|2001-act.
+|{{Bandera|DEU}} [[Adidas]]
+|}
+
+== Instalaciones ==
+
+=== Complejo Deportivo de Ezeiza "Lionel Andrés Messi" ===
+La selección argentina cuenta con un predio de 48 [[hectárea]]s ubicado en el partido de [[Ezeiza (partido)|Ezeiza]], en la [[provincia de Buenos Aires]], a la vera de la [[Autopista Ricchieri]]. El predio cuenta con tres complejos de alto nivel: uno de ellos lo utiliza la selección mayor, otro las selecciones juveniles y el tercero de apoyo logístico. El predio pone a disposición de los jugadores y entrenadores nueve estadios, de los cuales siete tienen las medidas reglamentarias y los otros dos con medidas reducidas. Sus instalaciones cuentan además con todo lo necesario para el alojamiento de los planteles, con habitaciones, cocinas, comedores, vestuarios, gimnasios, consultorios médicos, salas de conferencia, salas de vídeo y microcine.
+
+El predio fue nombrado el 28 de octubre de 2014 como [[Julio Humberto Grondona]], en honor al fallecido presidente de la AFA, cargo que ejerció durante 35 años. Posteriormente el 25 de marzo de 2023 pasó a llamarse [[Lionel Andrés Messi]], en honor a su trayectoria como futbolista vistiendo la camiseta nacional por más de 20 años y la obtención del título mundial en 2022.<ref>{{cita web|url=https://www.infobae.com/deportes/2023/03/25/la-afa-homenajea-a-lionel-messi-fueron-invitados-los-subcampeones-de-2014-y-figuras-de-la-liga-profesional/|obra=infobae.com|fecha=25 de marzo de 2023|título=El predio de Ezeiza de AFA dejó de llamarse Julio Grondona y ahora lleva el nombre de Lionel Messi}}</ref>
+
+La historia de su construcción se remonta a 1979, cuando Grondona, recién asumido presidente, decidió adquirir un predio dedicado al entrenamiento de la albiceleste, que se concentraba en otras instalaciones, como la Fundación Salvatori y el sindicato de Empleados de Comercio. Para ello, la selección se enfrentó con un combinado amistoso llamado Resto del Mundo, el 25 de junio de 1979, como primer aniversario de la obtención del mundial '78, en el estadio Monumental. La selección perdió 2 a 1. Lo recaudado, 998 123 994 [[Peso Ley 18.188|pesos Ley 18.188]], tenía como destino la construcción del predio.<ref>{{cita web|url=https://www.pagina12.com.ar/diario/deportes/8-144107-2010-04-18.html?mobile=1|obra=Página 12|fecha=18 de abril de 2010|título=El Predio para Todos, por 99 años}}</ref>
+
+No fue hasta 1987 que, impulsado por el entrenador del equipo [[Carlos Salvador Bilardo]], comenzó su construcción definitiva, que otorgó el Estado Nacional a la AFA en concesión por 30 años. El propio entrenador buscó el terreno y ayudó con los cimentos. En 2010 se renovó la concesión por 30 años, hasta 2048. El predio fue inaugurado en diciembre de 1989, con la idea de trasladar las instalaciones del edificio de Viamonte y construir un estadio propio con capacidad para 40 000 personas. Es utilizado por los distintos planteles desde el mundial de Italia '90.<ref>{{cita web|url=https://zonales.com/casa-seleccion-ezeiza-carlos-bilardo-trabajo-obreros/|obra=Zonales|fecha=18 de diciembre de 2022|título=La historia de la casa de la Selección en Ezeiza: cuando Carlos Bilardo trabajó a la par de los obreros en su construcción}}</ref>
+
+== Historial de encuentros oficiales reconocidos por FIFA ==
+{| class="toccolours sortable" style="border-collapse:collapse font-size: 85%; margin-left:0.5em; margin-bottom:0.5em" border=1 cellpadding=2 cellspacing=0
+|-
+|- align="center" style="color:white" bgcolor="#7FBBFF"
+!width=20%|Rival
+!width=4%|{{abreviación|PJ|Partidos jugados}}
+!width=4%|{{abreviación|PG|Partidos ganados}}
+!width=4%|{{abreviación|PE|Partidos empatados}}
+!width=4%|{{abreviación|PP|Partidos perdidos}}
+!width=4%|{{abreviación|GF|Goles a favor}}
+!width=4%|{{abreviación|GC|Goles en contra}}
+!width=6%|{{abreviación|Dif PJ|Diferencia de partidos jugados}}
+!width=20%|Último partido
+|-
+|align=center |'''''Versus selecciones de la CONMEBOL'''''
+|align=center |'''145'''
+|align=center |'''76'''
+|align=center |'''33'''
+|align=center |'''34'''
+|align=center |'''269'''
+|align=center |'''147'''
+|align=center | '''+44'''
+!align=center |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|BOL|especial=sub17}} ||  8||  6||  1||  1||  23||  4||  +5|| align="left" | '''02-04-2023''' : '''V''' : '''1 - 0''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|BRA|especial=sub17}} ||  21||  4||  5||  12||  24||  35||  -8|| align="left" | '''24-11-2023''' : '''V''' : '''3 - 0''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CHI|especial=sub17}} ||  11||  9||  2||  0||  23||  7||  +9|| align="left" | '''11-04-2023''' : '''V''' : '''2''' '''- 0''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|COL|especial=sub17}} ||  19||  8||  7||  4||  24||  18||  +4|| align="left" | '''24-03-2019''' : '''V''' : '''2 - 1''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ECU|especial=sub17}} ||  16||  8||  3||  5||  25||  17||  +3|| align="left" | '''20-04-2023 : D : 0''' '''- 1''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PAR|especial=sub17}} ||  17||  8||  5||  4||  31||  18||  +4|| align="left" | '''17-04-2023''' : '''E''' : '''0 - 0''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PER|especial=sub17}} ||  16||  13||  2||  1||  41||  13||  +12|| align="left" | '''06-04-2023''' : '''V''' : '''3 - 0''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|URU|especial=sub17}} ||  20||  10||  5||  5||  32||  25||  +5|| align="left" | '''22-03-2019''' : '''D''' : '''0 - 3''' ''Sudamericano 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|VEN|especial=sub17}} ||  17||  12||  3||  2||  46||  10||  +10|| align="left" | '''21-11-2023''' : '''V''' : '''5 - 0''' ''Mundial 2023''
+|-
+!''Versus selecciones de la CONCACAF''
+!align=center |20
+!align=center |13
+!align=center |4
+!align=center |5
+!align=center |35
+!align=center |15
+!align=center |+8
+!align=center |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CAN|especial=sub17}} ||  3||  3||  0||  0||  12||  1||  +3|| align="left" | '''25-10-2013''' : '''V''' : '''3 - 0''' ''Mundial 2013''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CUB|especial=sub17}} ||  1||  1||  0||  0||  1||  0||  +1|| align="left" | '''23-10-2011''' : '''V''' : '''1 - 0''' ''Juegos Panamericanos 2011''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CRC|especial=sub17}} ||  5||  5||  0||  0||  10||  0|| +5|| align="left" | '''21-10-2011''' : '''V''' : '''3 - 0''' ''Juegos Panamericanos 2011''
+|- style="text-align: center;" bgcolor =  #FFC0CB
+| align=left | {{fb|USA|especial=sub17}} ||  1||  0||  0||  1||  0||  1||  -1|| align="left" | '''20-08-1991''' : '''D''' : '''0 - 1''' ''Mundial 1991''
+|- style="text-align: center;" bgcolor =#ffff8888
+| align=left | {{fb|HAI|especial=sub17}} ||  1||  0||  1||  0||  1||  1||  0|| align="left" | '''15-07-2007''' : '''E''' : '''1 - 1''' ''Juegos Panamericanos 2007''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|HON|especial=sub17}} ||  2||  2||  0||  0||  5||  1||  +2|| align="left" | '''24-10-2009''' : '''V''' : '''1 - 0''' ''Mundial 2009''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|JAM|especial=sub17}} ||  2||  1||  0||  1||  2||  3||  0|| align="left" | '''21-06-2011''' : '''V''' : '''2 - 1''' ''Mundial 2011''
+|- style="text-align: center;" bgcolor =  #FFC0CB
+| align=left | {{fb|MEX|especial=sub17}} ||  4||  1||  1||  2|| 4||  7||  -1|| align="left" | '''14-11-2025''' : '''E''' : '''2 - 2 (4 - 5)''' ''Mundial 2025''
+|-
+!''Versus selecciones de la CAF''
+!align=center |17
+!align=center |8
+!align=center |3
+!align=center |6
+!align=center |22
+!align=center |23
+!align=center |+2
+!align=center |
+|- style="text-align: center;" bgcolor =  #FFC0CB
+| align=left | {{fb|BFA|especial=sub17}} ||  2||  0||  1||  1||  2||  4||  -1|| align="left" | '''15-09-2001''' : '''E''' : '''2 - 2''' ''Mundial 2001''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CMR|especial=sub17}} ||  1||  1||  0||  0||  3||  1||  +2|| align="left" | '''31-10-2019''' : '''V''' : '''3 - 1''' ''Mundial 2019''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CGO|especial=sub17}} ||  1||  1||  0||  0||  4||  2||  +1|| align="left" | '''04-08-1985''' : '''V''' : '''4 - 2''' ''Mundial 1985''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CIV|especial=sub17}} ||  1||  1||  0||  0||  2||  1||  +1|| align="left" | '''02-11-2013''' : '''V''' : '''2 - 1''' ''Mundial 2013''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|GUI|especial=sub17}} ||  1||  1||  0||  0||  2||  0||  +1|| align="left" | '''09-08-1995''' : '''V''' : '''2 - 0''' ''Mundial 1995''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{selb|GHA}} ||  1||  0||  1||  0||  0||  0||  0|| align="left" | '''05-09-1997''' : '''E''' : '''0 - 0''' ''Mundial 1997''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|MLI|especial=sub17}}||  2||  1||  0||  1||  2||  4||  0|| align="left" | '''01-12-2023''' : '''D''' : '''0 - 3''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor =  #FFC0CB
+| align=left | {{fb|NGA|especial=sub17}} ||  5||  1||  1||  3||  2|| 8||  -2|| align="left" | '''27-10-2009''' : '''D''' : '''1 - 2''' ''Mundial 2009''
+|- style="text-align: center;" bgcolor =  #FFC0CB
+| align=left | {{fb|SEN|especial=sub17}} ||  1||  0||  0||  1||  1||  2||  -1|| align="left" | '''11-11-2023''' : '''D''' : '''1 - 2''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|TUN|especial=sub17}} ||  2||  2||  0||  0||  4||  1||  +2|| align="left" | '''06-11-2025''' : '''V''' : '''1 - 0''' ''Mundial 2025''
+|-
+!''Versus selecciones de la AFC''
+!align=center |16
+!align=center |8
+!align=center |5
+!align=center |3
+!align=center |25
+!align=center |14
+!align=center |+5
+!align=center |
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|AUS|especial=sub17}}||  5||  2||  1||  2||  7||  6||  0|| align="left" | '''24-10-2015''' : '''D''' : '''1 - 2''' ''Mundial 2015''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CHN|especial=sub17}} ||  2||  1||  1||  0||  2||  1||  +1|| align="left" | '''17-08-1991''' : '''V''' : '''2 - 1''' ''Mundial 1991''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|TJK|especial=sub17}} ||  1||  1||  0||  0||  3||  1||  +1|| align="left" | '''03-11-2019''' : '''V''' : '''3 - 1''' ''Mundial 2019''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left |{{fb|QAT|especial=sub17}} ||  1||  0||  1||  0||  1||  1||  0|| align="left" | '''30-08-1991''' : '''E''' : '''1 -1''' ''Mundial 1991''
+|- style="text-align: center;" bgcolor =#ffff8888
+| align=left | {{selb|IRN}} ||  1||  0||  1||  0||  1||  1||  0|| align="left" | '''19-10-2013''' : '''E''' : '''1 - 1''' ''Mundial 2013''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left |{{fb|OMA|especial=sub17}} ||  2||  2||  0||  0||  5||  0||  +2|| align="left" | '''17-09-2001''' : '''V''' : '''3 - 0''' ''Mundial 2001''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|JPN|especial=sub17}} ||  2||  1||  0||  1||  4||  4||  0|| align="left" | '''14-11-2023''' : '''V''' : '''3 - 1''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|BHR|especial=sub17}} ||  1||  1||  0||  0||  2||  0||  +1|| align="left" | '''10-09-1997''' : '''V''' : '''2 - 0''' ''Mundial 1997''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|SYR|especial=sub17}} ||  1||  0||  1||  0||  0||  0||  0|| align="left" | '''19-08-2007''' : '''E''' : '''0 - 0''' ''Mundial 2007''
+|-
+!''Versus selecciones de la UEFA''
+!align=center |19
+!align=center |6
+!align=center |6
+!align=center |7
+!align=center |34
+!align=center |35
+!align=center |-1
+!align=center |
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|GER|especial=sub17}} ||  4||  1||  2||  1||  6||  9||  0|| align="left" | '''28-11-2023''' : '''E ''': '''1 - 1''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|AUT|especial=sub17}} ||  1||  1||  0||  0||  3||  2||  +1|| align="left" | '''22-10-2013''' : '''V''' : '''3 - 2''' ''Mundial 2013''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|BEL|especial=sub17}} ||  1||  1||  0||  0||  3||  2||  +1|| align="left" | '''03-11-2025''' : '''V''' : '''3 - 2''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor=  #FFC0CB
+| align=left | {{fb|ESP|especial=sub17}} ||  5||  1||  2||  2||  7||  7||  -1|| align="left" | '''28-10-2019''' : '''E''' : '''0 - 0''' ''Mundial 2019''
+|- style="text-align: center;" bgcolor =  #FFC0CB
+| align=left | {{fb|FRA|especial=sub17}} ||  2||  0||  0||  2||  1||  5||  -2|| align="left" | '''27-09-2011''' : '''D''' : '''1 - 2''' ''Mundial 2011''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|ENG|especial=sub17}} ||  1||  0||  1||  0|| 1||  1||  0|| align="left" | '''30-06-2011''' : '''E''' : '''1 - 1 (2 - 4)''' ''Mundial 2011''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|ITA|especial=sub17}} ||  1|| 0||  1||  0||  0||  0||  0|| align="left" | '''22-08-1991 :''' '''E : 0''' '''- 0''' ''Mundial 1991''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|POL|especial=sub17}} ||  1||  1|| 0||  0||  8||  0|| +1|| align="left" | '''17-11-2023''' : '''V''' : '''4 - 0''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|POR|especial=sub17}} ||  2||  1|| 0||  1||  4||  2|| 0|| align="left" | '''04-08-1995''' : '''V''' : '''3 - 0''' ''Mundial 1995''
+|- style="text-align: center;" bgcolor= #FFC0CB
+| align=left | {{fb|SWE|especial=sub17}} ||  1||  0||  0||  1||  1||  4||  -1|| align="left" | '''08-11-2013''' : '''D''' : '''1 - 4''' ''Mundial 2013''
+|-
+!''Versus una selección de la OFC''
+!align=center |1
+!align=center |1
+!align=center |0
+!align=center |0
+!align=center |7
+!align=center |0
+!align=center |+1
+!align=center |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|FIJ|especial=sub17}} ||  1||  1||  0||  0||  7||  0||  +1|| align="left" | '''09-11-2025''' : '''V ''': '''0 - 7''' ''Mundial 2025''
+|-
+!'''TOTAL'''
+!align=center |217
+!align=center |112
+!align=center |49
+!align=center |54
+!align=center |388
+!align=center |228
+!align=center |+58
+|
+|}
+''Contiene datos de: [[Copa Mundial de Fútbol Sub-17|Copa Mundial]], [[Campeonato Sudamericano de Fútbol Sub-17| Campeonato Sudamericano]], [[Torneo masculino de fútbol en los Juegos Suramericanos de 2014|Juegos Suramericanos 2014]] y [[Fútbol en los Juegos Panamericanos|Juegos Panamericanos]].''
+
+En cursiva los países actualmente desaparecidos. Según FIFA:
+* Alemania incluye a la Selección de Alemania Federal, pero no a su par de Alemania Democrática, que actualmente forma parte de la Alemania unificada.
+* República Checa es sucesora de Checoslovaquia.
+* Rusia es sucesora de Unión Soviética.
+* Serbia es sucesora de Yugoslavia y Serbia y Montenegro.
+* Si bien Australia es un país oceánico, pertenece a la [[Confederación Asiática de Fútbol|AFC]] desde 2006, tras haber abandonado la [[Confederación de Fútbol de Oceanía|OFC]].
+
+<small>''Actualizado hasta el último partido: 14 de noviembre de 2025 - {{bandera|Argentina}} Argentina 2-2 (4-5) Mexico {{bandera|Mexico}} (Mundial 2025).''</small>
+
+== Entrenadores ==
+{{AP|Categoría:Entrenadores de la selección de fútbol sub-17 de Argentina}}
+
+== Jugadores ==
+====== Última convocatoria ======
+[[Archivo:Soccerball current event.svg|20px]] {{small|Actualizado el 26 de marzo de 2025}}
+
+Lista oficial de convocados para disputar el [[Campeonato Sudamericano de Fútbol Sub-17 de 2025]] a disputarse en [[Colombia]]. Se tuvieron en cuenta los jugadores nacidos a partir del 1 de enero de 2008.<ref>{{Cita web|url=https://www.afa.com.ar/es/posts/jugador-por-jugador-el-plantel-sub17-que-viajo-al-sudamericano-de-colombia|title=Jugador por jugador: el plantel Sub17 que viajó al Sudamericano de Colombia}}</ref>
+
+{| class="sortable" align="center" cellpadding="3" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;" width="70%"
+|-
+!bgcolor=#006699 style="color:White;" width=1%|{{abreviación|N.º|Dorsal}}
+!class=unsortable bgcolor=#006699 style="color:White;" width=1%|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+!bgcolor=#006699 align=left style="color:White;" width=10%|Nombre
+!bgcolor=#006699 align=center style="color:White;" class="unsortable" width=4%|Posición
+!bgcolor=#006699 style="color:White;" width=6%|Edad
+!bgcolor=#006699 style="color:White;" width=5%|{{abreviación|PJ|Partidos jugados}}
+!bgcolor=#006699 style="color:White;" width=5%|{{abreviación|G|Goles}}
+!bgcolor=#006699 style="color:White;" width=15%|Equipo 
+!bgcolor=#006699 style="color:White;" width=15%|Formativas
+
+|- align="center" bgcolor=#E0ECF8
+!1
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Dylan Martínez]]
+|{{por}}
+|{{edad|30|04|2008}}
+!2
+!0
+| align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+| align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+
+|- align="center"
+!12
+| align=left|{{Bandera|Ciudad de Buenos Aires}}
+| align=left| [[Juan Manuel Centurión]]
+|{{por}}
+|{{edad|12|06|2008}}
+!0
+!0
+| align=left|{{bandera|ARG}} [[Club Atlético Independiente|Independiente]]
+| align=left|{{bandera|ARG}} [[Club Atlético Independiente|Independiente]]
+
+|- align="center" bgcolor=#E0ECF8
+!23
+| align=left|{{Bandera|Provincia de Córdoba (Argentina)}}
+| align=left| [[Agustín Martínez Campilia|Agustín Martínez]]
+|{{por}}
+|{{edad|25|02|2008}}
+!2
+!0
+| align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+| align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+
+|- align=center style="border-top: 1px #6AB5FF solid;
+!4
+|align=left|{{Bandera|Provincia de Córdoba (Argentina)}}
+| align=left| [[Misael Zalazar]]
+|{{def}}
+|{{edad|12|3|2008}}
+!4
+!0
+| align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+| align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+
+|- align=center bgcolor=#E0ECF8
+!14
+| align=left|{{Bandera|Ciudad de Buenos Aires}}
+| align=left| [[Santiago Silveira]]
+|{{def}}
+|{{edad|24|4|2008}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]
+|align=left|{{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]
+
+|- align=center
+!2
+|align=left|{{Bandera|Provincia de Santa Fe}}
+| align=left| [[Mateo Martínez]]
+|{{def}}
+|{{edad|27|04|2008}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Racing Club]]
+|align=left|{{bandera|ARG}} [[Racing Club]]
+
+|- align=center bgcolor=#E0ECF8 
+!6
+|align=left|{{Bandera|Ciudad de Buenos Aires}}
+| align=left| [[Matías Satas]]
+|{{def}}
+|{{edad|28|2|2008}}
+!7
+!0
+|align=left|{{Bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+|align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+
+|- align=center
+!13
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Thiago Yanez]]
+|{{def}}
+|{{edad|6|3|2008}}
+!1
+!0
+|align=left|{{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]
+|align=left|{{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]
+
+|- align=center bgcolor=#E0ECF8 
+!17
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Bautista González]]
+|{{def}}
+|{{edad|19|6|2008}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Independiente|Independiente]]
+|align=left|{{bandera|ARG}} [[Club Atlético Independiente|Independiente]]
+
+|- align=center
+!3
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Benjamin Fariña]]
+|{{def}}
+|{{edad|29|7|2008}}
+!6
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Lanús|Lanús]]
+|align=left|{{bandera|ARG}} [[Club Atlético Lanús|Lanús]]
+
+|- align=center bgcolor=#E0ECF8 
+!16
+|align=left|{{Bandera|Provincia de Córdoba (Argentina)}}
+| align=left| [[Joaquín Salas]]
+|{{def}}
+|{{edad|14|1|2008}}
+!1
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+|align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+
+|- align=center style="border-top: 1px #6AB5FF solid;
+!15
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Alejandro Joaquín Tello|Alejandro Tello]]
+|{{mdc}}
+|{{edad|8|2|2008}}
+!5
+!0
+|align=left|{{bandera|ARG}} [[Racing Club]]
+|align=left|{{bandera|ARG}} [[Racing Club]]
+
+|- align=center bgcolor=#E0ECF8
+!5
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Santiago Espíndola]]
+|{{mdc}}
+|{{edad|17|3|2008}}
+!7
+!1
+|align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+|align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+
+|- align=center
+!8
+| align="left" |{{Bandera|Provincia de Santa Fe}}
+| align="left" | [[Jerónimo Gómez Mattar]]
+|{{mdc}}
+|{{edad|7|8|2008}}
+!5
+!3
+|align=left|{{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's]]
+|align=left|{{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's]]
+
+|- align=center bgcolor=#E0ECF8
+!21
+|align=left|{{Bandera|Provincia de Santa Fe}}
+| align=left| [[Felipe Pujol]]
+|{{med}}
+|{{edad|23|5|2008}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center
+!10
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Francisco Baridó]]
+|{{mdc}}
+|{{edad|1|1|2008}}
+!1
+!1
+|align=left|{{bandera|ITA}} [[Juventus de Turín|Juventus]]
+|align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+
+|- align=center bgcolor=#E0ECF8
+!18
+|align=left|{{Bandera|Provincia de Corrientes}}
+| align=left| [[Juan Cruz Meza]]
+|{{med}}
+|{{edad|14|3|2008}}
+!5
+!1
+|align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+|align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+
+|- align=center
+!20
+|align=left|{{Bandera|Ciudad de Buenos Aires}}
+| align=left| [[Tomás Parmo]]
+|{{med}}
+|{{edad|8|1|2008}}
+!8
+!1
+|align=left|{{bandera|ARG}} [[Club Atlético Independiente|Independiente]]
+|align=left|{{bandera|ARG}} [[Club Atlético Independiente|Independiente]]
+
+|- align=center bgcolor=#E0ECF8
+!7
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Matías Acevedo]]
+|{{med}}
+|{{edad|9|2|2008}}
+!0
+!0
+| align=left|{{bandera|ARG}} [[Racing Club]]
+| align=left|{{bandera|ARG}} [[Racing Club]]
+
+|- align=center style="border-top: 1px #6AB5FF solid;
+!11
+|align=left|{{Bandera|Provincia de Chubut}}
+| align=left| [[Alex Verón]]
+|{{del}}
+|{{edad|24|10|2008}}
+!8
+!2
+|align=left|{{bandera|ARG}} [[Club Atlético Velez Sarsfield|Vélez Sarsfield]]
+|align=left|{{bandera|ARG}} [[Club Atlético Velez Sarsfield|Vélez Sarsfield]]
+
+|- align=center bgcolor=#E0ECF8
+!22
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Uriel Ojeda]]
+|{{del}}
+|{{edad|22|3|2008}}
+!2
+!2
+|align=left|{{bandera|ARG}} [[Club Atlético San Lorenzo de Almagro|San Lorenzo]]
+|align=left|{{bandera|ARG}} [[Club Atlético San Lorenzo de Almagro|San Lorenzo]]
+
+|- align=center
+!9
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Thomas de Martis]]
+|{{del}}
+|{{edad|26|6|2008}}
+!7
+!4
+|align=left|{{bandera|ARG}} [[Club Atlético Lanús|Lanús]]
+|align=left|{{bandera|ARG}} [[Club Atlético Lanús|Lanús]]
+
+|- align=center bgcolor=#E0ECF8
+!19
+| align=left|{{Bandera|Provincia de Entre Ríos}}
+| align=left| [[Joaquín Piñeyro]]
+|{{del}}
+|{{edad|22|2|2008}}
+!0
+!0
+| align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+| align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+|}
+
+{|class="wikitable center" width="75%" style="text-align: center; margin:left;"
+|- align=center bgcolor=#7FBBFF style="color:#FFFFFF;"
+!align=center colspan="4" style="background:#7FBBFF; color:white;"|Cuerpo técnico
+|- 
+|style="text-align: left;"|'''Entrenador:'''
+|style="text-align: left;"|{{bandera|Ciudad de Buenos Aires}} [[Diego Placente]]
+|style="text-align: left;"|'''Asistentes:'''
+|style="text-align: left;"|{{bandera|Provincia de Buenos Aires}} [[Ariel Garcé]] - {{bandera|Provincia de San Luis}} [[Facundo Hernán Quiroga|Facundo Quiroga]]
+|- 
+|style="text-align: left;"|'''Preparador físico:'''
+|style="text-align: left;"|{{bandera|Provincia de Córdoba (Argentina)}} Enrique Cesana
+|style="text-align: left;"|'''Entrenador de arqueros:'''
+|style="text-align: left;"|{{bandera|Ciudad de Buenos Aires}} Fernando Escobar
+|}
+
+== Estadísticas ==
+
+=== [[Copa Mundial de Fútbol Sub-17]] ===
+
+{| class="wikitable" width=50% style="text-align: center;"
+|-
+!width=20%|Año
+!width=30%|Ronda
+!width=14%|{{abreviación|Pos.|Posición}}
+!width=8%|{{abreviación|J|Partidos jugados}}
+!width=8%|{{abreviación|G|Partidos ganados}}
+!width=8%|{{abreviación|E|Partidos empatados}}
+!width=8%|{{abreviación|P|Partidos perdidos}}
+!width=8%|{{abreviación|GF|Goles a favor}}
+!width=8%|{{abreviación|GC|Goles en contra}}
+|-
+|{{bandera|China}} [[Copa Mundial de Fútbol Sub-16 de 1985|1985]]||Fase de grupos||9°||3||1||1||1||5||4
+|- 
+|{{bandera|Canadá}} [[Copa Mundial de Fútbol Sub-16 de 1987|1987]]|| colspan="8" |''No clasificó''
+|- 
+|{{bandera|Escocia}} [[Copa Mundial de Fútbol Sub-16 de 1989|1989]]||Cuartos de final||8°||4||1||2||1||5||3
+|- bgcolor="#cc9966"
+|{{bandera|Italia}} [[Copa Mundial de Fútbol Sub-17 de 1991|1991]]||Tercer puesto||3°||6||2||2||2||5||5
+|-
+|{{bandera|Japón}} [[Copa Mundial de Fútbol Sub-17 de 1993|1993]]||Fase de grupos||9°||3||1||1||1||7||6
+|- bgcolor="#cc9966"
+|{{bandera|Ecuador}} [[Copa Mundial de Fútbol Sub-17 de 1995|1995]]||Tercer puesto||3°||6||5||0||1||12||4
+|-
+|{{bandera|Egipto}} [[Copa Mundial de Fútbol Sub-17 de 1997|1997]]||Cuartos de final||6°||4||2||1||1||3||2
+|-
+|{{bandera|Nueva Zelanda}} [[Copa Mundial de Fútbol Sub-17 de 1999|1999]]|| colspan="8" |''No clasificó''
+|- style="text-align:center; background:#9acdff;"
+|{{bandera|Trinidad y Tobago}} [[Copa Mundial de Fútbol Sub-17 de 2001|2001]]||Cuarto puesto||4°||6||3||1||2||12||9
+|- bgcolor="#cc9966"
+|{{bandera|Finlandia}} [[Copa Mundial de Fútbol Sub-17 de 2003|2003]]||Tercer puesto||3°||6||4||1||1||10||4
+|-
+|{{bandera|Perú}} [[Copa Mundial de Fútbol Sub-17 de 2005|2005]]|| colspan="8" |''No clasificó''
+|- 
+|{{bandera|Corea del Sur}} [[Copa Mundial de Fútbol Sub-17 de 2007|2007]]||Cuartos de final||6°||5||2||2||1||7||4
+|- 
+|{{bandera|Nigeria}} [[Copa Mundial de Fútbol Sub-17 de 2009|2009]]||Octavos de final||11°||4||2||0||2||6||6
+|- 
+|{{Bandera|México}} [[Copa Mundial de Fútbol Sub-17 de 2011|2011]]||Octavos de final||13°||4||1||1||2||4||8
+|- style="text-align:center; background:#9acdff;"
+|{{bandera|Emiratos Árabes Unidos}} [[Copa Mundial de Fútbol Sub-17 de 2013|2013]]||Cuarto puesto||4°||7||4||1||2||13||12
+|- 
+|{{bandera|Chile}} [[Copa Mundial de Fútbol Sub-17 de 2015|2015]]||Fase de grupos||24°||3||0||0||3||1||8
+|- 
+|{{bandera|India}} [[Copa Mundial de Fútbol Sub-17 de 2017|2017]]|| colspan="8" |''No clasificó''
+|- 
+|{{bandera|Brasil}} [[Copa Mundial de Fútbol Sub-17 de 2019|2019]]||Octavos de final||9°||4||2||1||1||8||5
+|- style="text-align:center; background:#9acdff;"
+|{{bandera|Indonesia}} [[Copa Mundial de Fútbol Sub-17 de 2023|2023]]||Cuarto puesto||4°||7||4||1||2||19||9
+|- bgcolor=
+|{{bandera|Catar}} [[Copa Mundial de Fútbol Sub-17 de 2025|2025]]||Dieciseisavos de final||17°||4||3||1||0||13||4
+|- 
+|{{bandera|Catar}} [[Copa Mundial de Fútbol Sub-17 de 2026|2026]]|| colspan="8" |''Clasificado''
+|- class="sortbottom" align=center
+! [[Copa Mundial de Fútbol Sub-17#Estadísticas|Total]]
+! 16/20
+! 3°
+! 76
+! 37
+! 16
+! 23
+! 130
+! 93
+|}
+
+=== [[Campeonato Sudamericano Sub-17]] ===
+{| class="wikitable" width=50% style="text-align: center;"
+|-
+!width=20%|Año
+!width=30%|Ronda
+!width=14%|{{abreviación|Pos.|Posición}}
+!width=8%|{{abreviación|J|Partidos jugados}}
+!width=8%|{{abreviación|G|Partidos ganados}}
+!width=8%|{{abreviación|E|Partidos empatados}}
+!width=8%|{{abreviación|P|Partidos perdidos}}
+!width=8%|{{abreviación|GF|Goles a favor}}
+!width=8%|{{abreviación|GC|Goles en contra}}
+|- bgcolor=gold
+|style="border: 3px solid red"|{{Bandera|Argentina}} [[Campeonato Sudamericano Sub-16 de 1985|1985]]||'''Fase final'''||'''1°'''||'''8'''||'''8'''||'''0'''||'''0'''||'''32'''||'''4'''
+|-bgcolor=
+|{{Bandera|Perú}} [[Campeonato Sudamericano Sub-16 de 1986|1986]]||Fase final||4°||7||1||5||1||7||7
+|- align=center bgcolor=silver
+|{{Bandera|Ecuador}} [[Campeonato Sudamericano Sub-17 de 1988|1988]]||Fase final||2°||7||6||0||1||13||4
+|-bgcolor="#cc9966"
+|{{Bandera|Paraguay}} [[Campeonato Sudamericano Sub-17 de 1991|1991]]||Fase final||3°||7||4||2||1||10||7
+|-bgcolor="#cc9966"
+|{{bandera|Colombia}} [[Campeonato Sudamericano Sub-17 de 1993|1993]]||Fase final||3°||7||4||1||2||12||6
+|- align=center bgcolor=silver
+|{{bandera|Perú}} [[Campeonato Sudamericano Sub-17 de 1995|1995]]||Fase final||2°||6||4||1||1||12||4
+|- align=center bgcolor=silver
+|{{bandera|Paraguay}} [[Campeonato Sudamericano Sub-17 de 1997|1997]]||Fase final||2°||7||4||1||2||15||6
+|-bgcolor=
+|{{bandera|Uruguay}} [[Campeonato Sudamericano Sub-17 de 1999|1999]]||Fase final||4°||6||2||2||2||9||9
+|- align=center bgcolor=silver
+|{{bandera|Perú}} [[Campeonato Sudamericano Sub-17 de 2001|2001]]||Fase final||2°||7||4||1||2||12||9
+|- align=center bgcolor=gold
+|{{bandera|Bolivia}} [[Campeonato Sudamericano Sub-17 de 2003|2003]]||'''Fase final'''||'''1°'''||'''7'''||'''4'''||'''3'''||'''0'''||'''19'''||'''5'''
+|-
+|{{bandera|Venezuela}} [[Campeonato Sudamericano Sub-17 de 2005|2005]]||Primera fase||7.º||4||1||1||2||6||7
+|-bgcolor="#cc9966"
+|{{bandera|Ecuador}} [[Campeonato Sudamericano Sub-17 de 2007|2007]]||Fase final||3.º||9||4||4||1||13||7
+|- align=center bgcolor=silver
+|{{bandera|Chile}} [[Campeonato Sudamericano Sub-17 de 2009|2009]]||Fase final||2°||5||3||2||0||10||4
+|-bgcolor="#cc9966"
+|{{bandera|Ecuador}} [[Campeonato Sudamericano Sub-17 de 2011|2011]]||Fase final||3°||9||5||1||3||17||11
+|- align=center bgcolor=gold
+|style="border: 3px solid red"|{{bandera|Argentina}} [[Campeonato Sudamericano Sub-17 de 2013|2013]]||'''Fase final'''||'''1°'''||'''9'''||'''4'''||'''3'''||'''2'''||'''17'''||'''13'''
+|- align=center bgcolor=silver
+|{{bandera|Paraguay}} [[Campeonato Sudamericano Sub-17 de 2015|2015]]||Fase final||2.º||9||4||2||3||14||9
+|- align=center 
+|{{bandera|Chile}} [[Campeonato Sudamericano Sub-17 de 2017|2017]]||Primera fase||8.º||4||1||0||3||3||4
+|- align=center bgcolor=gold
+|{{bandera|Perú}} [[Campeonato Sudamericano Sub-17 de 2019|2019]]||'''Fase final'''||'''1°'''||'''9'''||'''5'''||'''2'''||'''2'''||'''14'''||'''10'''
+|- align=center bgcolor="#cc9966"
+|{{bandera|Ecuador}} [[Campeonato Sudamericano de Fútbol Sub-17 de 2023|2023]]||Fase final||3°||9||5||2||2||15||8
+|- align=center bgcolor="#FFFFFF"
+|{{bandera|Colombia}} [[Campeonato Sudamericano de Fútbol Sub-17 de 2025|2025]]||Fase final||6°||6||3||1||2||16||7
+|- align=center bgcolor=silver
+|{{bandera|Paraguay}} [[Campeonato Sudamericano de Fútbol Sub-17 de 2026|2026]]||Fase final||2°||6||3||1||2||11||12
+|- class="sortbottom" align=center
+! Total
+! 21/21
+! 2°
+! 148
+! 79
+! 35
+! 34
+! 277
+! 153
+|}
+
+== Palmarés ==
+
+=== Títulos ===
+
+{| class="wikitable colizq" style="font-size:95%; text-align: center;"
+! rowspan="2" width="18%" |Competición
+|-
+! width="18%" style="background:Gold" |Títulos
+! width="18%" style="background:Silver" |Subcampeonatos
+! width="18%" style="background:#CD7F32" |Tercer lugar
+
+|-
+|'''[[Copa Mundial de Fútbol Sub-17]]'''
+| –
+| –
+|3 ([[Copa Mundial de Fútbol Sub-17 de 1991|1991]], [[Copa Mundial de Fútbol Sub-17 de 1995|1995]] y [[Copa Mundial de Fútbol Sub-17 de 2003|2003]])
+
+|-
+|'''[[Campeonato Sudamericano Sub-17]]'''
+|4 ([[Campeonato Sudamericano Sub-16 de 1985|1985]], [[Campeonato Sudamericano Sub-17 de 2003|2003]], [[Campeonato Sudamericano Sub-17 de 2013|2013]] y [[Campeonato Sudamericano Sub-17 de 2019|2019]])
+|7 ([[Campeonato Sudamericano Sub-17 de 1988|1988]], [[Campeonato Sudamericano Sub-17 de 1995|1995]], [[Campeonato Sudamericano Sub-17 de 1997|1997]], [[Campeonato Sudamericano Sub-17 de 2001|2001]], [[Campeonato Sudamericano Sub-17 de 2009|2009]], [[Campeonato Sudamericano Sub-17 de 2015|2015]] y [[Campeonato Sudamericano de Fútbol Sub-17 de 2026|2026]])
+|5 ([[Campeonato Sudamericano Sub-17 de 1991|1991]], [[Campeonato Sudamericano Sub-17 de 1993|1993]], [[Campeonato Sudamericano Sub-17 de 2007|2007]], [[Campeonato Sudamericano Sub-17 de 2011|2011]] y [[Campeonato Sudamericano de Fútbol Sub-17 de 2023|2023]])
+|}
+
+=== Distinciones otorgadas ===
+{| class="wikitable" width=35% style="text-align: center;"
+!width="300"|Distinción
+!width="50"|Año
+|- align=center
+|rowspan="2"|Premio Fair Play de la FIFA 
+|[[Copa Mundial de Fútbol Sub-17 de 1991|1991]]
+|- align=center
+|[[Copa Mundial de Fútbol Sub-17 de 1997|1997]]
+|}
+{{clear}}
+
+== Notas y referencias ==
+{{listaref}}
+
+== Véase también ==
+* [[Selección de fútbol de Argentina]]
+* [[Selección de fútbol sub-23 de Argentina]]
+* [[Selección de fútbol sub-22 de Argentina]]
+* [[Selección de fútbol sub-20 de Argentina]]
+* [[Selección de fútbol sub-15 de Argentina]]
+* [[Selección femenina de fútbol sub-17 de Argentina]]
+
+{{Control de autoridades}}
+[[Categoría:Selecciones deportivas de Argentina]]
+[[Categoría:Divisiones menores de la Selección Argentina]]
+[[Categoría:Selecciones de fútbol sub-17 de la Conmebol|Argentina]]

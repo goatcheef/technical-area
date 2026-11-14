@@ -1,0 +1,18 @@
+{
+ "_ayuda": "Clave: 'Nombre corto del club|Nombre del jugador'. ca = valoración (30 a 93). pos = puesto natural: GK, DR, DC, DL, DM, MC, MR, ML, AMC, AMR, AML, ST. prospect = proyección de un juvenil (1 a 6; 6 = mundialista sub-20). Después correr: npm run db",
+ "Independiente|Rodrigo Rey": {
+  "ca": 78
+ },
+ "Independiente|Santiago Mele": {
+  "ca": 77
+ },
+ "Independiente|Joaquín Blázquez": {
+  "ca": 68
+ },
+ "Independiente|Mateo Pérez Curci": {
+  "prospect": 5.5
+ },
+ "Independiente|Juan Arrayago": {
+  "prospect": 5
+ }
+}

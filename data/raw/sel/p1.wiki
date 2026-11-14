@@ -1,0 +1,1559 @@
+{{Ficha de selección de fútbol 2|especial=sub-20
+| país                   = Argentina
+| cod                    = ARG
+| asociación             = [[Asociación del Fútbol Argentino|AFA]]
+| confederación          = [[Confederación Sudamericana de Fútbol|CONMEBOL]] 
+| seudónimo              = ''La Albiceleste''<br />''Los Pibes''
+| país-dt                = Argentina
+| año-dt                 = 2024
+| director técnico       = [[Diego Placente]]
+| mayor goleador	     = [[Lionel Messi]]<br>[[Diego Maradona]]
+| mayor goleador goles   = 14
+| más participaciones	 = [[Pablo Aimar]] 
+| mayor partidos         = 21 
+| PPI país1              = Argentina
+| PPI país2              = Venezuela
+| PPI bandera1           = alt
+| PPI bandera2           = 1954
+| PPI marcador           = 5:0
+| PPI categoria1         = sub-20
+| PPI categoria2         = sub-20
+| PPI lugar              = [[Buenos Aires]], [[Argentina]]
+| PPI fecha              = {{fecha|27|02|1951}}
+| PPI evento             =
+| MRI país1              = Argentina
+| MRI país2              = Estados Unidos
+| MRI bandera1           = alt
+| MRI bandera2           = 
+| MRI marcador           = 8:1
+| MRI categoria1         = sub-20
+| MRI categoria2         = sub-20
+| MRI lugar              = [[São Paulo]], [[Brasil]]
+| MRI fecha              = {{fecha|4|05|1963}}
+| PRI país1              = Francia
+| PRI país2              = Argentina
+| PRI bandera1           = 
+| PRI bandera2           = 
+| PRI marcador           = 6:2
+| PRI categoria1         = sub-20
+| PRI categoria2         = sub-20
+| PRI lugar              = [[Toulouse]], [[Francia]]
+| PRI fecha              = {{fecha|4|06|2022}}
+| mundial                = [[Copa Mundial de Fútbol Sub-20]]
+| participación mundial  = 18
+| primer mundial         = [[Copa Mundial de Fútbol Sub-20 de 1979|1979]]
+| mejor mundial          = [[Archivo:Gold medal icon.svg|15px|Campeón]] ([[Copa Mundial de Fútbol Sub-20 de 1979|1979]], [[Copa Mundial de Fútbol Sub-20 de 1995|1995]], [[Copa Mundial de Fútbol Sub-20 de 1997|1997]], [[Copa Mundial de Fútbol Sub-20 de 2001|2001]], [[Copa Mundial de Fútbol Sub-20 de 2005|2005]] y [[Copa Mundial de Fútbol Sub-20 de 2007|2007]])<ref>{{cita web|título=Copa Mundial Sub-20 de la FIFA|url=http://es.fifa.com/fifa-tournaments/teams/index.html|editorial=FIFA|fechaacceso=6 de febrero de 2018|fechaarchivo=2 de febrero de 2018|urlarchivo=https://web.archive.org/web/20180202224053/http://es.fifa.com/fifa-tournaments/teams/index.html|deadurl=yes}}</ref>
+| copa regional          = [[Campeonato Sudamericano Sub-20]]
+| participación regional = 29 
+| primer regional        = [[Campeonato Sudamericano Sub-20 de 1958|1958]]
+| mejor regional         = [[Archivo:Gold medal icon.svg|15px|Campeón]] ([[Campeonato Sudamericano Sub-20 de 1967|1967]], [[Campeonato Sudamericano Sub-20 de 1997|1997]], [[Campeonato Sudamericano Sub-20 de 1999|1999]], [[Campeonato Sudamericano Sub-20 de 2003|2003]] y [[Campeonato Sudamericano de Fútbol Sub-20 de 2015|2015]])
+| color_izq1             = FFFFFF
+| color_cuerpo1          = FFFFFF
+| color_der1             = FFFFFF
+| color_pantalón1        = FFFFFF
+| color_medias1          = FFFFFF
+| trama_izq1             =_arg26h
+| trama_cuerpo1          =_arg26h
+| trama_der1             =_arg26h
+| trama_pantalón1        =_arg26h2
+| trama_medias1          =_arg26h2
+| color_izq2             = 0035D5
+| color_cuerpo2          = 0035D5
+| color_der2             = 0035D5
+| color_pantalón2        = 0035D5
+| color_medias2          = FFFFFF
+| trama_izq2             = _arg26a
+| trama_cuerpo2          = _arg26a
+| trama_der2             = _arg26a
+| trama_pantalón2        = _arg26A
+| trama_medias2          = _3_stripes_onblack
+}}
+
+La '''[[Selección de fútbol#Selección sub-20|selección de fútbol sub-20]] de [[Argentina]]''' es el equipo formado por jugadores de nacionalidad [[argentina]] menores de 20 años de edad, que representa a la [[Asociación del Fútbol Argentino]] en la [[Copa Mundial de Fútbol Sub-20]] y en el [[Campeonato Sudamericano de Fútbol Sub-20]].
+
+[[Argentina]] es el país más exitoso de la [[Copa Mundial de Fútbol Sub-20]], ganando la competición en seis oportunidades en los años [[Copa Mundial de Fútbol Juvenil de 1979|1979]], [[Copa Mundial de Fútbol Juvenil de 1995|1995]], [[Copa Mundial de Fútbol Juvenil de 1997|1997]], [[Copa Mundial de Fútbol Juvenil de 2001|2001]], [[Copa Mundial de Fútbol Juvenil de 2005|2005]] y [[Copa Mundial de Fútbol Sub-20 de 2007|2007]].<ref>{{Cita web|url=https://olympics.com/es/noticias/argentina-mundial-sub-20-repaso-seis-titulos-futbol-masculino|título=Argentina y el Mundial sub-20: un repaso por los seis títulos del país más laureado de la categoría|fechaacceso=15 de marzo de 2024|fecha=19 de abril de 2023|sitioweb=www.olympics.com|idioma=es}}</ref> El equipo ha participado en 17 ediciones de la [[Copa Mundial de Fútbol Sub-20]], iniciando en la [[Copa Mundial de Fútbol Sub-20 de 1979|edición 1979]], la cual la ganó. También ha conseguido cinco [[Campeonato Sudamericano Sub-20|Campeonatos Sudamericanos Sub-20]], en los años [[Campeonato Sudamericano Sub-20 de 1967|1967]], [[Campeonato Sudamericano Sub-20 de 1997|1997]], [[Campeonato Sudamericano Sub-20 de 1999|1999]],  [[Campeonato Sudamericano Sub-20 de 2003|2003]] y [[Campeonato Sudamericano Sub-20 de 2015|2015]], asimismo también posee dos títulos en los [[Fútbol en los Juegos Suramericanos|Juegos Suramericanos]], en los años [[Juegos Suramericanos de 1982|1982]] y [[Juegos Suramericanos de 1986|1986]], junto a consagraciones en torneos menores como el [[Torneo Internacional de Fútbol Sub-20 de la Alcudia]], en 2012, 2018, 2022 y 2025.  
+
+Sus máximos goleadores son [[Diego Maradona]] y [[Lionel Messi]], con 14 tantos, mientras que el jugador con más partidos es [[Pablo Aimar]], con 21. El director técnico más ganador de la historia de la selección es [[José Néstor Pékerman]] con tres copas mundiales y dos campeonatos sudamericanos.
+
+La selección posee un equipo alternativo, llamado «selección argentina sub-20 del Ascenso» que reúne a jugadores sub-20 que, al momento de su citación no estén militando en algún club de la [[Primera División de Argentina]].
+
+== Historia ==
+=== Copa Mundial de 1979 ===
+[[Archivo:Argentina u20 1979.jpg|thumb|250px|El equipo se coronó campeón en el Mundial 1979.]]
+[[Archivo:Maradona trophy u20.jpg|miniaturadeimagen|286x286px|[[Diego Maradona]] con el trofeo de la [[Copa Mundial de Fútbol Juvenil de 1979]].]]
+[[Argentina]] no clasificó al primer [[Copa Mundial de Fútbol Juvenil de 1977|Mundial]] celebrado en [[Túnez]]. La primera aparición de una selección nacional en una competición sub-20 fue dos años después en la [[Copa Mundial de Fútbol Juvenil de 1979]] en [[Tokio]]. El equipo, entrenado por [[César Luis Menotti]] con la ayuda de [[Ernesto Duchini]] (quien previamente había elegido a los jugadores y trabajando con ellos), ganó el torneo mostrando un fino estilo de juego consistente en alta posesión del balón. Una defensa sólida y una potente ofensiva que marcó un total de 20 goles a lo largo del torneo. [[Diego Maradona]] y [[Ramón Ángel Díaz|Ramón Díaz]] eran los líderes y los jugadores más destacados del equipo. Dicho torneo también fue el primer campeonato oficial disputado por [[Maradona]] en la selección nacional. Tras la frustración de 1978, [[Maradona]] aprovechó al máximo sus actuaciones durante el torneo, siendo el creador de juego del equipo por sus pases, regates, su precisión en los tiros libres y los seis goles que marcó.
+
+[[Argentina]] debutó en el Grupo B derrotando a [[Selección de fútbol sub-20 de Indonesia|Indonesia]] 5-0 en el primer partido, derrotando a [[Selección de fútbol sub-20 de Yugoslavia|Yugoslavia]] 1-0 en el segundo y derrotando a [[Selección de fútbol sub-20 de Polonia|Polonia]] en el tercero, 4-1. Terminó primero en el grupo con diez goles marcados y solo uno concedido. De camino a la final, [[Argentina]] venció a [[Argelia]] 5-0 y luego derrotó a [[Selección de fútbol sub-20 de Uruguay|Uruguay]] 2-0. En la final contra la [[Selección de fútbol sub-20 de la Unión Soviética|Unión Soviética]] el 7 de septiembre, el equipo ganó 3-1, convirtiéndose en Campeón Mundial de la categoría por primera vez. [[Ramón Ángel Díaz|Ramón Díaz]] ganó la Bota de Oro como máximo goleador, con ocho goles, mientras que Maradona se llevó el Balón de Oro como mejor jugador del torneo.
+
+Además de [[Maradona]] y [[Ramón Ángel Díaz|Díaz]], otros jugadores destacados del equipo fueron [[Juan Simón]], Hugo Alves, [[Gabriel Calderón]], [[Juan Barbas]] y [[Osvaldo Escudero]]. Ese equipo todavía es considerado como uno de los mejores equipos nacionales argentinos de la historia.
+
+=== 1981-1991: Década de malos resultados ===
+
+Argentina asistió al próximo torneo, organizado por [[Copa Mundial de Fútbol Juvenil de 1981|Australia en 1981]]. El equipo fue derrotado por el anfitrión (2-1), luego logró un empate con [[Selección de fútbol sub-20 de Inglaterra|Inglaterra]] (1-1) y venció a [[Selección de fútbol sub-20 de Camerún|Camerún]] 1-0. Argentina no se clasificó para la segunda fase, luego de conseguir solo tres puntos en tres partidos jugados.
+
+La selección nacional hizo una actuación mucho mejor en el campeonato de 1983 organizado por México, llegando a la final con [[Selección de fútbol sub-20 de Brasil|Brasil]]. En la primera ronda, Argentina goleó a [[Selección de fútbol sub-20 de China|China]] 5-0, luego derrotó ampliamente a [[Selección de fútbol sub-20 de Austria|Austria]] (3-0) y venció a [[Selección de fútbol sub-20 de Checoslovaquia|Checoslovaquia]] en el último partido de la fase de grupos, 2-0. El equipo clasificó primero con cero goles recibidos. En los cuartos de final, Argentina derrotó a [[Selección de fútbol sub-20 de Países Bajos|Holanda]] 2-1 (después de que un tal [[Marco van Basten]] abriera el marcador) y [[Selección de fútbol sub-20 de Polonia|Polonia]] 1-0 en las semifinales. El 19 de junio de 1983, Argentina jugó la final contra [[Selección de fútbol sub-20 de Brasil|Brasil]], cayendo 1-0 en el [[Estadio Azteca]].
+
+Algunos de los jugadores de ese equipo fueron el arquero [[Luis Islas]], los defensores [[Fabián Basualdo]], [[Jorge Theiler]], [[Carlos Enrique]]; los mediocampistas [[Mario Vanemerak]], [[Oscar Román Acosta]] y [[Roberto Zárate]]; y los delanteros [[Claudio García]], Jorge Luis Gabrich y [[Oscar Dertycia]].
+
+Argentina no clasificó para disputar los campeonatos de 1985 y 1987 (disputados en la [[Unión Soviética]] y [[Chile]] respectivamente), pero el equipo participó en el torneo celebrado en [[Arabia Saudita]] como uno de los tres clasificados en el [[Campeonato Sudamericano Sub-20 de 1988|campeonato sudamericano]]. [[Argentina]] fue derrotada por [[Selección de fútbol sub-20 de España|España]] en el primer partido. El equipo se recuperó ganando el segundo juego ante [[Selección de fútbol sub-20 de Noruega|Noruega]] 2-0, pero aunque perdió, sorprendentemente, el último partido ante [[Selección de fútbol sub-20 de Irak|Irak]], Argentina se clasificó para la segunda ronda aunque en la fase eliminatoria, la selección fue derrotado 1-0 por [[Selección de fútbol sub-20 de Brasil|Brasil]].
+
+Para el [[Copa Mundial de Fútbol Sub-20 de 1991|campeonato de 1991]] celebrado en [[Portugal]], Argentina fue dirigida por [[Reinaldo Merlo]], quien fue designado por el entonces técnico de la [[Selección de fútbol de Argentina|selección mayor]] [[Alfio Basile]].
+
+Argentina hizo su peor campaña en torneos juveniles, terminando último en su grupo con solo un punto ganado en tres partidos. El equipo perdió ante [[Selección de fútbol sub-20 de Corea del Sur|Corea del Sur]] 1-0 en el primer partido, luego fue derrotado por los anfitriones [[Selección de fútbol sub-20 de Portugal|Portugal]] 3-0 en un partido en el que tres jugadores argentinos ([[Claudio Paris]], [[Mauricio Pellegrino]] y [[Juan Esnáider]]) fueron expulsados por su juego brusco que culminó en una pelea en el campo entre ambos equipos. Como resultado, la FIFA sancionó a la [[Asociación del Fútbol Argentino]] (AFA) con una suspensión de dos años, así como una suspensión de un año para [[Juan Esnáider|Esnáider]] y una suspensión de dos años para Norberto Recassens (uno de los representantes de la [[Asociación del Fútbol Argentino|AFA]], el cual insultó a los árbitros en su vestuario al final del partido.
+
+Algunos de los jugadores que formaron parte de ese equipo fueron el portero [[Leonardo Díaz]], los defensores [[Diego Cocca]], [[Mauricio Pochettino]] y [[Mauricio Pellegrino|Pellegrino]]; los centrocampistas [[Claudio Paris|Paris]], [[Walter Paz]], [[Hugo Morales]] y [[Christian Bassedas]]; y los delanteros [[Marcelo Delgado]] y [[Juan Esnáider|Esnáider]].
+
+=== 1992-2001: Era Pékerman: formación y títulos ===
+Luego de la suspensión tras los incidentes en el partido frente a [[Selección de fútbol sub-20 de Portugal|Portugal]], la selección se vio imposibilitada para competir en el [[Campeonato Sudamericano Sub-20 de 1992|Sudamericano 1992]] y posteriormente en la [[Copa Mundial de Fútbol Sub-20 de 1993|Copa del Mundo 1993]] en [[Australia]]. La [[Asociación del Fútbol Argentino|AFA]] había optado por nombrar a un nuevo técnico totalmente independiente del técnico de la [[Selección de fútbol de Argentina|selección absoluta]] como había sido hasta entonces. El elegido fue el entrenador Argentino [[José Néstor Pékerman|José Pékerman]], quien, a pesar de no tener mucha experiencia previa, su proyecto convenció a la AFA para que lo contratara.<ref>{{cita web|título=ARGENTINA-PORTUGAL: EL RECUERDO DEL ESCÁNDALO DE 1991|url=https://infocielo.com/deportes/seleccion-argentina/argentina-portugal-el-recuerdo-del-escandalo-1991-n287442}}</ref>
+
+Los buenos resultados fueron inmediatos: [[Argentina]] ganó el primer Mundial disputado con [[José Néstor Pékerman|Pékerman]] como técnico, celebrado en [[Copa Mundial de Fútbol Sub-20 de 1995|1995 en Catar]]. En la fase de grupos, Argentina derrotó a [[Selección de fútbol sub-20 de los Países Bajos|Holanda]] 1-0, luego perdió ante [[Selección de fútbol sub-20 de Portugal|Portugal]] 1-0 seguido de una victoria por 4-2 sobre [[Selección de fútbol sub-20 de Honduras|Honduras]], asegurando un segundo lugar y la clasificación a los cuartos de final, donde le ganó a [[Selección de fútbol sub-20 de Camerún|Camerún]] por 2–0. En semifinales, Argentina venció a [[Selección de fútbol sub-20 de España|España]] 3-0 y luego derrotó a [[Selección de fútbol sub-20 de Brasil|Brasil]] 2-0 en la final, dándose revancha del [[Copa Mundial de Fútbol Juvenil de 1983|torneo de 1983]] en el que ganaron los brasileños.
+
+Algunos de sus jugadores más destacados fueron [[Juan Pablo Sorín]], [[Joaquín Irigoytía]], [[Federico Domínguez]], [[Mariano Juan]], [[Ariel Ibagaza]], [[Leonardo Biagini]] y [[Walter Coyette]].
+[[Argentina]] ganó su tercer título en el [[Copa Mundial de Fútbol Sub-20 de 1997|campeonato de 1997]], organizado por [[Malasia]]. El equipo derrotó a [[Selección de fútbol sub-20 de Hungría|Hungría]] 3-0 y [[Selección de fútbol sub-20 de Canadá|Canadá]] 2-1, pero perdió ante [[Selección de fútbol sub-20 de Australia|Australia]] 4-3. Argentina pasó a los octavos de final, donde derrotó a [[Selección de fútbol sub-20 de Inglaterra|Inglaterra]] por 2-1. En cuartos de final, eliminó a [[Selección de fútbol sub-20 de Brasil|Brasil]] después de ganar 2-0 y luego venció a la [[Selección de fútbol sub-20 de Irlanda|República de Irlanda]] 1-0 en las semifinales. En el partido final, jugado el 5 de julio de 1997, el equipo derrotó a [[Selección de fútbol sub-20 de Uruguay|Uruguay]] 2-1 para ganar su tercer campeonato. La selección también recibió el premio FIFA Fair Play en reconocimiento al buen comportamiento mostrado en el campo.
+
+Argentina mostró el talento de destacados jugadores como [[Leonardo Franco]], [[Fabián Cubero]], [[Leandro Cufré]], [[Walter Samuel]], [[Diego Placente]], [[Esteban Cambiasso]], [[Pablo Aimar]], [[Juan Román Riquelme]] y [[Bernardo Romeo]], muchos de ellos con bastantes partidos disputados en [[Primera División de Argentina|Primera División]] cuando comenzó el torneo.
+
+El desempeño durante el [[Copa Mundial de Fútbol Sub-20 de 1999|Campeonato del Mundo de 1999]] en [[Nigeria]] no fue tan bueno. Argentina terminó tercero en el grupo, venciendo a [[Selección de fútbol sub-20 de Kazajistán|Kazajistán]] 1-0 en el debut, pero con un partido perdido ante [[Selección de fútbol sub-20 de Ghana|Ghana]] (1-0) y un empate 0-0 con [[Selección de fútbol sub-20 de Croacia|Croacia]]. En los octavos de final, Argentina fue derrotada a manos de [[Selección de fútbol sub-20 de México|México]] por 4-1 y eliminada del torneo.
+
+En 2001 [[Argentina]] fue sede de su primer [[Copa Mundial de Fútbol Sub-20 de 2001|mundial sub-20]]. El equipo ganó su cuarto título, el tercer campeonato en siete años, ganando todos sus encuentros. Argentina debutó en el [[Estadio José Amalfitani]] (donde el equipo jugó todos sus partidos en [[Buenos Aires]]) donde derrotó a [[Selección de fútbol sub-20 de Finlandia|Finlandia]] 1-0, para luego vapulear a [[Selección de fútbol sub-20 de Egipto|Egipto]] por 7-1 (con tres goles de [[Javier Saviola]]) y golear a [[Selección de fútbol sub-20 de Jamaica|Jamaica]] por 5-1. En octavos de final, Argentina eliminó a [[Selección de fútbol sub-20 de la China|China]] después de ganar 2-1, y luego a [[Selección de fútbol sub-20 de Francia|Francia]] por 3-1 en los cuartos de final, entrando a la final tras golear a [[Selección de fútbol sub-20 de Paraguay|Paraguay]] por 5-0, en el que terminaría coronándose campeón del torneo con un convincente 3-0 contra [[Selección de fútbol sub-20 de Ghana|Ghana]].
+
+Argentina ganó su cuarto título juvenil invicto, anotando 27 goles en 7 partidos, encajando 4. El delantero de [[River Plate]], [[Javier Saviola]], fue premiado con la Bota de Oro (como máximo goleador con 11) y el Balón de Oro como mejor jugador del torneo. Asimismo, Argentina recibió el premio FIFA Fair Play por segunda vez consecutiva. Además del multipremiado Saviola, la selección nacional tenía un equipo poderoso con la mayoría de sus jugadores experimentados jugando en la [[Primera División de Argentina|primera división nacional]], en particular [[Nicolás Burdisso]], [[Leonardo Ponzio]], [[Julio Arca]], [[Leandro Romagnoli]], [[Mauro Rosales]], [[Andrés D'Alessandro]] y [[Maxi Rodríguez]].
+
+El campeonato de 2001 fue el último título ganado con [[José Néstor Pékerman|Pékerman]] como técnico, cerrando una época brillante, donde abrió paso a una época dorada para Argentina.
+
+=== 2002-2011: Época exitosa y bicampeonato de Copa del Mundo ===
+Tras la Copa Mundial del 2001, la selección disputó el [[Campeonato Sudamericano Sub-20 de 2003]] con [[Francisco Ferraro]] como director técnico. Formaron parte del Grupo B y terminaron primeros con 9 puntos junto a [[Selección de fútbol sub-20 de Colombia|Colombia]], en la ronda final finalizaron primeros coronándose campeones con 11 puntos. 
+
+En ese mismo año el seleccionado clasificó automáticamente a la [[Copa Mundial de Fútbol Sub-20 de 2003]], esta se desempeñó en [[Emiratos Árabes Unidos]]. El seleccionado Argentino integró el grupo B junto a [[Selección de fútbol sub-20 de España|España]], [[Selección de fútbol sub-20 de Malí|Malí]] y [[Selección de fútbol sub-20 de Uzbekistán|Uzbekistán]], logrando 9 puntos (3 victorias), en los octavos de final venció a [[Selección de fútbol sub-20 de Egipto|Egipto]], en los cuartos a [[Selección de fútbol sub-20 de Estados Unidos|Estados Unidos]] y en las semifinales cayó ante [[Selección de fútbol sub-20 de Brasil|Brasil]], quien se coronaría campeón de la edición. [[Fernando Cavenaghi]] terminó como goleador del torneo con 4 tantos.
+
+En 2005, disputaron la [[Copa Mundial de Fútbol Sub-20 de 2005|Copa Mundial de Fútbol Sub-20 de]] [[Países Bajos]], equipo tallado de jóvenes promesas y lo que es denominada como la mejor camada del sub-20, con jugadores como [[Lionel Messi]], [[Kun Agüero]], [[Fernando Gago]], [[Pablo Zabaleta]], [[Ezequiel Garay]], entre otros. Clasificaron a las instancias finales como segundos del Grupo D, tras [[Selección de fútbol sub-20 de Estados Unidos|Estados Unidos]] y por delante de [[Selección de fútbol sub-20 de Alemania|Alemania]] y [[Selección de fútbol sub-20 de Egipto|Egipto]]. En octavos de final derrotaron a [[Selección de fútbol sub-20 de Colombia|Colombia]], a [[Selección de fútbol sub-20 de España|España]] en cuartos, en semifinales vencieron a [[Selección de fútbol sub-20 de Brasil|Brasil]] y en la final le ganaron a [[Selección de fútbol sub-20 de Nigeria|Nigeria]] por 2:1, con goles de Messi.<ref>{{Cita web|url=https://es.besoccer.com/partido/argentina-sub-20/nigeria-sub-20/200544462/eventos|título=Estadísticas Argentina Sub 20 vs Nigeria Sub 20 - Mundial Sub 20 2005|fechaacceso=2023-03-30|sitioweb=es.besoccer.com|idioma=es}}</ref><ref>{{Cita web|url=https://www.ceroacero.es/match.php?id=182974|título=Argentina 2-1 Nigeria :: U20 World Cup 2005 :: Ficha del Partido :: ceroacero.es|fechaacceso=2023-03-30|sitioweb=www.ceroacero.es|idioma=es}}</ref> El director técnico de esa copa fue [[Francisco Ferraro]].
+
+En el año 2007, en [[Canadá]], el plantel argentino disputó nuevamente la [[Copa Mundial de Fútbol Sub-20 de 2007|Copa Mundial de Fútbol Sub-20]], formaron parte del grupo E junto a [[Selección de fútbol sub-20 de República Checa|República Checa]], [[Selección de fútbol sub-20 de Panamá|Panamá]] y [[Selección de fútbol sub-20 de Corea del Norte|Corea del Norte]], el seleccionado finalizó en primer lugar con 7 puntos. En octavos de final derrotaron a [[Selección de fútbol sub-20 de Polonia|Polonia]], en cuartos a [[Selección de fútbol sub-20 de México|México]], en semifinales a [[Selección de fútbol sub-20 de Chile|Chile]] y en la [[Anexo:Final de la Copa Mundial de Fútbol Sub-20 de 2007|final de la edición]] vencieron por 2:1 a [[Selección de fútbol sub-20 de la República Checa|República Checa]], con goles de [[Kun Agüero]] y [[Mauro Zárate]]. En ese plantel también estuvieron históricos como [[Pablo Piatti]], [[Sergio Germán Romero]], [[Éver Banega]], [[Gabriel Mercado]], entre otros. El director técnico fue nuevamente Hugo Tocalli.<ref>{{Cita web|url=https://www.fifa.com/es/tournaments/mens/u20worldcup/canada2007/match-center/origin1904-p.cxm.fifa.com/tournaments/mens/u20worldcup/canada2007/match-center/58872|título=Copa Mundial Sub-20 de la FIFA Canadá 2007™: Argentina - República Checa|fechaacceso=2023-03-30|sitioweb=www.fifa.com|idioma=es}}</ref><ref>{{Cita web|url=https://www.espn.com.ar/futbol/reporte/_/juegoId/221253|título=Czech Republic U20 vs. Argentina Sub 20 - Reporte del Partido - 22 julio, 2007 - ESPN|fechaacceso=2023-03-30|sitioweb=ESPN.com.ar|idioma=es}}</ref> En ese mismo año también fueron subcampeones [[Campeonato Sudamericano de Fútbol Sub-20 de 2007|del sudamericano 2007]] siendo superados por [[Selección de fútbol sub-20 de Brasil|Brasil]] que finalizó el torneo con 21 puntos mientras que los Argentinos con 14.
+
+En el año 2011, ocuparon el tercer lugar del [[Campeonato Sudamericano de Fútbol Sub-20 de 2011]] celebrado en [[Perú]]. Clasificaron a la fase final pero terminaron con 9 puntos, por debajo de [[Selección de fútbol sub-20 de Uruguay|Uruguay]] (10) y [[Selección de fútbol sub-20 de Brasil|Brasil]] (12). En ese año también jugaron la [[Copa Mundial de Fútbol Sub-20 de 2011]] en [[Colombia]], donde clasificaron a instancias finales superando a [[Selección de fútbol sub-20 de México|México]], [[Selección de fútbol sub-20 de Corea del Norte|Corea del Norte]] y empatando con [[Selección de fútbol sub-20 de Inglaterra|Inglaterra]]. En octavos de final vencieron a [[Selección de fútbol sub-20 de Egipto|Egipto]], y en cuartos de final, cayeron por penales ante [[Selección de fútbol sub-20 de Portugal|Portugal]].<ref>{{Cita web|url=https://www.clarin.com/futbol/argentina-busca-pasaje-semifinal-portugal_0_S18XavR3PXx.html|título=Mundial Sub 20 Portugal amargó a Argentina en los penales y la dejó afuera de las semifinales|fechaacceso=2023-03-30|apellido=Clarín.com|fecha=2011-08-13|sitioweb=Clarín|idioma=es}}</ref>
+
+=== 2012-2020: Derrotas en Copa del Mundo y Sudamericano 2015 ===
+El plantel inauguró el 2013, disputando el [[Campeonato Sudamericano de Fútbol Sub-20 de 2013]] en [[Argentina|territorio nacional]], sin embargo, el desempeño del seleccionado fue pobre, cayendo en el Grupo A frente a [[Selección de fútbol sub-20 de Chile|Chile]], [[Selección de fútbol sub-20 de Paraguay|Paraguay]], empatando con [[Selección de fútbol sub-20 de Bolivia|Bolivia]] y superando a [[Selección de fútbol sub-20 de Colombia|Colombia]]. El equipo no llegó a clasificar a instancias finales, el ganador de la edición fue [[Selección de fútbol sub-20 de Colombia|Colombia]], el único equipo al que Argentina le ganó en ese sudamericano.
+[[Archivo:ARGENTINA URUGUAY 1 MAV (32618994375).jpg|miniaturadeimagen|229x229px|Parte del plantel que disputó el [[Campeonato Sudamericano de Fútbol Sub-20 de 2017|Sudamericano 2017]], con caras visibles de [[Juan Foyth]] o [[Lisandro Martínez]]]]
+En el año 2015, el plantel disputó el [[Campeonato Sudamericano de Fútbol Sub-20 de 2015]], celebrado en [[Uruguay]], donde formó parte del Grupo A y se posicionó en primer lugar, goleando por 5:2 a [[Selección de fútbol sub-20 de Ecuador|Ecuador]], por 6:2 a [[Selección de fútbol sub-20 de Perú|Perú]], 3:0 a [[Selección de fútbol sub-20 de Bolivia|Bolivia]] y cayendo por 0:1 con [[Selección de fútbol sub-20 de Paraguay|Paraguay]]. En las instancias finales superó a [[Selección de fútbol sub-20 de Perú|Perú]] por 1:0, empató frente a [[Selección de fútbol sub-20 de Colombia|Colombia]] por 1:1, superó por 2:0 a [[Selección de fútbol sub-20 de Brasil|Brasil]], también por 3:0 a [[Selección de fútbol sub-20 de Paraguay|Paraguay]] y finalmente le ganó 2:1 a [[Selección de fútbol sub-20 de Uruguay|Uruguay]], finalizando con 13 puntos en 5 partidos y coronándose campeón de la edición. Más tarde disputó la [[Copa Mundial de Fútbol Sub-20 de 2015]], donde formó parte del [[Anexo:Grupo B de la Copa Mundial Sub-20 de 2015|Grupo B]] junto a [[Selección de fútbol sub-20 de Ghana|Ghana]], [[Selección de fútbol sub-20 de Austria|Austria]] y [[Selección de fútbol sub-20 de Panamá|Panamá]]. El seleccionado se marchó en fases de grupos de la competición cayendo con el seleccionado Africano y empatando con los dos restantes.
+
+En el [[Campeonato Sudamericano de Fútbol Sub-20 de 2017]], quedó en el segundo lugar del Grupo B juntando 6 puntos en 4 partidos, mientras que, en la fase final, logró clasificar a la [[Copa Mundial de Fútbol Sub-20 de 2017]], quedando en cuarto lugar con 7 puntos en 5 partidos. El campeón de esa edición fue [[Selección de fútbol sub-20 de Uruguay|Uruguay]]. En la [[Copa Mundial de Fútbol Sub-20 de 2017]], terminaría marchándose rápidamente de nuevo, tras formar el [[Anexo:Grupo A de la Copa Mundial de Fútbol Sub-20 de 2017|Grupo A]] donde le ganaría a [[Selección de fútbol sub-20 de Guinea|Guinea]] por 5:0 pero caería con [[Selección de fútbol sub-20 de Corea del Sur|Corea del Sur]] por 1:2 e [[Selección de fútbol sub-20 de Inglaterra|Inglaterra]] por 0:3.
+
+El seleccionado llegó al 2019 con promesas en el plantel como [[Julián Álvarez (futbolista)|Julián Álvarez]] y [[Thiago Almada]], estos disputaron el Campeonato Sudamericano de Fútbol Sub-20 de 2019 donde lograron 7 puntos en 4 encuentros disputados. En la fase final terminaron en segundo lugar con 9 puntos en 5 partidos jugados por detrás de [[Selección de fútbol sub-20 de Ecuador|Ecuador]], quien se coronó campeón con 10 puntos. En la [[Copa Mundial de Fútbol Sub-20 de 2019]] celebrada en [[Polonia]], el equipo Argentino formó parte del último grupo, el [[Anexo:Grupo F de la Copa Mundial de Fútbol Sub-20 de 2011|Grupo F]]. En este venció a [[Selección de fútbol sub-20 de Sudáfrica|Sudáfrica]], [[Selección de fútbol sub-20 de Portugal|Portugal]] y cayó con [[Selección de fútbol sub-20 de Corea del Sur|Corea del Sur]], de todas formas, terminó primero. En los octavos de final cayó por penales frente a [[Selección de fútbol sub-20 de Malí|Malí]].
+
+=== 2021-presente: Sede de la Copa Mundial de 2023 ===
+El 30 de marzo de 2023, luego que la [[FIFA]] [[Retiro de Indonesia como anfitrión de la Copa Mundial Sub-20 de Fútbol de 2023|le quitara la sede a Indonesia]], esta misma designó a [[Argentina]] como sede de la [[Copa Mundial de Fútbol Sub-20 de 2023]], por lo que la selección se clasificó automáticamente.<ref>{{Cita web|url=https://www.tycsports.com/mundial-sub-20/el-mundial-sub-20-se-jugara-en-argentina-id502297.html|título=Bombazo: Argentina será sede del Mundial Sub 20 - TyC Sports|fechaacceso=2023-03-30|sitioweb=www.tycsports.com|idioma=es-AR}}</ref><ref>{{Cita web|url=https://www.mdzol.com/deportes/2023/3/30/bombazo-confirmado-argentina-organizara-el-mundial-sub-20-ya-hay-posibles-sedes-326233.html|título=Bombazo confirmado: Argentina organizará el Mundial Sub 20 y ya hay posibles sedes|fechaacceso=2023-03-30|apellido=mdzol.com|sitioweb=MdzOnline|idioma=español}}</ref> Argentina, máximo campeón mundial de la categoría, había tenido una fallida clasificatoria en el [[Campeonato Sudamericano de Fútbol Sub-20 de 2023]].
+
+== Encuentros recientes y próximos partidos ==
+{| align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%;" width=100%
+|- bgcolor=#6AB5FF style="color:white;"
+!width=13%|Fecha
+!width=14%|Lugar
+!width=18%|Competencia
+!width=16%|Local
+!width=11%|Resultado
+!width=16%|Visitante
+|- align=center 
+|24/01/2025 
+|{{bandera|Venezuela}} [[Valencia (Venezuela)|Valencia]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|BRA|especial=sub-20}}
+|align=center|'''0 - 6'''
+!{{fb|ARG|especial=sub-20}}
+|- align="center" bgcolor=#D0E7FF
+|26/01/2025 
+|{{bandera|Venezuela}} [[Valencia (Venezuela)|Valencia]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|ARG|especial=sub20}}
+| align="center" |'''1 - 1'''
+!{{fb|COL|especial=sub-20}}
+|- align="center" 
+|28/01/2025 
+|{{bandera|Venezuela}} [[Valencia (Venezuela)|Valencia]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|ARG|especial=sub20}}
+| align="center" |'''1 - 0'''
+!{{fb|BOL|especial=sub-20}}
+|- align="center" bgcolor=#D0E7FF
+|01/02/2025 
+|{{bandera|Venezuela}} [[Valencia (Venezuela)|Valencia]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|ECU|especial=sub-20}}
+| align="center" |'''0 - 0'''
+!{{fb|ARG|especial=sub-20}}
+|- align=center 
+|04/02/2025
+|{{bandera|Venezuela}} [[Caracas]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|CHI|especial=sub20}}
+|align=center|'''1 - 2'''
+!{{fb|ARG|especial=sub-20}}
+|- align=center bgcolor=#D0E7FF
+|07/02/2025
+|{{bandera|Venezuela}} [[Caracas]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|URU|especial=sub20}}
+|align=center|'''3 - 4'''
+!{{fb|ARG|especial=sub-20}}
+|- align=center 
+|10/02/2025 
+|{{bandera|Venezuela}} [[Caracas]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|ARG|especial=sub-20}}
+|align=center|'''1 - 0'''
+!{{fb|COL|especial=sub-20}}
+|- align="center" bgcolor=#D0E7FF
+|13/02/2025 
+|{{bandera|Venezuela}} [[Caracas]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|BRA|especial=sub20}}
+|align=center|'''1 - 1'''
+!{{fb|ARG|especial=sub-20}}
+|- align="center" 
+|16/02/2025 
+|{{bandera|Venezuela}} [[Puerto La Cruz]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 3'''
+!{{fb|PAR|especial=sub-20}}
+|- align="center" bgcolor=#D0E7FF
+|13/02/2025 
+|{{bandera|Venezuela}} [[Caracas]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|BRA|especial=sub20}}
+|align=center|'''1 - 1'''
+!{{fb|ARG|especial=sub-20}}
+|- align="center" 
+|16/02/2025 
+|{{bandera|Venezuela}} [[Puerto La Cruz]]
+![[Campeonato Sudamericano de Fútbol Sub-20 de 2025|Campeonato Sudamericano Sub-20]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 3'''
+!{{fb|PAR|especial=sub-20}}
+|- align="center" bgcolor=#D0E7FF
+|06/06/2025 
+|{{bandera|Argentina}} [[Ezeiza]]
+![[Partido amistoso|Amistoso internacional]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 1'''
+!{{fb|AUS|especial=sub-20}}
+|- align="center" 
+|09/06/2025 
+|{{bandera|Argentina}} [[Buenos Aires]]
+![[Partido amistoso|Amistoso internacional]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 0'''
+!{{fb|AUS|especial=sub-20}}
+|- align="center" bgcolor=#D0E7FF
+|21/07/2025 
+|{{bandera|España}} [[Alcudia]]
+![[Torneo Internacional de Fútbol Sub-20 de la Alcudia|Torneo Internacional Sub-20 de la Alcudia]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 0'''
+!{{fb|CHI|especial=sub-20}}
+|- align="center" 
+|23/07/2025 
+|{{bandera|España}} [[Alcudia]]
+![[Torneo Internacional de Fútbol Sub-20 de la Alcudia|Torneo Internacional Sub-20 de la Alcudia]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 1'''
+![[Valencia Club de Fútbol|Valencia sub-20]]
+|- align="center" bgcolor=#D0E7FF
+|25/07/2025 
+|{{bandera|España}} [[Alcudia]]
+![[Torneo Internacional de Fútbol Sub-20 de la Alcudia|Torneo Internacional Sub-20 de la Alcudia]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''3 - 0'''
+!{{fb|BRA|especial=sub-20}}
+|- align="center" 
+|28/07/2025 
+|{{bandera|España}} [[Alcudia]]
+![[Torneo Internacional de Fútbol Sub-20 de la Alcudia|Torneo Internacional Sub-20 de la Alcudia]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''3 - 0'''
+!Alboraya
+|- align="center" bgcolor=#D0E7FF
+|30/07/2025 
+|{{bandera|España}} [[Alcudia]]
+![[Torneo Internacional de Fútbol Sub-20 de la Alcudia|Torneo Internacional Sub-20 de la Alcudia]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''2 - 0'''
+![[Valencia Club de Fútbol|Valencia sub-20]]
+|- align="center" 
+|28/09/2025
+|{{bandera|Chile}} [[Valparaíso]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|CUB|especial=sub20}}
+|align=center|'''1 - 3'''
+!{{fb|ARG|especial=sub20}}
+|- align="center" bgcolor=#D0E7FF
+|01/10/2025 
+|{{bandera|Chile}} [[Valparaíso]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''4 - 1'''
+!{{fb|AUS|especial=sub20}}
+|- align="center" 
+|04/10/2025 
+|{{bandera|Chile}} [[Valparaíso]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''1 - 0'''
+!{{fb|ITA|especial=sub20}}
+|- align="center" bgcolor=#D0E7FF
+|08/10/2025 
+|{{bandera|Chile}} [[Santiago de Chile|Santiago]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''4 - 0'''
+!{{fb|NGA|especial=sub20}}
+|- align="center" 
+|11/10/2025 
+|{{bandera|Chile}} [[Santiago de Chile|Santiago]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|MEX|especial=sub20}}
+|align=center|'''0 - 2'''
+!{{fb|ARG|especial=sub20}}
+|- align="center" bgcolor=#D0E7FF
+|15/10/2025 
+|{{bandera|Chile}} [[Santiago de Chile|Santiago]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''1 - 0'''
+!{{fb|COL|especial=sub20}}
+|- align="center" 
+|19/10/2025 
+|{{bandera|Chile}} [[Santiago de Chile|Santiago]]
+![[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA]]
+!{{fb|ARG|especial=sub20}}
+|align=center|'''0 - 2'''
+!{{fb|MAR|especial=sub20}}
+|}
+
+== Indumentaria ==
+{{AP|Uniforme de la selección de fútbol de Argentina}}
+
+=== Uniforme ===
+El uniforme de la selección argentina se compone de una camiseta blanca con dos franjas celestes (que sobresalen tanto adelante como atrás), un pantalón negro azabache con rectas celestes y blancas en vertical, y medias blancas con detalles celestes; además, un sello inspirado en el [[Escudo de la República Argentina|Escudo de la República]] se posa sobre una de sus mangas. El uniforme alternativo se compone de un conjunto completamente violeta, con detalles grises y tonos de lila, formando dibujos de llamaradas desde la base de la remera hasta la mitad del torso y el escudo de la selección en un gris plateado y brilloso.
+
+
+=== Uniforme titular ===
+
+{| style="margin:auto;"
+|{{Camiseta|pattern_la=_arg3757h|pattern_b=_arg3757h|pattern_ra=_arg3757h|pattern_sh=_shorts|pattern_so=_arg3757h|leftarm=80BFFF|body=80BFFF|rightarm=80BFFF|shorts=070707|socks=80BFFF|título=Primer Uniforme}}
+
+|{{Camisetas|pattern_la=|pattern_b=|pattern_ra=|pattern_sh=|pattern_so=|leftarm=FFFFFF|body=FFFFFF|rightarm=FFFFFF|shorts=FFFFFF|socks=FFFFFF|título=[[Uniforme de la selección de fútbol de Argentina#Evolución del uniforme titular|(Ver evolución)]]
+}}
+|{{Camiseta
+  | patrón_izq    = _arg24h
+  | patrón_cuerpo = _arg24h
+  | patrón_der    = _arg24h
+  | patrón_pan    = _arg24h2
+  | patrón_med    = _socks
+  | izquierdo     = 80BFFF
+  | cuerpo        = 80BFFF
+  | derecho       = 80BFFF
+  | shorts        = FFFFFF
+  | medias        = FFFFFF
+  | título        = Uniforme actual}}
+|}
+
+=== Uniforme alternativo ===
+{| style="margin:auto;"
+|{{Camiseta|pattern_la=_arg6269a|pattern_b=_arg6269a|pattern_ra=_arg6269a|pattern_sh=_shorts|pattern_so=_socks|leftarm=80BFFF|body=80BFFF|rightarm=80BFFF|shorts=000000|socks=909090|título=Primer Uniforme}}
+
+|{{Camisetas|pattern_la=|pattern_b=|pattern_ra=|pattern_sh=|pattern_so=|leftarm=FFFFFF|body=FFFFFF|rightarm=FFFFFF|shorts=FFFFFF|socks=FFFFFF|título=[[Uniforme de la selección de fútbol de Argentina#Evolución del uniforme alternativo|(Ver evolución)]]
+}}
+|
+{{Camiseta|patrón_izq=_arg24a|patrón_cuerpo=_arg24a|patrón_der=_arg24a|patrón_pan=_arg24a|patrón_med=_socks|izquierdo=FFFFFF|cuerpo=FFFFFF|derecho=FFFFFF|shorts=FFFFFF|medias=0035D5|título=Uniforme actual}}
+
+|}
+
+=== Proveedores ===
+{| class="wikitable"
+|+
+!Periodo
+!Proveedor
+|-
+|1951-1958
+|{{Bandera|ARG}} [[Gath & Chaves]]
+|-
+|1958-1963
+|{{Bandera|ARG}} Industria Lanús
+|-
+|1964-1965
+|{{Bandera|ARG}} Noceto Sports
+|-
+|1966
+|{{Bandera|ARG}} Sportlandia<ref>{{Cita libro|título=Camisetas legendarias del fútbol argentino|url=http://worldcat.org/oclc/1112221401|fechaacceso=4 de julio de 2020|isbn=978-950-28-1319-6|oclc=1112221401|apellidos=Palopoli, Eugenio, author.}}</ref>
+|-
+|1967-1974
+|{{Bandera|ARG}} Industria Lanús
+|-
+|1974-1979
+|{{Bandera|DEU}} [[Adidas]]
+|-
+|1980-1989
+|{{Bandera|FRA}} [[Le Coq Sportif]]
+|-
+|1990-1998
+|{{Bandera|DEU}} [[Adidas]]
+|-
+|1999-2001
+|{{Bandera|GBR}} [[Reebok]]
+|-
+|2001-act.
+|{{Bandera|DEU}} [[Adidas]]
+|}
+
+
+== Instalaciones ==
+
+=== Complejo Deportivo de Ezeiza "Lionel Andrés Messi"===
+La selección argentina cuenta con un predio de 48 [[hectárea]]s ubicado en el partido de [[Ezeiza (partido)|Ezeiza]], en la [[provincia de Buenos Aires]], a la vera de la [[Autopista Ricchieri]]. El predio cuenta con tres complejos de alto nivel: uno de ellos lo utiliza la selección mayor, otro las selecciones juveniles y el tercero de apoyo logístico. El predio pone a disposición de los jugadores y entrenadores nueve estadios, de los cuales siete tienen las medidas reglamentarias y los otros dos con medidas reducidas. Sus instalaciones cuentan además con todo lo necesario para el alojamiento de los planteles, con habitaciones, cocinas, comedores, vestuarios, gimnasios, consultorios médicos, salas de conferencia, salas de vídeo y microcine.
+
+El predio fue nombrado el 28 de octubre de 2014 como [[Julio Humberto Grondona]], en honor al fallecido presidente de la AFA, cargo que ejerció durante 35 años. Posteriormente el 25 de marzo de 2023 pasó a llamarse [[Lionel Andrés Messi]], en honor a su trayectoria como futbolista vistiendo la camiseta nacional por más de 20 años y la obtención del título mundial en 2022.<ref>{{cita web|url=https://www.infobae.com/deportes/2023/03/25/la-afa-homenajea-a-lionel-messi-fueron-invitados-los-subcampeones-de-2014-y-figuras-de-la-liga-profesional/|obra=infobae.com|fecha=25 de marzo de 2023|título=El predio de Ezeiza de AFA dejó de llamarse Julio Grondona y ahora lleva el nombre de Lionel Messi}}</ref>
+
+La historia de su construcción se remonta a 1979, cuando Grondona, recién asumido presidente, decidió adquirir un predio dedicado al entrenamiento de la albiceleste, que se concentraba en otras instalaciones, como la Fundación Salvatori y el sindicato de Empleados de Comercio. Para ello, la selección se enfrentó con un combinado amistoso llamado Resto del Mundo, el 25 de junio de 1979, como primer aniversario de la obtención del mundial '78, en el estadio Monumental. La selección perdió 2 a 1. Lo recaudado, 998 123 994 [[Peso Ley 18.188|pesos Ley 18.188]], tenía como destino la construcción del predio.<ref>{{cita web|url=https://www.pagina12.com.ar/diario/deportes/8-144107-2010-04-18.html?mobile=1|obra=Página 12|fecha=18 de abril de 2010|título=El Predio para Todos, por 99 años}}</ref>
+
+No fue hasta 1987 que, impulsado por el entrenador del equipo [[Carlos Bilardo|Carlos Salvador Bilardo]], comenzó su construcción definitiva, que otorgó el Estado Nacional a la AFA en concesión por 30 años. El propio entrenador buscó el terreno y ayudó con los cimentos. En 2010 se renovó la concesión por 30 años, hasta 2048. El predio fue inaugurado en diciembre de 1989, con la idea de trasladar las instalaciones del edificio de Viamonte y construir un estadio propio con capacidad para 40 000 personas. Es utilizado por los distintos planteles desde el mundial de Italia '90.<ref>{{cita web|url=https://zonales.com/casa-seleccion-ezeiza-carlos-bilardo-trabajo-obreros/|obra=Zonales|fecha=18 de diciembre de 2022|título=La historia de la casa de la Selección en Ezeiza: cuando Carlos Bilardo trabajó a la par de los obreros en su construcción}}</ref>
+
+== Historial de encuentros oficiales reconocidos por FIFA ==
+{{clear}}
+{| class="toccolours sortable" style="border-collapse:collapse font-size: 85%; margin-left:0.5em; margin-bottom:0.5em" border=1 cellpadding=2 cellspacing=0
+|-
+|- align="center" style="color:white" bgcolor="#7FBBFF"
+!width=20%|Rival
+!width=4%|{{abreviación|PJ|Partidos jugados}}
+!width=4%|{{abreviación|PG|Partidos ganados}}
+!width=4%|{{abreviación|PE|Partidos empatados}}
+!width=4%|{{abreviación|PP|Partidos perdidos}}
+!width=4%|{{abreviación|GF|Goles a favor}}
+!width=4%|{{abreviación|GC|Goles en contra}}
+!width=6%|{{abreviación|Dif PJ|Diferencia de partidos jugados}}
+!width=20%|Último partido
+|-
+|align=center |'''''Versus selecciones de la CONMEBOL'''''
+|align=center |'''213'''
+|align=center |'''113'''
+|align=center |'''55'''
+|align=center |'''46'''
+|align=center |'''296'''
+|align=center |'''203'''
+|align=center |'''+66'''
+!align=center |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|BOL|especial=sub20}} || 15 || 12 || 3 || 0 || 36 || 9 || +12|| align="left" | '''28-01-2025''' : '''V''' : '''1 - 0''' ''Sudamericano 2025''
+|- style="text-align: center;" bgcolor =  #ccffcc
+| align=left | {{fb|BRA|especial=sub20}} || 36 || 16 || 5 || 15 || 44 || 41 || +1|| align="left" | '''24-01-2025''' : '''V''' : '''6 - 0''' ''Sudamericano 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CHI|especial=sub20}} || 25 || 17 || 5 || 3 || 49 || 23 || +14|| align="left" | '''04-02-2025''' : '''V''' : '''2 - 1''' ''Sudamericano 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|COL|especial=sub20}} || 32 || 14 || 10 || 9 || 42 || 34 || +5|| align="left" | '''15-10-2025''' : '''V''' : '''1 - 0''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ECU|especial=sub20}} || 18 || 9 || 4 || 4 || 28 || 12 || +5|| align="left" | '''01-02-2025''' : '''E''' : '''0 - 0''' ''Sudamericano 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PAR|especial=sub20}} || 27 || 10 || 8 || 9 || 41 || 29 || +1|| align="left" | '''16-02-2025''' : '''D''' : '''2 - 3''' ''Sudamericano 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PER|especial=sub20}} || 21 || 15 || 5 || 1 || 51 || 17 || +14|| align="left" | '''25-01-2023''' : '''V''' : '''1 - 0''' ''Sudamericano 2023''
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|URU|especial=sub20}} || 31 || 9 || 12 || 10 || 42 || 45 || -1|| align="left" | '''06-02-2025''' : '''V''' : '''4 - 3''' ''Sudamericano 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|VEN|especial=sub20}} || 22 || 15 || 5 || 2 || 45 || 9 || +12|| align="left" | '''04-02-2019''' : '''V''' : '''3 - 0''' ''Sudamericano 2019''
+|-
+!''Versus selecciones de la CONCACAF''
+!align=center |13
+!align=center |11
+!align=center |1
+!align=center |2
+!align=center |34
+!align=center |14
+!align=center |+9 
+|
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CAN|especial=sub20}} || 1 || 1 || 0 || 0 || 2 || 1 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CUB|especial=sub20}} || 1 || 1 || 0 || 0 || 3 || 1 || +1|| align="left" |'''28-09-2025''' : '''V''' : '''1 - 3''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|USA|especial=sub20}} || 2 || 1 || 0 || 1 || 2 || 2 || 0|| align="left" |
+|- style="text-align: center;" bgcolor =  #ccffcc
+| align=left | {{fb|GUA|especial=sub20}} || 2 || 2 || 0 || 0 || 5 || 1 || +2|| align="left" |'''23-05-2023''' : '''V''' : '''3 - 0''' ''Mundial 2023''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|HON|especial=sub20}} || 1 || 1 || 0 || 0 || 4 || 2 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|JAM|especial=sub20}} || 1 || 1 || 0 || 0 || 5 || 1 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|MEX|especial=sub20}} || 4 || 3 || 0 || 1 || 5 || 4 || +2|| align="left" |'''11-10-2025''' : '''V''' : '''0 - 2''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PAN|especial=sub20}} || 2 || 1 || 1 || 0 || 8 || 2 || +1|| align="left" |
+|-
+!''Versus selecciones de la CAF''
+!align=center |18
+!align=center |13
+!align=center |1
+!align=center |4
+!align=center |45
+!align=center |15
+!align=center |+9
+|
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ALG|especial=sub20}} || 1 || 1 || 0 || 0 || 5 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CMR|especial=sub20}} || 2 || 2 || 0 || 0 || 3 || 0 || +2|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|EGY|especial=sub20}} || 4 || 4 || 0 || 0 || 13 || 3 || +4|| align="left" |
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|GHA|especial=sub20}} || 3 || 1 || 0 || 2 || 5 || 4 || -1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|GUI|especial=sub20}}  || 1 || 1 || 0 || 0 || 5 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|MLI|especial=sub20}} || 2 || 1 || 1 || 0 || 5 || 3 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|MAR|especial=sub20}} || 1 || 0 || 0 || 1 || 0 || 2 || -1|| align="left" |'''19-10-2025''' : '''D''' : '''0 - 2''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|NGA|especial=sub20}} || 3 || 2 || 0 || 1 || 6 || 3 || +1|| align="left" |'''08-10-2025''' : '''V''' : '''4 - 0''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|RSA|especial=sub20}} || 1 || 1 || 0 || 0 || 5 || 2 || +1|| align="left" |
+|-
+!''Versus selecciones de la AFC''
+!align=center |14
+!align=center |8
+!align=center |0
+!align=center |6
+!align=center |30
+!align=center |16
+!align=center |+2
+|
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|AUS|especial=sub20}} || 3 || 1 || 0 || 2 || 8 || 7 || -1|| align="left" |'''01-10-2025''' : '''V''' : '''4 - 1''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CHN|especial=sub20}} || 2 || 2 || 0 || 0 || 7 || 1 || +2|| align="left" |
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|KOR|especial=sub20}} || 3 || 0 || 0 || 3 || 2 || 5 || -3|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|PRK|especial=sub20}}  || 2 || 2 || 0 || 0 || 4 || 0 || +2|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|IDN|especial=sub20}}  || 1 || 1 || 0 || 0 || 5 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|IRQ|especial=sub20}} || 1 || 0 || 0 || 1 || 0 || 1 || -1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|UZB|especial=sub20}} || 2 || 2 || 0 || 0 || 4 || 2 || +2|| align="left" |'''20-05-2023''' : '''V''' : '''2 - 1''' ''Mundial 2023''
+|-
+!''Versus selecciones de la UEFA''
+!align=center |35
+!align=center |24
+!align=center |7
+!align=center |4
+!align=center |50
+!align=center |21
+!align=center |+20
+|
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|GER|especial=sub20}} || 1 || 1 || 0 || 0 || 1 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|AUT|especial=sub20}} || 2 || 1 || 1 || 0 || 3 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|CRO|especial=sub20}} || 1 || 0 || 1 || 0 || 0 || 0 || 0|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ESP|especial=sub20}} || 4 || 3 || 0 || 1 || 9 || 4 || +2|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|FIN|especial=sub20}} || 1 || 1 || 0 || 0 || 2 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|FRA|especial=sub20}} || 1 || 1 || 0 || 0 || 3 || 1 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|HUN|especial=sub20}}|| 1 || 1 || 0 || 0 || 3 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ffff8888
+| align=left | {{fb|ENG|especial=sub20}} || 4 || 1 || 2 || 1 || 3 || 5 || 0|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|IRL|especial=sub20}} || 2 || 1 || 1 || 0 || 3 || 2 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ISR|especial=sub20}} || 1 || 1 || 0 || 0 || 2 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|ITA|especial=sub20}} || 1 || 1 || 0 || 0 || 1 || 0 || +1|| align="left" |'''04-05-2025''' : '''V''' : '''1 - 0''' ''Mundial 2025''
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|KAZ|especial=sub20}} || 1 || 1 || 0 || 0 || 1 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|NOR|especial=sub20}} || 1 || 1 || 0 || 0 || 2 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|NED|especial=sub20}} || 2 || 2 || 0 || 0 || 3 || 1 || +2|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|POL|especial=sub20}} || 3 || 3 || 0 || 0 || 8 || 2 || +3|| align="left" |
+|- style="text-align: center;" bgcolor = #FFC0CB
+| align=left | {{fb|POR|especial=sub20}} || 4 || 1 || 1 || 2 || 2 || 4 || -1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|CZE|especial=sub20}} || 2 || 1 || 1 || 0 || 2 || 1 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | ''{{fb|TCH|especial=sub20}}'' || 1 || 1 || 0 || 0 || 1 || 0 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | ''{{fb|URS|especial=sub20}}'' || 1 || 1 || 0 || 0 || 3 || 1 || +1|| align="left" |
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | ''{{fb|YUG|especial=sub20}}'' || 1 || 1 || 0 || 0 || 1 || 0 || +1|| align="left" |
+|-
+!''Versus selecciones de la OFC''
+!align=center |1
+!align=center |1
+!align=center |0
+!align=center |0
+!align=center |5
+!align=center |0
+!align=center |+1
+|
+|- style="text-align: center;" bgcolor = #ccffcc
+| align=left | {{fb|NZL|especial=sub20}} || 1 || 1 || 0 || 0 || 5 || 0 || +1|| align="left" |'''26-05-2023''' : '''V''' : '''5 - 0''' ''Mundial 2023''
+|-
+!'''TOTAL'''
+!align=center |288
+!align=center |160
+!align=center |62
+!align=center |62
+!align=center |515
+!align=center |266
+!align=center |+98
+|
+|}
+''Contiene datos de: [[Copa Mundial de Fútbol Sub-20|Copa Mundial]], [[Campeonato Sudamericano de Fútbol Sub-20|Campeonato Sudamericano]], [[Torneo masculino de fútbol en los Juegos Panamericanos de 2003|Juegos Panamericanos 2003]] y [[Fútbol en los Juegos Suramericanos|Juegos Suramericanos]].''
+
+En cursiva los países actualmente desaparecidos. Según FIFA:
+* Alemania incluye a la Selección de Alemania Federal, pero no a su par de Alemania Democrática, que actualmente forma parte de la Alemania unificada.
+* República Checa es sucesora de Checoslovaquia.
+* Rusia es sucesora de Unión Soviética.
+* Serbia es sucesora de Yugoslavia y Serbia y Montenegro.
+* Si bien Australia es un país oceánico, pertenece a la [[Confederación Asiática de Fútbol|AFC]] desde 2006, tras haber abandonado la [[Confederación de Fútbol de Oceanía|OFC]].
+
+<small>''Actualizado hasta el 19 de octubre de 2025: {{bandera|Argentina}} Argentina 0-2 Marruecos {{bandera|Marruecos}}'' ([[Copa Mundial de Fútbol Sub-20 de 2025]]).</small>
+
+== Entrenadores ==
+{| class="sortable" align=center cellpadding="2" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;" width=55%
+|- bgcolor=#6AB5FF style="color:white;"
+!Período
+!Entrenador
+|- align=center bgcolor=#F5FAFF
+| 1979-1980
+| style="text-align:left" | {{Bandera|Argentina}} [[César Luis Menotti]]
+|-align=center bgcolor=#F5FAFF
+| 1980-1983
+| style="text-align:left" | {{Bandera|Argentina}} [[Roberto Marcos Saporiti]]
+|-align=center bgcolor=#F5FAFF
+| 1983-1990
+| style="text-align:left" | {{Bandera|Argentina}} [[Carlos Pachamé]]
+|-align=center bgcolor=#F5FAFF
+| 1990-1994
+| style="text-align:left" | {{Bandera|Argentina}} [[Reinaldo Merlo]]
+|-align=center bgcolor=#F5FAFF
+| 1994-2002
+| style="text-align:left" | {{Bandera|Argentina}} [[José Pekerman]]
+|-align=center bgcolor=#F5FAFF
+| 2002-2005
+| style="text-align:left" | {{Bandera|Argentina}} [[Hugo Tocalli]]
+|-align=center bgcolor=#F5FAFF
+| 2005-2006
+| style="text-align:left" | {{Bandera|Argentina}} [[Francisco Ferraro]]
+|-align=center bgcolor=#F5FAFF
+| 2006-2007
+| style="text-align:left" | {{Bandera|Argentina}} [[Hugo Tocalli]]
+|-align=center bgcolor=#F5FAFF
+| 2007-2010
+| style="text-align:left" | {{Bandera|Argentina}} [[Sergio Batista]]
+|-align=center bgcolor=#F5FAFF
+| 2010-2011
+| style="text-align:left" | {{Bandera|Argentina}} [[Wálter Perazzo]]
+|-align=center bgcolor=#F5FAFF
+| 2011-2013
+| style="text-align:left" | {{Bandera|Argentina}} [[Marcelo Trobbiani]]
+|-align=center bgcolor=#F5FAFF
+| 2014-2016
+| style="text-align:left" | {{Bandera|Argentina}} [[Humberto Grondona]]
+|-align=center bgcolor=#F5FAFF
+| 2016-2017
+| style="text-align:left" | {{Bandera|Argentina}} [[Claudio Úbeda]]
+|-align=center bgcolor=#F5FAFF
+| 2017-2018
+| style="text-align:left" | {{Bandera|Argentina}} [[Sebastián Beccacece]]
+|-align=center bgcolor=#F5FAFF
+| 2018-2018
+| style="text-align:left" | {{Bandera|Argentina}} [[Lionel Scaloni]]
+|-align=center bgcolor=#F5FAFF
+| 2018-2021
+| style="text-align:left" | {{Bandera|Argentina}} [[Fernando Batista]]
+|-align=center bgcolor=#F5FAFF
+| 2021-2024
+| style="text-align:left" | {{Bandera|Argentina}} [[Javier Mascherano]] 
+|-align=center bgcolor=#F5FAFF
+| 2024-Act.
+| style="text-align:left" | {{Bandera|Argentina}} [[Diego Placente]]
+|}
+
+== Jugadores ==
+{{VT|Planteles históricos de la selección de fútbol sub-20 de Argentina}}
+=== Plantel actual ===
+[[Archivo:Soccerball current event.svg|20px]] {{small|Actualizado el 21 de septiembre de 2025}}
+
+Lista oficial de convocados para disputar la [[Copa Mundial de Fútbol Sub-20 de 2025]] en [[Chile]]. Para dicha competencia el reglamento establece que los jugadores deben haber nacido a partir del 1 de enero de 2005.<ref>{{Cita web|url=https://www.espn.com.ar/futbol/nota/_/id/15689836/mundial-sub-20-de-chile-lista-de-convocados-seleccion-argentina-diego-placente|title=La Selección Argentina anunció su lista de convocados para el Mundial Sub 20}}</ref>
+
+{| class="sortable" align="center" cellpadding="3" cellspacing="0" style="background: #f5faff; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;" width="70%"
+|-
+!bgcolor=#006699 style="color:White;" width=1%|{{abreviación|N.º|Dorsal}}
+!bgcolor=#006699 style="color:White;" width=1%|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+!bgcolor=#006699 align=left style="color:White;" width=10%|Nombre
+!bgcolor=#006699 align=center style="color:White;" class="unsortable" width=4%|Posición
+!bgcolor=#006699 style="color:White;" width=6%|Edad
+!bgcolor=#006699 style="color:White;" width=5%|{{abreviación|PJ|Partidos jugados}}
+!bgcolor=#006699 style="color:White;" width=5%|{{abreviación|G|Goles}}
+!bgcolor=#006699 style="color:White;" width=15%|Equipo 
+!bgcolor=#006699 style="color:White;" width=15%|Equipo formador
+
+|- align="center" bgcolor=#E0ECF8
+!1
+| align=left|{{Bandera|Provincia de Córdoba (Argentina)}}
+| align=left| [[Santino Barbi]]
+|{{por}}
+|{{edad|14|6|2005}}
+!10
+!0
+|align=left|{{Bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+|align=left|{{Bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres]]
+
+|- align=center
+!12
+|align=left|{{Bandera|Provincia de Santa Fe}}
+|align=left| [[Álvaro Busso]]
+|{{por}}
+|{{edad|11|10|2006}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center bgcolor=#E0ECF8
+!21
+| align=left|{{Bandera|ESP}}
+| align=left| [[Alain Gómez]]
+|{{por}}
+|{{edad|3|3|2007}}
+!0
+!0
+|align=left|{{bandera|ESP}} [[Valencia Club de Fútbol|Valencia]]
+|align=left|{{bandera|ESP}} [[Valencia Club de Fútbol|Valencia]]
+
+|- align=center  style="border-top: 1px #6AB5FF solid;
+!4
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Dylan Gorosito]]
+|{{def}}
+|{{edad|3|02|2006}}
+!9
+!0
+|align=left|{{Bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+|align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+
+|- align=center bgcolor=#E0ECF8
+!2
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Tobías Ramírez]]
+|{{def}}
+|{{edad|11|11|2006}}
+!15
+!2
+|align=left|{{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]
+|align=left|{{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]
+
+|- align=center
+!13
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Valente Pierani]]
+|{{def}}
+|{{edad|22|2|2006}}
+!4
+!0
+|align=left|{{bandera|ARG}} [[Club Estudiantes de La Plata|Estudiantes]]
+|align=left|{{bandera|ARG}} [[Club Estudiantes de La Plata|Estudiantes]]
+
+|- align=center bgcolor=#E0ECF8
+!6
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Juan Manuel Villalba (futbolista argentino, 2006)|Juan Manuel Villalba]]
+|{{def}}
+|{{edad|15|3|2006}}
+!5
+!0
+|align=left|{{bandera|ARG}} [[Gimnasia y Esgrima (LP)]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center
+!14
+|align=left|{{Bandera|Provincia de Córdoba (Argentina)}}
+| align=left| [[Santiago Abel Fernández|Santiago Fernández]]
+|{{def}}
+|{{edad|30|3|2005}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres (C)]]
+|align=left|{{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres (C)]]
+
+|- align=center bgcolor=#E0ECF8
+!3
+|align=left|{{Bandera|PAR}}
+| align=left| [[Julio Soler (futbolista argentino)|Julio Soler]]
+|{{def}}
+|{{edad|16|2|2005}}
+!12
+!0
+|align=left|{{bandera|ENG}} [[AFC Bournemouth]]
+|align=left|{{bandera|ARG}} [[Club Atlético Lanús|Lanús]]
+
+|- align=center
+!16
+|align=left|{{Bandera|Ciudad de Buenos Aires}}
+| align=left| [[Teo Rodríguez Pagano]]
+|{{def}}
+|{{edad|12|10|2005}}
+!11
+!2
+|align=left|{{bandera|ARG}} [[Club Atlético San Lorenzo de Almagro|San Lorenzo]]
+|align=left|{{bandera|ARG}} [[Club Atlético San Lorenzo de Almagro|San Lorenzo]]
+
+|- align=center bgcolor=#E0ECF8 style="border-top: 1px #6AB5FF solid;
+!15
+| align=left|{{Bandera|Provincia de Santa Fe}}
+| align=left| [[Tomás Pérez (futbolista)|Tomás Pérez]]
+|{{mdc}}
+|{{edad|26|8|2005}}
+!2
+!0
+|align=left|{{bandera|POR}} [[Fútbol Club Oporto|Porto]]
+|align=left|{{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's]]
+
+|- align=center
+!5
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Milton Delgado]]
+|{{mdc}}
+|{{edad|16|6|2005}}
+!11
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+|align=left|{{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]
+
+|- align=center bgcolor=#E0ECF8 
+!18
+| align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left| [[Tobías Andrada]]
+|{{mdc}}
+|{{edad|2|2|2007}}
+!0
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center
+!8
+|align=left|{{Bandera|Provincia de Santa Fe}}
+| align=left| [[Valentino Acuña]]
+|{{mdc}}
+|{{edad|27|01|2006}}
+!15
+!0
+|align=left|{{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's]]
+|align=left|{{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's]]
+
+|- align=center bgcolor=#E0ECF8 
+!10
+| align=left|{{Bandera|Provincia de Tucumán}}
+| align=left| [[Álvaro Montoro]]
+|{{mdc}}
+|{{edad|17|4|2007}}
+!1
+!0
+|align=left|{{bandera|BRA}} [[Botafogo de Futebol e Regatas|Botafogo]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center  style="border-top: 1px #6AB5FF solid;
+!19
+|align=left|{{Bandera|Provincia de Mendoza}}
+| align=left| [[Santino Andino]]
+|{{del}}
+|{{edad|25|10|2005}}
+!9
+!1
+| align=left|{{bandera|ARG}} [[Club Deportivo Godoy Cruz Antonio Tomba|Godoy Cruz]]
+| align=left|{{bandera|ARG}} [[Club Deportivo Godoy Cruz Antonio Tomba|Godoy Cruz]]
+
+|- align=center bgcolor=#E0ECF8
+!11
+|align=left|{{Bandera|Provincia de Chubut}}
+|align=left|[[Ian Subiabre]]
+|{{del}}
+|{{edad|1|1|2007}}
+!9
+!4
+|align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+|align=left|{{bandera|ARG}} [[Club Atlético River Plate|River Plate]]
+
+|- align=center
+!20
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+|align=left| [[Gianluca Prestianni]]
+|{{del}}
+|{{edad|31|1|2006}}
+!0
+!0
+|align=left|{{bandera|POR}} [[Sport Lisboa e Benfica|Benfica]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center bgcolor=#E0ECF8
+!17
+|align=left|{{Bandera|Provincia de Santa Fe}}
+|align=left| [[Mateo Silvetti]]
+|{{del}}
+|{{edad|14|1|2006}}
+!2
+!0
+|align=left|{{bandera|USA}} [[Inter Miami]]
+|align=left|{{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's]]
+
+|- align=center
+!7
+|align=left|{{Bandera|Provincia de Santiago del Estero}}
+|align=left| [[Maher Carrizo]]
+|{{del}}
+|{{edad|19|2|2006}}
+!17
+!8
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+
+|- align=center bgcolor=#E0ECF8
+!9
+|align=left|{{Bandera|Provincia de Buenos Aires}}
+| align=left|[[Alejo Sarco]]
+|{{del}}
+|{{edad|6|1|2006}}
+!0
+!0
+|align=left|{{bandera|GER}} [[Bayer Leverkusen]]
+|align=left|{{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]
+|}
+
+{|class="wikitable center" width="75%" style="text-align: center; margin:left;"
+|- align=center bgcolor=#7FBBFF style="color:#FFFFFF;"
+!align=center colspan="4" style="background:#7FBBFF; color:white;"|Cuerpo técnico
+|- 
+|style="text-align: left;"|'''Entrenador:'''
+|style="text-align: left;"|{{bandera|Ciudad de Buenos Aires}} [[Diego Placente]]
+|style="text-align: left;"|'''Asistentes:'''
+|style="text-align: left;"|{{bandera|Provincia de Buenos Aires}} [[Ariel Garcé]] - {{bandera|Provincia de San Luis}} [[Facundo Hernán Quiroga|Facundo Quiroga]]
+|- 
+|style="text-align: left;"|'''Preparador físico:'''
+|style="text-align: left;"|{{bandera|Provincia de Córdoba (Argentina)}} Enrique Cesana
+|style="text-align: left;"|'''Entrenador de arqueros:'''
+|style="text-align: left;"|{{bandera|Ciudad de Buenos Aires}} Fernando Escobar
+|}
+
+=== Máximos goleadores ===
+[[Archivo:Lionel Messi 2018.png|thumb|Lionel Messi, máximo goleador del seleccionado Sub-20.]]
+{| align=border width=70% border=1 cellpadding="2" cellspacing="0" style="background: #f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+! #!! Jugador!! Período!! Goles!! Partidos!! {{Abreviatura|Promedio|El promedio de 
+s anotados por los partidos disputados}}!! Títulos
+
+|-
+|rowspan=2| 1 ||[[Lionel Messi]]||'''2004'''
+|| '''14''' || '''18''' 
+|'''{{#expr: 11/14 round 2}}'''||'''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|[[Diego Maradona]]|| '''1977-1979''' || '''14''' || '''25''' || '''{{#expr: 14/25 round 2}}''' || '''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|ROWSPAN=2| 3 ||[[Ramón Ángel Díaz]]|| '''1979''' || '''12''' || '''?''' || '''?''' || '''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+||[[Fernando Cavenaghi]]||'''2003'''||'''12'''||'''14'''||'''{{#expr: 12/14 round 2}}'''||'''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]]'''
+|-
+| 5 ||[[Javier Saviola]]||'''2001'''||'''11'''||'''7'''||'''{{#expr: 11/7 round 2}}'''||'''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|ROWSPAN=2| 6 ||[[Luciano Galletti]]|| '''1999''' || '''10''' || '''12''' || '''{{#expr: 10/12 round 2}}''' || '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]]'''
+|-
+|[[Giovanni Simeone]]|| '''2015''' || '''10''' || '''12''' || '''{{#expr: 10/12 round 2}}''' || '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]]'''
+|-
+|ROWSPAN=2| 8||[[Adolfo Gaich]]|| '''2019''' || '''8''' || '''13''' || '''{{#expr: 8/13 round 2}}''' || 
+|-
+|[[Bernardo Romeo]]|| '''1997''' || '''8''' || '''16''' || '''{{#expr: 8/16 round 2}}''' || '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]],''' '''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|ROWSPAN=6| 10 ||[[Juan Esnáider]]|| '''1991''' || '''7''' || '''7''' || '''{{#expr: 7/7 round 2}}''' || '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]],''' '''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|[[Marcelo Torres (futbolista)|Marcelo Torres]]|| '''2017''' || '''7''' || '''10''' || '''{{#expr: 7/10 round 2}}''' || 
+|-
+|[[Lautaro Martínez]]|| '''2017''' || '''7''' || '''11''' || '''{{#expr: 7/11 round 2}}''' || 
+|-
+|[[Juan Román Riquelme]]|| '''1997''' || '''7''' || '''16''' || '''{{#expr: 7/16 round 2}}''' || '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]],''' '''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|[[Pablo Aimar]]|| '''1997-1999''' || '''7''' || '''21''' || '''{{#expr: 7/21 round 2}}''' || '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]],''' '''[[Campeonato Sudamericano de Fútbol Sub-20|CSF]],''' '''[[Copa Mundial de Fútbol Sub-20|CMF]]'''
+|-
+|}
+
+=== Goleadores en Copas Mundiales ===
+
+{| align=border width=70% border=1 cellpadding="2" cellspacing="0" style="background: #f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 100%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+! #!! Jugador!!Goles!! Partidos!! Mundiales disputados
+|-
+|1
+|[[Javier Saviola]]
+|'''11'''
+|'''7'''
+|{{bandera|Argentina}} '''[[Copa Mundial de Fútbol Sub-20 de 2001|2001]]'''
+|-
+|2
+|[[Ramón Ángel Díaz]]
+|'''8'''
+|'''6'''
+|{{bandera|Japón}} '''[[Copa Mundial de Fútbol Juvenil de 1979|1979]]'''
+|-
+|rowspan=3| 3
+|[[Diego Maradona]]
+|'''6'''
+|'''6'''
+|{{bandera|Japón}} '''[[Copa Mundial de Fútbol Juvenil de 1979|1979]]'''
+|-
+|[[Lionel Messi]]
+|'''6'''
+|'''7'''
+|{{bandera|Países Bajos}} '''[[Copa Mundial de Fútbol Sub-20 de 2005|2005]]'''
+|-
+|[[Sergio Agüero]]
+|'''6'''
+|'''11'''
+|{{bandera|Países Bajos}} '''[[Copa Mundial de Fútbol Sub-20 de 2005|2005]]''', {{bandera|Canadá}} '''[[Copa Mundial de Fútbol Sub-20 de 2007|2007]]'''
+|-
+|rowspan=6| 6
+|[[Jorge Gabrich]]
+|'''4'''
+|'''6'''
+|{{bandera|México}} '''[[Copa Mundial de Fútbol Juvenil de 1983|1983]]'''
+|-
+|[[Juan Román Riquelme]]
+|'''4'''
+|'''7'''
+|{{bandera|Malasia}} '''[[Copa Mundial de Fútbol Sub-20 de 1997|1997]]'''
+|-
+|[[Bernardo Romeo]]
+|'''4'''
+|'''7'''
+|{{bandera|Malasia}} '''[[Copa Mundial de Fútbol Sub-20 de 1997|1997]]'''
+|-
+|[[Maxi Rodríguez]]
+|'''4'''
+|'''7'''
+|{{bandera|Argentina}} '''[[Copa Mundial de Fútbol Sub-20 de 2001|2001]]'''
+|-
+|[[Fernando Cavenaghi]]
+|'''4'''
+|'''7'''
+|{{bandera|Emiratos Árabes Unidos}} '''[[Copa Mundial de Fútbol Juvenil de 2003|2003]]'''
+|-
+|[[Maximiliano Moralez|Maxi Moralez]]
+|'''4'''
+|'''7'''
+|{{bandera|Canadá}} '''[[Copa Mundial de Fútbol Sub-20 de 2007|2007]]'''
+|}
+
+=== Goleadores en Campeonatos Sudamericanos ===
+{| align=border width=70% border=1 cellpadding="2" cellspacing="0" style="background: #f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 100%; text-align: center;"
+|- align=center bgcolor=#6AB5FF style="color:white;"
+! #!! Jugador!!Goles!! Partidos!! Sudamericanos disputados
+|-
+|rowspan="2" valign="center"|1
+|align="center"|[[Luciano Galletti]]
+|'''9'''
+|'''9'''
+|{{bandera|Argentina}} '''[[Campeonato Sudamericano Sub-20 de 1999|1999]]'''
+|-
+|align="center"|[[Giovanni Simeone]]
+|'''9'''
+|'''9'''
+|{{bandera|Uruguay}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2015|2015]]'''
+|-
+|3
+|align="center"|[[Fernando Cavenaghi]]
+|'''8'''
+|'''7'''
+|{{bandera|Uruguay}} '''[[Campeonato Sudamericano Sub-20 de 2003|2003]]'''
+|-
+|4
+|align="center"|[[Juan Esnáider]]
+|'''7'''
+|'''5'''
+|{{bandera|Venezuela}} '''[[Campeonato Sudamericano Sub-20 de 1991|1991]]'''
+|-
+|5
+|align="center"|[[Claudio Echeverri]]
+|'''6'''
+|'''9'''
+|{{bandera|Venezuela}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2025|2025]]'''
+|-
+|rowspan="4" valign="center"|6
+|align="center"|[[Norberto Raffo]]
+|'''5'''
+|'''?'''
+|{{bandera|Chile}} '''[[Campeonato Sudamericano Sub-20 de 1958|1958]]'''
+|-
+|align="center"|[[Marcelo Torres (futbolista)|Marcelo Torres]]
+|'''5'''
+|'''7'''
+|{{bandera|Ecuador}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2017|2017]]'''
+|-
+|align="center"|[[Lionel Messi]] 
+|'''5'''
+|'''9'''
+|{{bandera|Colombia}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2005|2005]]'''
+|-
+|align="center"|[[Lautaro Martínez]] 
+|'''5'''
+|'''9'''
+|{{bandera|Ecuador}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2017|2017]]'''
+|-
+|rowspan="7" valign="center"|10
+|-
+|align="center"|[[Leonardo Biagini]]
+|'''4'''
+|'''5'''
+|{{bandera|Bolivia}} '''[[Campeonato Sudamericano Sub-20 de 1995|1995]]'''
+|-
+|align="center"|[[Ramón Ángel Díaz]]
+|'''4'''
+|'''?'''
+|{{bandera|Uruguay}} '''[[Campeonato Sudamericano Sub-20 de 1979|1979]]'''
+|-
+|align="center"|[[Eduardo Salvio]]
+|'''4'''
+|'''9'''
+|{{bandera|Venezuela}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2009|2009]]'''
+|-
+|align="center"|[[Facundo Ferreyra]]
+|'''4'''
+|'''7'''
+|{{bandera|Perú}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2011|2011]]'''
+|-
+| align="center" |[[Ángel Correa]]
+|'''4'''
+|'''9'''
+|{{bandera|Uruguay}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2015|2015]]'''
+|-
+|align="center"|[[Juan Manuel Iturbe]]
+|'''4'''
+|'''12'''
+|{{bandera|Perú}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2011|2011]],''' {{bandera|Argentina}} '''[[Campeonato Sudamericano de Fútbol Sub-20 de 2013|2013]]'''<ref>{{cita web|url=http://www.espn.com.ar/news/story?id=1207048&s=fut&type=story|título=Goleadores ESPN|fechaacceso=14 de enero de 2011|editorial=www.espn.com.ar}}</ref>
+|}
+
+== Estadísticas ==
+
+=== [[Copa Mundial de Fútbol Sub-20|Copa Mundial Sub-20]] ===
+{| width="80%" align=border border=1 cellpadding="1" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- bgcolor=#6AB5FF style="color:white;"
+! width="65" | Edición
+! width="95"| Resultado
+! width="55" | {{Abreviatura|Pos.|Posición}}
+! width="31" | {{Abreviatura|PJ|Partidos jugados}}
+! width="31" | {{Abreviatura|PG|Partidos ganados}}
+! width="31" | {{Abreviatura|PE|Partidos empatados}}
+! width="31" | {{Abreviatura|PP|Partidos perdidos}}
+! width="31" | {{Abreviatura|GF|Goles a favor}}
+! width="31" | {{Abreviatura|GC|Goles en contra}}
+! width="31" | {{Abreviatura|Dif.|Diferencia de goles}}
+! width="185"| Goleador
+
+|-
+||{{bandera|TUN|1959}} '''[[Copa Mundial de Fútbol Sub-20 de 1977|1977]]'''||colspan=10|''No clasificó''
+|-bgcolor=gold
+||{{Bandera|JPN|1870}} '''[[Copa Mundial de Fútbol Sub-20 de 1979|1979]]'''||'''Campeón'''||'''1º'''||'''6'''||'''6'''||'''0'''||'''0'''||'''20'''||'''2'''||'''+18'''||'''[[Ramón Ángel Díaz|Ramón Díaz]]: 8'''
+|-
+|{{bandera|AUS}} '''[[Copa Mundial de Fútbol Sub-20 de 1981|1981]]'''||Fase de grupos||9º||3||1||1||1||3||3 ||0||[[Claudio Morresi|Morresi]], [[Juan José Urruti|Urruti]] y [[Jorge Cecchi|Cecchi]]: 1
+|-bgcolor=silver
+|{{Bandera|MEX}} '''[[Copa Mundial de Fútbol Sub-20 de 1983|1983]]'''
+|Subcampeón
+||2º||6||5||0||1||13||2||+11||[[Jorge Gabrich]]: 4
+|-
+|{{bandera|URSS}} '''[[Copa Mundial de Fútbol Sub-20 de 1985|1985]]'''||rowspan=2 colspan=10|''No clasificó''
+|-
+|{{bandera|Chile}} '''[[Copa Mundial de Fútbol Sub-20 de 1987|1987]]'''
+|-
+|{{bandera|Arabia Saudita}} '''[[Copa Mundial de Fútbol Sub-20 de 1989|1989]]'''||Cuartos de final||7º||4||1||0||3||3||4||-1||[[Diego Simeone|Simeone]], [[Humberto Biazotti|Biazotti]] y [[Martín Ubaldi|Ubaldi]]: 1
+|-
+|{{bandera|Portugal}} '''[[Copa Mundial de Fútbol Sub-20 de 1991|1991]]'''||Fase de grupos||14º||3||0||1||2||2||6||-4||[[Marcelo Delgado|Delgado]] y [[Roberto Molina (futbolista)| Molina]]: 1
+|-
+|{{bandera|Australia}} '''[[Copa Mundial de Fútbol Sub-20 de 1993|1993]]'''||colspan=10|''Descalificado''<ref>https://maxibibbo.wordpress.com/2011/06/01/se-cumplen-20-anos-del-escandalo-del-sub-20-en-el-mundial-de-portugal/</ref>
+|-bgcolor=gold
+|{{Bandera|Catar}} '''[[Copa Mundial de Fútbol Sub-20 de 1995|1995]]'''||'''Campeón'''||'''1º'''||'''6'''||'''5'''||'''0'''||'''1'''||'''12'''||'''3'''||'''+9'''||'''[[Sebastián Pena]]: 3'''
+|-bgcolor=gold
+|{{bandera|Malaysia}} '''[[Copa Mundial de Fútbol Sub-20 de 1997|1997]]'''||'''Campeón'''||'''1º'''||'''7'''||'''6'''||'''0'''||'''1'''||'''15'''||'''7'''||'''+8'''||'''[[Juan Román Riquelme|Riquelme]] y [[Bernardo Romeo|Romeo]]: 4'''
+|-
+|{{bandera|NGA}} '''[[Copa Mundial de Fútbol Sub-20 de 1999|1999]]'''||Octavos de final||16º||4||1||1||2||2||5||-3||[[Esteban Cambiasso|Cambiasso]] y [[Luciano Galletti|Galleti]]: 1
+|-bgcolor=gold
+|style="border: 3px solid red"|{{bandera|ARG}} '''[[Copa Mundial de Fútbol Sub-20 de 2001|2001]]'''||'''Campeón'''||'''1º'''||'''7'''||'''7'''||'''0'''||'''0'''||'''27'''||'''4'''||'''+23'''||'''[[Javier Saviola]]: 11'''
+|-bgcolor=#9acdff
+|{{bandera|UAE}} '''[[Copa Mundial de Fútbol Sub-20 de 2003|2003]]'''||Cuarto puesto||4º||7||5||0||2||12||8||+4||[[Fernando Cavenaghi]]: 4
+|- bgcolor=gold
+|{{Bandera|NED}} '''[[Copa Mundial de Fútbol Sub-20 de 2005|2005]]'''||'''Campeón'''||'''1º'''||'''7'''||'''6'''||'''0'''||'''1'''||'''12'''||'''5'''||'''+7'''||'''[[Lionel Messi]]: 6'''
+|- bgcolor=gold
+|{{bandera|CAN}} '''[[Copa Mundial de Fútbol Sub-20 de 2007|2007]]'''||'''Campeón'''||'''1º'''||'''7'''||'''6'''||'''1'''||'''0'''||'''16'''||'''2'''||'''+14'''||'''[[Sergio Agüero]]: 6'''
+|-
+|{{bandera|EGY}} '''[[Copa Mundial de Fútbol Sub-20 de 2009|2009]]'''||colspan=10|''No clasificó''
+|-
+|{{bandera|COL}} '''[[Copa Mundial de Fútbol Sub-20 de 2011|2011]]'''||[[Anexo:Argentina en la Copa Mundial de Fútbol Sub-20 de 2011|Cuartos de final]]||8º||5||3||2||0||6||1||+5||[[Erik Lamela]]: 3
+|-
+|{{bandera|TUR}} '''[[Copa Mundial de Fútbol Sub-20 de 2013|2013]]'''||colspan=10|''No clasificó''
+|-
+|{{bandera|NZL}} '''[[Copa Mundial de Fútbol Sub-20 de 2015|2015]]'''||Fase de grupos||20º||3||0||2||1||4||5||-1||[[Ángel Correa]]: 2
+|-
+|{{bandera|KOR}} '''[[Copa Mundial de Fútbol Sub-20 de 2017|2017]]'''||Fase de grupos||17º||3||1||0||2||6||5||+1||[[Lautaro Martínez]] y [[Luis Marcelo Torres|Marcelo Torres]]: 2
+|-
+|{{bandera|POL}} '''[[Copa Mundial de Fútbol Sub-20 de 2019|2019]]'''||Octavos de final||12º||4||2||1||1||10||6||+4||[[Adolfo Gaich]]: 3
+|-
+|style="border: 3px solid red"|{{bandera|ARG}} '''[[Copa Mundial de Fútbol Sub-20 de 2023|2023]]'''||Octavos de final||9°||4||3||0||1||10||3||+7||[[Alejo Véliz (futbolista)|Alejo Véliz]]: 3
+|-bgcolor=silver
+|{{bandera|CHI}} '''[[Copa Mundial de Fútbol Sub-20 de 2025|2025]]'''||Subcampeón||2°||7||6||0||1||15||4||+11||[[Alejo Sarco]]: 4
+|-
+|{{bandera|AZE}}{{bandera|UZB}} '''[[Copa Mundial de Fútbol Sub-20 de 2027|2027]]'''||colspan=10|''Por definir''
+|-
+!Total||18/24||2°||93||64||9||20||188||75||+113||[[Javier Saviola]]: 11
+|}
+
+=== [[Campeonato Sudamericano de Fútbol Sub-20|Campeonato Sudamericano Sub-20]] ===
+{| width="80%" align=border border=1 cellpadding="1" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- bgcolor=#6AB5FF style="color:white;"
+! width="65" | Edición
+! width="95"| Resultado
+! width="55" | {{Abreviatura|Pos.|Posición}}
+! width="31" | {{Abreviatura|PJ|Partidos jugados}}
+! width="31" | {{Abreviatura|PG|Partidos ganados}}
+! width="31" | {{Abreviatura|PE|Partidos empatados}}
+! width="31" | {{Abreviatura|PP|Partidos perdidos}}
+! width="31" | {{Abreviatura|GF|Goles a favor}}
+! width="31" | {{Abreviatura|GC|Goles en contra}}
+! width="31" | {{Abreviatura|Dif.|Diferencia de goles}}
+! width="185"| Goleador
+|-
+|'''{{Bandera|Venezuela|1954}} [[Campeonato Sudamericano Sub-20 de 1954|1954]]'''|| colspan="10" |''No participó''
+|- align=center bgcolor=silver
+|'''{{Bandera|Chile}} [[Campeonato Sudamericano Sub-20 de 1958|1958]]'''|| Subcampeón ||2º||5||2||2||1||16||10||+6||Ermindo Onega: 4
+|-
+|'''{{Bandera|Colombia}} [[Campeonato Sudamericano Sub-20 de 1964|1964]]'''|| Fase final ||6º|| 6 || 1 || 2 || 3 || 4 || 5||-1||Óscar Más: 3
+|- align=center bgcolor=gold
+|'''{{Bandera|Paraguay|1954}} [[Campeonato Sudamericano Sub-20 de 1967|1967]]'''|| '''Campeón''' ||'''1º'''|| '''6''' || '''2''' || '''3''' || '''1''' || '''9''' || '''7'''||'''+2'''||'''[[Carlos María García Cambón|García Cambón]]: 3'''
+|- bgcolor=cc9966
+|'''{{Bandera|Paraguay|1954}} [[Campeonato Sudamericano Sub-20 de 1971|1971]]'''|| Tercer puesto ||3º||5||3||0||2||7||3||+4||[[Miguel Oswaldo González]]: 3
+|-bgcolor=#9acdff
+|'''{{Bandera|Chile}} [[Campeonato Sudamericano Sub-20 de 1974|1974]]'''|| Cuarto puesto ||4º||5||1||2||2||3||5||-2|| Cofone: 2
+|- bgcolor=cc9966
+|'''{{Bandera|Perú}} [[Campeonato Sudamericano Sub-20 de 1975|1975]]'''|| Tercer puesto ||3º||5||2||2||1||7||6||+1||Britez y [[Sergio Fortunato|Fortunato]]
+|-
+|'''{{Bandera|Venezuela|1954}} [[Campeonato Sudamericano Sub-20 de 1977|1977]]'''|| Primera fase || 6º ||  4 || 0 || 2 || 2 || 3 || 5|| -2|| Ricardo Fusani: 2
+|- bgcolor=silver
+|'''{{Bandera|Uruguay}} [[Campeonato Sudamericano Sub-20 de 1979|1979]]'''|| Subcampeón ||2º||6||3||2||1||10||1||+9||[[Ramón Díaz (entrenador argentino)|Ramón Díaz]]
+|- bgcolor=cc9966
+|'''{{Bandera|Ecuador|1900}} [[Campeonato Sudamericano Sub-20 de 1981|1981]]'''|| Tercer puesto ||3º||6||3||1||2||11||12||-1||[[Oscar Ruggeri]]: 4
+|- bgcolor=cc9966
+|'''{{Bandera|Bolivia}} [[Campeonato Sudamericano Sub-20 de 1983|1983]]'''|| Tercer puesto ||3º||7||5||1||1||17||10||+7||[[Mauro Zarate]]: 5
+|-
+|'''{{Bandera|Paraguay|1954}} [[Campeonato Sudamericano Sub-20 de 1985|1985]]'''|| Primera fase ||5º|| 4 || 1 || 2 || 1 || 5 || 3|| +2|| -
+|- bgcolor=cc9966
+|'''{{Bandera|Colombia}} [[Campeonato Sudamericano Sub-20 de 1987|1987]]'''|| Tercer puesto ||3º|| 6 || 3 || 1 || 2 || 9 || 9||0||-
+|- bgcolor=cc9966
+|style="border: 3px solid red"|'''{{Bandera|Argentina}} [[Campeonato Sudamericano Sub-20 de 1988|1988]]'''|| Tercer puesto ||3º|| 8 || 6 || 0 || 2 || 13 || 5||+8||-
+|- bgcolor=silver
+|'''{{Bandera|Venezuela|1954}} [[Campeonato Sudamericano Sub-20 de 1991|1991]]'''|| Subcampeón ||2º|| 7 || 3 || 3 || 1 || 12 || 10||+2||-
+|-
+|'''{{Bandera|Colombia}} [[Campeonato Sudamericano Sub-20 de 1992|1992]]'''|| colspan="10" |''Descalificado por incidentes del mundial anterior (Portugal 1991)''
+|- bgcolor=silver
+|'''{{Bandera|Bolivia}} [[Campeonato Sudamericano Sub-20 de 1995|1995]]'''|| Subcampeón ||2º|| 7 || 5 || 1 || 1 || 10 || 3||+7||-
+|- bgcolor=gold
+|'''{{Bandera|Chile}} [[Campeonato Sudamericano Sub-20 de 1997|1997]]'''||'''Campeón''' ||'''1º'''|| '''9''' || '''5''' || '''3''' || '''1''' || '''18''' || '''7'''||'''+11'''||'''[[Pablo Aimar|Aimar]] y [[Bernardo Romeo|Romeo]]: 4'''
+|- bgcolor=gold
+|style="border: 3px solid red"|'''{{Bandera|Argentina}} [[Campeonato Sudamericano Sub-20 de 1999|1999]]'''||'''Campeón''' ||'''1º'''|| '''9''' || '''8''' || '''0''' || '''1''' || '''21''' || '''3'''||'''+18'''||'''[[Luciano Galletti]]: 9'''
+|- bgcolor=silver
+|'''{{Bandera|Ecuador|1900}} [[Campeonato Sudamericano Sub-20 de 2001|2001]]'''|| Subcampeón ||2º|| 9 || 5 || 3 || 1 || 13 || 6||+5||-
+|- bgcolor=gold
+|'''{{Bandera|Uruguay}} [[Campeonato Sudamericano Sub-20 de 2003|2003]]'''||'''Campeón''' ||'''1º'''|| '''9''' || '''6''' || '''2''' || '''1''' || '''15''' || '''5'''||'''+10'''||'''[[Fernando Cavenaghi]]: 8'''
+|- bgcolor=cc9966
+|'''{{Bandera|Colombia}} [[Campeonato Sudamericano Sub-20 de 2005|2005]]'''|| Tercer puesto ||3º|| 9 || 5 || 4 || 0 || 19 || 4||+15||[[Lionel Messi]]: 5
+|- bgcolor=Silver
+|'''{{Bandera|Paraguay|1990}} [[Campeonato Sudamericano Sub-20 de 2007|2007]]'''|| Subcampeón ||2º|| 9 || 3 || 5 || 1 || 15 || 8||+7||[[Pablo Mouche|Mouche]] y [[Ismael Sosa|Sosa]]: 3
+|-
+|'''{{Bandera|Venezuela}} [[Campeonato Sudamericano Sub-20 de 2009|2009]]'''|| Fase final ||6º||| 9 || 1 || 5 || 3 || 10 || 13||-3||[[Eduardo Salvio|Toto Salvio]]: 4
+|- bgcolor=cc9966
+|'''{{Bandera|Perú}} [[Campeonato Sudamericano Sub-20 de 2011|2011]]'''|| Tercer puesto ||3º|| 9 || 6 || 1 || 2 || 15 || 9||+6||[[Facundo Ferreyra]]: 4
+|-
+|style="border: 3px solid red"|'''{{Bandera|Argentina}} [[Campeonato Sudamericano de Fútbol Sub-20 de 2013|2013]]'''|| Primera fase || 7º || 4 || 1 || 1 || 2 || 6 || 7|| -1||[[Luciano Vietto]]: 2
+|- bgcolor=gold
+|'''{{Bandera|Uruguay}} [[Campeonato Sudamericano Sub-20 de 2015|2015]]'''|| '''Campeón''' ||'''1º'''|| '''9''' || '''7''' || '''1''' || '''1''' || '''24''' || '''7'''||'''+17'''||'''[[Giovanni Simeone]]: 9'''
+|-bgcolor=#9acdff
+|'''{{Bandera|Ecuador}} [[Campeonato Sudamericano Sub-20 de 2017|2017]]'''|| Cuarto puesto ||4º|| 9 || 3 || 4 || 2 || 15 || 14|| +1||[[Luis Marcelo Torres|Torres]] y [[Lautaro Martínez|Martinez]]: 5
+|- bgcolor=silver
+|'''{{Bandera|Chile}} [[Campeonato Sudamericano de Fútbol Sub-20 de 2019|2019]]'''|| Subcampeón ||2º|| 9 || 5 || 1 || 3 || 10 || 6|| +4||[[Adolfo Gaich]]: 3
+|-
+|'''{{Bandera|Colombia}} [[Campeonato Sudamericano de Fútbol Sub-20 de 2023|2023]]'''|| Primera fase ||8°|| 4 || 1 || 0 || 3 || 3 || 6|| -3||[[Máximo Perrone|Perrone]], [[Maximiliano González (futbolista)|González]] e [[Gino Infantino|Infantino]]: 1
+|- bgcolor=Silver
+|'''{{Bandera|Venezuela}} [[Campeonato Sudamericano de Fútbol Sub-20 de 2025|2025]]'''|| Subcampeón ||2º|| 9 || 5 || 3 || 1 || 18 || 9|| +9||[[Claudio Echeverri]]: 6
+|-
+|'''{{Bandera|Colombia}} [[Campeonato Sudamericano de Fútbol Sub-20 de 2027|2027]]'''||colspan=10|''Por disputar'' 
+|-
+!Total||29/31||3º||203||101||57||45||338||198||+140||[[Luciano Galletti|Galletti]] y [[Giovanni Simeone|Simeone]]: 9
+|}
+
+===[[Fútbol en los Juegos Panamericanos|Juegos Panamericanos]]===
+{| width="80%" align=border border=1 cellpadding="1" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- bgcolor=#6AB5FF style="color:white;"
+! width="65" | Edición
+! width="95"| Resultado
+! width="55" | {{Abreviatura|Pos.|Posición}}
+! width="31" | {{Abreviatura|PJ|Partidos jugados}}
+! width="31" | {{Abreviatura|PG|Partidos ganados}}
+! width="31" | {{Abreviatura|PE|Partidos empatados}}
+! width="31" | {{Abreviatura|PP|Partidos perdidos}}
+! width="31" | {{Abreviatura|GF|Goles a favor}}
+! width="31" | {{Abreviatura|GC|Goles en contra}}
+! width="31" | {{Abreviatura|Dif.|Diferencia de goles}}
+! width="185"| Goleador
+|-align=center bgcolor=gold
+|{{Bandera|República Dominicana}} '''[[Torneo masculino de fútbol en los Juegos Panamericanos de 2003|2003]]'''<ref>En esta edicion participaron selecciones sub-20</ref>
+|'''Medalla de oro'''
+|   |'''1°'''||'''5'''||'''5'''||'''0'''||'''0'''||'''10'''||'''5'''||'''+5'''||'''[[Franco Cángele]]: 4'''
+|-align=center bgcolor=#f9f9f9
+!Total || 1/1 || 1º ||5||5||0||0||10||5||+5||[[Franco Cángele]]: 4
+|}
+
+=== [[Fútbol en los Juegos Sudamericanos|Juegos Sudamericanos]] ===
+{| width="80%" align=border border=1 cellpadding="1" cellspacing="0" style="background: #ffffff; border: 1px #aaa solid; border-collapse: collapse; font-size: 90%; text-align: center;"
+|- bgcolor=#6AB5FF style="color:white;"
+! width="65" | Edición
+! width="95"| Resultado
+! width="55" | {{Abreviatura|Pos.|Posición}}
+! width="31" | {{Abreviatura|PJ|Partidos jugados}}
+! width="31" | {{Abreviatura|PG|Partidos ganados}}
+! width="31" | {{Abreviatura|PE|Partidos empatados}}
+! width="31" | {{Abreviatura|PP|Partidos perdidos}}
+! width="31" | {{Abreviatura|GF|Goles a favor}}
+! width="31" | {{Abreviatura|GC|Goles en contra}}
+! width="31" | {{Abreviatura|Dif.|Diferencia de goles}}
+! width="185"| Goleador
+|-align=center bgcolor=#9acdff
+|{{Bandera|Bolivia}} '''[[Anexo:Fútbol en los Juegos Suramericanos de 2018|2018]]'''
+|Cuarto puesto
+|   |4°||5||1||2||2||7||8||-1||[[Ezequiel Cañete]]: 2
+|-align=center 
+|{{Bandera|Paraguay}} '''[[Anexo:Fútbol en los Juegos Suramericanos de 2022|2022]]'''
+|Fase de grupos
+|   |6°||3||1||0||2||3||3||0||[[Álex Luna|Luna]], [[Román Andrés Rodríguez|Rodríguez]] y [[Lucas Besozzi|Besozzi]]: 1
+|-
+!Total || 2/2 || 4º ||8||2||2||4||10||11||-1||[[Ezequiel Cañete]]: 2
+|}
+
+== Palmarés ==
+=== Competiciones oficiales ===
+{| class="wikitable colizq" style="font-size:95%; text-align: center;"
+! rowspan="2" width="18%" |Competición
+|-
+! width="18%" style="background:Gold" |Títulos
+! width="18%" style="background:Silver" |Subcampeonatos
+! width="18%" style="background:#CD7F32" |Tercer lugar
+
+|-
+![[Copa Mundial de Fútbol Sub-20]]
+| 6 ([[Copa Mundial de Fútbol Sub-20 de 1979|1979]], [[Copa Mundial de Fútbol Sub-20 de 1995|1995]], [[Copa Mundial de Fútbol Sub-20 de 1997|1997]], [[Copa Mundial de Fútbol Sub-20 de 2001|2001]], [[Copa Mundial de Fútbol Sub-20 de 2005|2005]], [[Copa Mundial de Fútbol Sub-20 de 2007|2007]])
+| 2 ([[Copa Mundial de Fútbol Sub-20 de 1983|1983]], [[Copa Mundial de Fútbol Sub-20 de 2025|2025]])
+| –
+|-
+![[Campeonato Sudamericano de Fútbol Sub-20]]
+| 5 ([[Campeonato Sudamericano Sub-20 de 1967|1967]], [[Campeonato Sudamericano Sub-20 de 1997|1997]], [[Campeonato Sudamericano Sub-20 de 1999|1999]], [[Campeonato Sudamericano Sub-20 de 2003|2003]], [[Campeonato Sudamericano Sub-20 de 2015|2015]])
+| 8 ([[Campeonato Sudamericano Sub-20 de 1958|1958]], [[Campeonato Sudamericano Sub-20 de 1979|1979]], [[Campeonato Sudamericano Sub-20 de 1991|1991]], [[Campeonato Sudamericano Sub-20 de 1995|1995]], [[Campeonato Sudamericano Sub-20 de 2001|2001]], [[Campeonato Sudamericano Sub-20 de 2007|2007]], [[Campeonato Sudamericano de Fútbol Sub-20 de 2019|2019]], [[Campeonato Sudamericano de Fútbol Sub-20 de 2025|2025]])
+| 8 ([[Campeonato Sudamericano Sub-20 de 1971|1971]], [[Campeonato Sudamericano Sub-20 de 1975|1975]], [[Campeonato Sudamericano Sub-20 de 1981|1981]], [[Campeonato Sudamericano Sub-20 de 1983|1983]], [[Campeonato Sudamericano Sub-20 de 1987|1987]], [[Campeonato Sudamericano Sub-20 de 1988|1988]], [[Campeonato Sudamericano Sub-20 de 2005|2005]], [[Campeonato Sudamericano Sub-20 de 2011|2011]])
+|-
+![[Fútbol en los Juegos Panamericanos|Juegos Panamericanos]]
+| 1 ([[Torneo masculino de fútbol en los Juegos Panamericanos de 2003|2003]])
+| –
+| –
+|}
+;Cronología de los títulos
+{| class="wikitable" style="text-align: left;"
+|-
+!Sede
+!Torneo
+!Año
+!N.º
+|-
+|{{flagicon|PAR}} Paraguay||[[Campeonato Sudamericano Sub-20]]|||[[Campeonato Sudamericano Sub-20 de 1967|1967]]||style="text-align: center;"|1.º
+|-
+|{{flagicon|JAP}} Japón||[[Copa Mundial de Fútbol Sub-20|Copa Mundial Sub-20]]|||[[Copa Mundial de Fútbol Juvenil de 1979|1979]]||style="text-align: center;"|2.º
+|-
+|{{flagicon|QAT}} Catar||Copa Mundial Sub-20|||[[Copa Mundial de Fútbol Juvenil de 1995|1995]]||style="text-align: center;"|3.º
+|-
+|{{flagicon|CHI}} Chile||Campeonato Sudamericano Sub-20|||[[Campeonato Sudamericano Sub-20 de 1997|1997]]||style="text-align: center;"|4.º
+|-
+|{{flagicon|Malasia}} Malasia||Copa Mundial Sub-20|||[[Copa Mundial de Fútbol Juvenil de 1997|1997]]||style="text-align: center;"|5.º
+|-
+|{{flagicon|ARG}} Argentina||Campeonato Sudamericano Sub-20|||[[Campeonato Sudamericano Sub-20 de 1999|1999]]||style="text-align: center;"|6.º
+|-
+|{{flagicon|ARG}} Argentina||Copa Mundial Sub-20|||[[Copa Mundial de Fútbol Juvenil de 2001|2001]]||style="text-align: center;"|7.º
+|-
+|{{flagicon|URU}} Uruguay||Campeonato Sudamericano Sub-20|||[[Campeonato Sudamericano Sub-20 de 2003|2003]]||style="text-align: center;"|8.º
+|-
+|{{flagicon|DOM}} República Dominicana||Juegos Panamericanos|||[[Torneo masculino de fútbol en los Juegos Panamericanos de 2003|2003]]||style="text-align: center;"|9.º
+|-
+|{{flagicon|NED}} Países Bajos||Copa Mundial Sub-20|||[[Copa Mundial de Fútbol Juvenil de 2005|2005]]||style="text-align: center;"|10.º
+|-
+|{{flagicon|CAN}} Canadá||Copa Mundial Sub-20|||[[Copa Mundial de Fútbol Sub-20 de 2007|2007]]||style="text-align: center;"|11.º
+|-
+|{{flagicon|URU}} Uruguay||Campeonato Sudamericano Sub-20|||[[Campeonato Sudamericano Sub-20 de 2015|2015]]||style="text-align: center;"|12.º
+|}
+
+=== Competiciones no oficiales ===
+
+{| border="1" cellspacing="0" style="background: #f9f9f9; border: 2px #aaa solid; border-collapse: collapse; border-color: white; color:black; font-size: 95%;" width="100%"
+|- bgcolor=#6AB5FF style="color:white;"
+! width=40%|Competición
+! width=30%|Títulos
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE| '''[[Torneo Esperanzas de Toulon]]'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] [[Torneo Esperanzas de Toulon de 1975|1975]] y 1998
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE|  '''Triangular Internacional de Viña del Mar Sub-20'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] 2007
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE|  '''[[Copa Aerosur Internacional Sub-20]]'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] 2010
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE|  '''[[Copa Córdoba Internacional Sub-20]]'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] 2010
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE|  '''[[Copa Desafío Cuatro Naciones 2012|Copa Desafío Cuatro Naciones Sub-20]]'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] [[Copa Desafío Cuatro Naciones 2012|2012]]
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE|  '''[[Torneo internacional de fútbol sub-20 de la Alcudia|Torneo Internacional Sub-20 de la Alcudia]]'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] 2012, 2018, [[Torneo internacional de fútbol sub-20 de la Alcudia de 2022|2022]] y 2025
+|- style="font-size: 90%;"
+| bgcolor=D8E2EE|  '''[[Copa del Atlántico (Canarias)|Copa Atlántico Sub-20]]'''
+|bgcolor="#ECF1F7"| [[Archivo:Gold medal icon.svg|15px]] 2014
+|}
+
+;Premios y distinciones
+
+{| class="wikitable" style="text-align: left;"
+|-
+!Distinción
+!Año
+|-
+|rowspan="2"|Premio al [[Juego limpio]] en [[Copa Mundial de Fútbol Sub-20]] 
+|align=center|[[Copa Mundial de Fútbol Sub-20 de 1997|1997]]
+|-
+|align=center|[[Copa Mundial de Fútbol Sub-20 de 2001|2001]]
+|-
+|rowspan="2"|Premio al [[Juego limpio]] en [[Campeonato Sudamericano de Fútbol Sub-20|Campeonato Sudamericano Sub-20]] 
+|align=center|[[Campeonato Sudamericano Sub-20 de 1999|1999]]
+|-
+|align=center|[[Campeonato Sudamericano Sub-20 de 2005|2005]]
+|}
+
+;Distinciones individuales
+
+{| class="wikitable" style="text-align: center;"
+!colspan=8|[[Copa Mundial de Fútbol Sub-20]]
+|-
+!Año
+!Balón de Oro
+!Botín de Oro
+!Guante de Oro
+!Balón de Plata
+!Botín de Plata
+!Balón de Bronce
+!Botín de Bronce
+|-
+|1979
+| [[Diego Maradona]]
+| [[Ramón Ángel Díaz|Ramón Díaz]]
+| -
+| -
+| [[Diego Maradona]]
+| [[Ramón Ángel Díaz|Ramón Díaz]]
+| -
+|-
+|1983
+| -
+| -
+| -
+| [[Roberto Oscar Zárate|Roberto Zárate]]
+| -
+| [[Luis Islas]]
+| [[Jorge Gabrich]]
+|-
+|1995
+| -
+| -
+| -
+| -
+| -
+| [[Joaquín Irigoytía]]
+| -
+|-
+|1997
+| -
+| -
+| -
+| -
+| -
+| [[Pablo Aimar]]
+| -
+|-
+|2001
+| [[Javier Saviola]]
+| [[Javier Saviola]]
+| -
+| [[Andrés D'Alessandro]]
+| -
+| -
+| -
+|-
+|2005
+| [[Lionel Messi]]
+| [[Lionel Messi]]
+| -
+| -
+| -
+| -
+| -
+|-
+|2007
+| [[Sergio Agüero]]
+| [[Sergio Agüero]]
+| -
+| [[Maximiliano Morález|Maxi Morález]]
+| -
+| -
+| [[Maximiliano Morález|Maxi Morález]]
+|-
+|2025
+| -
+| -
+| [[Santino Barbi]]
+| -
+| -
+| [[Milton Delgado]]
+| -
+|}
+
+== Véase también ==
+* [[Asociación del Fútbol Argentino]]
+* [[Selección de fútbol de Argentina]]
+* [[Selección de fútbol sub-23 de Argentina]]
+* [[Selección de fútbol sub-22 de Argentina]]
+* [[Selección de fútbol sub-17 de Argentina]]
+* [[Selección de fútbol sub-15 de Argentina]]
+
+== Bibliografía ==
+* [http://www.rsssf.com/tablesw/wycall.html World Youth Cup (U-20) Overview (with links to each tournament)] en [[RSSSF]] (en inglés)
+
+== Referencias ==
+{{Listaref|2}}
+
+== Enlaces externos ==
+* [http://www.afa.org.ar/ Sitio web AFA]
+
+{{Control de autoridades}}
+[[Categoría:Selección de fútbol sub-20 de Argentina| ]]

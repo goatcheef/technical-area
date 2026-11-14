@@ -1,0 +1,432 @@
+{{AP|Campeonato Sudamericano de Fútbol Sub-20 de 2025}}
+El '''Campeonato Sudamericano Sub-20 2025''' fue un torneo internacional de fútbol organizado en Venezuela. Los diez equipos nacionales involucrados en el torneo tuvieron que registrar un equipo de 23 jugadores como máximo. Solo los jugadores de estos equipos fueron elegibles para participar en el torneo.
+
+La edad de los jugadores, así como sus clubes correspondieron al 23 de enero, fecha del inicio del torneo.
+
+== Grupo A ==
+=== Venezuela ===
+El equipo fue confirmado el 21 de enero.<ref>{{cita web|título=Lista de Buena Fe - Venezuela Sub-20 2025|url=https://www.conmebol.com/lista-buena-fe-torneo/?competitionFifaId=240589114&teamFifaId=57365|obra=Conmebol|fechaacceso=21 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio|edad=sí|procedencia=sí|texto=#FFFFFF|fondo=#800020}} 
+|-
+| colspan=7 style="background:#800020" align=center|'''{{tc|Guardameta (fútbol)|Porteros|color=#FFFFFF}}
+{{Jugador de fútbol|num=1|nac=VEN|nombre=[[Pedro Fulco]]|pos=POR|edad={{edad|26|1|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Academia Puerto Cabello Club de Fútbol|Puerto Cabello]]}}
+{{Jugador de fútbol|num=12|nac=VEN|nombre=[[Samuel Aspajo]]|pos=POR|edad={{edad|24|5|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Metropolitanos Fútbol Club|Metropolitanos]]}}
+{{Jugador de fútbol|num=23|nac=VEN|nombre=[[Juan Vegas]]|pos=POR|edad={{edad|11|2|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Caracas Fútbol Club|Caracas]]}}
+|-
+| colspan=7 style="background:#800020" align=center|'''{{tc|Defensa (fútbol)|Defensas|color=#FFFFFF}}
+|-
+{{Jugador de fútbol|num=2|nac=VEN|nombre=[[Víctor Fung]]|pos=DEF|edad={{edad|13|8|2007|23|1|2025}}|procedencia={{bandera|USA}} [[Inter de Miami]]}}
+{{Jugador de fútbol|num=3|nac=VEN|nombre=[[Alessandro Milani]]|pos=DEF|edad={{edad|14|6|2005|23|1|2025}}|procedencia={{bandera|ITA}} [[Società Sportiva Lazio|Lazio]]}}
+{{Jugador de fútbol|num=6|nac=VEN|nombre=[[Bianneider Tamayo]]|pos=DEF|edad={{edad|13|1|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Jugador de fútbol|num=13|nac=VEN|nombre=[[Luis Balbo]]|pos=DEF|edad={{edad|28|3|2006|23|1|2025}}|procedencia={{bandera|ITA}} [[ACF Fiorentina|Fiorentina]]}}
+{{Jugador de fútbol|num=14|nac=VEN|nombre=[[Yulwuis Pérez]]|pos=DEF|edad={{edad|19|9|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Monagas Sport Club|Monagas]]}}
+{{Jugador de fútbol|num=15|nac=VEN|nombre=[[Edicson Tamiche]]|pos=DEF|edad={{edad|28|5|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Deportivo Táchira Fútbol Club|Deportivo Táchira]]}}
+{{Jugador de fútbol|num=17|nac=VEN|nombre=[[Juan David Sánchez|Juan Sánchez]]|pos=DEF|edad={{edad|6|10|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Deportivo Táchira Fútbol Club|Deportivo Táchira]]}}
+{{Jugador de fútbol|num=19|nac=VEN|nombre=[[Josué Suárez]]|pos=DEF|edad={{edad|4|5|2006|23|1|2025}}|procedencia={{bandera|MEX}} [[Club de Fútbol Cruz Azul|Cruz Azul]]}}
+|-
+| colspan=7 style="background:#800020" align=center|'''{{tc|Centrocampista|Centrocampistas|color=#FFFFFF}}
+|-
+{{Jugador de fútbol|num=4|nac=VEN|nombre=[[Yiandro Raap]]|pos=MED|edad={{edad|25|7|2006|23|1|2025}}|procedencia={{bandera|NED}} [[PSV Eindhoven|PSV]]}}
+{{Jugador de fútbol|num=8|nac=VEN|nombre=[[Nicola Profeta]]|pos=MED|edad={{edad|27|2|2006|23|1|2025}}|procedencia={{bandera|COL}} [[Deportivo Cali]]}}
+{{Jugador de fútbol|num=10|nac=VEN|nombre=[[Kervin Andrade]]|pos=MED|edad={{edad|13|4|2005|23|1|2025}}|procedencia={{bandera|BRA}} [[Fortaleza Esporte Clube|Fortaleza]]}}
+{{Jugador de fútbol|num=16|nac=VEN|nombre=[[Giovanny Sequera]]|pos=MED|edad={{edad|14|2|2006|23|1|2025}}|procedencia={{bandera|VEN}} [[Metropolitanos Fútbol Club|Metropolitanos]]}}
+{{Jugador de fútbol|num=20|nac=VEN|nombre=[[Leenhan Romero]]|pos=MED|edad={{edad|1|11|2006|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo Universidad Católica (fútbol)|Universidad Católica]]}}
+{{Jugador de fútbol|num=22|nac=VEN|nombre=[[Miguel Vegas Cordero|Miguel Vegas]]|pos=MED|edad={{edad|22|5|2006|23|1|2025}}|procedencia={{bandera|VEN}} [[Caracas Fútbol Club|Caracas]]}}
+|-
+| colspan=7 style="background:#800020" align=center|'''{{tc|Delantero|Delanteros|color=#FFFFFF}}
+|-
+{{Jugador de fútbol|num=5|nac=VEN|nombre=[[Daniele Quieto]]|pos=DEL|edad={{edad|22|10|2005|23|1|2025}}|procedencia={{bandera|ITA}} [[Inter de Milán]]}}
+{{Jugador de fútbol|num=7|nac=VEN|nombre=[[Sebastián Castillo]]|pos=DEL|edad={{edad|6|5|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Deportivo La Guaira Fútbol Club|Deportivo La Guaira]]}}
+{{Jugador de fútbol|num=9|nac=VEN|nombre=[[Loureins Martínez]]|pos=DEL|edad={{edad|16|4|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Carabobo Fútbol Club|Carabobo]]}}
+{{Jugador de fútbol|num=11|nac=VEN|nombre=[[Leandro Rodríguez Santaella|Leandro Rodríguez]]|pos=DEL|edad={{edad|11|6|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Monagas Sport Club|Monagas]]}}
+{{Jugador de fútbol|num=18|nac=VEN|nombre=[[Alejandro Cichero Jr.]]|pos=DEL|edad={{edad|11|7|2006|23|1|2025}}|procedencia={{bandera|ITA}} [[Frosinone Calcio|Frosinone]]}}
+{{Jugador de fútbol|num=21|nac=VEN|nombre=[[Jesús Duarte]]|pos=DEL|edad={{edad|20|12|2005|23|1|2025}}|procedencia={{bandera|VEN}} [[Deportivo Táchira Fútbol Club|Deportivo Táchira]]}}
+{{Equipo de fútbol fin|entrenador={{bandera|ARG}} [[Ricardo Valiño]]
+|actualización=
+|url plantilla=}}
+
+=== Uruguay ===
+El equipo fue anunciado el 7 de enero de 2025.<ref>{{cita web|título=Uruguay empató con Bolivia, Coito desafectó a cinco jugadores y confirmó la lista para el Sudamericano Sub 20|url=https://www.elpais.com.uy/ovacion/futbol/uruguay-empato-con-bolivia-coito-desafecto-a-cinco-jugadores-y-confirmo-la-lista-para-el-sudamericano-sub-20|obra=El País|fechaacceso=7 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio
+|procedencia=sí
+|edad=sí
+|texto=black
+|fondo=#80BBFF 
+}}
+| colspan=6 bgcolor=#80BBFF style="color:black;" align=center| '''Porteros'''
+{{Jugador de fútbol|num=1|nac=URU|nombre=[[Kevin Martínez Inzaurralde|Kevin Martínez]]|pos=POR|edad={{edad|27|11|2005|23|1|2025}}|procedencia={{bandera|URU}} [[Danubio Fútbol Club|Danubio]]}}
+{{Jugador de fútbol|num=12|nac=URU|nombre=[[Federico Bonilla]]|pos=POR|edad={{edad|8|12|2005|23|1|2025}}|procedencia={{bandera|URU}} [[Club Nacional de Football|Nacional]]}}
+{{Jugador de fútbol|num=23|nac=URU|nombre=[[Felipe Ortiz Ferreira|Felipe Ortiz]]|pos=POR|edad={{edad|6|11|2007|23|1|2025}}|procedencia={{bandera|URU}} [[Club Deportivo Maldonado|Deportivo Maldonado]]}}
+|-
+| colspan=6 bgcolor=#80BBFF style="color:black;" align=center| '''Defensas'''
+{{Jugador de fútbol|num=2|nat=URU|name=[[Nicolás Ramos Invernizzi|Nicolás Ramos]]|pos=DEF|edad={{edad|1|4|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Nacional de Football|Nacional]]}}
+{{Jugador de fútbol|num=3|nat=URU|name=[[Paolo Calione]]|pos=DEF|edad={{edad|22|5|2006|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Nacional de Football|Nacional]]}}
+{{Jugador de fútbol|num=4|nat=URU|name=[[Lucas Agazzi]]|pos=DEF|edad={{edad|2|5|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Defensor Sporting Club|Defensor Sporting]]}}
+{{Jugador de fútbol|num=5|nat=URU|name=[[Juan Rodríguez Camejo|Juan Rodríguez]]|pos=DEF|edad={{edad|30|5|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Atlético Peñarol|Peñarol]]}}
+{{Jugador de fútbol|num=6|nat=URU|name=[[Patricio Pacífico]]|pos=DEF|edad={{edad|8|4|2006|23|1|2025}}|procedencia={{Bandera|URU}} [[Defensor Sporting Club|Defensor Sporting]]}}
+{{Jugador de fútbol|num=13|nat=URU|name=[[Facundo González Muslera|Facundo González]]|pos=DEF|edad={{edad|10|5|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Nacional de Football|Nacional]]}}
+{{Jugador de fútbol|num=15|nat=URU|name=[[Alfonso Montero Benia|Alfonso Montero]]|pos=DEF|edad={{edad|23|2|2007|23|1|2025}}|procedencia={{Bandera|ITA}} [[Juventus de Turín|Juventus]]}}
+|-
+| colspan=6 bgcolor=#80BBFF style="color:black;" align=center| '''Centrocampistas'''
+{{Jugador de fútbol|num=8|nat=URU|name=[[Thiago Helguera]]|pos=MED|edad={{edad|26|3|2006|23|1|2025}}|procedencia={{Bandera|POR}} [[Sporting Clube de Braga|Braga]]}}
+{{Jugador de fútbol|num=11|nat=URU|name=[[Agustín Albarracín]]|pos=MED|edad={{edad|29|8|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Atlético Boston River|Boston River]]}}
+{{Jugador de fútbol|num=14|nat=URU|name=[[Mateo Peralta]]|pos=MED|edad={{edad|8|4|2006|23|1|2025}}|procedencia={{Bandera|URU}} [[Danubio Fútbol Club|Danubio]]}}
+{{Jugador de fútbol|num=16|nat=URU|name=[[Erico Cuello]]|pos=MED|edad={{edad|25|5|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Defensor Sporting Club|Defensor Sporting]]}}
+{{Jugador de fútbol|num=17|nat=URU|name=[[Mauro Zalazar]]|pos=MED|edad={{edad|13|4|2005|23|1|2025}}|procedencia={{Bandera|ALE}} [[FC Schalke 04|Schalke 04]]}}
+{{Jugador de fútbol|num=18|nat=URU|name=[[Germán Barbas]]|pos=MED|edad={{edad|17|9|2007|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Atlético Peñarol|Peñarol]]}}
+{{Jugador de fútbol|num=20|nat=URU|name=[[Lucas Pino]]|pos=MED|edad={{edad|30|10|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Montevideo City Torque]]}}
+{{Jugador de fútbol|num=21|nat=URU|name=[[Alejandro Severo Cordero|Alejandro Severo]]|pos=MED|edad={{edad|27|8|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Racing Club de Montevideo|Racing]]}}
+{{Jugador de fútbol|num=22|nat=URU|name=[[Bruno Calcagno]]|pos=MED|edad={{edad|2|4|2005|23|1|2025}}|procedencia={{Bandera|ESP}} [[Palencia Club de Fútbol|Palencia]]}}
+|-
+| colspan=6 bgcolor=#80BBFF style="color:black;" align=center| '''Delanteros'''
+{{Jugador de fútbol|num=7|nat=URU|name=[[Joaquín Lavega]]|pos=DEL|edad={{edad|3|2|2005|23|1|2025}}|procedencia={{Bandera|BRA}} [[Fluminense Football Club|Fluminense]]}}
+{{Jugador de fútbol|num=9|nat=URU|name=[[Renzo Machado]]|pos=DEL|edad={{edad|21|9|2005|23|1|2025}}|procedencia={{Bandera|URU}} [[Liverpool Fútbol Club|Liverpool]]}}
+{{Jugador de fútbol|num=10|nat=URU|name=[[Gonzalo Petit]]|pos=DEL|edad={{edad|21|9|2006|23|1|2025}}|procedencia={{Bandera|URU}} [[Club Nacional de Football|Nacional]]}}
+{{Jugador de fútbol|num=19|nat=URU|name=[[Esteban Crucci]]|pos=DEL|edad={{edad|5|7|2006|23|1|2025}}|procedencia={{Bandera|URU}} [[Montevideo Wanderers Fútbol Club|Montevideo Wanderers]]}}
+{{Equipo de fútbol fin
+|entrenador={{bandera|URU}} [[Fabián Coito]]
+}}
+
+=== Paraguay ===
+El equipo fue anunciado el 8 de enero de 2025.<ref>{{cita web|título=Los seis nacidos en Argentina que jugarán con Paraguay el Sudamericano Sub 20|url=https://www.versus.com.py/cronica/2025/01/08/los-seis-nacidos-en-argentina-que-jugaran-con-paraguay-el-sudamericano-sub-20/|obra=Versus|fecha=8 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio
+|procedencia=sí
+|edad=sí
+|texto=white
+|fondo=#D52B1E 
+}}
+| colspan=6 bgcolor=#D52B1E style="color:white;" align=center| '''Porteros'''
+{{Jugador de fútbol|num=1|nac=PAR|nombre=[[Facundo Insfrán]]|pos=POR|edad={{edad|4|5|2006|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Olimpia|Olimpia]]}}
+{{Jugador de fútbol|num=12|nac=PAR|nombre=[[Víctor Rojas Marín|Víctor Rojas]]|pos=POR|edad={{edad|1|2|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Libertad|Libertad]]}}
+{{Jugador de fútbol|num=22|nac=PAR|nombre=[[Leo Sosa]]|pos=POR|edad={{edad|18|4|2007|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Atlético Rosario Central|Rosario Central]]}}
+|-
+| colspan=6 bgcolor=#D52B1E style="color:white;" align=center| '''Defensas'''
+{{Jugador de fútbol|num=2|nac=PAR|nombre=[[Matías Argüello]]|pos=DEF|edad={{edad|13|8|2006|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Libertad|Libertad]]}}
+{{Jugador de fútbol|num=3|nac=PAR|nombre=[[Axel Balbuena]]|pos=DEF|edad={{edad|10|3|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Lanús|Lanús]]}}
+{{Jugador de fútbol|num=4|nac=PAR|nombre=[[Diego León Blanco|Diego León]]|pos=DEF|edad={{edad|3|4|2007|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Cerro Porteño|Cerro Porteño]]}}
+{{Jugador de fútbol|num=5|nac=PAR|nombre=[[Lucas Quintana]]|pos=DEF|edad={{edad|2|1|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Cerro Porteño|Cerro Porteño]]}}
+{{Jugador de fútbol|num=13|nac=PAR|nombre=[[Diego Ramos (futbolista)|Diego Ramos]]|pos=DEF|edad={{edad|8|10|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Guaraní|Guaraní]]}}
+{{Jugador de fútbol|num=14|nac=PAR|nombre=[[Tobías Morínigo]]|pos=DEF|edad={{edad|22|9|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Olimpia|Olimpia]]}}
+{{Jugador de fútbol|num=15|nac=PAR|nombre=[[Gadiel Paoli]]|pos=DEF|edad={{edad|1|10|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]}}
+{{Jugador de fútbol|num=20|nac=PAR|nombre=[[Maximiliano Duarte]]|pos=DEF|edad={{edad|2|9|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Independiente|Independiente]]}}
+|-
+| colspan=6 bgcolor=#D52B1E style="color:white;" align=center| '''Centrocampistas'''
+{{Jugador de fútbol|num=6|nac=PAR|nombre=[[Ángel Aguayo]]|pos=MED|edad={{edad|30|5|2006|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Sol de América (Asunción)|Sol de América]]}}
+{{Jugador de fútbol|num=8|nac=PAR|nombre=[[Santiago Puzzo]]|pos=MED|edad={{edad|30|6|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Quilmes Atlético Club|Quilmes]]}}
+{{Jugador de fútbol|num=10|nac=PAR|nombre=[[Luca Kmet]]|pos=MED|edad={{edad|20|7|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Lanús|Lanús]]}}
+{{Jugador de fútbol|num=16|nac=PAR|nombre=[[Lucas Gómez Peralta|Lucas Gómez]]|pos=MED|edad={{edad|23|4|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Guaraní|Guaraní]]}}
+{{Jugador de fútbol|num=18|nac=PAR|nombre=[[Lucas Guiñazú]]|pos=MED|edad={{edad|25|8|2006|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Libertad|Libertad]]}}
+{{Jugador de fútbol|num=21|nac=PAR|nombre=[[Octavio Alfonso]]|pos=MED|edad={{edad|19|2|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Guaraní|Guaraní]]}}
+|-
+| colspan=6 bgcolor=#D52B1E style="color:white;" align=center| '''Delanteros'''
+{{Jugador de fútbol|num=7|nac=PAR|nombre=[[Gabriel Aguayo]]|pos=DEL|edad={{edad|10|2|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Cerro Porteño|Cerro Porteño]]}}
+{{Jugador de fútbol|num=9|nac=PAR|nombre=[[Tiago Caballero]]|pos=DEL|edad={{edad|27|5|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Nacional (Paraguay)|Nacional]]}}
+{{Jugador de fútbol|num=11|nac=PAR|nombre=[[César Miño]]|pos=DEL|edad={{edad|31|5|2007|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Guaraní|Guaraní]]}}
+{{Jugador de fútbol|num=17|nac=PAR|nombre=[[Alexis Fretes]]|pos=DEL|edad={{edad|25|9|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Olimpia|Olimpia]]}}
+{{Jugador de fútbol|num=19|nac=PAR|nombre=[[David Fernández Fariña|David Fernández]]|pos=DEL|edad={{edad|5|1|2006|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Sol de América (Asunción)|Sol de América]]}}
+{{Jugador de fútbol|num=23|nac=PAR|nombre=[[Anderson Leguizamón]]|pos=DEL|edad={{edad|17|2|2005|23|1|2025}}|procedencia={{bandera|PAR}} [[Club Guaraní|Guaraní]]}}
+{{Equipo de fútbol fin
+|entrenador={{bandera|ARG}} [[Aldo Duscher]]<br>{{bandera|PAR}} [[Antolín Alcaraz]]
+}}
+
+=== Chile ===
+El equipo preliminar fue anunciado el 12 de enero de 2025.<ref>{{cita web|título=La Roja Sub 20 ya se prepara para enfrentar a Argentina: Pizarro y Chatiliez lideran la nómina|url=https://redgol.cl/seleccionchilena/revelan-la-nomina-de-la-roja-sub-20-para-enfrentar-a-argentina|obra=Red Gol|fechaacceso=12 de enero de 2025}}</ref> La nómina definitiva se anunció el 19 de enero de 2025.<ref>{{Cita web|url=https://www.espn.cl/futbol/nota/_/id/14686995/la-nomina-de-la-seleccion-chilena-sub-20-para-sudamericano-de-venezuela|título=La Selección Chilena Sub 20 ya tiene nómina para el Sudamericano de Venezuela 2025|fechaacceso=2025-01-19|fecha=2025-01-19|sitioweb=ESPN.cl|idioma=es}}</ref>
+{{Equipo de fútbol inicio|edad=sí|procedencia=sí|texto=#FFFFFF|fondo=#E30013}}  El 19 de enero se entregó la nómina final
+|-
+| colspan=7 style="background:#E30013" align=center|'''{{tc|Guardameta (fútbol)|Porteros|color=#FFFFFF}}
+{{Jugador de fútbol|num=1|nac=CHI|nombre=[[Martín Contreras Salazar|Martín Contreras]]|pos=POR|edad={{edad|18|5|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo Universidad Católica (fútbol)|Universidad Católica]]}}
+{{Jugador de fútbol|num=12|nac=CHI|nombre=[[Ignacio Sáez]]|pos=POR|edad={{edad|4|9|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Jugador de fútbol|num=23|nac=CHI|nombre=[[Gabriel Maureira]]|pos=POR|edad={{edad|6|2|2007|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Social y Deportivo Colo-Colo|Colo-Colo]]}}
+|-
+| colspan=7 style="background:#E30013" align=center|'''{{tc|Defensa (fútbol)|Defensas|color=#FFFFFF}}
+|-
+{{Jugador de fútbol|num=2|nac=CHI|nombre=[[Ian Garguez]]|pos=DEF|edad={{edad|3|2|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo Palestino|Palestino]]}}
+{{Jugador de fútbol|num=3|nac=CHI|nombre=[[Iván Román]]|pos=DEF|edad={{edad|12|7|2006|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo Palestino|Palestino]]}}
+{{Jugador de fútbol|num=4|nac=CHI|nombre=[[Yahir Salazar]]|pos=DEF|edad={{edad|19|1|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Jugador de fútbol|num=5|nac=CHI|nombre=[[Nicolás Suárez Reyes|Nicolás Suárez]]|pos=DEF|edad={{edad|31|7|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Social y Deportivo Colo-Colo|Colo-Colo]]}}
+{{Jugador de fútbol|num=13|nac=CHI|nombre=[[Matías Pérez Sepúlveda|Matías Pérez]]|pos=DEF|edad={{edad|13|4|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club de Deportes Provincial Curicó Unido|Curicó Unido]]}}
+{{Jugador de fútbol|num=19|nac=CHI|nombre=[[Patricio Romero Fernández|Patricio Romero]]|pos=DEF|edad={{edad|25|5|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club de Deportes Cobreloa|Cobreloa]]}}
+{{Jugador de fútbol|num=20|nac=CHI|nombre=[[Felipe Faúndez]]|pos=DEF|edad={{edad|27|3|2006|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo O'Higgins|O'Higgins]]}}
+|-
+| colspan=7 style="background:#E30013" align=center|'''{{tc|Centrocampista|Centrocampistas|color=#FFFFFF}}
+|-
+{{Jugador de fútbol|num=6|nac=CHI|nombre=[[Gabriel Pinto Silva|Gabriel Pinto]]|pos=MED|edad={{edad|25|2|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo O'Higgins|O'Higgins]]}}
+{{Jugador de fútbol|num=8|nac=CHI|nombre=[[Joaquín Silva]]|pos=MED|edad={{edad|27|5|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club de Deportes Santiago Wanderers|Santiago Wanderers]]}}
+{{Jugador de fútbol|num=10|nac=CHI|nombre=[[Agustín Arce]]|pos=MED|edad={{edad|24|1|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Jugador de fútbol|num=15|nac=CHI|nombre=[[Nicolás Cárcamo|Javier Cárcamo]]|pos=MED|edad={{edad|1|2|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo Huachipato|Huachipato]]}}
+{{Jugador de fútbol|num=16|nac=CHI|nombre=[[Fernando Osorio Sanguinetti|Fernando Osorio]]|pos=MED|edad={{edad|23|6|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Jugador de fútbol|num=22|nac=CHI|nombre=[[Leandro Hernández]]|pos=MED|edad={{edad|13|6|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Social y Deportivo Colo-Colo|Colo-Colo]]}}
+|-
+| colspan=7 style="background:#E30013" align=center|'''{{tc|Delantero|Delanteros|color=#FFFFFF}}
+|-
+{{Jugador de fútbol|num=7|nac=CHI|nombre=[[Favian Loyola]]|pos=DEL|edad={{edad|18|5|2005|23|1|2025}}|procedencia={{bandera|USA}} [[Orlando City Soccer Club|Orlando City]]}}
+{{Jugador de fútbol|num=9|nac=CHI|nombre=[[Damián Pizarro]]|pos=DEL|edad={{edad|28|3|2005|23|1|2025}}|procedencia={{bandera|ITA}} [[Udinese Calcio|Udinese]]}}
+{{Jugador de fútbol|num=11|nac=CHI|nombre=[[Willy Chatiliez]]|pos=DEL|edad={{edad|26|3|2005|23|1|2025}}|procedencia={{bandera|ESP}} [[Sociedad Deportiva Huesca|Huesca]]}}
+{{Jugador de fútbol|num=14|nac=CHI|nombre=[[Ignacio Vásquez (futbolista chileno)|Ignacio Vásquez]]|pos=DEL|edad={{edad|22|5|2006|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Jugador de fútbol|num=17|nac=CHI|nombre=[[Emiliano Ramos]]|pos=DEL|edad={{edad|8|3|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Everton de Viña del Mar|Everton]]}}
+{{Jugador de fútbol|num=18|nac=CHI|nombre=[[Juan Francisco Rossel|Juan Rossel]]|pos=DEL|edad={{edad|17|3|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Deportivo Universidad Católica (fútbol)|Universidad Católica]]}}
+{{Jugador de fútbol|num=21|nac=CHI|nombre=[[Benjamín Aravena]]|pos=DEL|edad={{edad|17|11|2005|23|1|2025}}|procedencia={{bandera|CHI}} [[Club Universidad de Chile|Universidad de Chile]]}}
+{{Equipo de fútbol fin|entrenador={{bandera|CHI}} [[Nicolás Córdova]]
+|actualización=
+|url plantilla=}}
+
+=== Perú ===
+El equipo fue confirmado el 21 de enero.<ref>{{cita web|título=Lista de Buena Fe - Perú Sub-20 2025|url=https://www.conmebol.com/lista-buena-fe-torneo/?competitionFifaId=240589114&teamFifaId=57376|obra=Conmebol|fechaacceso=21 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio
+|procedencia=sí
+|edad=sí
+|texto=white
+|fondo=red
+}}
+| colspan=6 bgcolor=red style="color:white;" align=center| '''Porteros'''
+{{Jugador de fútbol|num=1|nac=PER|nombre=[[William Falcón]]|pos=POR|edad={{edad|27|4|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Deportivo Universidad César Vallejo|UCV]]}}
+{{Jugador de fútbol|num=12|nac=PER|nombre=[[Jhefferson Rodríguez]]|pos=POR|edad={{edad|13|3|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Universitario de Deportes|Universitario]]}}
+{{Jugador de fútbol|num=21|nac=PER|nombre=[[Paolo Doneda]]|pos=POR|edad={{edad|18|5|2007|23|1|2025}}|procedencia={{bandera|ITA}} [[Associazione Calcio Milan|Milan]]}}
+|-
+| colspan=6 bgcolor=red style="color:white;" align=center| '''Defensas'''
+{{Jugador de fútbol|num=2|nac=PER|nombre=[[Anderson Villacorta]]|pos=DEF|edad={{edad|25|7|2005|23|1|2025}}|procedencia={{bandera|MEX}} [[Mineros de Zacatecas]]}}
+{{Jugador de fútbol|num=3|nac=PER|nombre=[[Axel Cabellos]]|pos=DEF|edad={{edad|18|11|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Racing Club]]}}
+{{Jugador de fútbol|num=4|nac=PER|nombre=[[Brian Arias]]|pos=DEF|edad={{edad|2|9|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Alianza Lima|Alianza Lima]]}}
+{{Jugador de fútbol|num=5|nac=PER|nombre=[[Alejandro Pósito]]|pos=DEF|edad={{edad|5|9|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Sporting Cristal|Sporting Cristal]]}}
+{{Jugador de fútbol|num=14|nac=PER|nombre=[[Julinho Astudillo]]|pos=DEF|edad={{edad|1|7|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Universitario de Deportes|Universitario]]}}
+{{Jugador de fútbol|num=15|nac=PER|nombre=[[Nicolás Amasifuén]]|pos=DEF|edad={{edad|5|7|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Deportivo Universidad César Vallejo|UCV]]}}
+{{Jugador de fútbol|num=17|nac=PER|nombre=[[Jonathan García Gómez|Jonathan Gómez]]|pos=DEF|edad={{edad|6|7|2007|23|1|2025}}|procedencia={{bandera|PER}} [[Club Alianza Lima|Alianza Lima]]}}
+{{Jugador de fútbol|num=18|nac=PER|nombre=[[Fabián Lora]]|pos=DEF|edad={{edad|30|8|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Sporting Cristal|Sporting Cristal]]}}
+{{Jugador de fútbol|num=23|nac=PER|nombre=[[Mateo Arakaki]]|pos=DEF|edad={{edad|1|7|2008|23|1|2025}}|procedencia={{bandera|PER}} [[Club Alianza Lima|Alianza Lima]]}}
+|-
+| colspan=6 bgcolor=red style="color:white;" align=center| '''Centrocampistas'''
+{{Jugador de fútbol|num=6|nac=PER|nombre=[[Ian Wisdom]]|pos=MED|edad={{edad|14|9|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Sporting Cristal|Sporting Cristal]]}}
+{{Jugador de fútbol|num=8|nac=PER|nombre=[[Álvaro Rojas (futbolista)|Álvaro Rojas]]|pos=MED|edad={{edad|12|3|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Universitario de Deportes|Universitario]]}}
+{{Jugador de fútbol|num=10|nac=PER|nombre=[[Sebastián Mathías Sánchez|Sebastián Sánchez]]|pos=MED|edad={{edad|7|12|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Sporting Cristal|Sporting Cristal]]}}
+{{Jugador de fútbol|num=16|nac=PER|nombre=[[Esteban Cruz]]|pos=MED|edad={{edad|12|2|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Universitario de Deportes|Universitario]]}}
+{{Jugador de fútbol|num=19|nac=PER|nombre=[[Rodrigo Dioses]]|pos=MED|edad={{edad|20|2|2005|23|1|2025}}|procedencia={{bandera|PER}} [[Club Universitario de Deportes|Universitario]]}}
+|-
+| colspan=6 bgcolor=red style="color:white;" align=center| '''Delanteros'''
+{{Jugador de fútbol|num=7|nac=PER|nombre=[[Juan Pablo Goicochea]]|pos=DEL|edad={{edad|12|1|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Platense|Platense]]}}
+{{Jugador de fútbol|num=9|nac=PER|nombre=[[Víctor Guzmán Mendoza|Víctor Guzmán]]|pos=DEL|edad={{edad|25|3|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Alianza Lima|Alianza Lima]]}}
+{{Jugador de fútbol|num=11|nac=PER|nombre=[[Maxloren Castro]]|pos=DEL|edad={{edad|8|12|2007|23|1|2025}}|procedencia={{bandera|PER}} [[Club Sporting Cristal|Sporting Cristal]]}}
+{{Jugador de fútbol|num=13|nac=PER|nombre=[[Homali Ruiz]]|pos=DEL|edad={{edad|12|3|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Deportivo Universidad de San Martín de Porres|San Martín]]}}
+{{Jugador de fútbol|num=20|nac=PER|nombre=[[Bassco Soyer]]|pos=DEL|edad={{edad|17|10|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Alianza Lima|Alianza Lima]]}}
+{{Jugador de fútbol|num=22|nac=PER|nombre=[[Sebastián Cornejo]]|pos=DEL|edad={{edad|8|5|2006|23|1|2025}}|procedencia={{bandera|PER}} [[Club Deportivo Universidad de San Martín de Porres|San Martín]]}}
+{{Equipo de fútbol fin
+|entrenador={{bandera|PER}} [[José del Solar]]
+}}
+
+== Grupo B ==
+=== Brasil ===
+El equipo final fue anunciado el 3 de enero de 2025.<ref>{{cita web|título=Lista de Brasil para el Sudamericano Sub 20 2025: Jugadores y plantel de la Selección brasileña|url=https://www.sportingnews.com/us-es/futbol/news/lista-brasil-sudamericano-sub-20-2025-jugadores-plantel/4d820bfe0578888746f3113f|obra=sportingnews.com|fechaacceso=5 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio|edad=sí|procedencia=sí|texto=#008000|fondo=#FDEE00}}
+|-
+| colspan=7 style="background:#FDEE00" align=center|'''{{tc|Guardameta (fútbol)|Porteros|color=#008000}}
+{{Jugador de fútbol|num=1|nac=BRA|nombre=[[Robert Alves|Robert]]|pos=POR|edad=19 años|procedencia={{bandera|BRA}} [[Clube Atlético Mineiro|Atlético Mineiro]]}}
+{{Jugador de fútbol|num=12|nac=BRA|nombre=[[Felipe Longo]]|pos=POR|edad=19 años|procedencia={{bandera|BRA}} [[Sport Club Corinthians Paulista|Corinthians]]}}
+{{Jugador de fútbol|num=22|nac=BRA|nombre=[[Henrique Menke]]|pos=POR|edad=18 años|procedencia={{bandera|BRA}} [[Sport Club Internacional|Internacional]]}}
+|-
+| colspan=7 style="background:#FDEE00" align=center|'''{{tc|Defensa (fútbol)|Defensas|color=#008000}}
+|-
+{{Jugador de fútbol|num=2|nac=BRA|nombre=[[Paulo Ricardo de Souza|Paulo Ricardo]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Club de Regatas Vasco da Gama|Vasco da Gama]]}}
+{{Jugador de fútbol|num=3|nac=BRA|nombre=[[Jair Cunha]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Santos Futebol Clube|Santos]]}}
+{{Jugador de fútbol|num=4|nac=BRA|nombre=[[Filipe Bordon]]|pos=DEF|edad=19 años|procedencia={{bandera|ITA}} [[Società Sportiva Lazio|Lazio]]}}
+{{Jugador de fútbol|num=6|nac=BRA|nombre=[[Leandro Viana da Silva Gama|Leandrinho]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Club de Regatas Vasco da Gama|Vasco da Gama]]}}
+{{Jugador de fútbol|num=13|nac=BRA|nombre=[[Igor Schlemper|Igor]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Grêmio Foot-Ball Porto Alegrense|Grêmio]]}}
+{{Jugador de fútbol|num=14|nac=BRA|nombre=[[Iago Teodoro da Silva Nogueira|Iago]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Clube de Regatas do Flamengo|Flamengo]]}}
+{{Jugador de fútbol|num=15|nac=BRA|nombre=[[Anthony Wesley Ciriano Oliveira|Anthony]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Goiás Esporte Clube|Goiás]]}}
+{{Jugador de fútbol|num=16|nac=BRA|nombre=[[Zé Guilherme]]|pos=DEF|edad=19 años|procedencia={{bandera|BRA}} [[Grêmio Foot-Ball Porto Alegrense|Grêmio]]}}
+|-
+| colspan=7 style="background:#FDEE00" align=center|'''{{tc|Centrocampista|Centrocampistas|color=#008000}}
+|-
+{{Jugador de fútbol|num=5|nac=BRA|nombre=[[Gabriel Moscardo]]|pos=MED|edad=19 años|procedencia={{bandera|FRA}} [[Stade de Reims]]}}
+{{Jugador de fútbol|num=8|nac=BRA|nombre=[[Breno Bidon]]|pos=MED|edad=19 años|procedencia={{bandera|BRA}} [[Sport Club Corinthians Paulista|Corinthians]]}}
+{{Jugador de fútbol|num=17|nac=BRA|nombre=[[Gustavo Prado Alves|Gustavo Prado]]|pos=MED|edad=19 años|procedencia={{bandera|BRA}} [[Sport Club Internacional|Internacional]]}}
+{{Jugador de fútbol|num=18|nac=BRA|nombre=[[Kauan Rodrigues|Kauan]]|pos=MED|edad=19 años|procedencia={{bandera|BRA}} [[Fortaleza Esporte Clube|Fortaleza]]}}
+{{Jugador de fútbol|num=20|nac=BRA|nombre=[[Arthur Dias]]|pos=MED|edad=17 años|procedencia={{bandera|BRA}} [[Club Athletico Paranaense|Athletico Paranaense]]}}
+|-
+| colspan=7 style="background:#FDEE00" align=center|'''{{tc|Delantero|Delanteros|color=#008000}}
+|-
+{{Jugador de fútbol|num=7|nac=BRA|nombre=[[Rayan]]|pos=DEL|edad=18 años|procedencia={{bandera|BRA}} [[Club de Regatas Vasco da Gama|Vasco da Gama]]}}
+{{Jugador de fútbol|num=9|nac=BRA|nombre=[[Deivid Washington]]|pos=DEL|edad=19 años|procedencia={{bandera|ENG}} [[Chelsea Football Club|Chelsea]]}}
+{{Jugador de fútbol|num=10|nac=BRA|nombre=[[Pedro Henrique Silva|Pedrinho]]|pos=DEL|edad=18 años|procedencia={{bandera|RUS}} [[Zenit de San Petersburgo|Zenit]]}}
+{{Jugador de fútbol|num=11|nac=BRA|nombre=[[Nathan Fernandes]]|pos=DEL|edad=19 años|procedencia={{bandera|BRA}} [[Grêmio Foot-Ball Porto Alegrense|Grêmio]]}}
+{{Jugador de fútbol|num=19|nac=BRA|nombre=[[Ricardo Mathias]]|pos=DEL|edad=18 años|procedencia={{bandera|BRA}} [[Sport Club Internacional|Internacional]]}}
+{{Jugador de fútbol|num=21|nac=BRA|nombre=[[Wesley Gassova|Wesley]]|pos=DEL|edad=19 años|procedencia={{bandera|KSA}} [[Al-Nassr Football Club|Al-Nassr]]}}
+{{Jugador de fútbol|num=23|nac=BRA|nombre=[[Alisson Santana|Alisson]]|pos=DEL|edad=19 años|procedencia={{bandera|BRA}} [[Clube Atlético Mineiro|Atlético Mineiro]]}}
+{{Equipo de fútbol fin|entrenador={{bandera|BRA}} [[Ramon Menezes]]
+|actualización=
+|url plantilla=}}
+
+=== Colombia ===
+El equipo final fue anunciado el 2 de enero de 2025.<ref>{{cita web|título=La selección Colombia definió los convocados al Sudamericano sub-20 de Venezuela: jugará dos amistosos previo al torneo|url=https://www.infobae.com/colombia/deportes/2025/01/02/la-seleccion-colombia-definio-los-convocados-al-sudamericano-sub-20-de-venezuela-jugara-dos-amistosos-previo-al-torneo/|obra=Infobae|fechaacceso=5 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio|edad=sí|procedencia=sí|texto=#061D8E|fondo=#FFE900}}
+|-
+| colspan=7 style="background:#FFE900" align=center|'''{{tc|Guardameta (fútbol)|Porteros|color=#061D8E}}
+{{Jugador de fútbol|num=12|nac=COL|nombre=[[Andrés Tovar]]|pos=POR|edad={{edad|25|3|2006|23|1|2025}}|procedencia={{bandera|COL}} [[Envigado Fútbol Club|Envigado F. C.]]}}
+{{Jugador de fútbol|num=1|nac=COL|nombre=[[Jordan García]]|pos=POR|edad={{edad|20|6|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Fortaleza CEIF]]}}
+{{Jugador de fútbol|num=22|nac=COL|nombre=[[Alexéi Rojas]]|pos=POR|edad={{edad|28|1|2005|23|1|2025}}|procedencia={{bandera|ENG}} [[Arsenal Football Club|Arsenal]]}}
+|-
+| colspan=7 style="background:#FFE900" align=center|'''{{tc|Defensa (fútbol)|Defensas|color=#061D8E}}
+|-
+{{Jugador de fútbol|num=2|nac=COL|nombre=[[Simón García Valero|Simón García]]|pos=DEF|edad={{edad|11|1|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Atlético Nacional]]}}
+{{Jugador de fútbol|num=3|nac=COL|nombre=[[Kéimer Sandoval]]|pos=DEF|edad={{edad|3|9|2005|23|1|2025}}|procedencia={{bandera|ESP}} [[Betis Deportivo Balompié|Betis Deportivo]]}}
+{{Jugador de fútbol|num=4|nac=COL|nombre=[[Julián Bazán]]|pos=DEF|edad={{edad|25|11|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Deportivo Pereira]]}}
+{{Jugador de fútbol|num=5|nac=COL|nombre=[[Elkin Quiñones]]|pos=DEF|edad={{edad|12|5|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Orsomarso Sportivo Clube|Orsomarso]]}}
+{{Jugador de fútbol|num=13|nac=COL|nombre=[[Luis Rentería Rodríguez|Luis Rentería]]|pos=DEF|edad={{edad|27|11|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Club Independiente Santa Fe|Santa Fe]]}}
+{{Jugador de fútbol|num=15|nac=COL|nombre=[[Yéimar Mosquera]]|pos=DEF|edad={{edad|6|2|2005|23|1|2025}}|procedencia={{bandera|ESP}} [[Real Unión Club|Real Unión]]}}
+{{Jugador de fútbol|num=21|nac=COL|nombre=[[Carlos Sarabia]]|pos=DEF|edad={{edad|13|6|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Millonarios Fútbol Club|Millonarios]]}}
+|-
+| colspan=7 style="background:#FFE900" align=center|'''{{tc|Centrocampista|Centrocampistas|color=#061D8E}}
+|-
+{{Jugador de fútbol|num=6|nac=COL|nombre=[[Alejandro Ararat]]|pos=MED|edad={{edad|6|7|2006|23|1|2025}}|procedencia={{bandera|COL}} [[Atlético Huila]]}}
+{{Jugador de fútbol|num=7|nac=COL|nombre=[[Sergio Aponzá]]|pos=MED|edad={{edad|28|7|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Alianza Valledupar FC|Alianza]]}}
+{{Jugador de fútbol|num=14|nac=COL|nombre=[[Jordan Barrera]]|pos=MED|edad={{edad|11|4|2006|23|1|2025}}|procedencia={{bandera|COL}} [[Barranquilla Fútbol Club|Barranquilla F. C.]]}}
+{{Jugador de fútbol|num=17|nac=COL|nombre=[[Juan Arizala]]|pos=MED|edad={{edad|10|10|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Deportivo Independiente Medellín|DIM]]}}
+{{Jugador de fútbol|num=18|nac=COL|nombre=[[Luis Landázuri]]|pos=MED|edad={{edad|1|1|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Atlético Nacional]]}}
+{{Jugador de fútbol|num=19|nac=COL|nombre=[[Kéner González]]|pos=MED|edad={{edad|5|10|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Internacional Fútbol Club de Palmira|Internacional]]}}
+|-
+| colspan=7 style="background:#FFE900" align=center|'''{{tc|Delantero|Delanteros|color=#061D8E}}
+|-
+{{Jugador de fútbol|num=8|nac=COL|nombre=[[Royner Benítez]]|pos=DEL|edad={{edad|21|6|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Águilas Doradas]]}}
+{{Jugador de fútbol|num=9|nac=COL|nombre=[[Alejandro Villarreal]]|pos=DEL|edad={{edad|28|7|2005|23|1|2025}}|procedencia={{bandera|BRA}} [[Santos Futebol Clube|Santos]]}}
+{{Jugador de fútbol|num=10|nac=COL|nombre=[[Óscar Perea]]|pos=DEL|edad={{edad|27|9|2005|23|1|2025}}|procedencia={{bandera|FRA}} [[Racing Club de Estrasburgo Alsacia|Estrasburgo]]}}
+{{Jugador de fútbol|num=11|nac=COL|nombre=[[Andy Batioja]]|pos=DEL|edad={{edad|31|1|2006|23|1|2025}}|procedencia={{bandera|USA}} [[Houston Dynamo Football Club|Houston Dynamo]]}}
+{{Jugador de fútbol|num=16|nac=COL|nombre=[[Yefréi Rodríguez]]|pos=DEL|edad={{edad|11|5|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Internacional Fútbol Club de Palmira|Internacional]]}}
+{{Jugador de fútbol|num=20|nac=COL|nombre=[[Edwin Montaño]]|pos=DEL|edad={{edad|4|10|2006|23|1|2025}}|procedencia={{bandera|COL}} [[Deportivo Independiente Medellín|DIM]]}}
+{{Jugador de fútbol|num=23|nac=COL|nombre=[[Néiser Villarreal]]|pos=DEL|edad={{edad|24|4|2005|23|1|2025}}|procedencia={{bandera|COL}} [[Millonarios Fútbol Club|Millonarios]]}}
+{{Equipo de fútbol fin|entrenador={{bandera|COL}} [[César Torres Ramírez|César Torres]]
+|actualización=
+|url plantilla=}}
+
+=== Ecuador ===
+La lista de 23 convocados fue anunciada el 5 de enero de 2025.<ref>{{cita web|título=La Tri anunció a los convocados para el Sudamericano Sub-20|url=https://studiofutbol.com.ec/2025/01/05/la-tri-anuncio-a-los-convocados-para-el-sudamericano-sub-20/|obra=Studio Fútbol|fechaacceso=5 de enero de 2025}}</ref> El 16 de enero de 2025 [[Diogo Bagüí]] fue baja por lesión y su reemplazo fue [[Deinner Ordóñez]].<ref>{{cita web|título=(VIDEO) El reemplazo de Diogo Bagüí ya entrena con La Tri sub 20|url=https://www.ecuagol.com/noticias/ligapro/video-el-reemplazo-de-diogo-bagui-ya-entrena-con-la-tri-sub-20/212517/|obra=Ecuagol|fechaacceso=17 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio
+|procedencia=sí
+|edad=sí
+|texto=blue
+|fondo=yellow
+}}
+| colspan=6 bgcolor=#FFFF00 style="color:blue;" align=center| '''Porteros'''
+{{Jugador de fútbol|num=1|nac=ECU|nombre=[[Cristhian Loor]]|pos=POR|edad={{edad|9|3|2006|23|1|2025}}|procedencia= {{bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=12|nac=ECU|nombre=[[Jhafets Reyes]]|pos=POR|edad={{edad|16|9|2006|23|1|2025}}|procedencia={{Bandera|ESP}} [[Fútbol Club Cartagena|Cartagena]]}}
+{{Jugador de fútbol|num=22|nac=ECU|nombre=[[Miguel Peralta]]|pos=POR|edad={{edad|26|4|2008|23|1|2025}}|procedencia={{bandera|ECU}} [[Independiente del Valle]]}}
+|-
+| colspan=6 bgcolor=#FFFF00 style="color:blue;" align=center| '''Defensas'''
+{{Jugador de fútbol|num=3|nat=ECU|name=[[Deinner Ordóñez]]|pos=DEF|edad={{edad|29|10|2009|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=4|nat=ECU|name=[[Davis Bautista]]|pos=DEF|edad={{edad|16|2|2005|23|1|2025}}|procedencia={{Bandera|ALE}} [[Eintracht Fráncfort]]}}
+{{Jugador de fútbol|num=6|nat=ECU|name=[[Elkin Ruiz]]|pos=DEF|edad={{edad|27|5|2006|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=14|nat=ECU|name=[[Maikel Caicedo]]|pos=DEF|edad={{edad|12|3|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Liga Deportiva Universitaria de Quito|Liga de Quito]]}}
+{{Jugador de fútbol|num=17|nat=ECU|name=[[Bruno Caicedo]]|pos=DEF|edad={{edad|15|1|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Barcelona Sporting Club|Barcelona]]}}
+|-
+| colspan=6 bgcolor=#FFFF00 style="color:blue;" align=center| '''Centrocampistas'''
+{{Jugador de fútbol|num=5|nat=ECU|name=[[Ronny Borja]]|pos=MED|edad={{edad|10|6|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Club Sport Emelec|Emelec]]}}
+{{Jugador de fútbol|num=7|nat=ECU|name=[[Keny Arroyo]]|pos=MED|edad={{edad|14|2|2006|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=10|nat=ECU|name=[[Kendry Páez]]|pos=MED|edad={{edad|4|5|2007|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=13|nat=ECU|name=[[Fricio Caicedo]]|pos=MED|edad={{edad|17|4|2008|23|1|2025}}|procedencia={{Bandera|ECU}} [[Liga Deportiva Universitaria de Quito|Liga de Quito]]}}
+{{Jugador de fútbol|num=15|nat=ECU|name=[[Juan Sebastián Rodríguez|Juan Rodríguez]]|pos=MED|edad={{edad|27|3|2006|23|1|2025}}|procedencia={{Bandera|ECU}} [[Liga Deportiva Universitaria de Quito|Liga de Quito]]}}
+{{Jugador de fútbol|num=16|nat=ECU|name=[[Justin Lerma]]|pos=MED|edad={{edad|5|5|2008|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=18|nat=ECU|name=[[Dary García]]|pos=MED|edad={{edad|24|3|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=20|nat=ECU|name=[[Elkin Muñoz]]|pos=MED|edad={{edad|29|6|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Club Sport Emelec|Emelec]]}}
+{{Jugador de fútbol|num=21|nat=ECU|name=[[Gipson Preciado]]|pos=MED|edad={{edad|4|6|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Independiente del Valle]]}}
+{{Jugador de fútbol|num=23|nat=ECU|name=[[Luis Moreno Zúñiga|Luis Moreno]]|pos=MED|edad={{edad|28|2|2005|23|1|2025}}|procedencia={{bandera|ECU}} [[Club Deportivo de la Universidad Católica (Ecuador)|Universidad Católica]]}}
+|-
+| colspan=6 bgcolor=#FFFF00 style="color:blue;" align=center| '''Delanteros'''
+{{Jugador de fútbol|num=8|nat=ECU|name=[[Jeremy Arévalo]]|pos=DEL|edad={{edad|19|3|2005|23|1|2025}}|procedencia={{Bandera|ESP}} [[Real Racing Club de Santander|Racing de Santander]]}}
+{{Jugador de fútbol|num=9|nat=ECU|name=[[Michael Bermúdez]]|pos=DEL|edad={{edad|13|1|2006|23|1|2025}}|procedencia={{Bandera|SRB}} [[OFK Belgrado|Belgrado]]}}
+{{Jugador de fútbol|num=11|nat=ECU|name=[[Allen Obando]]|pos=DEL|edad={{edad|13|6|2006|23|1|2025}}|procedencia={{Bandera|ECU}} [[Barcelona Sporting Club|Barcelona]]}}
+{{Jugador de fútbol|num=19|nat=ECU|name=[[Elian Caicedo]]|pos=DEL|edad={{edad|3|6|2005|23|1|2025}}|procedencia={{Bandera|ECU}} [[Mushuc Runa Sporting Club|Mushuc Runa]]}}
+{{Equipo de fútbol fin
+|entrenador={{bandera|ECU}} [[Miguel Bravo (futbolista ecuatoriano)|Miguel Bravo]]
+}}
+
+=== Argentina ===
+El equipo fue anunciado el 6 de enero de 2025.<ref>{{cita web|título=La selección argentina dio a conocer los convocados para el Sudamericano Sub 20: las figuras que participarán y una ausencia de peso|url=https://www.infobae.com/deportes/2025/01/06/la-seleccion-argentina-dio-a-conocer-los-convocados-para-el-sudamericano-sub-20-las-figuras-que-participaran/|obra=Infobae|fechaacceso=7 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio|edad=sí|procedencia=sí|texto=white|fondo=#6AB5FF}}
+|-
+| colspan=7 style="background:#6AB5FF" align=center|'''{{tc|Guardameta (fútbol)|Porteros|color=white}}
+{{Jugador de fútbol|num=1|nac=ARG|nombre=[[Santino Barbi]]|pos=POR|edad={{edad|14|6|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Talleres (Córdoba)|Talleres (C)]]}}
+{{Jugador de fútbol|num=12|nac=ARG|nombre=[[Agustín Chávez]]|pos=POR|edad={{edad|21|10|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Unión (Santa Fe)|Unión]]}}
+{{Jugador de fútbol|num=23|nac=ARG|nombre=[[Jeremías Martinet]]|pos=POR|edad={{edad|30|8|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético River Plate|River Plate]]}}
+|-
+| colspan=7 style="background:#6AB5FF" align=center|'''{{tc|Defensa (fútbol)|Defensas|color=white}}
+|-
+{{Jugador de fútbol|num=2|nac=ARG|nombre=[[Juan Valentín Giménez|Juan Giménez]]|pos=DEF|edad={{edad|27|4|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Rosario Central|Rosario Central]]}}
+{{Jugador de fútbol|num=3|nac=ARG|nombre=[[Julio Soler (futbolista argentino)|Julio Soler]]|pos=DEF|edad={{edad|16|2|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Lanús|Lanús]]}}
+{{Jugador de fútbol|num=4|nac=ARG|nombre=[[Dylan Gorosito]]|pos=DEF|edad={{edad|3|2|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]}}
+{{Jugador de fútbol|num=6|nac=ARG|nombre=[[Juan Manuel Villalba (futbolista argentino, 2006)|Juan Villalba]]|pos=DEF|edad={{edad|16|3|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club de Gimnasia y Esgrima La Plata|Gimnasia y Esgrima (LP)]]}}
+{{Jugador de fútbol|num=13|nac=ARG|nombre=[[Thiago Silvero]]|pos=DEF|edad={{edad|18|4|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]}}
+{{Jugador de fútbol|num=14|nac=ARG|nombre=[[Tobías Ramírez]]|pos=DEF|edad={{edad|11|11|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Asociación Atlética Argentinos Juniors|Argentinos Juniors]]}}
+{{Jugador de fútbol|num=16|nac=ARG|nombre=[[Agustín Obregón]]|pos=DEF|edad={{edad|11|2|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético River Plate|River Plate]]}}
+{{Jugador de fútbol|num=18|nac=ARG|nombre=[[Teo Rodríguez Pagano]]|pos=DEF|edad={{edad|12|10|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético San Lorenzo de Almagro|San Lorenzo]]}}
+|-
+| colspan=7 style="background:#6AB5FF" align=center|'''{{tc|Centrocampista|Centrocampistas|color=white}}
+|-
+{{Jugador de fútbol|num=5|nac=ARG|nombre=[[Mariano Gerez]]|pos=MED|edad={{edad|19|1|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Lanús|Lanús]]}}
+{{Jugador de fútbol|num=8|nac=ARG|nombre=[[Milton Delgado]]|pos=MED|edad={{edad|16|6|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Boca Juniors|Boca Juniors]]}}
+{{Jugador de fútbol|num=9|nac=ARG|nombre=[[Agustín Ruberto]]|pos=MED|edad={{edad|14|1|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético River Plate|River Plate]]}}
+{{Jugador de fútbol|num=10|nac=ARG|nombre=[[Claudio Echeverri]]|pos=MED|edad={{edad|2|1|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético River Plate|River Plate]]}}
+{{Jugador de fútbol|num=11|nac=ARG|nombre=[[Franco Mastantuono]]|pos=MED|edad={{edad|14|8|2007|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético River Plate|River Plate]]}}
+{{Jugador de fútbol|num=15|nac=ARG|nombre=[[Ignacio Peruzzi]]|pos=MED|edad={{edad|22|3|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético San Lorenzo de Almagro|San Lorenzo]]}}
+{{Jugador de fútbol|num=17|nac=ARG|nombre=[[Valentino Acuña]]|pos=MED|edad={{edad|27|1|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Newell's Old Boys|Newell's Old Boys]]}}
+|-
+| colspan=7 style="background:#6AB5FF" align=center|'''{{tc|Delantero|Delanteros|color=white}}
+|-
+{{Jugador de fútbol|num=7|nac=ARG|nombre=[[Maher Carrizo]]|pos=DEL|edad={{edad|19|2|2006|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]}}
+{{Jugador de fútbol|num=19|nac=ARG|nombre=[[Santino Andino]]|pos=DEL|edad={{edad|25|10|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Deportivo Godoy Cruz Antonio Tomba|Godoy Cruz]]}}
+{{Jugador de fútbol|num=20|nac=ARG|nombre=[[Alexander Woiski]]|pos=DEL|edad={{edad|17|3|2006|23|1|2025}}|procedencia={{bandera|ESP}} [[Real Club Deportivo Mallorca|Mallorca]]}}
+{{Jugador de fútbol|num=21|nac=ARG|nombre=[[Ian Subiabre]]|pos=DEL|edad={{edad|1|1|2007|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético River Plate|River Plate]]}}
+{{Jugador de fútbol|num=22|nac=ARG|nombre=[[Santiago Hidalgo]]|pos=DEL|edad={{edad|17|2|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Independiente|Independiente]]}}
+{{Equipo de fútbol fin|entrenador={{bandera|ARG}} [[Diego Placente]]
+|actualización=
+|url plantilla=}}
+
+=== Bolivia ===
+El equipo fue confirmado el 21 de enero.<ref>{{cita web|título=Lista de Buena Fe - Bolivia Sub-20 2025|url=https://www.conmebol.com/lista-buena-fe-torneo/?competitionFifaId=240589114&teamFifaId=57378|obra=Conmebol|fechaacceso=21 de enero de 2025}}</ref>
+{{Equipo de fútbol inicio|edad=sí|procedencia=sí|texto=#FFFFFF|fondo=#007934}} 
+| colspan=7 style="background:#007934" align=center|'''{{tc|Guardameta (fútbol)|Porteros|color=#FFFFFF}}
+{{Jugador de fútbol|num=1|nac=BOL|nombre=[[Fabián Pereira]]|pos=POR|edad={{edad|16|5|2006|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=12|nac=BOL|nombre=[[Diego Sebastián Caballero|Diego Caballero]]|pos=POR|edad={{edad|27|7|2006|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Destroyer's|Destroyer's]]}}
+{{Jugador de fútbol|num=23|nac=BOL|nombre=[[Juan Camacho Castro|Juan Camacho]]|pos=POR|edad={{edad|16|12|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Blooming|Blooming]]}}
+|-
+| colspan=7 style="background:#007934" align=center|'''{{tc|Defensa (fútbol)|Defensas|color=#FFFFFF}}
+{{Jugador de fútbol|num=2|nac=BOL|nombre=[[Marcelo Torrez]]|pos=DEF|edad={{edad|8|7|2006|23|1|2025}}|procedencia={{bandera|BRA}} [[Santos Futebol Clube|Santos]]}}
+{{Jugador de fútbol|num=3|nac=BOL|nombre=[[Diego Arroyo]]|pos=DEF|edad={{edad|29|4|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Bolívar|Bolívar]]}}
+{{Jugador de fútbol|num=4|nac=BOL|nombre=[[Lucas Macazaga]]|pos=DEF|edad={{edad|16|8|2006|23|1|2025}}|procedencia={{bandera|ESP}} [[Club Deportivo Leganés|Leganés]]}}
+{{Jugador de fútbol|num=6|nac=BOL|nombre=[[Fabio Zamora]]|pos=DEF|edad={{edad|15|11|2006|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=14|nac=BOL|nombre=[[Carlos Damián Medina|Carlos Medina]]|pos=DEF|edad={{edad|2|10|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=18|nac=BOL|nombre=[[Yeison Salazar]]|pos=DEF|edad={{edad|16|4|2006|23|1|2025}}|procedencia={{bandera|ESP}} [[Club Deportivo Atlético Baleares|Atlético Baleares]]}}
+{{Jugador de fútbol|num=19|nac=BOL|nombre=[[Leonardo Montenegro Silva|Leonardo Montenegro]]|pos=DEF|edad={{edad|22|3|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Deportivo San Antonio Bulo Bulo|San Antonio Bulo Bulo]]}}
+|-
+| colspan=7 style="background:#007934" align=center|'''{{tc|Centrocampista|Centrocampistas|color=#FFFFFF}}
+{{Jugador de fútbol|num=5|nac=BOL|nombre=[[Jhonny Cuiza]]|pos=MED|edad={{edad|16|6|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Deportivo Real Tomayapo|Real Tomayapo]]}}
+{{Jugador de fútbol|num=7|nac=BOL|nombre=[[Santiago Melgar]]|pos=MED|edad={{edad|4|6|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Deportivo Oriente Petrolero|Oriente Petrolero]]}}
+{{Jugador de fútbol|num=8|nac=BOL|nombre=[[Óscar López Raslan|Óscar López]]|pos=MED|edad={{edad|13|8|2006|23|1|2025}}|procedencia={{bandera|ESP}} [[Real Club Deportivo Mallorca|Mallorca]]}}
+{{Jugador de fútbol|num=13|nac=BOL|nombre=[[Percy Añez]]|pos=MED|edad={{edad|30|4|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club The Strongest|The Strongest]]}}
+{{Jugador de fútbol|num=15|nac=BOL|nombre=[[Nathan Tito Sosa]]|pos=MED|edad={{edad|4|4|2005|23|1|2025}}|procedencia={{bandera|ARG}} [[Club Atlético Platense|Platense]]}}
+{{Jugador de fútbol|num=16|nac=BOL|nombre=[[Matías Galindo]]|pos=MED|edad={{edad|10|4|2006|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=21|nac=BOL|nombre=[[Mark Rodríguez]]|pos=MED|edad={{edad|29|4|2005|23|1|2025}}|procedencia={{bandera|ITA}} [[ASD Supergiovane Castelbuono|Supergiovane Castelbuono]]}}
+|-
+| colspan=7 style="background:#007934" align=center|'''{{tc|Delantero|Delanteros|color=#FFFFFF}}
+{{Jugador de fútbol|num=9|nac=BOL|nombre=[[Santiago Castedo]]|pos=DEL|edad={{edad|23|7|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Blooming|Blooming]]}}
+{{Jugador de fútbol|num=10|nac=BOL|nombre=[[Moisés Paniagua]]|pos=DEL|edad={{edad|16|8|2007|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=11|nac=BOL|nombre=[[Jairo Rojas]]|pos=DEL|edad={{edad|29|6|2006|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=17|nac=BOL|nombre=[[Guilmar Centella]]|pos=DEL|edad={{edad|26|3|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Blooming|Blooming]]}}
+{{Jugador de fútbol|num=20|nac=BOL|nombre=[[Emanuel Paniagua]]|pos=DEL|edad={{edad|5|11|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Always Ready|Always Ready]]}}
+{{Jugador de fútbol|num=22|nac=BOL|nombre=[[Diego Cabrera Amarilla|Diego Cabrera]]|pos=DEL|edad={{edad|29|1|2005|23|1|2025}}|procedencia={{bandera|BOL}} [[Club Deportivo Oriente Petrolero|Oriente Petrolero]]}}
+{{Equipo de fútbol fin|entrenador={{bandera|BOL}} [[Jorge Perrota]]
+|actualización=
+|url plantilla=}}
+
+== Referencias ==
+{{Listaref}}
+
+== Enlaces externos ==
+* [https://www.conmebol.com/equipos-torneo/?competitionFifaId=240589114 Página oficial del torneo]
+
+{{ sucesión
+| predecesor  = {{bandera|COL}} [[Anexo:Equipos participantes en el Campeonato Sudamericano Sub-20 de 2023|Colombia 2023]]
+| título      = [[Campeonato Sudamericano de Fútbol Sub-20]]
+| período     = XXXI edición
+| sucesor     = {{bandera|}} Por definir 2027
+}}
+
+{{Control de autoridades}}
+[[Categoría:Campeonato Sudamericano de Fútbol Sub-20 de 2025|Equipos]]
+[[Categoría:Anexos:Campeonatos de fútbol entre selecciones]]

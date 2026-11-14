@@ -1,0 +1,443 @@
+{
+ "Asociación Atlética Argentinos Juniors|Santiago Silveira": {
+  "club": "Argentinos Juniors",
+  "div": 1,
+  "birth": "2008-04-24",
+  "pos": "DF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Asociación Atlética Argentinos Juniors|Thiago Yánez": {
+  "club": "Argentinos Juniors",
+  "div": 1,
+  "birth": "2008-03-06",
+  "pos": "DF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Asociación Atlética Argentinos Juniors|Gino Infantino": {
+  "club": "Argentinos Juniors",
+  "div": 1,
+  "birth": "2003-03-19",
+  "pos": "MF",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-20"
+  ]
+ },
+ "Asociación Atlética Argentinos Juniors|Gaston Bouhier": {
+  "club": "Argentinos Juniors",
+  "div": 1,
+  "birth": "2008-01-01",
+  "pos": "MF",
+  "score": 4.0,
+  "sel": [
+   "Mundial Sub-17 2025"
+  ]
+ },
+ "Asociación Atlética Argentinos Juniors|Facundo Jainikoski": {
+  "club": "Argentinos Juniors",
+  "div": 1,
+  "birth": "2008-03-15",
+  "pos": "FW",
+  "score": 4.0,
+  "sel": [
+   "Mundial Sub-17 2025"
+  ]
+ },
+ "Club Atlético Belgrano|Ramiro Tulián": {
+  "club": "Belgrano",
+  "div": 1,
+  "birth": "2008-01-19",
+  "pos": "MF",
+  "score": 4.0,
+  "sel": [
+   "Mundial Sub-17 2025"
+  ]
+ },
+ "Club Atlético Boca Juniors|Dylan Gorosito": {
+  "club": "Boca Juniors",
+  "div": 1,
+  "birth": "2006-02-03",
+  "pos": "DF",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Boca Juniors|Matías Satas": {
+  "club": "Boca Juniors",
+  "div": 1,
+  "birth": "2008-02-28",
+  "pos": "DF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Club Atlético Boca Juniors|Milton Delgado": {
+  "club": "Boca Juniors",
+  "div": 1,
+  "birth": "2005-06-16",
+  "pos": "MF",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Boca Juniors|Joaquín Piñeyro": {
+  "club": "Boca Juniors",
+  "div": 1,
+  "birth": "2008-02-22",
+  "pos": "FW",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-17"
+  ]
+ },
+ "Club Estudiantes de La Plata|Valente Pierani": {
+  "club": "Estudiantes",
+  "div": 1,
+  "birth": "2006-02-22",
+  "pos": "DF",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Independiente|Juan Manuel Centurión": {
+  "club": "Independiente",
+  "div": 1,
+  "birth": "2008-06-12",
+  "pos": "GK",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Club Atlético Independiente|Fernando Closter": {
+  "club": "Independiente",
+  "div": 1,
+  "birth": "2008-07-18",
+  "pos": "DF",
+  "score": 4.0,
+  "sel": [
+   "Mundial Sub-17 2025"
+  ]
+ },
+ "Club Atlético Independiente|Tomás Parmo": {
+  "club": "Independiente",
+  "div": 1,
+  "birth": "2008-01-08",
+  "pos": "MF",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-17"
+  ]
+ },
+ "Instituto Atlético Central Córdoba|Alex Luna": {
+  "club": "Instituto",
+  "div": 1,
+  "birth": "2004-03-31",
+  "pos": "MF",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Lanús|Thomás De Martis": {
+  "club": "Lanús",
+  "div": 1,
+  "birth": "2008-06-26",
+  "pos": "FW",
+  "score": 5.0,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17",
+   "Selección Sub-15"
+  ]
+ },
+ "Club Atlético Lanús|Lucas Besozzi": {
+  "club": "Lanús",
+  "div": 1,
+  "birth": "2003-01-22",
+  "pos": "FW",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Newell's Old Boys|Valentino Acuña": {
+  "club": "Newell's Old Boys",
+  "div": 1,
+  "birth": "2006-01-27",
+  "pos": "MF",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Newell's Old Boys|Jerónimo Gómez Mattar": {
+  "club": "Newell's Old Boys",
+  "div": 1,
+  "birth": "2008-08-07",
+  "pos": "MF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Racing Club|Mateo Martínez": {
+  "club": "Racing Club",
+  "div": 1,
+  "birth": "2008-04-27",
+  "pos": "DF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Racing Club|Alejandro Tello": {
+  "club": "Racing Club",
+  "div": 1,
+  "birth": "2008-02-08",
+  "pos": "MF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Club Atlético River Plate|Jeremías Martinet": {
+  "club": "River Plate",
+  "div": 1,
+  "birth": "2005-08-30",
+  "pos": "GK",
+  "score": 4.0,
+  "sel": [
+   "Sudamericano Sub-20 2025"
+  ]
+ },
+ "Club Atlético River Plate|Tobías Ramírez": {
+  "club": "River Plate",
+  "div": 1,
+  "birth": "2006-11-11",
+  "pos": "DF",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético River Plate|Juan Cruz Meza": {
+  "club": "River Plate",
+  "div": 1,
+  "birth": "2008-03-14",
+  "pos": "MF",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-17"
+  ]
+ },
+ "Club Atlético River Plate|Tobías Andrada": {
+  "club": "River Plate",
+  "div": 1,
+  "birth": "2007-02-02",
+  "pos": "MF",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético River Plate|Agustín Ruberto": {
+  "club": "River Plate",
+  "div": 1,
+  "birth": "2006-01-14",
+  "pos": "FW",
+  "score": 4.0,
+  "sel": [
+   "Sudamericano Sub-20 2025"
+  ]
+ },
+ "Club Atlético Rosario Central|Juan Giménez": {
+  "club": "Rosario Central",
+  "div": 1,
+  "birth": "2006-04-27",
+  "pos": "DF",
+  "score": 4.0,
+  "sel": [
+   "Sudamericano Sub-20 2025"
+  ]
+ },
+ "Club Atlético San Lorenzo de Almagro|Teo Rodríguez Pagano": {
+  "club": "San Lorenzo",
+  "div": 1,
+  "birth": "2005-10-12",
+  "pos": "DF",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético San Lorenzo de Almagro|Uriel Ojeda": {
+  "club": "San Lorenzo",
+  "div": 1,
+  "birth": "2008-03-22",
+  "pos": "MF",
+  "score": 4.5,
+  "sel": [
+   "Mundial Sub-17 2025",
+   "Selección Sub-17"
+  ]
+ },
+ "Club Atlético Talleres (Córdoba)|Santino Barbi": {
+  "club": "Talleres",
+  "div": 1,
+  "birth": "2005-06-14",
+  "pos": "GK",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Talleres (Córdoba)|Santiago Fernández": {
+  "club": "Talleres",
+  "div": 1,
+  "birth": "2005-03-30",
+  "pos": "DF",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Tigre|Juan Villalba": {
+  "club": "Tigre",
+  "div": 1,
+  "birth": "2006-03-15",
+  "pos": "DF",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025"
+  ]
+ },
+ "Club Atlético Tigre|Ian Subiabre": {
+  "club": "Tigre",
+  "div": 1,
+  "birth": "2007-01-01",
+  "pos": "FW",
+  "score": 6.0,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Sudamericano Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Unión (Santa Fe)|Agustín Chávez": {
+  "club": "Unión",
+  "div": 1,
+  "birth": "2005-10-21",
+  "pos": "GK",
+  "score": 4.0,
+  "sel": [
+   "Sudamericano Sub-20 2025"
+  ]
+ },
+ "Club Atlético Vélez Sarsfield|Álvaro Busso": {
+  "club": "Vélez Sarsfield",
+  "div": 1,
+  "birth": "2006-10-11",
+  "pos": "GK",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético Vélez Sarsfield|Thiago Silvero": {
+  "club": "Vélez Sarsfield",
+  "div": 1,
+  "birth": "2006-04-18",
+  "pos": "DF",
+  "score": 4.0,
+  "sel": [
+   "Sudamericano Sub-20 2025"
+  ]
+ },
+ "Club Atlético Vélez Sarsfield|Álex Verón": {
+  "club": "Vélez Sarsfield",
+  "div": 1,
+  "birth": "2008-10-24",
+  "pos": "FW",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-17"
+  ]
+ },
+ "Club Atlético Estudiantes|Román Rodríguez": {
+  "club": "Estudiantes",
+  "div": 2,
+  "birth": "2003-09-15",
+  "pos": "MF",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-20"
+  ]
+ },
+ "Club de Gimnasia y Tiro|Lucas Rodríguez": {
+  "club": "Gimnasia y Tiro",
+  "div": 2,
+  "birth": "2004-01-21",
+  "pos": "MF",
+  "score": 3.0,
+  "sel": [
+   "Selección Sub-23"
+  ]
+ },
+ "Club Atlético Los Andes|Tomás Pérez": {
+  "club": "Los Andes",
+  "div": 2,
+  "birth": "2006-04-27",
+  "pos": "FW",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ },
+ "Club Atlético San Telmo|Santiago Fernández": {
+  "club": "San Telmo",
+  "div": 2,
+  "birth": "2004-02-11",
+  "pos": "DF",
+  "score": 5.5,
+  "sel": [
+   "Mundial Sub-20 2025",
+   "Selección Sub-20"
+  ]
+ }
+}

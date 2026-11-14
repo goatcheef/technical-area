@@ -1,0 +1,8 @@
+node_modules
+dist
+data/raw/*.wiki
+data/raw/*.txt
+data/crests
+technical-area.html
+*.zip
+.DS_Store

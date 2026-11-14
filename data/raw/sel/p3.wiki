@@ -1,0 +1,713 @@
+La '''[[Copa Mundial de Fútbol Sub-20 de 2025|Copa Mundial Sub-20 de la FIFA 2025]]''' fue un torneo internacional de fútbol que se celebró en [[Chile]] del 27 de septiembre al 19 de octubre de 2025. Las 24 selecciones nacionales participantes debían inscribir una plantilla de 21 jugadores, incluyendo al menos tres porteros (Artículo 26.1 del Reglamento). Solo los jugadores de estas plantillas eran elegibles para participar en el torneo. El requisito para ser elegibles era haber nacido entre el 1 de enero de 2005 y el 31 de diciembre de 2009, es decir, tener un máximo de 20 años y al menos 16 al final del año calendario en que se disputara la competición (Artículo 24.2 del Reglamento).<ref>{{cite web|url=https://digitalhub.fifa.com/m/26983ccd3059721a/original/Regulations-for-the-FIFA-U20-World-Cup-Chile-2025_EN.pdf|title=Regulations for the FIFA U-20 World Cup Chile 2025|publisher=[[FIFA]]|date=Diciembre 2024|access-date=11 Septiembre 2025}}</ref>
+
+Cada selección nacional participante debía presentar a la [[FIFA]] una lista provisional de un mínimo de 35 y un máximo de 55 jugadores (incluidos al menos cuatro porteros) antes de la fecha límite estipulada por la FIFA. La FIFA no publicaba las listas provisionales, y los cambios de jugadores solo se permitían en casos excepcionales (Artículo 25 del Reglamento). La lista final de 21 jugadores por selección nacional debía presentarse a la FIFA antes de la fecha límite estipulada por la FIFA. Todos los jugadores de la lista final debían ser seleccionados de la respectiva lista provisional. Los jugadores de la plantilla final podían ser sustituidos por un jugador de la plantilla preliminar debido a una lesión o enfermedad grave hasta 24 horas antes del inicio del primer partido del equipo (Artículo 26.3 del Reglamento).
+
+La edad indicada para cada jugador corresponde al 27 de septiembre de 2025, el primer día del torneo. La nacionalidad de cada club refleja la asociación nacional (no la liga) a la que está afiliado. Se incluye una bandera para los entrenadores de nacionalidad diferente a la de su selección nacional. Los nombres de los jugadores marcados en '''negrita''' han sido internacionalizados a nivel absoluto.
+
+== Grupo A ==
+=== Chile ===
+Entrenador: {{Bandera|CHI}} [[Nicolás Córdova]]
+
+La plantilla final de 21 jugadores se anunció el 18 de septiembre de 2025.<ref>{{cita web|título=¡La Nomina de La Roja Sub-20 para la Copa Mundial Sub-20 de la FIFA Chile 2025!|url=https://laroja-cl.translate.goog/new/la-nmina-de-la-roja-sub20-para-la-copa-mundial-sub20-de-la-fifa-chile-2025?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=tc&_x_tr_hist=true|obra=laroja-cl|fechaacceso=3 de octubre de 2025}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Sebastián Mella]]|age={{edad2|31|7|2005|27|9|2025}}|caps=|goals=|club=[[Huachipato FC|Huachipato]]|clubnat=CHI}}
+{{nat fs g player|no=2|pos=DEF|name='''[[Ian Garguez]]'''|age={{edad2|3|2|2005|27|9|2025}}|caps=|goals=|club=[[Club Deportivo Palestino|Palestino]]|clubnat=CHI}}
+{{nat fs g player|no=3|pos=DEF|name=[[Milovan Celis]]|age={{edad2|8|6|2006|27|9|2025}}|caps=|goals=|club=[[Unión Española]]|clubnat=CHI}}
+{{nat fs g player|no=4|pos=DEF|name=[[Patricio Romero Fernández|Patricio Romero]]|age={{edad2|25|5|2005|27|9|2025}}|caps=|goals=|club=[[C.D. Cobreloa|Cobreloa]]|clubnat=CHI}}
+{{nat fs g player|no=5|pos=DEF|name=[[Nicolás Suárez Reyes|Nicolás Suárez]]|age={{edad2|31|7|2005|27|9|2025}}|caps=|goals=|club=[[Colo-Colo]]|clubnat=CHI}}
+{{nat fs g player|no=6|pos=MED|name=[[Nicolás Cárcamo]]|age={{edad2|1|2|2005|27|9|2025}}|caps=|goals=|club=[[Huachipato FC|Huachipato]]|clubnat=CHI}}
+{{nat fs g player|no=7|pos=DEL|name=[[Francisco Marchant]]|caps=|goals=|age={{edad2|31|7|2006|27|9|2025}}|club=[[Colo-Colo]]|clubnat=CHI}}
+{{nat fs g player|no=8|pos=MED|name=[[Flavio Moya]]|age={{edad2|30|12|2005|27|9|2025}}|caps=|goals=|club=[[Club Universidad de Chile|Universidad de Chile]]|clubnat=CHI}}
+{{nat fs g player|no=9|pos=DEL|name=[[Juan Francisco Rossel|Juan Rossel]] {{cap}}|age={{edad2|17|3|2005|27|9|2025}}|caps=|goals=|club=[[Club Deportivo Universidad Católica|Universidad Católica]]|clubnat=CHI}}
+{{nat fs g player|no=10|pos=MED|name='''[[Agustín Arce]]'''|age={{edad2|24|1|2005|27|9|2025}}|caps=|goals=|club=[[Deportes Limache]]|clubnat=CHI}}
+{{nat fs g player|no=11|pos=DEL|name=[[Vicente Álvarez Ulloa|Vicente Álvarez]]|age={{edad2|14|12|2006|27|9|2025}}|caps=|goals=|club=[[Unión San Felipe]]|clubnat=CHI}}
+{{nat fs g player|no=12|pos=POR|name=[[Ignacio Sáez]]|age={{edad2|4|9|2005|27|9|2025}}|caps=|goals=|club=[[Club Universidad de Chile|Universidad de Chile]]|clubnat=CHI}}
+{{nat fs g player|no=13|pos=DEF|name=[[Matías Pérez Sepúlveda|Matías Pérez]]|age={{edad2|13|4|2005|27|9|2025}}|caps=|goals=|club=[[US Lecce|Lecce]]|clubnat=ITA}}
+{{nat fs g player|no=14|pos=MED|name='''[[Lautaro Millán]]'''|age={{edad2|16|8|2005|27|9|2025}}|caps=|goals=|club=[[Club Atlético Independiente|Independiente]]|clubnat=ARG}}
+{{nat fs g player|no=15|pos=MED|name=[[Joaquín Silva]]|age={{edad2|6|3|2005|27|9|2025}}|caps=|goals=|club=[[Santiago Wanderers]]|clubnat=CHI}}
+{{nat fs g player|no=16|pos=MED|name=[[Mario Sandoval Molina|Mario Sandoval]]|age={{edad2|7|8|2007|27|9|2025}}|caps=|goals=|club=[[Audax Italiano]]|clubnat=CHI}}
+{{nat fs g player|no=17|pos=DEL|name='''[[Emiliano Ramos]]'''|age={{edad2|8|3|2005|27|9|2025}}|caps=|goals=|club=[[Everton de Viña del Mar|Everton]]|clubnat=CHI}}
+{{nat fs g player|no=18|pos=DEL|name=[[Rodrigo Godoy]]|age={{edad2|7|9|2005|27|9|2025}}|caps=|goals=|club=[[O'Higgins F.C.|O'Higgins]]|clubnat=CHI}}
+{{nat fs g player|no=19|pos=DEL|name=[[Willy Chatiliez]]|age={{edad2|26|3|2005|27|9|2025}}|caps=|goals=|club=[[SD Huesca|Huesca]]|clubnat=ESP}}
+{{nat fs g player|no=20|pos=DEF|name='''[[Felipe Faúndez]]'''|age={{edad2|27|3|2006|27|9|2025}}|caps=|goals=|club=[[O'Higgins F.C.|O'Higgins]]|clubnat=CHI}}
+{{nat fs g player|no=21|pos=POR|name=[[Gabriel Maureira]]|age={{edad2|7|2|2007|27|9|2025}}|caps=|goals=|club=[[Colo-Colo]]|clubnat=CHI}}
+{{nat fs end}}
+
+=== Nueva Zelanda ===
+Entrenador: {{Bandera|ENG}} [[Chris Greenacre]]
+
+La plantilla final de 21 jugadores se anunció el 12 de septiembre de 2025.<ref>{{cita web|título=Squad Named for September’s FIFA U-20 World Cup 2025|url=https://www-nzfootball-co-nz.translate.goog/newsarticle/157680?newsfeedId=1275608&_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=tc|obra=nzfootball|fechaacceso=4 de octubre de 2025|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Joe Wallis]]|age={{edad2|7|6|2005|27|9|2025}}|caps=|goals=|club=[[West Bromwich Albion F.C.|West Bromwich Albion]]|clubnat=ENG}}
+{{nat fs g player|no=2|pos=DEL|name=[[Xuan Loke]]|age={{edad2|26|3|2005|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=3|pos=DEF|name='''[[Lukas Kelly-Heald]]''' {{cap}}|age={{edad2|18|3|2005|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=4|pos=DEF|name=[[James Bulkeley]]|age={{edad2|14|5|2005|27|9|2025}}|caps=|goals=|club=[[North Texas SC]]|clubnat=USA}}
+{{nat fs g player|no=5|pos=MED|name=[[Adama Coulibaly (futbolista)|Adama Coulibaly]]|age={{edad2|20|1|2005|27|9|2025}}|caps=|goals=|club=[[Auckland FC]]|clubnat=NZL}}
+{{nat fs g player|no=6|pos=MED|name=[[Fergus Gillion]]|age={{edad2|19|1|2005|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=7|pos=MED|name='''[[Luke Brooke-Smith]]'''|age={{edad2|8|6|2008|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=8|pos=DEL|name=[[Troy Putt]]|age={{edad2|27|9|2006|27|9|2025}}|caps=|goals=|club=[[Minnesota United FC|Minnesota United]]|clubnat=USA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Keegan Kelly]]|age={{edad2|5|6|2005|27|9|2025}}|caps=|goals=|club=[[Denver Pioneers men's soccer|University of Denver]]|clubnat=USA}}
+{{nat fs g player|no=10|pos=MED|name=[[Nathan Walker]]|age={{edad2|30|1|2006|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=11|pos=DEF|name=[[Codey Phoenix]]|age={{edad2|3|2|2005|27|9|3|2025}}|caps=|goals=|club=[[Auckland FC]]|clubnat=NZL}}
+{{nat fs g player|no=12|pos=DEL|name=[[Luke Supyk]]|age={{edad2|4|3|2006|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=13|pos=POR|name=[[Henry Gray (futbolista)|Henry Gray]]|age={{edad2|29|3|2005|27|9|2025}}|caps=|goals=|club=[[Ipswich Town F.C.|Ipswich Town]]|clubnat=ENG}}
+{{nat fs g player|no=14|pos=DEF|name=[[Noah Dupont]]|age={{edad2|18|10|2007|27|9|2025}}|caps=|goals=|club=[[West Bromwich Albion F.C.|West Bromwich Albion]]|clubnat=ENG}}
+{{nat fs g player|no=15|pos=DEF|name=[[Jayden Smith]]|age={{edad2|4|7|2007|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=16|pos=MED|name=[[Ryan Watson]]|age={{edad2|14|6|2005|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=17|pos=MED|name=[[Gabriel Sloane-Rodrigues]]|age={{edad2|3|7|2007|27|9|2025}}|caps=|goals=|club=[[Wellington Phoenix FC|Wellington Phoenix]]|clubnat=NZL}}
+{{nat fs g player|no=18|pos=MED|name=[[Finn McKenlay]]|age={{edad2|4|9|2005|27|9|2024}}|caps=|goals=|club=[[Auckland FC]]|clubnat=NZL}}
+{{nat fs g player|no=19|pos=MED|name=[[Oliver Middleton]]|caps=|goals=|age={{edad2|19|9|2005|27|9|2025}}|club=[[Auckland FC]]|clubnat=NZL}}
+{{nat fs g player|no=20|pos=DEL|name=[[Stipe Ukich]]|age={{edad2|3|1|2007|27|9|2025}}|caps=|goals=|club=[[NK Istra 1961|Istra 1961]]|clubnat=CRO}}
+{{nat fs g player|no=21|pos=POR|name=[[Josey Casa-Grande]]|age={{edad2|19|8|2005|27|9|2025}}|caps=|goals=|club=[[Dorchester Town F.C.|Dorchester Town]]|clubnat=ENG}}
+{{nat fs end}}
+
+=== Japón ===
+Entrenador: {{Bandera|JPN}} [[Yuzo Funakoshi]]
+
+La plantilla final de 21 jugadores se anunció el 12 de septiembre de 2025.<ref>{{cita web|url=https://www.jfa.jp/eng/news/00035505/|title=U-20 Japan National Team squad & schedule - FIFA U-20 World Cup Chile 2025™ (9/16-10/20)|fechaacceso=2025-09-27|date=2025-09-12|publisher=[[Asociación de Fútbol de Japón|Japan Football Association]]|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Keisuke Nakamura]]|age={{edad2|27|4|2005|27|9|2025}}|caps=|goals=|club=[[Tokyo Verdy]]|clubnat=JPN}}
+{{nat fs g player|no=2|pos=DEF|name=[[Rei Umeki]]|age={{edad2|25|8|2005|27|9|2025}}|caps=|goals=|club=[[FC Imabari]]|clubnat=JPN}}
+{{nat fs g player|no=3|pos=DEF|name=[[Keita Kosugi]]|age={{edad2|18|3|2006|27|9|2025}}|caps=|goals=|club=[[Djurgårdens IF Fotboll|Djurgårdens IF]]|clubnat=SWE}}
+{{nat fs g player|no=4|pos=DEF|name=[[Kazunari Kita]]|age={{edad2|19|9|2005|27|9|2025}}|caps=|goals=|club=[[Real Sociedad de Fútbol|Real Sociedad]]|clubnat=ESP}}
+{{nat fs g player|no=5|pos=DEF|name=[[Rion Ichihara]] {{cap}}|age={{edad2|7|7|2005|27|9|2025}}|caps=|goals=|club=[[RasenBallsport Omiya Ardija|RB Omiya Ardija]]|clubnat=JPN}}
+{{nat fs g player|no=6|pos=MED|name=[[Kosei Ogura]]|age={{edad2|9|4|2005|27|9|2025}}|caps=|goals=|club=[[Universidad Hosei]]|clubnat=JPN}}
+{{nat fs g player|no=7|pos=MED|name='''[[Ryunosuke Sato]]'''|age={{edad2|16|10|2006|27|9|2025}}|caps=|goals=|club=[[Fagiano Okayama]]|clubnat=JPN}}
+{{nat fs g player|no=8|pos=MED|name=[[Katsuma Fuse]]|age={{edad2|11|3|2007|27|9|2025}}|caps=|goals=|club=[[Universidad de Tsukuba]]|clubnat=JPN}}
+{{nat fs g player|no=9|pos=DEL|name=[[Soma Kanda]]|age={{edad2|29|12|2005|27|9|2025}}|caps=|goals=|club=[[Kawasaki Frontale]]|clubnat=JPN}}
+{{nat fs g player|no=10|pos=MED|name='''[[Yuto Ozeki]]'''|age={{edad2|6|2|2005|27|9|2025}}|caps=|goals=|club=[[Kawasaki Frontale]]|clubnat=JPN}}
+{{nat fs g player|no=11|pos=MED|name=[[Yumeki Yokoyama]]|age={{edad2|23|9|2005|27|9|2025}}|caps=|goals=|club=[[FC Imabari]]|clubnat=JPN}}
+{{nat fs g player|no=12|pos=POR|name='''[[Alex Pisano|Alexandre Pisano]]'''|age={{edad2|10|1|2006|27|9|2025}}|caps=|goals=|club=[[Nagoya Grampus]]|clubnat=JPN}}
+{{nat fs g player|no=13|pos=MED|name=[[Hisatsugu Ishii]]|age={{edad2|7|7|2005|27|9|2025}}|caps=|goals=|club=[[Shonan Bellmare]]|clubnat=JPN}}
+{{nat fs g player|no=14|pos=MED|name=[[Shunsuke Saito]]|age={{edad2|26|4|2005|27|9|2025}}|caps=|goals=|club=[[Mito HollyHock]]|clubnat=JPN}}
+{{nat fs g player|no=15|pos=DEF|name=[[Harumichi Shiokawa]]|age={{edad2|25|4|2005|27|9|2025}}|caps=|goals=|club=[[Ryutsu Keizai University]]|clubnat=JPN}}
+{{nat fs g player|no=16|pos=DEF|name=[[Soichiro Mori]]|age={{edad2|29|6|2007|27|9|2025}}|caps=|goals=|club=[[Nagoya Grampus]]|clubnat=JPN}}
+{{nat fs g player|no=17|pos=MED|name=[[Hagumu Nakagawa]]|age={{edad2|7|6|2005|27|9|2025}}|caps=|goals=|club=[[Ryutsu Keizai University]]|clubnat=JPN}}
+{{nat fs g player|no=18|pos=MED|name=[[Nelson Ishiwatari]]|age={{edad2|10|5|2005|27|9|2025}}|caps=|goals=|club=[[Iwaki FC]]|clubnat=JPN}}
+{{nat fs g player|no=19|pos=DEL|name=[[Rento Takaoka]]|age={{edad2|12|3|2007|27|9|2025}}|caps=|goals=|club=[[Valenciennes Football Club|Valenciennes]]|clubnat=FRA}}
+{{nat fs g player|no=20|pos=MED|name=[[Sora Hiraga]]|age={{edad2|2|3|2005|27|9|2025}}|caps=|goals=|club=[[Kyoto Sanga FC]]|clubnat=JPN}}
+{{nat fs g player|no=21|pos=POR|name=[[Rui Araki]]|age={{edad2|14|10|2007|27|9|2025}}|caps=|goals=|club=[[Gamba Osaka]]|clubnat=JPN}}
+{{nat fs end}}
+
+=== Egipto ===
+Entrenador: {{Bandera|EGY}} [[Osama Nabieh]]
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Abdelmonem Tamer]]|age={{edad2|3|8|2006|27|9|2025}}|caps=|goals=|club=[[ZED FC|ZED]]|clubnat=EGY}}
+{{nat fs g player|no=2|pos=DEF|name=[[Tebo Gabriel]]|age={{edad2|2|1|2006|27|9|2025}}|caps=|goals=|club=[[1. FSV Mainz 05|Mainz]]|clubnat=GER}}
+{{nat fs g player|no=3|pos=DEF|name=[[Moataz Mohamed]]|age={{edad2|20|3|2005|27|9|2025}}|caps=|goals=|club=[[Haras El Hodoud SC|Haras El Hodoud]]|clubnat=EGY}}
+{{nat fs g player|no=4|pos=DEF|name=[[Ahmed Abdin]]|age={{edad2|1|5|2006|27|9|2025}}|caps=|goals=|club=[[Al Ahly SC|Al Ahly]]|clubnat=EGY}}
+{{nat fs g player|no=5|pos=DEF|name=[[Abdallah Bostangy]]|caps=|goals=|age={{edad2|10|4|2005|27|9|2025}}|club=[[ZED FC|ZED]]|clubnat=EGY}}
+{{nat fs g player|no=6|pos=MED|name=[[Seif Safaga]]|caps=|goals=|age={{edad2|3|4|2005|27|9|2025}}|club=[[ENPPI SC|ENPPI]]|clubnat=EGY}}
+{{nat fs g player|no=7|pos=DEL|name=[[Omar Moawad]]|caps=|goals=|age={{edad2|14|10|2006|27|9|2025}}|club=[[Real Betis]]|clubnat=ESP}}
+{{nat fs g player|no=8|pos=MED|name=[[Ahmed Khaled]] {{cap}}|caps=|goals=|age={{edad2|22|4|2005|27|9|2025}}|club=[[ZED FC|ZED]]|clubnat=EGY}}
+{{nat fs g player|no=9|pos=DEL|name=[[Mohamed Haitham]]|caps=|goals=|age={{edad2|17|2|2007|27|9|2025}}|club=[[Al Ahly SC|Al Ahly]]|clubnat=EGY}}
+{{nat fs g player|no=10|pos=DEL|name=[[Mohamed Abdallah]]|age={{edad2|18|10|2005|27|9|2025}}|caps=|goals=|club=[[Al Ahly SC|Al Ahly]]|clubnat=EGY}}
+{{nat fs g player|no=11|pos=DEL|name=[[Hamed Abdallah]]|age={{edad2|25|9|2005|27|9|2025}}|caps=|goals=|club=[[ENPPI SC|ENPPI]]|clubnat=EGY}}
+{{nat fs g player|no=12|pos=DEF|name=[[Moamen Sherif]]|age={{edad2|11|2|2006|27|9|2025}}|caps=|goals=|club=[[Al Ittihad Alexandria Club|Al Ittihad]]|clubnat=EGY}}
+{{nat fs g player|no=13|pos=DEF|name=[[Ahmed Nayel]]|age={{edad2|8|4|2005|27|9|2025}}|caps=|goals=|club=[[Haras El Hodoud SC|Haras El Hodoud]]|clubnat=EGY}}
+{{nat fs g player|no=14|pos=DEF|name=[[Mohab Samy]]|age={{edad2|20|2|2005|27|9|2025}}|caps=|goals=|club=[[ENPPI SC|ENPPI]]|clubnat=EGY}}
+{{nat fs g player|no=15|pos=DEL|name=[[Omar Khedr]]|age={{edad2|25|5|2006|27|9|2025}}|caps=|goals=|club=[[Aston Villa F.C.|Aston Villa]]|clubnat=ENG}}
+{{nat fs g player|no=16|pos=POR|name=[[Ahmed Wahp]]|age={{edad2|5|5|2005|27|9|2025}}|caps=|goals=|club=[[Al Masry SC|Al Masry]]|clubnat=EGY}}
+{{nat fs g player|no=17|pos=MED|name=[[Amr Khaled Bebo]]|age={{edad2|6|10|2005|27|9|2025}}|caps=|goals=|club=[[FC Aarau|Aarau]]|clubnat=SUI}}
+{{nat fs g player|no=18|pos=MED|name=[[Mohamed El Sayed]]|age={{edad2|20|5|2006|27|9|2025}}|caps=|goals=|club=[[Zamalek SC|Zamalek]]|clubnat=EGY}}
+{{nat fs g player|no=19|pos=MED|name=[[Ahmed Wahid (futbolista)|Ahmed Wahid]]|age={{edad2|7|7|2005|27|9|2025}}|caps=|goals=|club=[[Ghazl El Mahalla SC|Ghazl El Mahalla]]|clubnat=EGY}}
+{{nat fs g player|no=20|pos=MED|name=[[Selim Telib]]|age={{edad2|14|3|2006|27|9|2025}}|caps=|goals=|club=[[Hertha BSC]]|clubnat=GER}}
+{{nat fs g player|no=21|pos=POR|name=[[Ahmed Menshawi]]|age={{edad2|18|10|2005|27|9|2025}}|caps=|goals=|club=[[Al Ittihad Alexandria Club|Al Ittihad]]|clubnat=EGY}}
+{{nat fs end}}
+
+== Grupo B ==
+=== Corea del Sur ===
+Entrenador: {{Bandera|KOR}} [[Lee Chang-won]]
+
+La plantilla final de 21 jugadores se anunció el 8 de septiembre de 2025.<ref>{{cita web|url=https://www-kfa-or-kr.translate.goog/layer_popup/popup_live.php?act=news_tv_detail&idx=27406&div_code=news&check_url=bGF5ZXI%3D&lang=KOR&_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=tc|title=2025 FIFA Sub-20 월드컵 최종 명단 확정, 8일 칠레로 출국|fechaacceso=2025-10-04|date=2025-9-8|publisher=KFA|idioma=coreano}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Gong Si-hyeon]]|age={{edad2|23|2|2005|27|9|2025}}|caps=|goals=|club=[[Jeonbuk Hyundai Motors]]|clubnat=KOR}}
+{{nat fs g player|no=2|pos=DEF|name=[[Bae Hyun-seo]]|age={{edad2|16|2|2005|27|9|2025}}|caps=|goals=|club=[[FC Seoul]]|clubnat=KOR}}
+{{nat fs g player|no=3|pos=DEF|name=[[Kim Ho-jin (futbolista)|Kim Ho-jin]]|age={{edad2|29|9|2005|27|9|2025}}|caps=|goals=|club=[[Yong In University]]|clubnat=KOR}}
+{{nat fs g player|no=4|pos=DEF|name=[[Ham Sun-woo]]|age={{edad2|28|1|2005|27|9|2025}}|caps=|goals=|club=[[Hwaseong FC]]|clubnat=KOR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Ko Jong-hyun]]|age={{edad2|11|4|2006|27|9|2025}}|caps=|goals=|club=[[Suwon Samsung Bluewings]]|clubnat=KOR}}
+{{nat fs g player|no=6|pos=MED|name=[[Son Seung-min]]|age={{edad2|9|5|2005|27|9|2025}}|caps=|goals=|club=[[Daegu FC]]|clubnat=KOR}}
+{{nat fs g player|no=7|pos=MED|name=[[Chung Ma-ho]]|age={{edad2|14|1|2005|27|9|2025}}|caps=|goals=|club=[[Chungnam Asan FC|Chungnam Asan]]|clubnat=KOR}}
+{{nat fs g player|no=8|pos=MED|name=[[Sung Shin]]|age={{edad2|13|1|2005|27|9|2025}}|caps=|goals=|club=[[Bucheon FC 1995]]|clubnat=KOR}}
+{{nat fs g player|no=9|pos=DEL|name=[[Baek Ga-on]]|age={{edad2|23|1|2006|27|9|2025}}|caps=|goals=|club=[[Busan IPark]]|clubnat=KOR}}
+{{nat fs g player|no=10|pos=MED|name=[[Kim Tae-won (futbolista)|Kim Tae-won]] {{cap}}|age={{edad2|1|3|2005|27|9|2025}}|caps=|goals=|club=[[Portimonense S.C.|Portimonense]]|clubnat=POR}}
+{{nat fs g player|no=11|pos=DEL|name=[[Kim Myung-jun]]|age={{edad2|21|3|2006|27|9|2025}}|caps=|goals=|club=[[KRC Genk|Genk]]|clubnat=BEL}}
+{{nat fs g player|no=12|pos=POR|name=[[Hong Seong-min]]|age={{edad2|29|9|2006|27|9|2025}}|caps=|goals=|club=[[Pohang Steelers]]|clubnat=KOR}}
+{{nat fs g player|no=13|pos=MED|name=[[Choi Seung-gu]]|age={{edad2|28|9|2005|27|9|2025}}|caps=|goals=|club=[[Incheon United FC|Incheon United]]|clubnat=KOR}}
+{{nat fs g player|no=14|pos=MED|name=[[Baek Min-gyu]]|age={{edad2|20|11|2005|27|19|2025}}|caps=|goals=|club=[[Incheon United FC|Incheon United]]|clubnat=KOR}}
+{{nat fs g player|no=15|pos=DEF|name=[[Lee Geon-hee (futbolista)|Lee Geon-hee]]|age={{edad2|11|3|2005|27|9|2025}}|caps=|goals=|club=[[Suwon Samsung Bluewings]]|clubnat=KOR}}
+{{nat fs g player|no=16|pos=DEL|name=[[Kim Hyeon-oh]]|age={{edad2|12|9|2007|27|9|2025}}|caps=|goals=|club=[[Daejeon Hana Citizen]]|clubnat=KOR}}
+{{nat fs g player|no=17|pos=MED|name=[[Kim Hyun-min]]|age={{edad2|30|7|2006|27|9|2025}}|caps=|goals=|club=[[Busan IPark]]|clubnat=KOR}}
+{{nat fs g player|no=18|pos=MED|name=[[Choi Byung-wook]]|age={{edad2|11|4|2005|27|9|2025}}|caps=|goals=|club=[[Jeju SK FC|Jeju SK]]|clubnat=KOR}}
+{{nat fs g player|no=19|pos=DEF|name=[[Lim Jun-young]]|age={{edad2|14|11|2005|27|9|2025|df=y}}|caps=|goals=|club=[[Chungbuk Cheongju FC|Chungbuk Cheongju]]|clubnat=KOR}}
+{{nat fs g player|no=20|pos=DEF|name=[[Shin Min-ha]]|age={{edad2|15|9|2005|27|9|2025}}|caps=|goals=|club=[[Gangwon FC]]|clubnat=KOR}}
+{{nat fs g player|no=21|pos=POR|name=[[Park Sang-young (futbolista)|Park Sang-young]]|age={{edad2|17|9|2005|27|9|2025}}|caps=|goals=|club=[[Daegu FC]]|clubnat=KOR}}
+{{nat fs end}}
+
+=== Panamá ===
+Entrenador: {{Bandera|PAN}} [[Jorge Dely Valdés]]
+
+La plantilla final de 21 jugadores se anunció el 22 de septiembre de 2025.<ref>{{cita web|url=https://www.fepafut.com/blog/2025/09/22/definida-la-seleccion-sub-20-de-panama-para-el-mundial-chile-2025/|title=Definida la Selección Sub-20 de Panamá para el Mundial Chile 2025|fechaacceso=2025-10-04|date=2025-9-22|publisher=fepafut}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Ian Flores]]|age={{edad2|20|3|2005|27|9|2025}}|caps=|goals=|club=[[San Francisco F.C.|San Francisco]]|clubnat=PAN}}
+{{nat fs g player|no=2|pos=DEF|name=[[Javier Arboleda]]|age={{edad2|17|4|2006|27|9|2025}}|caps=|goals=|club=[[C.A. Independiente de La Chorrera|Independiente]]|clubnat=PAN}}
+{{nat fs g player|no=3|pos=DEF|name=[[Julio Rodríguez (futbolista)|Julio Rodríguez]]|age={{edad2|9|3|2005|27|9|2025}}|caps=|goals=|club=[[C.D. Plaza Amador|Plaza Amador]]|clubnat=PAN}}
+{{nat fs g player|no=4|pos=DEF|name='''[[Erick Díaz]]'''|caps=|goals=|age={{edad2|3|4|2006|27|9|2025}}|club=[[Los Angeles FC]]|clubnat=USA}}
+{{nat fs g player|no=5|pos=DEF|name=[[Ariel Arroyo]] {{cap}}|age={{edad2|23|1|2005|27|9|2025}}|caps=|goals=|club=[[C.D. Árabe Unido|Árabe Unido]]|clubnat=PAN}}
+{{nat fs g player|no=6|pos=MED|name=[[Luis Villarreal]]|age={{edad2|25|8|2005|27|9|2025}}|caps=|goals=|club=[[Veraguas Club Deportivo|Veraguas]]|clubnat=PAN}}
+{{nat fs g player|no=7|pos=MED|name=[[Kairo Walters]]|age={{edad2|30|4|2005|27|9|2025}}|caps=|goals=|club=[[Los Angeles FC]]|clubnat=USA}}
+{{nat fs g player|no=8|pos=MED|name=[[Anel Ryce]]|age={{edad2|6|7|2006|27|9|2025}}|caps=|goals=|club=[[FC Chornomorets Odesa|Chornomorets Odesa]]|clubnat=UKR}}
+{{nat fs g player|no=9|pos=DEL|name='''[[Gustavo Herrera (futbolista)|Gustavo Herrera]]'''|age={{edad2|18|11|2005|27|9|2025}}|caps=|goals=|club=[[Deportivo Saprissa|Saprissa]]|clubnat=CRC}}
+{{nat fs g player|no=10|pos=MED|name='''[[Giovany Herbert]]'''|age={{edad2|12|3|2005|27|9|2025}}|caps=|goals=|club=[[Club Athletico Paranaense|Athletico Paranaense]]|clubnat=BRA}}
+{{nat fs g player|no=11|pos=MED|name=[[Ryan Gómez]]|age={{edad2|4|1|2006|27|9|2025}}|caps=|goals=|club=[[Grêmio FBPA|Grêmio]]|clubnat=BRA}}
+{{nat fs g player|no=12|pos=POR|name=[[Cecilio Burgess]]|age={{edad2|21|10|2005|27|9|2025}}|caps=|goals=|club=[[UMECIT FC|UMECIT]]|clubnat=PAN}}
+{{nat fs g player|no=13|pos=DEF|name='''[[Martín Krug]]'''|age={{edad2|9|7|2006|27|9|2025}}|caps=|goals=|club=[[Levante UD|Levante]]|clubnat=ESP}}
+{{nat fs g player|no=14|pos=DEF|name=[[Juan Hall]]|age={{edad2|9|3|2006|27|9|2025}}|caps=|goals=|club=[[Herrera F.C.|Herrera]]|clubnat=PAN}}
+{{nat fs g player|no=15|pos=MED|name=[[Joseph Jones (futbolista)|Joseph Jones]]|age={{edad2|30|7|2005|27|9|2025}}|caps=|goals=|club=[[C.D. Plaza Amador|Plaza Amador]]|clubnat=PAN}}
+{{nat fs g player|no=16|pos=DEL|name=[[Kevin Walder]]|age={{edad2|13|4|2006|27|9|2025}}|caps=|goals=|club=[[C.D. Plaza Amador|Plaza Amador]]|clubnat=PAN}}
+{{nat fs g player|no=17|pos=MED|name=[[Ernesto Gómez (futbolista)|Ernesto Gómez]]|age={{edad2|13|7|2007|27|9|2025}}|caps=|goals=|club=[[Club Deportivo Universitario|Universitario]]|clubnat=PAN}}
+{{nat fs g player|no=18|pos=DEL|name=[[Karlo Kurányi]]|age={{edad2|27|9|2005|27|9|2025}}|caps=|goals=|club=[[SGV Freiberg]]|clubnat=GER}}
+{{nat fs g player|no=19|pos=MED|name='''[[Rafael Mosquera]]'''|age={{edad2|25|5|2005|27|9|2025}}|caps=|goals=|club=[[New York Red Bulls]]|clubnat=USA}}
+{{nat fs g player|no=20|pos=DEF|name=[[Antony Herbert]]|age={{edad2|12|3|2005|27|9|2025}}|caps=|goals=|club=[[UB Conquense|Conquense]]|clubnat=ESP}}
+{{nat fs g player|no=21|pos=POR|name=[[Sean Deane]]|age={{edad2|14|4|2005|27|9|2025}}|caps=|goals=|club=[[C.D. Plaza Amador|Plaza Amador]]|clubnat=PAN}}
+{{nat fs end}}
+
+=== Paraguay ===
+Entrenador: {{Bandera|PAR}} [[Antolín Alcaraz]]
+
+La plantilla final de 21 jugadores se anunció el 19 de septiembre de 2025.<ref>{{cita web|url=https://www.apf.org.py/noticias/los-elegidos-para-el-mundial-sub-20-de-la-fifa|title=Los elegidos para el Mundial Sub 20 de la FIFA|fechaacceso=2025-10-04|date=2025-9-19|publisher=apf}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Facundo Insfrán]]|age={{edad2|4|5|2006|27|9|2025}}|caps=|goals=|club=[[Club Olimpia|Olimpia]]|clubnat=PAR}}
+{{nat fs g player|no=2|pos=DEF|name=[[Líder Cáceres]]|age={{edad2|8|2|2005|27|9|2025}}|caps=|goals=|club=[[Club Atlético Tembetary|Tembetary]]|clubnat=PAR}}
+{{nat fs g player|no=3|pos=DEF|name=[[Axel Balbuena]]|age={{edad2|10|3|2006|27|9|2025}}|caps=|goals=|club=[[Club Atlético Lanús|Lanús]]|clubnat=ARG}}
+{{nat fs g player|no=4|pos=DEF|name='''[[Alexandro Maidana]]'''|age={{edad2|26|7|2005|27|9|2025}}|caps=|goals=|club=[[Club Guaraní|Guaraní]]|clubnat=PAR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Lucas Quintana]] {{cap}}|caps=|goals=|age={{edad2|2|1|2005|27|9|2025}}|club=[[Cerro Porteño]]|clubnat=PAR}}
+{{nat fs g player|no=6|pos=MED|name=[[Fabrizio Baruja]]|caps=|goals=|age={{edad2|12|8|2006|27|9|2025}}|club=[[Club Olimpia|Olimpia]]|clubnat=PAR}}
+{{nat fs g player|no=7|pos=DEL|name=[[Gabriel Aguayo]]|caps=|goals=|age={{edad2|10|2|2005|27|9|2025}}|club=[[Cerro Porteño]]|clubnat=PAR}}
+{{nat fs g player|no=8|pos=MED|name=[[Osmar Giménez]]|age={{edad2|25|3|2007|27|9|2025}}|caps=|goals=|club=[[Club General Caballero (Juan León Mallorquín)|General Caballero]]|clubnat=PAR}}
+{{nat fs g player|no=9|pos=DEL|name=[[Tiago Caballero]]|age={{edad2|27|5|2005|27|9|2025}}|caps=|goals=|club=[[Club Olimpia|Olimpia]]|clubnat=PAR}}
+{{nat fs g player|no=10|pos=DEL|name=[[Enso González]]|age={{edad2|20|1|2005|27|9|2025}}|caps=|goals=|club=[[Wolverhampton Wanderers F.C.|Wolverhampton Wanderers]]|clubnat=ENG}}
+{{nat fs g player|no=11|pos=DEL|name=[[César Miño]]|age={{edad2|31|5|2007|27|9|2025}}|caps=|goals=|club=[[Club Guaraní|Guaraní]]|clubnat=PAR}}
+{{nat fs g player|no=12|pos=POR|name=[[Víctor Rojas (futbolista)|Víctor Rojas]]|age={{edad2|1|2|2005|27|9|2025}}|caps=|goals=|club=[[Club Libertad|Libertad]]|clubnat=PAR}}
+{{nat fs g player|no=13|pos=MED|name=[[Giovanni Gómez]]|age={{edad2|18|10|2007|27|9|2025}}|caps=|goals=|club=[[Club Guaraní|Guaraní]]|clubnat=PAR}}
+{{nat fs g player|no=14|pos=DEF|name=[[Tobías Morinigo]]|age={{edad2|22|9|2005|27|9|2025}}|caps=|goals=|club=[[Club Olimpia|Olimpia]]|clubnat=PAR}}
+{{nat fs g player|no=15|pos=MED|name=[[Gadiel Paoli]]|age={{edad2|1|10|2005|27|9|2026}}|caps=|goals=|club=[[Boca Juniors]]|clubnat=ARG}}
+{{nat fs g player|no=16|pos=MED|name=[[Octavio Alfonso]]|age={{edad2|19|12|2005|27|9|2025}}|caps=|goals=|club=[[Club Guaraní|Guaraní]]|clubnat=PAR}}
+{{nat fs g player|no=17|pos=DEL|name=[[Rodrigo Villalba]]|age={{edad2|2|3|2006|27|9|2025}}|caps=|goals=|club=[[Club Libertad|Libertad]]|clubnat=PAR}}
+{{nat fs g player|no=18|pos=MED|name=[[Lucas Guiñazú]]|age={{edad2|25|8|2006|27|9|2025}}|caps=|goals=|club=[[Club Atlético Tembetary|Tembetary]]|clubnat=PAR}}
+{{nat fs g player|no=19|pos=DEL|name=[[David Fernández (futbolista paraguayo)|David Fernández]]|age={{edad2|5|1|2006|27|9|2026}}|caps=|goals=|club=[[Club Sol de América (Asunción)|Sol de América]]|clubnat=PAR}}
+{{nat fs g player|no=20|pos=DEF|name=[[Maximiliano Duarte]]|age={{edad2|2|9|2006|27|9|2025}}|caps=|goals=|club=[[Club Atlético Independiente|Independiente]]|clubnat=ARG}}
+{{nat fs g player|no=21|pos=POR|name=[[Francisco Mongelos]]|age={{edad2|16|2|2005|27|9|2025}}|caps=|goals=|club=[[Sportivo Luqueño]]|clubnat=PAR}}
+{{nat fs end}}
+
+=== Ucrania ===
+Entrenador: {{Bandera|UKR}} [[Dmytro Mykhaylenko]]
+
+La plantilla final de 21 jugadores se anunció el 16 de septiembre de 2025.<ref>{{cita web|url=https://uaf.ua/article/54583|title=U-20. Визначено склад юнацької збірної України для участі у ЧC-2025 в Чилі|fechaacceso=2025-10-04|date=2025-9-16|publisher=uaf|idioma=ucraniano}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Svyatoslav Vanivskyi]]|age={{edad2|27|2|2005|27|9|2025}}|caps=|goals=|club=[[Stal Rzeszów]]|clubnat=POL}}
+{{nat fs g player|no=2|pos=MED|name=[[Vitaliy Katrych]]|age={{edad2|17|2|2005|27|9|2025}}|caps=|goals=|club=[[FC Inhulets Petrove|Inhulets Petrovo]]|clubnat=UKR}}
+{{nat fs g player|no=3|pos=DEF|name=[[Kyrylo Dihtyar]]|age={{edad2|25|11|2007|27|9|2025}}|caps=|goals=|club=[[FC Metalist Kharkiv|Metalist Kharkiv]]|clubnat=UKR}}
+{{nat fs g player|no=4|pos=DEF|name=[[Mykola Kyrychok]]|age={{edad2|16|5|2006|27|9|2025}}|caps=|goals=|club=[[FC Karpaty Lviv|Karpaty Lviv]]|clubnat=UKR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Vladyslav Kysil]]|age={{edad2|14|6|2005|27|9|2025}}|caps=|goals=|club=[[SD Ponferradina|Ponferradina]]|clubnat=ESP}}
+{{nat fs g player|no=6|pos=DEF|name=[[Maksym Melnychenko]] {{cap}}|age={{edad2|12|2|2005|27|9|2025}}|caps=|goals=|club=[[FC Polissya Zhytomyr|Polissya Zhytomyr]]|clubnat=UKR}}
+{{nat fs g player|no=7|pos=MED|name=[[Artur Shakh]]|age={{edad2|11|5|2005|27|9|2025}}|caps=|goals=|club=[[FC Karpaty Lviv|Karpaty Lviv]]|clubnat=UKR}}
+{{nat fs g player|no=8|pos=MED|name=[[Daniil Vashchenko]]|age={{edad2|2|10|2005|27|9|2025}}|caps=|goals=|club=[[FC Oleksandriya|Oleksandriya]]|clubnat=UKR}}
+{{nat fs g player|no=9|pos=DEL|name='''[[Matviy Ponomarenko]]'''|age={{edad2|11|1|2006|27|9|2025}}|caps=|goals=|club=[[FC Dynamo Kyiv|Dynamo Kyiv]]|clubnat=UKR}}
+{{nat fs g player|no=10|pos=MED|name='''[[Hennadiy Synchuk]]'''|age={{edad2|10|7|2006|27|9|2025}}|caps=|goals=|club=[[CF Montréal]]|clubnat=CAN}}
+{{nat fs g player|no=11|pos=MED|name=[[Danylo Krevsun]]|age={{edad2|21|4|2005|27|9|2025}}|caps=|goals=|club=[[Borussia Dortmund]]|clubnat=GER}}
+{{nat fs g player|no=12|pos=POR|name=[[Vladyslav Krapyvtsov]]|age={{edad2|25|6|2005|27|9|2025}}|caps=|goals=|club=[[Girona FC|Girona]]|clubnat=ESP}}
+{{nat fs g player|no=13|pos=DEF|name=[[Daniel Vernattus]]|age={{edad2|9|2|2006|27|9|2025}}|caps=|goals=|club=[[FC Metalist Kharkiv|Metalist Kharkiv]]|clubnat=UKR}}
+{{nat fs g player|no=14|pos=MED|name=[[Kristian Shevchenko]]|age={{edad2|10|11|2006|27|9|2025}}|caps=|goals=|club=[[Watford F.C.|Watford]]|clubnat=ENG}}
+{{nat fs g player|no=15|pos=MED|name=[[Yaroslav Karaman]]|age={{edad2|8|6|2006|27|9|2025}}|caps=|goals=|club=[[FC Polissya Zhytomyr|Polissya Zhytomyr]]|clubnat=UKR}}
+{{nat fs g player|no=16|pos=POR|name=[[Markiyan Bakus]]|age={{edad2|20|1|2006|27|9|2025}}|caps=|goals=|club=[[FC LNZ Cherkasy|LNZ Cherkasy]]|clubnat=UKR}}
+{{nat fs g player|no=17|pos=DEF|name=[[Maksym Derkach]]|age={{edad2|22|2|2005|27|9|2025}}|caps=|goals=|club=[[FK Tukums 2000|Tukums 2000]]|clubnat=LVA}}
+{{nat fs g player|no=18|pos=MED|name=[[Bohdan Budko]]|age={{edad2|7|1|2006|27|9|2025}}|caps=|goals=|club=[[AZ Alkmaar]]|clubnat=NED}}
+{{nat fs g player|no=19|pos=DEL|name=[[Oleksandr Pyshchur]]|age={{edad2|24|1|2005|27|9|2025}}|caps=|goals=|club=[[Győri ETO FC|Győri ETO]]|clubnat=HUN}}
+{{nat fs g player|no=20|pos=DEF|name=[[Oleksiy Husiev]]|age={{edad2|16|3|2005|27|9|2025}}|caps=|goals=|club=[[FC Kudrivka|Kudrivka]]|clubnat=UKR}}
+{{nat fs g player|no=21|pos=MED|name=[[Matviy Panchenko]]|age={{edad2|4|2|2006|27|9|2025}}|caps=|goals=|club=[[FC Metalist 1925 Kharkiv|Metalist 1925 Kharkiv]]|clubnat=UKR}}
+{{nat fs end}}
+
+== Grupo C ==
+=== Brasil ===
+Entrenador: {{Bandera|BRA}} [[Ramon Menezes]]
+
+La plantilla final de 21 jugadores se anunció el 18 de septiembre de 2025.<ref>{{cita web|url=https://www.cbf.com.br/selecao-brasileira/noticias/selecao-base-masculina/a/selecao-brasileira-e-convocada-para-copa-do-mundo-sub-20|title=Seleção Brasileira é convocada para Copa do Mundo Sub-20|fechaacceso=2025-10-04|date=2025-9-18|publisher=CBF|idioma=pt-BR}}</ref> Unos días después, [[Felipe Longo]] fue cortado a petición de su club, el [[Sport Club Corinthians Paulista|Corinthians]] , y [[Pedro Cobra]] fue convocado para reemplazarlo.<ref>{{cita web|url=https://ge.globo.com/futebol/times/corinthians/noticia/2025/09/22/corinthians-pede-e-goleiro-felipe-longo-e-desconvocado-do-mundial-sub-20-pela-selecao.ghtml|title=Corinthians pede, e goleiro Felipe Longo é desconvocado do Mundial Sub-20 pela Seleção|fechaacceso=2025-10-04|date=2025-9-22|publisher=Globo|idioma=pt-BR}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Pedro Cobra]]|age={{edad2|15|5|2006|27|9|2025}}|caps=|goals=|club=[[Clube Atlético Mineiro|Atlético Mineiro]]|clubnat=BRA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Igor Serrote]]|age={{edad2|1|3|2005|27|9|2026}}|caps=|goals=|club=[[Al Jazira Club|Al Jazira]]|clubnat=UAE}}
+{{nat fs g player|no=3|pos=DEF|name=[[Iago Teodoro]] {{cap}}|age={{edad2|18|4|2005|27|9|2025}}|caps=|goals=|club=[[CR Flamengo|Flamengo]]|clubnat=BRA}}
+{{nat fs g player|no=4|pos=DEF|name=[[Bruno Alves (futbolista)|Bruno Alves]]|age={{edad2|4|8|2005|27|9|2025}}|caps=|goals=|club=[[Cruzeiro EC|Cruzeiro]]|clubnat=BRA}}
+{{nat fs g player|no=5|pos=MED|name=[[Rayan Lucas]]|age={{edad2|3|1|2005|27|9|2025}}|caps=|goals=|club=[[Sporting CP]]|clubnat=POR}}
+{{nat fs g player|no=6|pos=DEF|name=[[Leandrinho (futbolista)|Leandrinho]]|age={{edad2|17|3|2005|27|9|2025}}|caps=|goals=|club=[[CR Vasco da Gama|Vasco da Gama]]|clubnat=BRA}}
+{{nat fs g player|no=7|pos=DEL|name=[[Gustavo Prado (futbolista)|Gustavo Prado]]|age={{edad2|6|6|2005|27|9|2025}}|caps=|goals=|club=[[SC Internacional|Internacional]]|clubnat=BRA}}
+{{nat fs g player|no=8|pos=MED|name=[[João Cruz]]|age={{edad2|12|5|2006|27|9|2025}}|caps=|goals=|club=[[Club Athletico Paranaense|Athletico Paranaense]]|clubnat=BRA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Deivid Washington]]|age={{edad2|5|6|2005|27|9|2025}}|caps=|goals=|club=[[Chelsea F.C.|Chelsea]]|clubnat=ENG}}
+{{nat fs g player|no=10|pos=DEL|name=[[Pedro Henrique Silva|Pedrinho]]|age={{edad2|5|2|2006|27|9|2025}}|caps=|goals=|club=[[FC Zenit Saint Petersburg|Zenit St. Petersburg]]|clubnat=RUS}}
+{{nat fs g player|no=11|pos=DEL|name=[[Wesley (futbolista)|Wesley]]|age={{edad2|5|3|2005|27|9|2025}}|caps=|goals=|club=[[Al-Nassr FC|Al-Nassr]]|clubnat=KSA}}
+{{nat fs g player|no=12|pos=POR|name=[[Otávio (futbolista)|Otávio]]|age={{edad2|27|12|2005|27|9|2025}}|caps=|goals=|club=[[Cruzeiro EC|Cruzeiro]]|clubnat=BRA}}
+{{nat fs g player|no=13|pos=DEF|name=[[Gilberto (futbolista)|Gilberto]]|age={{edad2|27|3|2005|27|9|2025}}|caps=|goals=|club=[[SE Palmeiras|Palmeiras]]|clubnat=BRA}}
+{{nat fs g player|no=14|pos=DEF|name=[[João Victor (futbolista)|João Victor]]|age={{edad2|1|1|2007|27|9|2025}}|caps=|goals=|club=[[CR Flamengo|Flamengo]]|clubnat=BRA}}
+{{nat fs g player|no=15|pos=MED|name=[[Rafael Coutinho]]|age={{edad2|24|3|2006|27|9|2025}}|caps=|goals=|club=[[SE Palmeiras|Palmeiras]]|clubnat=BRA}}
+{{nat fs g player|no=16|pos=DEF|name=[[Léo Derik]]|age={{edad2|24|7|2005|27|9|2025}}|caps=|goals=|club=[[Club Athletico Paranaense|Athletico Paranaense]]|clubnat=BRA}}
+{{nat fs g player|no=17|pos=MED|name=[[Rhuan Gabriel]]|age={{edad2|6|2|2006|27|9|2025}}|caps=|goals=|club=[[Cruzeiro EC|Cruzeiro]]|clubnat=BRA}}
+{{nat fs g player|no=18|pos=MED|name=[[Murilo Rhikman]]|age={{edad2|13|3|2006|27|9|2025}}|caps=|goals=|club=[[Cruzeiro EC|Cruzeiro]]|clubnat=BRA}}
+{{nat fs g player|no=19|pos=DEL|name=[[Luighi]]|age={{edad2|30|4|2006|27|9|2025}}|caps=|goals=|club=[[SE Palmeiras|Palmeiras]]|clubnat=BRA}}
+{{nat fs g player|no=20|pos=DEL|name=[[Erick Belé]]|age={{edad2|21|1|2007|27|9|2025}}|caps=|goals=|club=[[SE Palmeiras|Palmeiras]]|clubnat=BRA}}
+{{nat fs g player|no=21|pos=POR|name=[[Lucas Furtado]]|age={{edad2|9|3|2005|27|9|2025}}|caps=|goals=|club=[[Vitória S.C.|Vitória de Guimarães]]|clubnat=POR}}
+{{nat fs end}}
+
+=== España ===
+Entrenador: {{Bandera|ESP}} [[Paco Gallardo]]
+
+La plantilla final de 21 jugadores se anunció el 17 de septiembre de 2025.<ref>{{cita web|url=https://rfef.es/es/noticias/estos-son-los-21-futbolistas-que-defenderan-espana-en-el-mundial-de-chile|title=Estos son los 21 futbolistas que defenderán a España en el Mundial de Chile|fechaacceso=2025-10-04|date=2025-9-17|publisher=RFEF}}</ref> El 27 de septiembre, [[Jon Martín]] se retiró por lesión y [[Álvaro Cortés]] fue convocado para sustituirlo.<ref>{{cita web|url=https://rfef.es/es/noticias/alvaro-cortes-se-incorpora-la-sub-20-tras-la-baja-de-jon-martin|title=Álvaro Cortés se incorpora a la sub-20 tras la baja de Jon Martín|fechaacceso=2025-10-04|date=2025-9-27|publisher=RFEF}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Fran González (futbolista)|Fran González]]|age={{edad2|24|6|2005|27|9|2025}}|caps=|goals=|club=[[Real Madrid CF|Real Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=2|pos=DEF|name=[[Pau Navarro]]|age={{edad2|25|4|2005|27|9|2025}}|caps=|goals=|club=[[Villarreal CF|Villarreal]]|clubnat=ESP}}
+{{nat fs g player|no=3|pos=DEF|name=[[Julio Díaz (futbolista)|Julio Díaz]]|age={{edad2|10|1|2005|27|9|2025}}|caps=|goals=|club=[[Atlético Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=4|pos=DEF|name=[[Álvaro Cortés]]|age={{edad2|17|3|2005|27|9|2025}}|caps=|goals=|club=[[FC Barcelona|Barcelona]]|clubnat=ESP}}
+{{nat fs g player|no=5|pos=DEF|name=[[Andrés Cuenca]]|age={{edad2|11|6|2007|27|9|2025}}|caps=|goals=|club=[[FC Barcelona|Barcelona]]|clubnat=ESP}}
+{{nat fs g player|no=6|pos=MED|name=[[Izan Merino]]|age={{edad2|15|4|2006|27|9|2025}}|caps=|goals=|club=[[Málaga CF|Málaga]]|clubnat=ESP}}
+{{nat fs g player|no=7|pos=MED|name=[[Rayane Belaid]]|age={{edad2|11|2|2005|27|9|2025}}|caps=|goals=|club=[[Atlético Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=8|pos=MED|name=[[Rodri Mendoza]]|age={{edad2|15|3|2005|27|9|2025}}|caps=|goals=|club=[[Elche CF|Elche]]|clubnat=ESP}}
+{{nat fs g player|no=9|pos=DEL|name=[[Adrián Liso]]|age={{edad2|2|4|2005|27|9|2025}}|caps=|goals=|club=[[Getafe CF|Getafe]]|clubnat=ESP}}
+{{nat fs g player|no=10|pos=DEL|name=[[Iker Bravo]] {{cap}}|age={{edad2|13|1|2005|27|9|2025}}|caps=|goals=|club=[[Udinese Calcio|Udinese]]|clubnat=ITA}}
+{{nat fs g player|no=11|pos=DEL|name=[[David Mella]]|age={{edad2|23|5|2005|27|9|2025}}|caps=|goals=|club=[[Deportivo de La Coruña|Deportivo La Coruña]]|clubnat=ESP}}
+{{nat fs g player|no=12|pos=MED|name=[[Thiago Pitarch]]|age={{edad2|3|8|2007|27|9|2025}}|caps=|goals=|club=[[Real Madrid CF|Real Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=13|pos=POR|name=[[Raúl Jiménez Latorre|Raúl Jiménez]]|age={{edad2|16|2|2006|27|9|2025}}|caps=|goals=|club=[[Valencia CF|Valencia]]|clubnat=ESP}}
+{{nat fs g player|no=14|pos=DEL|name=[[Joel Roca]]|age={{edad2|7|6|2005|27|9|2025}}|caps=|goals=|club=[[Girona FC|Girona]]|clubnat=ESP}}
+{{nat fs g player|no=15|pos=MED|name=[[Cristian David]]|age={{edad2|17|8|2005|27|9|2025}}|caps=|goals=|club=[[Real Madrid CF|Real Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=16|pos=DEF|name=[[Jesús Fortea]]|age={{edad2|26|3|2007|27|9|2025}}|caps=|goals=|club=[[Real Madrid CF|Real Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=17|pos=DEL|name=[[Pablo García (futbolista nacido en 2006)|Pablo García]]|age={{edad2|13|6|2006|27|9|2025}}|caps=|goals=|club=[[Real Betis]]|clubnat=ESP}}
+{{nat fs g player|no=18|pos=MED|name=[[Peio Canales]]|age={{edad2|17|1|2005|27|9|2025}}|caps=|goals=|club=[[Racing de Santander|Racing Santander]]|clubnat=ESP}}
+{{nat fs g player|no=19|pos=DEL|name=[[Jan Virgili]]|age={{edad2|26|7|2006|27|9|2025}}|caps=|goals=|club=[[RCD Mallorca|Mallorca]]|clubnat=ESP}}
+{{nat fs g player|no=20|pos=DEF|name=[[Diego Aguado]]|age={{edad2|7|2|2007|27|9|2025}}|caps=|goals=|club=[[Real Madrid CF|Real Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=21|pos=POR|name=[[Vicent Abril]]|age={{edad2|15|2|2005|27|9|2025}}|caps=|goals=|club=[[Valencia CF|Valencia]]|clubnat=ESP}}
+{{nat fs end}}
+
+=== Marruecos ===
+Entrenador: {{Bandera|MAR}} [[Mohamed Ouahbi]]
+
+La plantilla final de 21 jugadores se anunció el 19 de septiembre de 2025.<ref>{{cita web|url=https://frmf.ma/%d8%a7%d9%84%d8%b3%d9%8a%d8%af-%d9%85%d8%ad%d9%85%d8%af-%d9%88%d9%87%d8%a8%d9%8a-%d9%8a%d8%b3%d8%aa%d8%af%d8%b9%d9%8a-21-%d9%84%d8%a7%d8%b9%d8%a8%d8%a7-%d9%84%d9%84%d9%85%d8%b4%d8%a7%d8%b1%d9%83%d8%a9/|title=السيد محمد وهبي يستدعي 21 لاعبا للمشاركة في كأس العالم لأقل من 20 سنة|fechaacceso=2025-10-05|date=2025-9-19|publisher=FRMF|idioma=árabe}}</ref> El 27 de septiembre, [[Ilyass Mahsoub]] fue convocado para reemplazar a [[Hamza Koutoune]] , quien fue retirado debido a que su club, [[Annecy Football Club|Annecy]] , se negó a liberarlo para el torneo.<ref>{{cita web|url=https://frmf.ma/%d8%a7%d9%84%d8%b3%d9%8a%d8%af-%d9%85%d8%ad%d9%85%d8%af-%d9%88%d9%87%d8%a8%d9%8a-%d9%8a%d9%88%d8%ac%d9%91%d9%87-%d8%a7%d9%84%d8%af%d8%b9%d9%88%d8%a9-%d8%a5%d9%84%d9%89-%d8%a5%d9%84%d9%8a%d8%a7%d8%b3/|title=السيد محمد وهبي يوجّه الدعوة إلى إلياس محسوب للمشاركة في كاس العالم|fechaacceso=2025-10-05|date=2025-9-27|publisher=RFEF|idioma=árabe}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Yanis Benchaouch]]|age={{edad2|10|4|2006|27|9|2025}}|caps=|goals=|club=[[AS Monaco FC|Monaco]]|clubnat=FRA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Ilyass Mahsoub]]|age={{edad2|19|5|2005|27|9|2025}}|caps=|goals=|club=[[USM d'Oujda|USM Oujda]]|clubnat=MAR}}
+{{nat fs g player|no=3|pos=DEF|name=[[Ali Maamar]]|age={{edad2|23|3|2005|27|9|2025}}|caps=|goals=|club=[[R.S.C. Anderlecht|Anderlecht]]|clubnat=BEL}}
+{{nat fs g player|no=4|pos=DEF|name=[[Ismaël Baouf]]|age={{edad2|17|9|2006|27|9|2025}}|caps=|goals=|club=[[SC Cambuur|Cambuur]]|clubnat=NED}}
+{{nat fs g player|no=5|pos=MED|name=[[Anas Tajaouart]]|age={{edad2|7|9|2005|27|9|2025}}|caps=|goals=|club=[[R.S.C. Anderlecht|Anderlecht]]|clubnat=BEL}}
+{{nat fs g player|no=6|pos=MED|name=[[Naïm Byar]]|age={{edad2|23|2|2005|27|9|2005}}|caps=|goals=|club=[[Calcio Foggia 1920|Foggia]]|clubnat=ITA}}
+{{nat fs g player|no=7|pos=DEL|name={{sortname|Othmane|Maamma}}|age={{edad2|6|10|2005|27|9|2025}}|caps=|goals=|club=[[Watford F.C.|Watford]]|clubnat=ENG}}
+{{nat fs g player|no=8|pos=MED|name=[[Houssam Essadak]] {{cap}}|age={{edad2|30|7|2005|27|9|2025}}|caps=|goals=|club=[[Union Touarga]]|clubnat=MAR}}
+{{nat fs g player|no=9|pos=DEL|name=[[Younes El Bahraoui]]|age={{edad2|4|1|2005|27|9|2025}}|caps=|goals=|club=[[KAC Marrakech]]|clubnat=MAR}}
+{{nat fs g player|no=10|pos=MED|name=[[Saad El Haddad]]|age={{edad2|24|7|2005|27|9|2025}}|caps=|goals=|club=[[Venezia FC|Venezia]]|clubnat=ITA}}
+{{nat fs g player|no=11|pos=DEL|name=[[Ilias Boumassaoudi]]|age={{edad2|14|1|2005|27|9|2025}}|caps=|goals=|club=[[FC Den Bosch|Den Bosch]]|clubnat=NED}}
+{{nat fs g player|no=12|pos=POR|name=[[Ibrahim Gomis]]|age={{edad2|20|3|2005|27|9|2025}}|caps=|goals=|club=[[Olympique de Marseille|Marseille]]|clubnat=FRA}}
+{{nat fs g player|no=13|pos=DEF|name=[[Taha Majni]]|age={{edad2|11|10|2007|27|9|2025}}|caps=|goals=|club=[[Union Touarga]]|clubnat=MAR}}
+{{nat fs g player|no=14|pos=DEL|name=[[Mohamed Hamony]]|age={{edad2|5|8|2006|27|9|2025}}|caps=|goals=|club=[[Girona FC|Girona]]|clubnat=ESP}}
+{{nat fs g player|no=15|pos=DEF|name={{sortname|Fouad|Zahouani}}|age={{edad2|18|4|2006|27|9|2025}}|caps=|goals=|club=[[Union Touarga]]|clubnat=MAR}}
+{{nat fs g player|no=16|pos=POR|name=[[Abdelhakim Mesbahi]]|age={{edad2|7|9|2005|27|9|2025}}|caps=|goals=|club=[[AS FAR]]|clubnat=MAR}}
+{{nat fs g player|no=17|pos=DEL|name=[[Gessime Yassine]]|age={{edad2|22|11|2005|27|9|2025}}|caps=|goals=|club=[[USL Dunkerque|Dunkerque]]|clubnat=FRA}}
+{{nat fs g player|no=18|pos=MED|name=[[Yassine Khalifi]]|age={{edad2|9|8|2005|27|9|2025}}|caps=|goals=|club=[[Royal Charleroi S.C.|Sporting Charleroi]]|clubnat=BEL}}
+{{nat fs g player|no=19|pos=DEF|name=[[Smail Bakhty]]|age={{edad2|29|11|2006|27|9|2025}}|caps=|goals=|club=[[SK Sturm Graz|Sturm Graz]]|clubnat=AUT}}
+{{nat fs g player|no=20|pos=DEF|name=[[Mohammed Kebdani]]|age={{edad2|13|5|2005|27|9|2025}}|caps=|goals=|club=[[AS FAR]]|clubnat=MAR}}
+{{nat fs g player|no=21|pos=DEL|name=[[Yassir Zabiri]]|age={{edad2|23|2|2005|27|9|2025}}|caps=|goals=|club=[[F.C. Famalicão|Famalicão]]|clubnat=POR}}
+{{nat fs end}}
+
+=== México ===
+Entrenador: {{Bandera|MEX}} [[Eduardo Arce]]
+
+La plantilla definitiva de 21 jugadores se anunció el 10 de septiembre de 2025.<ref>{{Cita web|url=https://miseleccion.mx/noticias/6147/Convocatoria-Oficial-de-M%C3%A9xico-Sub-20-para-el-Mundial-de-Chile|título=Convocatoria Oficial de México Sub-20 para el Mundial de Chile|fechaacceso=2025-09-27|fecha=2025-09-10|sitioweb=Sitio oficial de la [[Selección de fútbol de México|Selección Mexicana]]}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Emmanuel Ochoa]]|age={{edad2|5|5|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Cruz Azul|Cruz Azul]]|clubnat=MEX}}
+{{nat fs g player|no=2|pos=DEF|name='''[[Everardo López]]'''|age={{edad2|23|3|2005|27|9|2025}}|caps=|goals=|club=[[Deportivo Toluca Fútbol Club|Toluca]]|clubnat=MEX}}
+{{nat fs g player|no=3|pos=DEF|name=[[José Pachuca]]|age={{edad2|24|7|2005|27|9|2025}}|caps=|goals=|club=[[Club Puebla|Puebla]]|clubnat=MEX}}
+{{nat fs g player|no=4|pos=DEF|name=[[Diego Ochoa Berdejo|Diego Ochoa]]|age={{edad2|20|4|2005|27|9|2025}}|caps=|goals=|club=[[Fútbol Club Juárez|Juárez]]|clubnat=MEX}}
+{{nat fs g player|no=5|pos=MED|name='''[[Iker Fimbres]]'''|age={{edad2|2|6|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Monterrey|Monterrey]]|clubnat=MEX}}
+{{nat fs g player|no=6|pos=MED|name=[[César Garza]]|age={{edad2|1|7|2005|27|9|2025}}|caps=|goals=|club=[[Dundee Football Club|Dundee FC]]|clubnat=SCO}}
+{{nat fs g player|no=7|pos=MED|name=[[Alexéi Domínguez]]|age={{edad2|3|1|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Pachuca|Pachuca]]|clubnat=MEX}}
+{{nat fs g player|no=8|pos=MED|name=[[Elías Montiel]]|age={{edad2|7|10|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Pachuca|Pachuca]]|clubnat=MEX}}
+{{nat fs g player|no=9|pos=DEL|name=[[Oswaldo Virgen]]|age={{edad2|7|4|2005|27|9|2025}}|caps=|goals=|club=[[Deportivo Toluca Fútbol Club|Toluca]]|clubnat=MEX}}
+{{nat fs g player|no=10|pos=DEL|name=[[Yael Padilla Sandoval|Yael Padilla]]|age={{edad2|19|12|2005|27|9|2025}}|caps=|goals=|club=[[Club Deportivo Guadalajara (México)|Guadalajara]]|clubnat=MEX}}
+{{nat fs g player|no=11|pos=DEL|name='''[[Gilberto Mora Zambrano|Gilberto Mora]]'''|age={{edad2|14|10|2008|27|9|2025}}|caps=|goals=|club=[[Club Tijuana|Tijuana]]|clubnat=MEX}}
+{{nat fs g player|no=12|pos=POR|name=[[Pablo Lara]]|age={{edad2|29|6|2005|27|9|2025}}|caps=|goals=|club=[[Club Universidad Nacional|Pumas UNAM]]|clubnat=MEX}}
+{{nat fs g player|no=13|pos=POR|name=[[Juan Liceaga]]|age={{edad2|11|4|2007|27|9|2025}}|caps=|goals=|club=[[Club Deportivo Guadalajara (México)|Guadalajara]]|clubnat=MEX}}
+{{nat fs g player|no=14|pos=MED|name=[[Amaury Morales]]|age={{edad2|3|12|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Cruz Azul|Cruz Azul]]|clubnat=MEX}}
+{{nat fs g player|no=15|pos=DEF|name=[[César Bustos]]|age={{edad2|27|8|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Monterrey|Monterrey]]|clubnat=MEX}}
+{{nat fs g player|no=16|pos=DEF|name=[[Jaziel Mendoza]]|age={{edad2|20|5|2005|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Cruz Azul|Cruz Azul]]|clubnat=MEX}}
+{{nat fs g player|no=17|pos=MED|name=[[Diego Sánchez (futbolista nacido en 2005)|Diego Sánchez]]|age={{edad2|12|4|2005|27|9|2025}}|caps=|goals=|club=[[Tigres de la UANL|Tigres UANL]]|clubnat=MEX}}
+{{nat fs g player|no=18|pos=MED|name='''[[Obed Vargas]]'''|age={{edad2|5|8|2005|27|9|2025}}|caps=|goals=|club=[[Seattle Sounders Football Club|Seattle Sounders]]|clubnat=USA}}
+{{nat fs g player|no=19|pos=DEL|name=[[Mateo Levy]]|age={{edad2|22|10|2006|27|9|2025}}|caps=|goals=|club=[[Club de Fútbol Cruz Azul|Cruz Azul]]|clubnat=MEX}}
+{{nat fs g player|no=20|pos=DEL|name=[[Hugo Camberos]]|age={{edad2|21|1|2007|27|9|2025}}|caps=|goals=|club=[[Club Deportivo Guadalajara (México)|Guadalajara]]|clubnat=MEX}}
+{{nat fs g player|no=21|pos=DEL|name=[[Tahiel Jiménez]]|age={{edad2|22|1|2006|27|9|2025}}|caps=|goals=|club=[[Club Santos Laguna|Santos Laguna]]|clubnat=MEX}}
+{{nat fs end}}
+
+== Grupo D ==
+=== Argentina ===
+Entrenador: {{Bandera|ARG}} [[Diego Placente]]
+
+La plantilla definitiva de 21 jugadores se anunció el 18 de septiembre de 2025.<ref>{{Cita web|url=https://www.afa.com.ar/es/posts/sub-20-lista-de-convocados-para-el-mundial-de-chile|título=Sub 20: lista de convocados para el Mundial de Chile|fechaacceso=2025-10-05|fecha=2025-9-18|sitioweb=AFA}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Santino Barbi]]|age={{edad2|14|6|2005|27|9|2025}}|caps=|goals=|club=[[Talleres de Córdoba|Talleres]]|clubnat=ARG}}
+{{nat fs g player|no=2|pos=DEF|name=[[Tobías Ramírez]]|age={{edad2|11|11|2006|27|9|2025}}|caps=|goals=|club=[[Argentinos Juniors]]|clubnat=ARG}}
+{{nat fs g player|no=3|pos=DEF|name=[[Julio Soler]] {{cap}}|age={{edad2|16|2|2005|27|9|2025}}|caps=|goals=|club=[[AFC Bournemouth|Bournemouth]]|clubnat=ENG}}
+{{nat fs g player|no=4|pos=DEF|name=[[Dylan Gorosito]]|age={{edad2|3|2|2006|27|9|2027}}|caps=|goals=|club=[[Boca Juniors]]|clubnat=ARG}}
+{{nat fs g player|no=5|pos=MED|name=[[Milton Delgado]]|age={{edad2|16|6|2005|27|9|2025}}|caps=|goals=|club=[[Boca Juniors]]|clubnat=ARG}}
+{{nat fs g player|no=6|pos=DEF|name=[[Juan Manuel Villalba (futbolista argentino, 2006)|Juan Villalba]]|age={{edad2|15|3|2006|27|9|2025}}|caps=|goals=|club=[[Club de Gimnasia y Esgrima La Plata|Gimnasia (LP)]]|clubnat=ARG}}
+{{nat fs g player|no=7|pos=DEL|name=[[Maher Carrizo]]|age={{edad2|19|2|2006|27|9|2025}}|caps=|goals=|club=[[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]|clubnat=ARG}}
+{{nat fs g player|no=8|pos=MED|name=[[Valentino Acuña]]|age={{edad2|27|1|2006|27|9|2025}}|caps=|goals=|club=[[Newell's Old Boys]]|clubnat=ARG}}
+{{nat fs g player|no=9|pos=DEL|name=[[Alejo Sarco]]|age={{edad2|6|1|2006|27|9|2025}}|caps=|goals=|club=[[Bayer 04 Leverkusen|Bayer Leverkusen]]|clubnat=GER}}
+{{nat fs g player|no=10|pos=MED|name={{sortname|Álvaro|Montoro}}|age={{edad2|17|4|2007|27|9|2025}}|caps=|goals=|club=[[Botafogo FR|Botafogo]]|clubnat=BRA}}
+{{nat fs g player|no=11|pos=MED|name=[[Ian Subiabre]]|age={{edad2|1|1|2007|27|9|2025}}|caps=|goals=|club=[[Club Atlético River Plate|River Plate]]|clubnat=ARG}}
+{{nat fs g player|no=12|pos=POR|name=[[Álvaro Busso]]|age={{edad2|11|10|2006|27|9|2025}}|caps=|goals=|club=[[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]|clubnat=ARG}}
+{{nat fs g player|no=13|pos=DEF|name=[[Valente Pierani]]|age={{edad2|22|2|2006|27|9|2025}}|caps=|goals=|club=[[Estudiantes de La Plata|Estudiantes (LP)]]|clubnat=ARG}}
+{{nat fs g player|no=14|pos=DEF|name=[[Santiago Fernández (futbolista)|Santiago Fernández]]|age={{edad2|3|3|2005|27|9|2025}}|caps=|goals=|club=[[Talleres de Córdoba|Talleres]]|clubnat=ARG}}
+{{nat fs g player|no=15|pos=MED|name=[[Tomás Pérez (futbolista)|Tomás Pérez]]|age={{edad2|26|8|2005|27|9|2025}}|caps=|goals=|club=[[FC Porto|Porto]]|clubnat=POR}}
+{{nat fs g player|no=16|pos=DEF|name=[[Teo Rodríguez Pagano]]|age={{edad2|12|10|2005|27|9|2025|df=y}}|caps=|goals=|club=[[San Lorenzo de Almagro|San Lorenzo]]|clubnat=ARG}}
+{{nat fs g player|no=17|pos=MED|name=[[Mateo Silvetti]]|age={{edad2|14|1|2006|27|9|2025}}|caps=|goals=|club=[[Inter Miami CF|Inter Miami]]|clubnat=USA}}
+{{nat fs g player|no=18|pos=MED|name=[[Tobías Andrada]]|age={{edad2|2|2|2007|27|9|2025}}|caps=|goals=|club=[[Club Atlético Vélez Sarsfield|Vélez Sarsfield]]|clubnat=ARG}}
+{{nat fs g player|no=19|pos=MED|name=[[Santino Andino]]|age={{edad2|25|10|2005|27|9|2025}}|caps=|goals=|club=[[Godoy Cruz Antonio Tomba|Godoy Cruz]]|clubnat=ARG}}
+{{nat fs g player|no=20|pos=MED|name=[[Gianluca Prestianni]]|age={{edad2|31|1|2006|27|9|2025}}|caps=|goals=|club=[[S.L. Benfica|Benfica]]|clubnat=POR}}
+{{nat fs g player|no=21|pos=POR|name=[[Alain Gómez]]|age={{edad2|3|3|2007|27|9|2025}}|caps=|goals=|club=[[Valencia CF|Valencia]]|clubnat=ESP}}
+{{nat fs end}}
+
+=== Australia ===
+Entrenador: {{Bandera|AUS}} [[Trevor Morgan (entrenador)|Trevor Morgan]]
+
+La plantilla definitiva de 21 jugadores se anunció el 24 de septiembre de 2025.<ref>{{Cita web|url=https://www.afa.com.ar/es/posts/sub-20-lista-de-convocados-para-el-mundial-de-chile|título=https://socceroos.com.au/news/commbank-young-socceroos-21-man-squad-finalised-fifa-u-20-world-cup-2025tm|fechaacceso=2025-10-05|fecha=2025-9-24|sitioweb=Socceroos|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Steven Hall]]|age={{edad2|16|1|2005|27|9|2025}}|caps=|goals=|club=[[Brighton & Hove Albion F.C.|Brighton & Hove Albion]]|clubnat=ENG}}
+{{nat fs g player|no=2|pos=MED|name=[[Daniel Bennie]]|age={{edad2|13|4|2006|27|9|2025}}|caps=|goals=|club=[[Queens Park Rangers F.C.|Queens Park Rangers]]|clubnat=ENG}}
+{{nat fs g player|no=3|pos=DEF|name=[[Sebastian Esposito]] {{cap}}|age={{edad2|21|4|2005|27|9|2025}}|caps=|goals=|club=[[Melbourne Victory FC|Melbourne Victory]]|clubnat=AUS}}
+{{nat fs g player|no=4|pos=DEF|name=[[Panagiotis Kikianis]]|age={{edad2|3|8|2005|27|9|2025}}|caps=|goals=|club=[[Adelaide United FC|Adelaide United]]|clubnat=AUS}}
+{{nat fs g player|no=5|pos=DEF|name=[[Fabian Talladira]]|age={{edad2|4|2|2006|27|9|2025}}|caps=|goals=|club=[[Adelaide United FC|Adelaide United]]|clubnat=AUS}}
+{{nat fs g player|no=6|pos=MED|name=[[Paul Okon-Engstler]]|age={{edad2|24|1|2005|27|9|2025}}|caps=|goals=|club=[[Sydney FC]]|clubnat=AUS}}
+{{nat fs g player|no=7|pos=MED|name=[[Jonny Yull]]|age={{edad2|5|3|2005|27|9|2025}}|caps=|goals=|club=[[Adelaide United FC|Adelaide United]]|clubnat=AUS}}
+{{nat fs g player|no=8|pos=MED|name=[[Alexander Badolato]]|age={{edad2|23|2|2005|27|9|2025}}|caps=|goals=|club=[[Newcastle Jets FC|Newcastle Jets]]|clubnat=AUS}}
+{{nat fs g player|no=9|pos=DEL|name=[[Luka Jovanovic]]|age={{edad2|20|5|2005|27|9|2025}}|caps=|goals=|club=[[Adelaide United FC|Adelaide United]]|clubnat=AUS}}
+{{nat fs g player|no=10|pos=MED|name=[[Rhys Youlley]]|age={{edad2|13|2|2005|27|9|2025}}|caps=|goals=|club=[[Sydney FC]]|clubnat=AUS}}
+{{nat fs g player|no=11|pos=DEL|name=[[Musa Toure]]|age={{edad2|12|11|2005|27|9|2025}}|caps=|goals=|club=[[Randers FC|Randers]]|clubnat=DEN}}
+{{nat fs g player|no=12|pos=POR|name=[[Alexander Robinson (futbolista)|Alexander Robinson]]|age={{edad2|9|3|2005|27|9|2025}}|caps=|goals=|club=[[Macarthur FC]]|clubnat=AUS}}
+{{nat fs g player|no=13|pos=DEF|name=[[Lucas Herrington]]|age={{edad2|6|3|2007|27|9|2025}}|caps=|goals=|club=[[Brisbane Roar FC|Brisbane Roar]]|clubnat=AUS}}
+{{nat fs g player|no=14|pos=DEL|name=[[Tiago Quintal]]|age={{edad2|16|6|2006|27|9|2025}}|caps=|goals=|club=[[Sydney FC]]|clubnat=AUS}}
+{{nat fs g player|no=15|pos=MED|name=[[Jaylan Pearman]]|age={{edad2|18|4|2006|27|9|2025}}|caps=|goals=|club=[[Queens Park Rangers F.C.|Queens Park Rangers]]|clubnat=ENG}}
+{{nat fs g player|no=16|pos=DEF|name=[[Joshua Inserra]]|age={{edad2|21|1|2005|27|9|2025}}|caps=|goals=|club=[[Melbourne Victory FC|Melbourne Victory]]|clubnat=AUS}}
+{{nat fs g player|no=17|pos=DEF|name=[[Liam Bonetig]]|age={{edad2|20|8|2005|27|9|2025}}|caps=|goals=|club=[[Melbourne City FC|Melbourne City]]|clubnat=AUS}}
+{{nat fs g player|no=18|pos=POR|name=[[Daniel Graskoski]]|age={{edad2|28|1|2007|27|9|2025}}|caps=|goals=|club=[[Melbourne Victory FC|Melbourne Victory]]|clubnat=AUS}}
+{{nat fs g player|no=19|pos=DEL|name=[[Max Caputo]]|age={{edad2|17|8|2005|27|9|2025}}|caps=|goals=|club=[[Melbourne City FC|Melbourne City]]|clubnat=AUS}}
+{{nat fs g player|no=20|pos=MED|name=[[Louis Agosti]]|age={{edad2|2|3|2005|27|9|2025}}|caps=|goals=|club=[[Dolomiti Bellunesi (football club)|Dolomiti Bellunesi]]|clubnat=ITA}}
+{{nat fs g player|no=21|pos=DEF|name=[[James Overy]]|age={{edad2|9|11|2007|27|9|2025}}|caps=|goals=|club=[[Manchester United F.C.|Manchester United]]|clubnat=ENG}}
+{{nat fs end}}
+
+=== Cuba ===
+Entrenador: {{Bandera|CUB}} [[Pedro Pablo Pereira]]
+
+La plantilla definitiva de 21 jugadores se anunció el 22 de septiembre de 2025.<ref>{{Cita web|url=https://www.instagram.com/p/DO6eKXaDbWc/|título="¡Ya está! Convocatoria OFICIAL de Cuba para el Mundial Sub-20 de Chile 2025"|fechaacceso=2025-10-05|fecha=2025-9-22|sitioweb=GolCuba Instagram}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Yorlan Urgelles]]|age={{edad2|23|2|2005|27|9|2025}}|caps=|goals=|club=[[FC Guantánamo|Guantánamo]]|clubnat=CUB}}
+{{nat fs g player|no=2|pos=DEF|name=[[Elvis Casanova]]|age={{edad2|17|9|2005|27|9|2025}}|caps=|goals=|club=[[Fútbol Consultants|Consultants]]|clubnat=CRC}}
+{{nat fs g player|no=3|pos=DEF|name=[[Ricardo Polo]]|age={{edad2|14|5|2005|27|9|2025}}|caps=|goals=|club=[[Masica FC|Masica]]|clubnat=HON}}
+{{nat fs g player|no=4|pos=DEF|name=[[Camilo Pinillo]]|age={{edad2|21|2|2005|27|9|2025}}|caps=|goals=|club=[[Lierse S.K. (2018)|Lierse]]|clubnat=BEL}}
+{{nat fs g player|no=5|pos=DEF|name=[[Karel Perez]] {{cap}}|age={{edad2|25|8|2005|27|9|2025}}|caps=|goals=|club=[[SC Vianense|Vianense]]|clubnat=POR}}
+{{nat fs g player|no=6|pos=MED|name=[[Diego Catasus]]|age={{edad2|3|4|2005|27|9|2025}}|caps=|goals=|club=[[Latina Calcio 1932|Latina]]|clubnat=ITA}}
+{{nat fs g player|no=7|pos=DEL|name=[[Jade Quiñones]]|age={{edad2|23|9|2007|27|9|2025}}|caps=|goals=|club=[[FC La Habana|La Habana]]|clubnat=CUB}}
+{{nat fs g player|no=8|pos=DEF|name=[[Leandro Mena]]|age={{edad2|3|2|2005|27|9|2025}}|caps=|goals=|club=[[Belén F.C.|Escorpiones]]|clubnat=CRC}}
+{{nat fs g player|no=9|pos=DEL|name=[[Alessio Raballo]]|age={{edad2|9|9|2005|27|9|2025}}|caps=|goals=|club=[[US Cremonese|Cremonese U21]]|clubnat=ITA}}
+{{nat fs g player|no=10|pos=MED|name=[[Michael Camejo]]|age={{edad2|17|3|2005|27|9|2025}}|caps=|goals=|club=[[FC La Habana|La Habana]]|clubnat=CUB}}
+{{nat fs g player|no=11|pos=MED|name=[[Romario Torres]]|age={{edad2|9|2|2005|27|9|2025}}|caps=|goals=|club=[[A.D.R. Jicaral|Jicaral]]|clubnat=CRC}}
+{{nat fs g player|no=12|pos=POR|name=[[Yurdy Hodelín]]|age={{edad2|23|9|2005|27|9|2025}}|caps=|goals=|club=[[Fútbol Consultants|Consultants]]|clubnat=CRC}}
+{{nat fs g player|no=13|pos=MED|name=[[Didier Reinoso]]|age={{edad2|31|3|2007|27|9|2025}}|caps=|goals=|club=[[FC La Habana|La Habana]]|clubnat=CUB}}
+{{nat fs g player|no=14|pos=MED|name=[[Maikol Vega]]|age={{edad2|12|9|2006|27|9|2025}}|caps=|goals=|club=[[A.D. San Carlos|San Carlos]]|clubnat=CRC}}
+{{nat fs g player|no=15|pos=MED|name=[[Marcos Campos]]|age={{edad2|15|11|2005|27|9|2025}}|caps=|goals=|club=[[Fútbol Consultants|Consultants]]|clubnat=CRC}}
+{{nat fs g player|no=16|pos=DEF|name=[[Norlys Chavez]]|age={{edad2|28|6|2005|27|9|2025}}|caps=|goals=|club=[[AD Rosario|AD Rosario]]|clubnat=CRC}}
+{{nat fs g player|no=17|pos=DEL|name=[[Aniel Casanova]]|age={{edad2|17|9|2005|27|9|2025}}|caps=|goals=|club=[[Villa Clara (club de fútbol)|Villa Clara]]|clubnat=CUB}}
+{{nat fs g player|no=18|pos=DEL|name=[[Yordan Castañer]]|age={{edad2|23|2|2005|27|9|2025}}|caps=|goals=|club=[[Masica FC|Masica]]|clubnat=HON}}
+{{nat fs g player|no=19|pos=DEL|name=[[Emmanuel Torres]]|age={{edad2|10|2|2005|27|9|2025}}|caps=|goals=|club=[[FC Santiago de Cuba|Santiago de Cuba]]|clubnat=CUB}}
+{{nat fs g player|no=20|pos=MED|name=[[Samuel Rodríguez (futbolista)|Samuel Rodríguez]]|age={{edad2|25|1|2005|27|9|2025}}|caps=|goals=|club=[[Masica FC|Masica]]|clubnat=HON}}
+{{nat fs g player|no=21|pos=POR|name=[[Yurixander Zayas]]|age={{edad2|3|3|2007|27|9|2025}}|caps=|goals=|club=[[FC Ciego de Ávila|Ciego de Ávila]]|clubnat=CUB}}
+{{nat fs end}}
+
+=== Italia ===
+Entrenador: {{Bandera|ITA}} [[Carmine Nunziata]]
+
+La plantilla definitiva de 21 jugadores se anunció el 18 de septiembre de 2025.<ref>{{Cita web|url=https://beta.figc.it/en/national-teams/news/under-20-world-cup-team-selection-lhqfsuvn|título=Under 20 World Cup team selection|fechaacceso=2025-10-05|fecha=2025-9-18|sitioweb=beta.figc|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Alessandro Nunziante]]|age={{edad2|14|3|2007|27|9|2025}}|caps=|goals=|club=[[Udinese Calcio|Udinese]]|clubnat=ITA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Javison Idele]]|age={{edad2|23|1|2007|27|9|2025}}|caps=|goals=|club=[[Atalanta BC|Atalanta]]|clubnat=ITA}}
+{{nat fs g player|no=3|pos=DEF|name=[[Cristian Cama]]|age={{edad2|5|6|2007|27|9|2025}}|caps=|goals=|club=[[AS Roma|Roma]]|clubnat=ITA}}
+{{nat fs g player|no=4|pos=DEF|name=[[Christian Corradi]]|age={{edad2|21|2|2005|27|9|2025}}|caps=|goals=|club=[[AC Trento 1921|Trento]]|clubnat=ITA}}
+{{nat fs g player|no=5|pos=DEF|name=[[Andrea Natali]]|age={{edad2|28|1|2008|27|9|2025}}|caps=|goals=|club=[[AZ Alkmaar|AZ]]|clubnat=NED}}
+{{nat fs g player|no=6|pos=DEF|name=[[Wisdom Amey]]|age={{edad2|11|8|2005|27|9|2025}}|caps=|goals=|club=[[US Pianese|Pianese]]|clubnat=ITA}}
+{{nat fs g player|no=7|pos=MED|name=[[Jacopo Sardo]]|age={{edad2|8|3|2005|27|9|2025}}|caps=|goals=|club=[[AC Monza|Monza]]|clubnat=ITA}}
+{{nat fs g player|no=8|pos=MED|name=[[Mattia Mannini]] {{cap}}|age={{edad2|8|7|2006|27|9|2025}}|caps=|goals=|club=[[SS Juve Stabia|Juve Stabia]]|clubnat=ITA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Ismaël Konaté]]|age={{edad2|29|3|2006|27|9|2006}}|caps=|goals=|club=[[Empoli FC|Empoli]]|clubnat=ITA}}
+{{nat fs g player|no=10|pos=DEL|name=[[Marco Romano (futbolista)|Marco Romano]]|age={{edad2|1|3|2006|27|9|2025}}|caps=|goals=|club=[[Genoa CFC|Genoa]]|clubnat=ITA}}
+{{nat fs g player|no=11|pos=DEL|name=[[Mattia Mosconi]]|age={{edad2|2026|3|2007|27|9|2025}}|caps=|goals=|club=[[Inter Milan]]|clubnat=ITA}}
+{{nat fs g player|no=12|pos=POR|name=[[Jacopo Seghetti]]|age={{edad2|17|2|2005|27|9|2025}}|caps=|goals=|club=[[US Livorno 1915|Livorno]]|clubnat=ITA}}
+{{nat fs g player|no=13|pos=DEF|name=[[Emanuel Benjamín]]|age={{edad2|14|7|2007|27|9|2025}}|caps=|goals=|club=[[Real Madrid CF|Real Madrid]]|clubnat=ESP}}
+{{nat fs g player|no=14|pos=MED|name=[[Emanuele Sala]]|age={{edad2|28|11|2007|27|9|2025}}|caps=|goals=|club=[[AC Milan]]|clubnat=ITA}}
+{{nat fs g player|no=15|pos=DEF|name=[[Francesco Verde]]|age={{edad2|21|2|2007|27|9|2025}}|caps=|goals=|club=[[Juventus FC|Juventus]]|clubnat=ITA}}
+{{nat fs g player|no=16|pos=MED|name=[[Alessandro Berretta]]|age={{edad2|1|7|2006|27|9|2025}}|caps=|goals=|club=[[AS Giana Erminio|Giana Erminio]]|clubnat=ITA}}
+{{nat fs g player|no=17|pos=DEL|name=[[Jamal Iddrissou]]|age={{edad2|22|9|2007|27|9|2025}}|caps=|goals=|club=[[Inter Milan]]|clubnat=ITA}}
+{{nat fs g player|no=18|pos=POR|name=[[Lapo Siviero]]|age={{edad2|23|11|2006|27|9|2025}}|caps=|goals=|club=[[Torino FC|Torino]]|clubnat=ITA}}
+{{nat fs g player|no=19|pos=DEL|name=[[Alvin Okoro]]|age={{edad2|26|3|2005|27|9|2025}}|caps=|goals=|club=[[Juventus FC|Juventus]]|clubnat=ITA}}
+{{nat fs g player|no=20|pos=DEL|name=[[Mattia Liberali]]|age={{edad2|6|4|2007|27|9|2025}}|caps=|goals=|club=[[US Catanzaro 1929|Catanzaro]]|clubnat=ITA}}
+{{nat fs g player|no=21|pos=MED|name=[[Lorenzo Riccio]]|age={{edad2|25|7|2006|27|9|2025}}|caps=|goals=|club=[[Atalanta BC|Atalanta]]|clubnat=ITA}}
+{{nat fs end}}
+
+== Grupo E ==
+=== Estados Unidos ===
+Entrenador: {{Bandera|SRB}} [[Marko Mitrović (entrenador)|Marko Mitrović]]
+
+La plantilla definitiva de 21 jugadores se anunció el 19 de septiembre de 2025.<ref>{{Cita web|url=https://www.ussoccer.com/stories/2025/09/us-under-20-mens-national-team-marko-mitrovic-roster-fifa-u-20-world-cup-chile|título=U.S. Under-20 Men’s National Team Head Coach Marko Mitrović Names U.S. Roster for 2025 FIFA Under-20 World Cup in Chile|fechaacceso=2025-10-05|fecha=2025-9-19|sitioweb=ussoccer|idioma=en}}</ref> El 27 de septiembre, [[Diego Kochen]] se retiró debido a que fue convocado por su club, el [[Fútbol Club Barcelona|Barcelona]], y fue reemplazado por [[Gavin Beavers]]. <ref>{{Cita web|url=https://www.ussoccer.com/stories/2025/09/gavin-beavers-replaces-diego-kochen-us-roster-2025-fifa-u-20-world-cup|título=Gavin Beavers Replaces Diego Kochen on U.S. Roster for 2025 FIFA U-20 World Cup|fechaacceso=2025-10-05|fecha=2025-9-27|sitioweb=ussoccer|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Gavin Beavers]]|age={{edad2|29|4|2005|27|9|2025}}|caps=2|goals=0|club=[[Brøndby IF|Brøndby]]|clubnat=DEN}}
+{{nat fs g player|no=2|pos=DEF|name=[[Reed Baker-Whiting]]|age={{edad2|31|3|2005|27|9|2025}}|caps=7|goals=0|club=[[Seattle Sounders FC|Seattle Sounders]]|clubnat=USA}}
+{{nat fs g player|no=3|pos=DEF|name=[[Nolan Norris]]|age={{edad2|17|2|2005|27|9|2025}}|caps=16|goals=0|club=[[FC Dallas]]|clubnat=USA}}
+{{nat fs g player|no=4|pos=DEF|name=[[Joshua Wynder]]|age={{edad2|2|5|2005|27|9|2025}}|caps=11|goals=1|club=[[S.L. Benfica|Benfica]]|clubnat=POR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Noah Cobb]]|age={{edad2|20|7|2005|27|9|2025}}|caps=13|goals=0|club=[[Colorado Rapids]]|clubnat=USA}}
+{{nat fs g player|no=6|pos=MED|name=[[Brooklyn Raines]]|age={{edad2|11|3|2005|27|9|2025}}|caps=15|goals=1|club=[[Houston Dynamo FC|Houston Dynamo]]|clubnat=USA}}
+{{nat fs g player|no=7|pos=DEL|name=[[Cole Campbell]]|age={{edad2|20|2|2006|27|9|2025}}|caps=3|goals=0|club=[[Borussia Dortmund]]|clubnat=GER}}
+{{nat fs g player|no=8|pos=MED|name=[[Benjamin Cremaschi]] {{cap}}|age={{edad2|2|3|2005|27|9|2025}}|caps=9|goals=2|club=[[Parma Calcio 1913|Parma]]|clubnat=ITA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Marcos Zambrano]]|age={{edad2|20|1|2005|27|9|2025}}|caps=13|goals=6|club=[[Real Salt Lake]]|clubnat=USA}}
+{{nat fs g player|no=10|pos=MED|name=[[Niko Tsakiris]]|age={{edad2|19|6|2005|27|9|2025}}|caps=23|goals=8|club=[[San Jose Earthquakes]]|clubnat=USA}}
+{{nat fs g player|no=11|pos=DEL|name=[[Luke Brennan]]|age={{edad2|24|2|2005|27|9|2025}}|caps=10|goals=2|club=[[Atlanta United FC|Atlanta United]]|clubnat=USA}}
+{{nat fs g player|no=12|pos=POR|name=[[Adam Beaudry]]|age={{edad2|18|4|2005|27|9|2025}}|caps=7|goals=0|club=[[Colorado Rapids]]|clubnat=USA}}
+{{nat fs g player|no=13|pos=DEL|name=[[Peyton Miller]]|age={{edad2|8|11|2007|27|9|2025}}|caps=6|goals=1|club=[[New England Revolution]]|clubnat=USA}}
+{{nat fs g player|no=14|pos=MED|name=[[Taha Habroune]]|age={{edad2|5|2|2005|27|9|2025}}|caps=14|goals=2|club=[[Columbus Crew]]|clubnat=USA}}
+{{nat fs g player|no=15|pos=MED|name=[[Pedro Soma]]|age={{edad2|30|6|2006|27|9|2025}}|caps=15|goals=2|club=[[San Diego FC]]|clubnat=USA}}
+{{nat fs g player|no=16|pos=DEF|name=[[Ethan Kohler]]|age={{edad2|20|5|2005|27|9|2025}}|caps=12|goals=1|club=[[SC Verl]]|clubnat=GER}}
+{{nat fs g player|no=17|pos=DEF|name=[[Francis Westfield]]|age={{edad2|9|12|2005|27|9|2025}}|caps=7|goals=0|club=[[Philadelphia Union]]|clubnat=USA}}
+{{nat fs g player|no=18|pos=DEF|name=[[Luca Bombino]]|age={{edad2|10|7|2006|27|9|2025}}|caps=9|goals=0|club=[[San Diego FC]]|clubnat=USA}}
+{{nat fs g player|no=19|pos=MED|name=[[Matthew Corcoran]]|age={{edad2|17|2|2006|27|9|2025}}|caps=5|goals=1|club=[[Nashville SC]]|clubnat=USA}}
+{{nat fs g player|no=20|pos=DEL|name=[[Zavier Gozo]]|age={{edad2|22|3|2007|27|9|2025}}|caps=11|goals=2|club=[[Real Salt Lake]]|clubnat=USA}}
+{{nat fs g player|no=21|pos=POR|name=[[Duran Ferree]]|age={{edad2|28|9|2006|27|9|2025}}|caps=1|goals=0|club=[[San Diego FC]]|clubnat=USA}}
+{{nat fs end}}
+
+=== Francia ===
+Entrenador: {{Bandera|FRA}} [[Bernard Diomède]]
+
+La plantilla definitiva de 21 jugadores se anunció el 19 de septiembre de 2025.<ref>{{Cita web|url=https://www.fff.fr/article/15315-la-liste-pour-la-coupe-du-monde.html|título=La liste pour la Coupe du monde|fechaacceso=2025-10-05|fecha=2025-9-19|sitioweb=fff.fr|idioma=fr}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Lisandru Olmeta]]|age={{edad2|21|7|2005|27|9|2025}}|caps=|goals=|club=[[SC Bastia|Bastia]]|clubnat=FRA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Gady Beyuku]]|age={{edad2|23|11|2005|27|9|2025}}|caps=|goals=|club=[[Modena FC 2018|Modena]]|clubnat=ITA}}
+{{nat fs g player|no=3|pos=DEF|name=[[Justin Bourgault]]|age={{edad2|14|9|2005|27|9|2025}}|caps=|goals=|club=[[Stade Brestois 29|Brest]]|clubnat=FRA}}
+{{nat fs g player|no=4|pos=DEF|name=[[Steven Baseya]] {{cap}}|age={{edad2|14|1|2005|27|9|2025}}|caps=|goals=|club=[[F.C. Alverca|Alverca]]|clubnat=POR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Elyaz Zidane]]|age={{edad2|26|12|2005|27|9|2025}}|caps=|goals=|club=[[Real Betis]]|clubnat=ESP}}
+{{nat fs g player|no=6|pos=MED|name=[[Ilan Touré]]|age={{edad2|4|8|2006|27|9|2025}}|caps=|goals=|club=[[AS Monaco FC|Monaco]]|clubnat=FRA}}
+{{nat fs g player|no=7|pos=DEL|name=[[Lucas Michal]]|age={{edad2|22|6|2005|27|9|2025}}|caps=|goals=|club=[[AS Monaco FC|Monaco]]|clubnat=FRA}}
+{{nat fs g player|no=8|pos=MED|name=[[Rabby Nzingoula]]|age={{edad2|25|11|2005|27|9|2025}}|caps=|goals=|club=[[RC Strasbourg Alsace|Strasbourg]]|clubnat=FRA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Saïmon Bouabré]]|age={{edad2|1|6|2006|27|9|2025}}|caps=|goals=|club=[[Association Sportive Monaco Football Club|A. S. Monaco F. C.]]|clubnat=KSA}}
+{{nat fs g player|no=10|pos=MED|name=[[Mayssam Benama]]|age={{edad2|9|3|2005|27|9|2025}}|caps=|goals=|club=[[FC Annecy|Annecy]]|clubnat=FRA}}
+{{nat fs g player|no=11|pos=DEL|name=[[Tadjidine Mmadi]]|age={{edad2|3|3|2007|27|9|2025}}|caps=|goals=|club=[[Olympique de Marseille|Marseille]]|clubnat=FRA}}
+{{nat fs g player|no=12|pos=DEF|name=[[Anthony Bermont]]|age={{edad2|10|2|2005|27|9|2025}}|caps=|goals=|club=[[RC Lens|Lens]]|clubnat=FRA}}
+{{nat fs g player|no=13|pos=DEL|name=[[Moustapha Dabo]]|age={{edad2|20|8|2007|27|8|2025}}|caps=|goals=|club=[[FC Nantes|Nantes]]|clubnat=FRA}}
+{{nat fs g player|no=14|pos=DEF|name=[[Noham Kamara]]|age={{edad2|22|1|2007|27|9|2025}}|caps=|goals=|club=[[Paris Saint-Germain FC|Paris Saint-Germain]]|clubnat=FRA}}
+{{nat fs g player|no=15|pos=DEF|name=[[Bradel Kiwa]]|age={{edad2|5|2|2006|27|9|2025}}|caps=|goals=|club=[[AS Monaco FC|Monaco]]|clubnat=FRA}}
+{{nat fs g player|no=16|pos=POR|name=[[Tao Paradowski]]|age={{edad2|15|1|2005|27|9|2025}}|caps=|goals=|club=[[Pau FC|Pau]]|clubnat=FRA}}
+{{nat fs g player|no=17|pos=MED|name=[[Andréa Le Borgne]]|age={{edad2|27|7|2006|27|9|2025}}|caps=|goals=|club=[[Como 1907|Como]]|clubnat=ITA}}
+{{nat fs g player|no=18|pos=DEL|name=[[Gabin Bernardeau]]|age={{edad2|24|1|2006|27|9|2025}}|caps=|goals=|club=[[OGC Nice|Nice]]|clubnat=FRA}}
+{{nat fs g player|no=19|pos=MED|name=[[Fodé Sylla]]|age={{edad2|16|4|2006|27|9|2025}}|caps=|goals=|club=[[RC Lens|Lens]]|clubnat=FRA}}
+{{nat fs g player|no=20|pos=DEL|name=[[Djylian N'Guessan]]|age={{edad2|30|8|2008|27|9|2025}}|caps=|goals=|club=[[AS Saint-Étienne|Saint-Étienne]]|clubnat=FRA}}
+{{nat fs g player|no=21|pos=POR|name=[[Justin Bengui]]|age={{edad2|9|7|2005|27|9|2025}}|caps=|goals=|club=[[RWDM Brussels|RWDM]]|clubnat=BEL}}
+{{nat fs end}}
+
+=== Nueva Caledonia ===
+Entrenador: {{Bandera|NCL}} [[Pierre Wajoka]]
+
+La plantilla definitiva de 21 jugadores se anunció el 4 de septiembre de 2025.<ref>{{Cita web|url=https://www.fedcalfoot.com/La-LISTE-de-21-MONDIALISTES-est-connue--Coupe-du-Monde-U20-de-la-FIFA_a1804.html|título=La LISTE de 21 MONDIALISTES est connue Coupe du Monde U20 de la FIFA|fechaacceso=2025-10-05|fecha=2025-9-4|sitioweb=fedcalfoot|idioma=fr}}</ref>
+                  
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Noa Bouchet Muller]]|age={{edad2|20|8|2007|27|9|2025}}|caps=|goals=|club=[[Cavigal Nice Football|Cavigal Nice]]|clubnat=FRA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Tamumue Ajapuhnya]]|age={{edad2|12|4|2005|27|9|2025}}|caps=|goals=|club=[[AS Lössi|Lössi]]|clubnat=NCL}}
+{{nat fs g player|no=3|pos=DEF|name=[[Lomani Nahiet]]|age={{edad2|12|3|2005|27|9|2025}}|caps=|goals=|club=[[Hienghène Sport]]|clubnat=NCL}}
+{{nat fs g player|no=4|pos=DEF|name=[[Wadria Hanye]]|age={{edad2|17|12|2006|27|9|2025}}|caps=|goals=|club=[[AS Tiga Sport|Tiga Sport]]|clubnat=NCL}}
+{{nat fs g player|no=5|pos=DEF|name=[[Kandjo Teanyouen]] {{cap}}|age={{edad2|25|6|2005|27|9|2025}}|caps=|goals=|club=[[FC Bélep|Bélep]]|clubnat=NCL}}
+{{nat fs g player|no=6|pos=MED|name=[[Joseph Hnaissilin]]|age={{edad2|19|3|2006|27|9|2025}}|caps=|goals=|club=[[AS Lössi|Lössi]]|clubnat=NCL}}
+{{nat fs g player|no=7|pos=MED|name=[[Kapone Xulue]]|age={{edad2|19|3|2005|7|9|2025}}|caps=|goals=|club=[[AS Mont-Dore|Mont-Dore]]|clubnat=NCL}}
+{{nat fs g player|no=8|pos=MED|name=[[Antony Levy]]|age={{edad2|23|10|2006|27|9|2025}}|caps=|goals=|club=[[FC Bélep|Bélep]]|clubnat=NCL}}
+{{nat fs g player|no=9|pos=DEL|name=[[Louis Brunet]]|age={{edad2|28|4|2005|27|9|2025}}|caps=|goals=|club=''Sin club''}}
+{{nat fs g player|no=10|pos=DEL|name=[[Antoine Simane]]|age={{edad2|12|8|2005|27|9|2025}}|caps=|goals=|club=[[AS Magenta|Magenta]]|clubnat=NCL}}
+{{nat fs g player|no=11|pos=DEL|name=[[Kemejie Wawalahae]]|age={{edad2|16|4|2005|27|9|2025}}|caps=|goals=|club=[[AS Wetr|Wetr]]|clubnat=NCL}}
+{{nat fs g player|no=12|pos=MED|name=[[Jytrhim Upa]]|age={{edad2|2|10|2006|27|9|2025}}|caps=|goals=|club=[[AS Tiga Sport|Tiga Sport]]|clubnat=NCL}}
+{{nat fs g player|no=13|pos=MED|name=[[Damien Ujicas]]|age={{edad2|30|10|2006|27|9|2025}}|caps=|goals=|club=[[AS Magenta|Magenta]]|clubnat=NCL}}
+{{nat fs g player|no=14|pos=DEL|name=[[Nolhann Alebate]]|age={{edad2|10|7|2006|27|9|2025}}|caps=|goals=|club=[[SC Bastia|Bastia]]|clubnat=FRA}}
+{{nat fs g player|no=15|pos=DEF|name=[[Yann Wahaga]]|age={{edad2|9|5|2005|27|9|2025}}|caps=|goals=|club=[[Hienghène Sport]]|clubnat=NCL}}
+{{nat fs g player|no=16|pos=POR|name=[[Gale Wathiepel]]|age={{edad2|6|3|2005|27|9|2025}}|caps=|goals=|club=[[SC Ne Drehu|Ne Drehu]]|clubnat=NCL}}
+{{nat fs g player|no=17|pos=MED|name=[[Patrick Ouka]]|age={{edad2|13|6|2005|27|9|2025}}|caps=|goals=|club=[[ASC Gaïca|Gaïca]]|clubnat=NCL}}
+{{nat fs g player|no=18|pos=MED|name=[[Evans Vakie]]|age={{edad2|5|6|2006|27|9|2025}}|caps=|goals=|club=[[AS Kunié|Kunié]]|clubnat=NCL}}
+{{nat fs g player|no=19|pos=MED|name=[[Yazid Wajoka]]|age={{edad2|14|3|2006|27|9|2025}}|caps=|goals=|club=[[AS Magenta|Magenta]]|clubnat=NCL}}
+{{nat fs g player|no=20|pos=DEF|name=[[Timotei Zeter]]|age={{edad2|12|12|2006|27|9|2025}}|caps=|goals=|club=[[Hienghène Sport]]|clubnat=NCL}}
+{{nat fs g player|no=21|pos=POR|name=[[Emmanuel Wahnapo]]|age={{edad2|23|5|2005|27|9|2025}}|caps=|goals=|club=[[AS Wetr|Wetr]]|clubnat=NCL}}
+{{nat fs end}}
+
+=== Sudáfrica ===
+Entrenador: {{Bandera|RSA}} [[Raymond Mdaka]]
+
+La plantilla definitiva de 21 jugadores se anunció el 18 de septiembre de 2025.<ref>{{Cita web|url=https://www.safa.net/amajita/coach-mdaka-names-squad-to-represent-sa-at-the-u20-fifa-world-cup-in-chile/|título=Coach Mdaka names squad to represent SA at the U20 FIFA World Cup in Chile|fechaacceso=2025-10-05|fecha=2025-9-18|sitioweb=safa.net|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Fletcher Smythe-Lowe]]|age={{edad2|2|2|2007|27|9|2025}}|caps=|goals=|club=[[G.D. Estoril Praia|Estoril]]|clubnat=POR}}
+{{nat fs g player|no=2|pos=DEF|name=[[Sfiso Timba]]|age={{edad2|28|3|2006|27|9|2025}}|caps=|goals=|club=[[Kaizer Chiefs F.C.|Kaizer Chiefs]]|clubnat=RSA}}
+{{nat fs g player|no=3|pos=DEF|name=[[Neo Rapoo]]|age={{edad2|12|8|2005|27|9|2025}}|caps=|goals=|club=[[Siwelele F.C.|Siwelele]]|clubnat=RSA}}
+{{nat fs g player|no=4|pos=MED|name=[[Patrick Autata]]|age={{edad2|5|1|2005|27|9|2025}}|caps=|goals=|club=[[Durban City F.C.|Durban City]]|clubnat=RSA}}
+{{nat fs g player|no=5|pos=DEF|name=[[Asekho Tiwani]] {{cap}}|age={{edad2|10|5|2005|27|9|2025}}|caps=|goals=|club=[[Mamelodi Sundowns F.C.|Mamelodi Sundowns]]|clubnat=RSA}}
+{{nat fs g player|no=6|pos=DEF|name=[[Siviwe Nkwali]]|age={{edad2|15|5|2005|27|9|2025}}|caps=|goals=|club=[[Stellenbosch F.C.|Stellenbosch]]|clubnat=RSA}}
+{{nat fs g player|no=7|pos=DEL|name=[[Shakeel April]]|age={{edad2|1|12|2005|27|9|2025}}|caps=|goals=|club=[[Cape Town City F.C. (2016)|Cape Town City]]|clubnat=RSA}}
+{{nat fs g player|no=8|pos=MED|name=[[Gomolemo Kekana]]|age={{edad2|7|7|2006|27|9|2025}}|caps=|goals=|club=[[Mamelodi Sundowns F.C.|Mamelodi Sundowns]]|clubnat=RSA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Jody Ah Shene]]|age={{edad2|1|2|2005|27|9|2025}}|caps=|goals=|club=[[Cape Town City F.C. (2016)|Cape Town City]]|clubnat=RSA}}
+{{nat fs g player|no=10|pos=MED|name=[[Mfundo Vilakazi]]|age={{edad2|19|11|2005|27|9|2035}}|caps=|goals=|club=[[Kaizer Chiefs F.C.|Kaizer Chiefs]]|clubnat=RSA}}
+{{nat fs g player|no=11|pos=DEL|name=[[Kutlwano Letlhaku]]|age={{edad2|25|3|2006|27|9|2025}}|caps=|goals=|club=[[Mamelodi Sundowns F.C.|Mamelodi Sundowns]]|clubnat=RSA}}
+{{nat fs g player|no=12|pos=DEL|name=[[Thabang Mahlangu]]|age={{edad2|31|7|2005|27|9|2025}}|caps=|goals=|club=[[Siwelele F.C.|Siwelele]]|clubnat=RSA}}
+{{nat fs g player|no=13|pos=DEL|name=[[Luke Baartman]]|age={{edad2|12|6|2006|27|9|2925}}|caps=|goals=|club=[[Kaizer Chiefs F.C.|Kaizer Chiefs]]|clubnat=RSA}}
+{{nat fs g player|no=14|pos=DEF|name=[[Tylon Smith]]|age={{edad2|9|5|2005|27|9|2025}}|caps=|goals=|club=[[Queens Park Rangers F.C.|Queens Park Rangers]]|clubnat=ENG}}
+{{nat fs g player|no=15|pos=MED|name=[[Lazola Maku]]|age={{edad2|10|4|2007|27|9|2025}}|caps=|goals=|club=[[Siwelele F.C.|Siwelele]]|clubnat=RSA}}
+{{nat fs g player|no=16|pos=POR|name=[[Kgoleng Ratisani]]|age={{edad2|29|4|2005|27|9|2025}}|caps=|goals=|club=[[Sekhukhune United F.C.|Sekhukhune United]]|clubnat=RSA}}
+{{nat fs g player|no=17|pos=DEL|name=[[Langelihle Phili]]|age={{edad2|21|1|2005|27|9|2025}}|caps=|goals=|club=[[Stellenbosch F.C.|Stellenbosch]]|clubnat=RSA}}
+{{nat fs g player|no=18|pos=DEL|name=[[Siyabonga Mabena]]|age={{edad2|18|2|2007|27|9|2025}}|caps=|goals=|club=[[Mamelodi Sundowns F.C.|Mamelodi Sundowns]]|clubnat=RSA}}
+{{nat fs g player|no=19|pos=DEF|name=[[Thato Sibiya]]|age={{edad2|23|6|2006|27|9|2025}}|caps=|goals=|club=[[Mamelodi Sundowns F.C.|Mamelodi Sundowns]]|clubnat=RSA}}
+{{nat fs g player|no=20|pos=POR|name=[[Takalani Mazhamba]]|age={{edad2|30|5|2007|27|9|2035}}|caps=|goals=|club=[[Kaizer Chiefs F.C.|Kaizer Chiefs]]|clubnat=RSA}}
+{{nat fs g player|no=21|pos=DEL|name=[[Siviwe Magidigidi]]|age={{edad2|1|7|2005|27|9|2025}}|caps=|goals=|club=[[Siwelele F.C.|Siwelele]]|clubnat=RSA}}
+{{nat fs end}}
+
+== Grupo F ==
+=== Arabia Saudita ===
+Entrenador: {{Bandera|BRA}} [[Marcos Soares (entrenador)|Marcos Soares]]
+
+La plantilla final de 21 jugadores se anunció el 21 de septiembre de 2025.<ref>{{cita web|url=https://www.instagram.com/p/DO3fI8NDYnY/?igsh=MXJkZWR2OHR1Nm9paQ==|title=قائمة المنتخب الوطني "تحت 20 عامًا" للمشاركة في كأس العالم للشباب تشيلي 2025 🦅🇸🇦|fechaacceso=2025-10-06|date=2025-9-21|publisher=saudint Instagram|idioma=árabe}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Hamed Yousef]]|age={{edad2|26|4|2005|27|9|2025}}|caps=|goals=|club=[[Al-Ittihad Club (Jeddah)|Al-Ittihad]]|clubnat=KSA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Saud Al-Tumbukti]]|age={{edad2|28|1|27|27|9|2025}}|caps=|goals=|club=[[Al-Riyadh SC|Al-Riyadh]]|clubnat=KSA}}
+{{nat fs g player|no=3|pos=DEF|name=[[Abdullah Al-Sahli]]|age={{edad2|17|2|2005|27|9|2025}}|caps=|goals=|club=[[Al Batin FC|Al Batin]]|clubnat=KSA}}
+{{nat fs g player|no=4|pos=DEF|name=[[Saud Harun]]|age={{edad2|19|7|2005|27|9|2025}}|caps=|goals=|club=[[Al Hilal SFC|Al Hilal]]|clubnat=KSA}}
+{{nat fs g player|no=5|pos=DEF|name=[[Mohammed Barnawi]] {{cap}}|age={{edad2|7|8|2005|27|9|2025}}|caps=|goals=|club=[[Al-Ittihad Club (Jeddah)|Al-Ittihad]]|clubnat=KSA}}
+{{nat fs g player|no=6|pos=DEF|name=[[Saleh Barnawi]]|age={{edad2|8|2|2007|27|9|2025}}|caps=|goals=|club=[[Al Hilal SFC|Al Hilal]]|clubnat=KSA}}
+{{nat fs g player|no=7|pos=DEL|name=[[Amar Al-Yuhaybi]]|age={{edad2|3|3|2005|27|9|2025}}|caps=|goals=|club=[[Al-Ahli Saudi FC|Al-Ahli]]|clubnat=KSA}}
+{{nat fs g player|no=8|pos=MED|name=[[Rakan Al-Ghamdi]]|age={{edad2|6|9|2005|27|9|2025}}|caps=|goals=|club=[[Al-Nassr FC|Al-Nassr]]|clubnat=KSA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Talal Haji]]|age={{edad2|16|9|2007|27|9|2025}}|caps=|goals=|club=[[Al-Riyadh SC|Al-Riyadh]]|clubnat=KSA}}
+{{nat fs g player|no=10|pos=DEL|name=[[Ziyad Al-Ghamdi]]|age={{edad2|16|2|2005|27|9|2025}}|caps=|goals=|club=[[Al-Ettifaq FC|Al-Ettifaq]]|clubnat=KSA}}
+{{nat fs g player|no=11|pos=DEL|name=[[Saad Haqawi]]|age={{edad2|8|10|2005|27|9|2025}}|caps=|goals=|club=[[Al-Nassr FC|Al-Nassr]]|clubnat=KSA}}
+{{nat fs g player|no=12|pos=DEF|name=[[Nawaf Al-Ghulaimish]]|age={{edad2|2|5|2005|27|9|2025}}|caps=|goals=|club=[[Al Shabab Club|Al Shabab]]|clubnat=KSA}}
+{{nat fs g player|no=13|pos=MED|name=[[Bassam Hazazi]]|age={{edad2|29|3|2004|27|9|2025}}|caps=|goals=|club=[[Al-Nassr FC|Al-Nassr]]|clubnat=KSA}}
+{{nat fs g player|no=14|pos=MED|name=[[Farhah Al-Shamrani]]|age={{edad2|27|2|2006|27|9|2025}}|caps=|goals=|club=[[Al-Riyadh SC|Al-Riyadh]]|clubnat=KSA}}
+{{nat fs g player|no=15|pos=MED|name=[[Eyad Houssa]]|age={{edad2|21|11|2005|27|9|2025}}|caps=|goals=|club=[[Al Qadsiah FC|Al Qadsiah]]|clubnat=KSA}}
+{{nat fs g player|no=16|pos=POR|name=[[Mahmoud Al-Burayh]]|age={{edad2|14|2|2005|27|9|2025}}|caps=|goals=|club=[[Al Fateh SC|Al Fateh]]|clubnat=KSA}}
+{{nat fs g player|no=17|pos=MED|name=[[Abdulmalik Al-Harbi]]|age={{edad2|19|6|2005|27|9|2026}}|caps=|goals=|club=[[Al Taawoun FC|Al Taawoun]]|clubnat=KSA}}
+{{nat fs g player|no=18|pos=DEL|name=[[Ramez Al-Attar]]|age={{edad2|17|1|2006|27|9|2025}}|caps=|goals=|club=[[Al-Ahli Saudi FC|Al-Ahli]]|clubnat=KSA}}
+{{nat fs g player|no=19|pos=DEF|name=[[Awad Aman]]|age={{edad2|16|1|2005|27|9|2025}}|caps=|goals=|club=[[Al-Nassr FC|Al-Nassr]]|clubnat=KSA}}
+{{nat fs g player|no=20|pos=DEL|name=[[Thamer Al-Khaibri]]|age={{edad2|3|12|2005|27|9|2025}}|caps=|goals=|club=[[Neom SC|Neom]]|clubnat=KSA}}
+{{nat fs g player|no=21|pos=POR|name=[[Abdulrahman Al-Ghamdi]]|age={{edad2|13|2|2006|27|9|2025}}|caps=|goals=|club=[[Al Taawoun FC|Al Taawoun]]|clubnat=KSA}}
+{{nat fs end}}
+
+=== Colombia ===
+{{AP|Colombia en la Copa Mundial de Fútbol Sub-20 de 2025}}
+Entrenador: {{Bandera|COL}} [[César Torres Ramírez|César Torres]]
+
+La plantilla definitiva de 21 jugadores se anunció el 22 de septiembre de 2025.<ref>{{Cita web|url=https://fcf.com.co/2025/09/22/convocatoria-de-la-seleccion-colombia-masculina-para-la-copa-mundial-sub20-de-la-fifa-chile-2025/|título=Convocatoria de la Selección Colombia Masculina para la Copa Mundial Sub20 de la FIFA Chile 2025|fechaacceso=2025-09-27|fecha=2025-09-22|sitioweb=Sitio oficial de la [[Federación Colombiana de Fútbol]]}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Jordan García]]|age={{edad2|20|6|2005|27|9|2025}}|caps=|goals=|club=[[Fortaleza CEIF]]|clubnat=COL}}
+{{nat fs g player|no=2|pos=DEF|name=[[Simón García Valero|Simón García]]|age={{edad2|11|1|2005|27|9|2025}}|caps=|goals=|club=[[Atlético Nacional]]|clubnat=COL}}
+{{nat fs g player|no=3|pos=DEF|name=[[Carlos Sarabia]]|age={{edad2|13|6|2005|27|9|2025}}|caps=|goals=|club=[[Millonarios Fútbol Club|Millonarios]]|clubnat=COL}}
+{{nat fs g player|no=4|pos=DEF|name=[[Julián Bazán]]|age={{edad2|25|11|2005|27|9|2025}}|caps=|goals=|club=[[Deportivo Pereira]]|clubnat=COL}}
+{{nat fs g player|no=5|pos=DEF|name=[[Weimar Vivas]]|age={{edad2|17|10|2006|27|9|2025}}|caps=|goals=|club=[[Red Bull Bragantino|RB Bragantino]]|clubnat=BRA}}
+{{nat fs g player|no=6|pos=MED|name=[[Elkin Rivero]]|age={{edad2|27|2|2006|27|9|2025}}|caps=|goals=|club=[[Atlético Nacional]]|clubnat=COL}}
+{{nat fs g player|no=7|pos=MED|name=[[Luis Miguel Landázuri]]|age={{edad2|20|11|2005|27|9|2025}}|caps=|goals=|club=[[Atlético Nacional]]|clubnat=COL}}
+{{nat fs g player|no=8|pos=MED|name=[[Royner Benítez]]|age={{edad2|21|6|2005|27|9|2025}}|caps=|goals=|club=[[Águilas Doradas]]|clubnat=COL}}
+{{nat fs g player|no=9|pos=DEL|name=[[Emilio Aristizábal]]|age={{edad2|5|8|2005|27|9|2025}}|caps=|goals=|club=[[Fortaleza CEIF]]|clubnat=COL}}
+{{nat fs g player|no=10|pos=DEL|name=[[Óscar Perea]]|age={{edad2|27|9|2005|27|9|2025}}|caps=|goals=|club=[[AVS Futebol SAD|AVS]]|clubnat=POR}}
+{{nat fs g player|no=11|pos=DEL|name=[[Jhon Rentería]]|age={{edad2|24|10|2005|27|9|2025}}|caps=|goals=|club=[[Club Atlético Sarmiento (Junín)|Sarmiento]]|clubnat=ARG}}
+{{nat fs g player|no=12|pos=POR|name=[[Alexéi Rojas]]|age={{edad2|28|9|2005|27|9|2025}}|caps=|goals=|club=[[Arsenal Football Club|Arsenal]]|clubnat=ENG}}
+{{nat fs g player|no=13|pos=POR|name=[[Luis Eduardo Mena]]|age={{edad2|9|1|2005|27|9|2025}}|caps=|goals=|club=[[Atlético Huila]]|clubnat=COL}}
+{{nat fs g player|no=14|pos=MED|name=[[Jordan Barrera]]|age={{edad2|11|4|2006|27|9|2025}}|caps=|goals=|club=[[Botafogo de Futebol e Regatas|Botafogo]]|clubnat=BRA}}
+{{nat fs g player|no=15|pos=DEF|name=[[Yéimar Mosquera]]|age={{edad2|6|2|2005|27|9|2025}}|caps=|goals=|club=[[Aston Villa Football Club|Aston Villa]]|clubnat=ENG}}
+{{nat fs g player|no=16|pos=MED|name=[[Joel Romero]]|age={{edad2|9|1|2006|27|9|2025}}|caps=|goals=|club=[[América de Cali]]|clubnat=COL}}
+{{nat fs g player|no=17|pos=DEF|name=[[Juan Arizala]]|age={{edad2|10|10|2005|27|9|2025}}|caps=|goals=|club=[[Deportivo Independiente Medellín|Independiente Medellín]]|clubnat=COL}}
+{{nat fs g player|no=18|pos=MED|name=[[José Cavadia]]|age={{edad2|21|9|2005|27|9|2025}}|caps=|goals=|club=[[América de Cali]]|clubnat=COL}}
+{{nat fs g player|no=19|pos=MED|name=[[Kéner González]] {{cap}}|age={{edad2|5|10|2005|27|9|2025}}|caps=|goals=|club=[[América de Cali]]|clubnat=COL}}
+{{nat fs g player|no=20|pos=DEL|name=[[Joel Canchimbo]]|age={{edad2|12|8|2005|27|9|2025}}|caps=|goals=|club=[[Junior de Barranquilla|Junior]]|clubnat=COL}}
+{{nat fs g player|no=21|pos=DEL|name=[[Néiser Villarreal]]|age={{edad2|24|4|2005|27|9|2025}}|caps=|goals=|club=[[Millonarios Fútbol Club|Millonarios]]|clubnat=COL}}
+{{nat fs end}}
+
+=== Nigeria ===
+Entrenador: {{Bandera|NGA}} [[Aliyu Zubair]]
+
+La plantilla definitiva de 15 jugadores se anunció el 19 de septiembre de 2025.<ref>{{Cita web|url=https://en.africatopsports.com/2025/09/15/flying-eagles-announce-final-21-man-squad-for-2025-fifa-u-20-world-cup/|título=FIFA U20 WORLD CUP Flying Eagles Announce Final 21-Man Squad for 2025 FIFA U-20 World Cup|fechaacceso=2025-10-06|fecha=2025-9-15|sitioweb=África Top Sports|idioma=en}}</ref> El 25, [[Marvelous Freedom]] se retiró del equipo debido a una lesión de rodilla y fue reemplazado por [[Haruna Aliyu]].<ref>{{Cita web|url=https://foot-africa.com/en/news/u20-world-cup-2025-aliyu-replaces-freedom-in-nigerias-squad-893685/|título=U20 World Cup 2025: Aliyu replaces Freedom in Nigeria's squad|fechaacceso=2025-10-06|fecha=2025-9-25|sitioweb=África Top Sports|idioma=en}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Ebenezer Harcourt]]|age={{edad2|21|10|2009|27|9|2025}}|caps=|goals=|club=[[Sporting Lagos F.C.|Sporting Lagos]]|clubnat=NGA}}
+{{nat fs g player|no=2|pos=DEF|name=[[Amos Ochoche]]|age={{edad2|22|3|2006|27|9|2025}}|caps=|goals=|club=[[Stade de Reims|Reims]]|clubnat=FRA}}
+{{nat fs g player|no=3|pos=DEF|name=[[Odinaka Okoro]]|age={{edad2|11|12|2006|27|9|2026}}|caps=|goals=|club=[[Sporting Lagos F.C.|Sporting Lagos]]|clubnat=NGA}}
+{{nat fs g player|no=4|pos=MED|name=[[Daniel Daga]]|age={{edad2|10|1|2007|27|9|2025}}|caps=|goals=|club=[[Molde FK|Molde]]|clubnat=NOR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Ahmed Akinyele]]|age={{edad2|15|6|2005|27|9|2025}}|caps=|goals=|club=[[Remo Stars F.C.|Remo Stars]]|clubnat=NGA}}
+{{nat fs g player|no=6|pos=DEF|name=[[Daniel Bameyi]] {{cap}}|age={{edad2|4|1|2006|27|9|2025}}|caps=|goals=|club=[[ND Primorje|Primorje]]|clubnat=SVN}}
+{{nat fs g player|no=7|pos=DEL|name=[[Sani Suleiman]]|age={{edad2|1|9|2006|27|9|2025}}|caps=|goals=|club=[[AS Trenčín|Trenčín]]|clubnat=SVK}}
+{{nat fs g player|no=8|pos=MED|name=[[Abduljelil Kamaldeen]]|age={{edad2|9|9|2009|27|9|2025}}|caps=|goals=|club=[[Kwara Football Academy]]|clubnat=NGA}}
+{{nat fs g player|no=9|pos=DEL|name=[[Kparobo Arierhi]]|age={{edad2|11|1|2007|27|9|2025}}|caps=|goals=|club=[[Mjøndalen IF Fotball|Mjøndalen]]|clubnat=NOR}}
+{{nat fs g player|no=10|pos=MED|name=[[Israel Ayuma]]|age={{edad2|8|8|2005|27|9|2025}}|caps=|goals=|club=[[NK Istra 1961|Istra 1961]]|clubnat=CRO}}
+{{nat fs g player|no=11|pos=DEL|name=[[Orseer Achihi]]|age={{edad2|19|9|2006|27|9|2025}}|caps=|goals=|club=[[Royal Antwerp F.C.|Royal Antwerp]]|clubnat=BEL}}
+{{nat fs g player|no=12|pos=MED|name=[[Salihu Nasiru]]|age={{edad2|1|10|2006|27|9|2025}}|caps=|goals=|club=[[Qabala İK|Qabala]]|clubnat=AZE}}
+{{nat fs g player|no=13|pos=DEF|name=[[Azuka Alatan]]|age={{edad2|6|4|2005|27|9|2025}}|caps=|goals=|club=[[36 Lion F.C.|36 Lion]]|clubnat=NGA}}
+{{nat fs g player|no=14|pos=MED|name=[[Emmanuel Ekele]]|age={{edad2|7|2|2005|27|9|2025}}|caps=|goals=|club=[[FC Montana|Montana]]|clubnat=BUL}}
+{{nat fs g player|no=15|pos=MED|name=[[Auwal Ibrahim]]|age={{edad2|26|1|2006|27|9|2025}}|caps=|goals=|club=''Sin club''}}
+{{nat fs g player|no=16|pos=POR|name=[[Abubakar Rufai]]|age={{edad2|5|1|2008|27|9|2025|df=y}}|caps=|goals=|club=[[Mavlon F.C.|Mavlon]]|clubnat=NGA}}
+{{nat fs g player|no=17|pos=DEL|name=[[Tahir Maigana]]|age={{edad2|30|6|2006|27|9|2025}}|caps=|goals=|club=[[Wireless F.C.|Wireless]]|clubnat=NGA}}
+{{nat fs g player|no=18|pos=DEL|name=[[Abdullahi Ele]]|age={{edad2|10|10|2007|27|9|2025}}|caps=|goals=|club=[[JMD Sports Academy]]|clubnat=NGA}}
+{{nat fs g player|no=19|pos=DEL|name=[[Charles Agada]]|age={{edad2|3|9|2006|27|9|2025}}|caps=|goals=|club=[[NK Istra 1961|Istra 1961]]|clubnat=CRO}}
+{{nat fs g player|no=20|pos=DEF|name=[[Haruna Aliyu]]|age={{edad2|2|1|2006|27|9|2025}}|caps=|goals=|club=[[Wikki Tourists F.C.|Wikki Tourists]]|clubnat=NGA}}
+{{nat fs g player|no=21|pos=POR|name=[[Clinton Andy]]|age={{edad2|30|11|2005|27|9|2025}}|caps=|goals=|club=[[Bayelsa United F.C.|Bayelsa United]]|clubnat=NGA}}
+{{nat fs end}}
+
+=== Noruega ===
+Entrenador: {{Bandera|NOR}} [[Bjørn Johansen]]
+
+La plantilla definitiva de 9 jugadores se anunció el 19 de septiembre de 2025.<ref>{{Cita web|url=https://www.fotball.no/landslag/norge-menn-20/2025/her-er-u20-landslagets-vm-tropp/|título=U20-landslagets VM-tropp er klar: - Blir et minne for livet|fechaacceso=2025-10-06|fecha=2025-9-9|sitioweb=África Top Sports|idioma=noruego}}</ref>
+
+{{nat fs g start}}
+{{nat fs g player|no=1|pos=POR|name=[[Sander Østraat]]|age={{edad2|2|2|2005|27|9|2025}}|caps=|goals=|club=[[Hamarkameratene|HamKam]]|clubnat=NOR}}
+{{nat fs g player|no=2|pos=DEF|name=[[Luca Høyland]]|age={{edad2|26|6|2006|27|9|2025}}|caps=|goals=|club=[[Skeid Fotball|Skeid]]|clubnat=NOR}}
+{{nat fs g player|no=3|pos=DEF|name=[[Vetle Auklend]]|age={{edad2|22|3|2005|27|9|2025}}|caps=|goals=|club=[[Viking FK|Viking]]|clubnat=NOR}}
+{{nat fs g player|no=4|pos=DEF|name=[[Rasmus Holten]] {{cap}}|age={{edad2|20|2|2005|27|9|2025}}|caps=|goals=|club=[[Sogndal Fotball|Sogndal]]|clubnat=NOR}}
+{{nat fs g player|no=5|pos=DEF|name=[[Håkon Røsten]]|age={{edad2|21|2|2005|27|9|2025}}|caps=|goals=|club=[[Ranheim Fotball|Ranheim]]|clubnat=NOR}}
+{{nat fs g player|no=6|pos=MED|name=[[Kasper Sætherbø]]|age={{edad2|21|1|2005|27|9|2025}}|caps=|goals=|club=[[Mjøndalen IF Fotball|Mjøndalen]]|clubnat=NOR}}
+{{nat fs g player|no=7|pos=MED|name=[[Markus Haaland]]|age={{edad2|8|3|2005|27|9|2025}}|caps=|goals=|club=[[SK Brann|Brann]]|clubnat=NOR}}
+{{nat fs g player|no=8|pos=DEL|name=[[Gustav Nyheim]]|age={{edad2|13|2|2005|27|9|2025}}|caps=|goals=|club=[[Molde FK|Molde]]|clubnat=NOR}}
+{{nat fs g player|no=9|pos=DEL|name=[[Julian Lægreid]]|age={{edad2|8|3|2007|27|9|2025}}|caps=|goals=|club=[[SK Brann|Brann]]|clubnat=NOR}}
+{{nat fs g player|no=10|pos=MED|name=[[Sondre Granaas]]|age={{edad2|30|8|2006|27|9|2025}}|caps=|goals=|club=[[Molde FK|Molde]]|clubnat=NOR}}
+{{nat fs g player|no=11|pos=DEL|name=[[Bork Bang-Kittilsen]]|age={{edad2|22|3|2005|27|9|2025}}|caps=|goals=|club=[[Mjällby AIF|Mjällby]]|clubnat=SWE}}
+{{nat fs g player|no=12|pos=POR|name=[[Magnus Brøndbo]]|age={{edad2|2|3|2005|27|9|2025}}|caps=|goals=|club=[[FK Bodø/Glimt|Bodø/Glimt]]|clubnat=NOR}}
+{{nat fs g player|no=13|pos=DEF|name=[[Mathias Øren]]|age={{edad2|21|4|2006|27|9|2025}}|caps=|goals=|club=[[Åsane Fotball|Åsane]]|clubnat=NOR}}
+{{nat fs g player|no=14|pos=DEF|name=[[Jonathan Norbye]]|age={{edad2|26|3|2007|27|9|2025}}|caps=|goals=|club=[[Arminia Bielefeld]]|clubnat=GER}}
+{{nat fs g player|no=15|pos=MED|name=[[Ola Visted]]|age={{edad2|30|3|2005|27|9|2025}}|caps=|goals=|club=[[IL Hødd|Hødd]]|clubnat=NOR}}
+{{nat fs g player|no=16|pos=MED|name=[[Martin Håheim-Elveseter]]|age={{edad2|29|12|2005|27|9|2025}}|caps=|goals=|club=[[Egersunds IK|Egersund]]|clubnat=NOR}}
+{{nat fs g player|no=17|pos=MED|name=[[Niklas Fuglestad]]|age={{edad2|20|5|2006|27|9|2025}}|caps=|goals=|club=[[Moss FK|Moss]]|clubnat=NOR}}
+{{nat fs g player|no=18|pos=MED|name=[[Tobias Moi]]|age={{edad2|3|3|2006|27|9|2025}}|caps=|goals=|club=[[Åsane Fotball|Åsane]]|clubnat=NOR}}
+{{nat fs g player|no=19|pos=MED|name=[[Lars Remmem]]|age={{edad2|18|2|2006|27|9|2025}}|caps=|goals=|club=[[SK Brann|Brann]]|clubnat=NOR}}
+{{nat fs g player|no=20|pos=DEL|name=[[Magnus Holte]]|age={{edad2|27|3|2005|27|9|2025}}|caps=|goals=|club=[[IL Hødd|Hødd]]|clubnat=NOR}}
+{{nat fs g player|no=21|pos=POR|name=[[Einar Fauskanger]]|age={{edad2|18|7|2008|27|9|2025}}|caps=|goals=|club=[[FK Haugesund|Haugesund]]|clubnat=NOR}}
+{{nat fs end}}
+
+== Referencias ==
+{{listaref|2}}
+
+{{Control de autoridades}}
+[[Categoría:Copa Mundial de Fútbol Sub-20 de 2025]]
+[[Categoría:Equipos participantes en la Copa Mundial de Fútbol Sub-20 de 2025]]
