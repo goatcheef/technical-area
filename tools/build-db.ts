@@ -161,7 +161,20 @@ function merit(p: any, age: number): number {
   const years = m.debut ? START_YEAR - m.debut : Math.max(0, age - 20)
   const total = clamp((Math.log10(Math.max(1500, m.len ?? 1500)) - 3.9) * 7, -4, 6) + Math.min(6, (m.caps ?? 0) * 0.5) + (m.youthcaps ? 1.5 : 0)
     + Math.min(3, (m.foreign ?? 0) * (age >= 27 ? 1 : 0.4)) + (years <= 2 ? -3 : years <= 5 ? 0 : 1.5)
-  return Math.min(9, total)
+  return Math.min(9, total) + present(p, age)
+}
+const SPECIFIC = /lateral|carriler|central|zaguer|l[ií]bero|extremo|puntero|enganche|media ?punta|ofensivo|defensivo|pivote|mediocentro|volante central|contenci|centrodelanter|delantero centro|nueve|ariete|interior/
+/** Presente: partidos jugados en 2026 (tools/fetch_stats.py) frente a lo que juega un titular a esta altura del año. */
+const PSTATS = load('../data/players_stats.json') as Record<string, { upd?: number | null; a26?: number; a25?: number; car?: number; lead?: string | null } | null>
+function present(p: any, age: number): number {
+  const st = PSTATS[p.wiki ?? '']
+  if (!st || st.a26 == null) return 0 // sin tabla de estadísticas: no se sabe
+  const fresh = (st.upd ?? 0) >= 2026
+  const apps = fresh ? st.a26 : (st.a25 ?? 0) * 0.8
+  let f = (Math.min(1, apps / 30) - 0.45) * 8 * (fresh ? 1 : 0.5)
+  if (age <= 20) f = Math.max(f, -1) // a los pibes no se les exige jugar
+  const exp = age >= 22 ? clamp(Math.log10(Math.max(10, st.car ?? 10)) - 2, -1, 0.6) * 2 : 0
+  return f + exp
 }
 
 const clubs: any[] = []
@@ -208,7 +221,11 @@ raw.forEach((c, idx) => {
     const birth: string = birthOf(p)
     const age = ageOn(birth, START)
     const ov = OVERRIDES[`${m[1]}|${p.name}`]
-    const real = ov?.pos ? [ov.pos] : parsePositions(PMETA[p.wiki ?? '']?.ok ? PMETA[p.wiki].pos : undefined).filter(x => (x === 'GK') === (line === 'GK'))
+    // la primera frase del artículo suele ser más precisa que la ficha ("se desempeña como lateral izquierdo")
+    const lead = PSTATS[p.wiki ?? '']?.lead ?? undefined, box = PMETA[p.wiki ?? '']?.ok ? PMETA[p.wiki].pos : undefined
+    const specific = (t?: string) => !!t && SPECIFIC.test(t)
+    const ptxt = specific(lead) ? `${lead} / ${specific(box) ? box : ''}` : box ?? lead
+    const real = ov?.pos ? [ov.pos] : parsePositions(ptxt).filter(x => (x === 'GK') === (line === 'GK'))
     const pos = real[0] ?? PATTERN[line][cnt[line]++ % PATTERN[line].length]
     const positions: Pos[] = real.length ? [...real] : [pos]
     if (pos !== 'GK' && positions.length === 1 && rng.chance(0.55)) positions.push(rng.pick(SECOND[pos]!))
