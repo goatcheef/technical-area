@@ -34,13 +34,29 @@ export function inked(hex: string): [string, string] {
   for (let i = 1; i <= 100; i++) { const d = toward(hex, 0, i / 100), l = toward(hex, 255, i / 100); if (contrast(d, INK_L) >= 4.5) return [d, INK_L]; if (contrast(l, INK_D) >= 4.5) return [l, INK_D] }
   return [hex, ink(hex)]
 }
+/** Matiz (0-360) y saturación (0-1) HSL. */
+export const hueSat = (hex: string): [number, number] => {
+  const [r, g, b] = rgb(hex).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2
+  if (!d) return [0, 0]
+  const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4
+  return [(h * 60 + 360) % 360, d / (1 - Math.abs(2 * l - 1))]
+}
+const hueGap = (a: number, b: number) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d) }
+/** Matices de `--warn` (ámbar #ffb547) y de `--warn` en el modo para daltonismo (amarillo #f3d34a): el color de "decisión". */
+const WARN_HUES = [hueSat('#ffb547')[0], hueSat('#f3d34a')[0]]
+/**
+ * Color de selección y foco (`--sel`): el acento claro, salvo que su matiz quede a menos de 25° del ámbar de las decisiones
+ * (o del amarillo del modo para daltonismo) con saturación alta (≥ 0,35). En ese caso, el texto (#f1f2fa): así "elegido" nunca
+ * se confunde con "para decidir" en los clubes amarillos y naranjas.
+ */
+export const selColor = (hi: string) => { const [h, s] = hueSat(hi); return s >= 0.35 && WARN_HUES.some(w => hueGap(h, w) < 25) ? '#f1f2fa' : hi }
 /** Variables de tema a partir de los colores del club (regla repetida en tools/check-contrast.mjs). */
 export function clubTheme(c: { colors: [string, string] }): Record<string, string> {
   let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'
   if (lum(a) < 95) a = mix(a, lum(a) < 60 ? 0.45 : 0.28)
-  const [acc, k] = inked(a), [r, g, b] = rgb(acc)
+  const [acc, k] = inked(a), [r, g, b] = rgb(acc), hi = blend(acc, '#ffffff', 0.7)
   const soft = (h: string, o: number) => { const [x, y, z] = rgb(h); return `rgba(${x}, ${y}, ${z}, ${o})` }
-  return { '--accent': acc, '--accent-ink': k, '--accent-soft': `rgba(${r}, ${g}, ${b}, .14)`, '--accent-hi': blend(acc, '#ffffff', 0.7), '--accent-2': fit(blend(acc, '#ff6fb5', 0.55), k),
+  return { '--accent': acc, '--accent-ink': k, '--accent-soft': `rgba(${r}, ${g}, ${b}, .14)`, '--accent-hi': hi, '--sel': selColor(hi), '--accent-2': fit(blend(acc, '#ff6fb5', 0.55), k),
     '--c1a': soft(c.colors[0], lum(c.colors[0]) > 200 ? 0.1 : 0.34), '--c2a': soft(c.colors[1], lum(c.colors[1]) > 200 ? 0.08 : 0.26) }
 }
 

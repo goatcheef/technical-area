@@ -23,11 +23,16 @@ const fixed = [
   ['9 warn / panel2', warn, panel2, 4.5], ['10 text / warn10%·panel', text, over(warn, .10, panel), 4.5], ['11 #1d1300 / warn', H('#1d1300'), warn, 4.5], ['11 #1d1300 / warn cvd', H('#1d1300'), warnC, 4.5],
   ['12 text / warn13%·panel2', text, over(warn, .13, panel2), 4.5], ['16 text / panel3', text, panel3, 4.5], ['17 text / #12152b', text, H('#12152b'), 4.5], ['17 dim / #12152b', dim, H('#12152b'), 4.5],
   ['21 text / panel3', text, panel3, 4.5], ['24 text / panel3', text, panel3, 4.5], ['25 danger / panel2', danger, panel2, 4.5], ['25 danger / panel3', danger, panel3, 4.5],
-  ['26 text / bad16%·panel2', text, over(bad, .16, panel2), 4.5], ['28 bad cvd / panel', badC, panel, 4.5], ['30 text / #0d0f22', text, H('#0d0f22'), 4.5], ['32 dim / #11132a', dim, H('#11132a'), 4.5], ['32 text / #11132a', text, H('#11132a'), 4.5],
-  ['39 warn / warn12%·panel', warn, over(warn, .12, panel), 3], ['40 danger / bad16%·panel2', danger, over(bad, .16, panel2), 3], ['40 danger / panel2', danger, panel2, 3], ['41 good / panel', good, panel, 3],
+  ['26 danger / panel2 (Confirmar rechazo sin relleno, sobre la caja de confirmación)', danger, panel2, 4.5], ['26 danger / panel (Rechazar sin relleno, sobre el panel)', danger, panel, 4.5], ['26 danger / #11132a (barra de acciones del celular)', danger, H('#11132a'), 4.5], ['28 bad cvd / panel', badC, panel, 4.5], ['30 text / #0d0f22', text, H('#0d0f22'), 4.5], ['32 dim / #11132a', dim, H('#11132a'), 4.5], ['32 text / #11132a', text, H('#11132a'), 4.5],
+  ['39 warn / warn12%·panel', warn, over(warn, .12, panel), 3], ['40 borde danger / panel2', danger, panel2, 3], ['40 borde danger / #11132a', danger, H('#11132a'), 3], ['41 good / panel', good, panel, 3],
 ]
 let fails = 0
 for (const [k, f, b, need] of fixed) { const v = cr(f, b); if (v < need) fails++; console.log(`${k}: ${v.toFixed(2)} ${v < need ? 'FALLA' : 'ok'}`) }
-const per = { '18 acento62%+blanco / panel [4,5]': [4.5, a => cr(wmix(a, .62), panel)], '33-34 accent-hi / fila elegida [3]': [3, a => cr(wmix(a, .70), over(a, .14, panel))], '35 accent-hi / fila elegida [3]': [3, a => cr(wmix(a, .70), over(a, .14, panel))], '37 accent-hi / #0a0c1b [3]': [3, a => cr(wmix(a, .70), H('#0a0c1b'))] }
+// --sel (selección y foco, fase 5): acento claro, o #f1f2fa si su matiz queda a menos de 25° del ámbar de --warn o del amarillo de .cvd (como clubTheme)
+const hs = c => { const [r, g, b] = c.map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2; if (!d) return [0, 0]; const x = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [(x * 60 + 360) % 360, d / (1 - Math.abs(2 * l - 1))] }
+const gap = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d) }
+const selOf = a => { const hi = wmix(a, .70).map(Math.round), [h, sa] = hs(hi); return sa >= .35 && [hs(warn)[0], hs(warnC)[0]].some(w => gap(h, w) < 25) ? text : hi }
+const per = {
+  '42 --sel / panel [3]': [3, a => cr(selOf(a), panel)], '42 --sel / fila elegida [3]': [3, a => cr(selOf(a), over(a, .14, panel))], '42 --sel / panel2 [3]': [3, a => cr(selOf(a), panel2)], '42 --sel / #11132a [3]': [3, a => cr(selOf(a), H('#11132a'))], '18 acento62%+blanco / panel [4,5]': [4.5, a => cr(wmix(a, .62), panel)], '33-34 accent-hi / fila elegida [3]': [3, a => cr(wmix(a, .70), over(a, .14, panel))], '35 accent-hi / fila elegida [3]': [3, a => cr(wmix(a, .70), over(a, .14, panel))], '37 accent-hi / #0a0c1b [3]': [3, a => cr(wmix(a, .70), H('#0a0c1b'))] }
 for (const [k, [need, fn]] of Object.entries(per)) { const v = clubs.map(c => fn(rgb(accentOf(c)))); const n = v.filter(x => x < need).length; fails += n; console.log(`${k}: mín ${Math.min(...v).toFixed(2)} · máx ${Math.max(...v).toFixed(2)} · fallan ${n}/${v.length}`) }
 console.log('FALLAS', fails)

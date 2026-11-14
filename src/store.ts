@@ -6,7 +6,9 @@ import type { Game } from './engine/types'
 export interface Route { page: string; id?: number; tab?: string; sel?: string }
 export interface Settings { density: 'comfy' | 'compact'; text: number; matchSpeed: number; matchMode: 'full' | 'key'; home?: { id: string; size: number; rows?: number }[]; homeV?: number; matchPanels?: { id: string; slot: 'side' | 'bottom' | 'off' }[]; bigPitch?: boolean
   /** Accesibilidad y ayudas */
-  motion?: 'auto' | 'reduce'; cvd?: boolean; tips?: boolean; tourDone?: boolean; seenTips?: string[] }
+  motion?: 'auto' | 'reduce'; cvd?: boolean; tips?: boolean; tourDone?: boolean; seenTips?: string[]
+  /** Atajos de una sola tecla (Espacio, Mayús + Espacio, 0-9, / y ?); `false` los apaga (AM-03). Sin definir: encendidos. */
+  singleKeys?: boolean }
 export const DEFAULT_SETTINGS: Settings = { density: 'comfy', text: 100, matchSpeed: 1, matchMode: 'full' }
 export function loadSettings(): Settings {
   try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem('ta-settings') ?? '{}') } } catch { return DEFAULT_SETTINGS }

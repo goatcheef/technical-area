@@ -53,6 +53,7 @@
 | Token | Definición | Dónde se declara | Por qué |
 |-------|------------|------------------|---------|
 | `--accent-hi` | Acento al 70 % con blanco: en `clubTheme` es `mix(a, .30)`, que equivale a `color-mix(in srgb, var(--accent) 70%, #fff)` | **Lo devuelve `clubTheme`** (`src/ui/common.tsx`), junto a `--accent` y `--accent-soft`. No va en `:root`: una variable que usa `var(--accent)` se resuelve donde se declara, y en `:root` tomaría el verde por defecto en lugar del color del club (el tema se aplica en línea sobre el contenedor, `App.tsx:177`) | Ya es el color de "activo" del portal (`.nav.sub.on`, `.tabs button.on`, `.qbar`, `.msg-dot`) y está medido: 5,81 a 12,54 sobre `--panel` |
+| `--sel` | Color de **selección y foco** (fase 5): el `--accent-hi`, salvo que su matiz quede a menos de 25° del ámbar de `--warn` (#ffb547, 36°) o del amarillo de `.cvd` (#f3d34a, 49°) con saturación HSL ≥ 0,35; en ese caso, #f1f2fa (`--text`) | **Lo devuelve `clubTheme`** (`selColor`, `src/ui/common.tsx`); `:root` lleva #77e7b6 para pantallas sin tema | En los clubes amarillos y naranjas (Defensa y Justicia, Almirante Brown, Deportivo Madryn, Mitre (SdE), Arsenal, Dock Sud, Juventud Antoniana, Olimpo y Argentino de Merlo) el acento claro era el mismo ámbar que "para decidir". Se usa en la barra de la fila elegida, en todos los anillos de foco del juego, en el punto de sin leer y en la ficha elegida de Tácticas. Medido en `tools/check-contrast.mjs`: ≥ 5,09:1 contra `--panel`, `--panel2`, la fila elegida y #11132a, y a ≥ 39° de los dos ámbares cuando lleva color |
 | `--danger` | #ff8a95 | `:root` del bloque portal | Ya existe como hex suelto en `.btn.danger` y `.mb-rc`; medido 7,25 sobre `--panel`. Darle nombre evita un tercer hex |
 
 **Tintes de advertencia y peligro**: no se declaran como tokens en `:root` por el mismo motivo. `.cvd` cambia `--warn` en un descendiente, y un token de `:root` no se enteraría. Se escriben en la regla que los usa, por ejemplo `color-mix(in srgb, var(--warn) 10%, var(--panel))`, y así siguen al modo para daltonismo.
@@ -219,11 +220,13 @@ Estados de la fila de decisión:
 |--------|-------|------|-------|--------|---------|
 | Pendiente | transparente (`--panel`) | `--warn` | "!" ámbar | 600 `--text` | Plazo |
 | Hover | `--panel2` | `--warn` | igual | igual | igual |
-| Elegida | `--accent-soft` | **`--accent-hi`** (el riel de esa fila pasa a marcar la selección) | igual | igual | igual |
-| Elegida con foco | igual | igual | igual | igual | Contorno de 2 px `--accent-hi` con −2 px de separación (hacia adentro) |
-| Resuelta | transparente; si sigue elegida, `--accent-soft` | `--line` (deja de ser pendiente); `--accent-hi` si está elegida | Círculo neutro (`--panel2`, borde `--line`) con ✓ de 16 px en `--dim` | 500 `--dim` (en `--text` si está elegida) | "✓ Resuelto", 12 px 700 `--dim` |
+| Elegida | `--accent-soft` y **contorno de 1 px `--sel` hacia adentro** | **6 px `--sel`** (el riel de esa fila pasa a marcar la selección y se ensancha) | igual | **700** `--text` | igual |
+| Elegida con foco | igual | igual | igual | igual | Contorno de 2 px `--sel` con −2 px de separación (hacia adentro) |
+| Resuelta | transparente; si sigue elegida, `--accent-soft` | `--line` (deja de ser pendiente); `--sel` si está elegida | Círculo neutro (`--panel2`, borde `--line`) con ✓ de 16 px en `--dim` | 500 `--dim` (en `--text` si está elegida) | "✓ Resuelto", 12 px 700 `--dim` |
 
-Cuando la fila de decisión está elegida pierde el ámbar del riel, pero sigue siendo una decisión: está dentro del bloque, tiene el "!" y el plazo. La selección tiene una sola forma en toda la lista y nunca hay dos barras de color pegadas.
+Cuando la fila de decisión está elegida pierde el ámbar del riel, pero sigue siendo una decisión: está dentro del bloque, tiene el "!" y el plazo. Nunca hay dos barras de color pegadas.
+
+**Fase 5 (AV-13)**: dentro del bloque todas las filas ya tienen riel, así que la elegida no puede distinguirse solo por el color del riel (con deuteranopía o acromatopsia no se veía cuál era). Se distingue también por **forma y peso**: riel de 6 px contra 3 px, contorno de 1 px `--sel` alrededor de la fila y título en 700 contra 600.
 
 **Bloque vacío**: una línea `.ib-block-h.none`, píldora neutra (`--panel2`, sin borde), con ✓ de 16 px en `--dim`, "Nada para decidir." en 700 `--text` y " Podés seguir con Continuar." en 500 `--dim`. No es seleccionable.
 
@@ -247,16 +250,17 @@ Anatomía de `.msg` del Inicio, sin cambios de estructura:
   - "Para decidir": fondo `color-mix(--warn 13 %, --panel2)`, sin borde, texto `--text`.
   - "Ver informe" e "Informe": fondo `--panel2`, borde 1 px `--line`, texto `--dim`.
   - Es solo texto: no es un botón ni una parada de Tab. La acción está en el panel.
-- **Punto de sin leer** `.msg-dot`: 8 px, `--accent-hi`, `aria-label="Sin leer"`. En el alcance "Todo el fútbol" no hay punto: son noticias, no tareas.
+- **Punto de sin leer** `.msg-dot`: 8 px, `--sel`, `aria-label="Sin leer"`. En el alcance "Todo el fútbol" el punto y la negrita quedan **solo para los mensajes propios** (los del DT, que siguen sin leer en cualquier alcance); las noticias ajenas nunca los llevan. Desvío aprobado en la fase 4: "sin leer" es un estado del mensaje, no del alcance, y así la insignia y "Marcar N como leídos" coinciden con lo que se ve.
+- **Celular (≤ 760 px)**: el chip "Para decidir" de la fila queda como un "!" de 16 px en `--warn` dentro de un círculo de 22 px (el texto sigue en el nombre accesible de la fila) y los chips neutros ("Ver informe", "Informe") se ocultan: el título conserva el ancho.
 
 | Estado | Fondo | Barra izquierda | Remitente | Título | Punto |
 |--------|-------|-----------------|-----------|--------|-------|
 | Leído | transparente | — | 600 `--dim` | 500 `--dim` | — |
 | Sin leer | transparente | — | 600 `--dim` | 700 `--text` | ● |
 | Hover (sin elegir) | `--panel2` | — | igual | igual | igual |
-| Elegido, leído | `--accent-soft` | 3 px `--accent-hi` | 600 `--dim` | 500 `--text` | — |
-| Elegido sin leer (selección automática al entrar) | `--accent-soft` | 3 px `--accent-hi` | 600 `--dim` | 700 `--text` | ● (se queda) |
-| Elegido con foco (lista enfocada) | igual | igual | igual | igual | Contorno de 2 px `--accent-hi` con −2 px de separación, radio 6 |
+| Elegido, leído | `--accent-soft` | 3 px `--sel` | 600 `--dim` | 500 `--text` | — |
+| Elegido sin leer (selección automática al entrar) | `--accent-soft` | 3 px `--sel` | 600 `--dim` | 700 `--text` | ● (se queda) |
+| Elegido con foco (lista enfocada) | igual | igual | igual | igual | Contorno de 2 px `--sel` con −2 px de separación, radio 6 |
 | Coincidencia de búsqueda | sin cambio | — | — | El término en `<mark>`: fondo transparente, 800 `--text`, subrayado de 1 px a 2 px de la letra | — |
 
 Con el mouse encima de la fila elegida no cambia nada: el fondo `--accent-soft` se mantiene y no pasa a `--panel2`.
@@ -324,13 +328,13 @@ Lo que no aplica a un tipo de mensaje no se dibuja, sin dejar huecos. Si no hay 
 - Orden: **primario** primero, después los **comunes** y, al final, **peligro** empujado al extremo derecho (`margin-left: auto`). La distancia física entre "Aceptar" y "Rechazar" protege de un clic errado. Cuando la fila se parte en dos líneas, peligro sigue último.
 - Un solo `.btn.primary` por bloque. Su relleno y su tinta salen del arreglo global de la decisión 1; la bandeja no le agrega nada.
 - Común `.btn`: fondo `--panel2`, borde `--line`, 14 px 700 `--text`, 38 px de alto.
-- **Peligro `.btn.danger`**: el mismo fondo que el común, texto `--danger` y borde 1 px `color-mix(var(--danger) 45 %, var(--line))`, para que la forma también sea distinta.
+- **Peligro `.btn.danger`** (decisión del usuario, fase 5): **bordeado y sin relleno**: fondo transparente, texto `--danger` 700 y borde 1 px `color-mix(var(--danger) 55 %, var(--line))`; al pasar el mouse, fondo `color-mix(var(--danger) 10 %, transparent)` y borde `--danger`. Con los clubes rojos (Independiente, River, Estudiantes, Huracán y otros 15) el primario se rellena de rojo: un peligro sin relleno no se confunde con él. Vale para todo el juego (Mercado, Cuerpo técnico, tablas).
 - **Deshabilitado**: opacidad 0,4 (existente) y el motivo escrito en `.ib-help` justo debajo. Ejemplos: "El libro de pases está cerrado: podés pedir más o rechazar." y "Frená el avance para decidir.".
 - **Ayuda `.ib-help`**: 12 px 500 `--dim`, con el nombre del botón en 700 `--text`. Ejemplo: "**Pedir más:** Racing puede mejorar la oferta o retirarse." Va a 8 px de la fila de botones y siempre está visible.
 
 **Confirmación en el lugar (F6) `.ib-confirm`**: el botón que se apretó se reemplaza por una caja de fondo `--panel2`, borde 1 px `--line` y radio 12, con padding 8 px. Adentro van el botón de confirmar y "No" (`.btn`, común). El resto de los botones de la fila sigue a la vista y habilitado.
 - Aceptar → **"Confirmar: vender a Juan Pérez por US$ 2,4 M"** con `.btn.primary`.
-- Rechazar → **"Confirmar rechazo"** con `.btn.danger.strong`: fondo `color-mix(--bad 16 %, --panel2)` (≈ #46304f), borde 1,5 px `--danger` y texto `--text` 700. Se distingue del primario por el borde rojizo, el tinte y la palabra.
+- Rechazar → **"Confirmar rechazo"** con `.btn.danger.strong`: sin relleno, borde 1,5 px `--danger` y texto `--danger` 750 (6,38:1 sobre la caja `--panel2`, 8,10:1 sobre la barra del celular). Se distingue del primario por no tener relleno, el borde y la palabra.
 - La etiqueta de confirmar se ajusta en hasta dos líneas (`white-space: normal`, alineada a la izquierda, ancho máximo 100 %). Nunca lleva elipsis.
 - No hay animación: el cambio es instantáneo (especificación 10).
 
@@ -461,10 +465,12 @@ Transiciones (especificación, sección 10): no se agrega ninguna. Hover de fila
 - **Barra de acciones fija `.ib-actbar`**:
   - `position: fixed`, de borde a borde. En 760 px o menos va en `bottom: calc(62px + env(safe-area-inset-bottom))`, apoyada sobre la navegación inferior; entre 761 y 900 px, en `bottom: 0`.
   - Fondo #11132a, borde superior 1 px `--line2`, sombra hacia arriba y padding 8 px 12 px.
-  - Fila 1: el primario a todo el ancho (44 px como mínimo). Fila 2: los comunes y el peligro en `grid-auto-flow: column`, con columnas iguales, 44 px de alto y 8 px de hueco; peligro último, a la derecha. Si hay más de tres botones, el cuarto pasa al contenido como "Más acciones" (especificación 5.2). Fila 3, si hace falta: `.ib-help` en 12 px.
+  - Fila 1: el primario a todo el ancho (44 px como mínimo). Fila 2: los comunes y el peligro en columnas iguales (`flex: 1 1 0`), 44 px de alto y 8 px de hueco, con el texto que puede partirse en dos líneas; peligro último, a la derecha. Implementado con `display: flex; flex-wrap: wrap` y el primario (o la confirmación) en `flex: 1 0 100%; order: -1`: la grilla anterior no tenía columnas explícitas y ponía todo en una fila. Si hay más de tres botones, los de solo lectura (en la oferta, "Ver la ficha") pasan al contenido como botones comunes de 44 px, debajo de los hechos (`.ib-links`, especificación 5.2). Fila 3, si hace falta: `.ib-help` en 12 px. Las consecuencias de aceptar un trabajo (`.ib-conseq`) van en el contenido, no en la barra.
   - La confirmación F6 ocupa la fila 1 con el botón de confirmar ajustado en dos líneas, y "No" pasa a la fila 2.
   - La nota F7 y "Siguiente pendiente" reemplazan el contenido de la barra hasta que se cambia de mensaje.
-  - Alto: de 60 px (un botón) a unos 132 px (dos filas más la ayuda).
+  - Alto: de 60 px (un botón) a unos 132 px (dos filas más la ayuda); como máximo 45 % del alto de la ventana, con desplazamiento propio.
+  - El alto real se mide (`--ib-bar`, `ResizeObserver` en `Inbox.tsx`) y se usa en el padding inferior del detalle y en el `scroll-padding-bottom` del contenedor que se desplaza, sumando los 62 px de la navegación en el celular: lo que recibe el foco nunca queda debajo de las barras (2.4.11).
+  - **Ventana muy baja** (`max-height: 520px`, por ejemplo 1280 px al 400 %, 320 × 256): la barra deja de ser fija y se desplaza con el contenido, con borde y radio 12.
 
 ---
 

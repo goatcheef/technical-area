@@ -148,14 +148,15 @@ export function HoverCard() {
 // ---------- barra de comandos ----------
 export interface Command { label: string; hint?: string; run: () => void; icon?: ReactNode }
 export function CommandPalette({ pages, actions, onClose }: { pages: [string, string][]; actions: Command[]; onClose: () => void }) {
-  const { g, go, openPlayer, openClub } = useGame()
+  const { g, go, openPlayer, openClub, settings } = useGame()
   const [q, setQ] = useState('')
   const [sel, setSel] = useState(0)
+  const single = settings.singleKeys !== false
   const ql = q.trim().toLowerCase()
   const items: Command[] = []
   const match = (s: string) => !ql || s.toLowerCase().includes(ql)
   for (const a of actions) if (match(a.label)) items.push(a)
-  pages.forEach(([id, l], i) => { if (match(l)) items.push({ label: l, hint: i < 10 ? `Pantalla · tecla ${(i + 1) % 10}` : 'Pantalla', run: () => go(id) }) })
+  pages.forEach(([id, l], i) => { if (match(l)) items.push({ label: l, hint: i < 10 && single ? `Pantalla · tecla ${(i + 1) % 10}` : 'Pantalla', run: () => go(id) }) })
   if (ql.length >= 2) {
     Object.values(g.clubs).filter(c => c.name.toLowerCase().includes(ql) || c.short.toLowerCase().includes(ql)).slice(0, 5).forEach(c => items.push({ label: c.name, hint: `Club · ${DIV_NAME[c.division]}`, run: () => openClub(c.id), icon: <Badge club={c} size={20} /> }))
     Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8).forEach(p => items.push({ label: p.name, hint: `Jugador · ${g.clubs[p.clubId]?.short}`, run: () => openPlayer(p.id), icon: <Face p={p} size={22} /> }))
@@ -183,15 +184,17 @@ export function CommandPalette({ pages, actions, onClose }: { pages: [string, st
 }
 
 // ---------- atajos y ajustes ----------
-export const SHORTCUTS: [string, string][] = [
-  ['Espacio', 'Continuar un día (o jugar, si hay partido)'], ['Mayús + Espacio', 'Ir al partido'], ['Ctrl + K  o  /', 'Barra de comandos: buscar y saltar a cualquier lado'],
-  ['1 a 9, 0', 'Pantallas de la barra lateral, en orden'], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda'],
+/** Atajos: tecla, qué hace y si es de una sola tecla (los que apaga el ajuste "Atajos de una tecla"). Los del partido viven en MatchView y no se apagan. */
+export const SHORTCUTS: [string, string, boolean?][] = [
+  ['Espacio', 'Continuar un día (o jugar, si hay partido)', true], ['Mayús + Espacio', 'Ir al partido', true], ['Ctrl + K', 'Barra de comandos: buscar y saltar a cualquier lado'], ['/', 'Barra de comandos', true],
+  ['1 a 9, 0', 'Pantallas, en orden', true], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda', true],
   ['En el partido: Espacio', 'Pausar o reanudar'], ['En el partido: 1 a 4', 'Velocidad (pausa, normal, rápido, muy rápido)'], ['En el partido: M', 'Partido completo o jugadas clave'],
   ['En el partido: C, T, R', 'Mi equipo (cambios), táctica, rival'], ['En el partido: P', 'Elegir los paneles'], ['En el partido: Esc', 'Cancelar el cambio o la orden en curso'],
 ]
-export function ShortcutsHelp({ onClose }: { onClose: () => void }) {
+export function ShortcutsHelp({ onClose, single = true, onSettings }: { onClose: () => void; single?: boolean; onSettings?: () => void }) {
   return <Modal onClose={onClose}><div className="row between" style={{ marginBottom: 12 }}><h2>Atajos de teclado</h2><button className="btn sm" onClick={onClose}>Cerrar</button></div>
-    <table><tbody>{SHORTCUTS.map(([k, d]) => <tr key={k}><td><span className="kbd">{k}</span></td><td>{d}</td></tr>)}</tbody></table></Modal>
+    <div className="row wrap" style={{ gap: 10, marginBottom: 12 }}><span className="grow sm">Atajos de una tecla: <b>{single ? 'encendidos' : 'apagados'}</b>. {single ? 'Se pueden apagar en Ajustes, en Accesibilidad.' : 'Las teclas marcadas no hacen nada; se encienden en Ajustes.'}</span>{onSettings && <button className="btn sm" onClick={() => { onClose(); onSettings() }}>Ir a Ajustes</button>}</div>
+    <table><tbody>{SHORTCUTS.map(([k, d, one]) => <tr key={k} className={one && !single ? 'kbd-off' : ''}><td><span className="kbd">{k}</span></td><td>{d}{one && <span className="dim">{single ? ' · una tecla' : ' · apagado'}</span>}</td></tr>)}</tbody></table></Modal>
 }
 export function SettingsModal({ s, onChange, onClose, onTour }: { s: Settings; onChange: (s: Settings) => void; onClose: () => void; onTour?: () => void }) {
   return <Modal onClose={onClose}>
@@ -203,6 +206,7 @@ export function SettingsModal({ s, onChange, onClose, onTour }: { s: Settings; o
       <div><h3 style={{ marginBottom: 6 }}>Modo de partido</h3><Seg label="Modo de partido" value={s.matchMode === 'key' ? 1 : 0} options={['Partido completo', 'Jugadas clave']} onChange={v => onChange({ ...s, matchMode: v ? 'key' : 'full' })} /></div>
       <h3 style={{ marginTop: 6 }}>Accesibilidad</h3>
       <div><div className="sm" style={{ marginBottom: 6 }}>Movimiento</div><Seg label="Movimiento" value={s.motion === 'reduce' ? 1 : 0} options={['Según el sistema', 'Reducido']} onChange={v => onChange({ ...s, motion: v ? 'reduce' : 'auto' })} /><div className="dim sm" style={{ marginTop: 4 }}>Reducido quita las transiciones y animaciones de la interfaz.</div></div>
+      <div><div className="sm" style={{ marginBottom: 6 }}>Atajos de una tecla</div><Seg label="Atajos de una tecla" value={s.singleKeys === false ? 1 : 0} options={['Encendidos', 'Apagados']} onChange={v => onChange({ ...s, singleKeys: !v })} /><div className="dim sm" style={{ marginTop: 4 }}>Espacio (Continuar), Mayús + Espacio (Ir al partido), los números, / y ?. Apagados, esas teclas no hacen nada fuera del partido; Ctrl + K, Alt + flechas y Esc siguen andando.</div></div>
       <div><div className="sm" style={{ marginBottom: 6 }}>Colores aptos para daltonismo</div><Seg label="Colores aptos para daltonismo" value={s.cvd ? 1 : 0} options={['No', 'Sí']} onChange={v => onChange({ ...s, cvd: !!v })} /><div className="dim sm" style={{ marginTop: 4 }}>Cambia el verde y el rojo de las escalas (valoración, físico, resultados) por azul y naranja.</div></div>
       <h3 style={{ marginTop: 6 }}>Ayudas</h3>
       <div className="row wrap"><Seg label="Ayudas en cada pantalla" value={s.tips === false ? 1 : 0} options={['Mostrar ayudas en cada pantalla', 'Ocultarlas']} onChange={v => onChange({ ...s, tips: !v, seenTips: v ? s.seenTips : [] })} />

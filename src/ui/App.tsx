@@ -12,7 +12,7 @@ import { DataCenter } from './DataCenter'
 import { Guide } from './Guide'
 import { Sections, SubNav, Tools, type Group } from './TopNav'
 import { Inbox } from './Inbox'
-import { decisionKeys, inboxCount, pendingOf, pendingText } from '../engine/inbox'
+import { decisionKeys, expiringKeys, inboxCount, pendingOf, pendingText } from '../engine/inbox'
 import { Home } from './Home'
 import { Market } from './Market'
 import { MatchView } from './MatchView'
@@ -77,7 +77,7 @@ export function App() {
   const fwd = () => { remember(); setHist(h => ({ ...h, i: Math.min(h.stack.length - 1, h.i + 1) })) }
   const setPage = (p: string) => nav({ page: p })
   const api = useRef<{ key: (e: KeyboardEvent) => void }>({ key: () => {} })
-  useEffect(() => { document.documentElement.style.fontSize = `${(14 * settings.text) / 100}px` }, [settings.text])
+  useEffect(() => { document.documentElement.style.fontSize = `${(14 * settings.text) / 100}px`; document.documentElement.classList.toggle('text-big', settings.text >= 110) }, [settings.text])
   useEffect(() => {
     const r = document.documentElement
     r.classList.toggle('reduce-motion', settings.motion === 'reduce')
@@ -102,6 +102,8 @@ export function App() {
   const [tour, setTour] = useState(false)
   const [busy, setBusy] = useState<null | { done: number; total: number }>(null)
   const stopRef = useRef(false)
+  /** Vencimientos ya avisados en esta sesión (`clave@último día`): "Ir al partido" frena una sola vez por cada uno. */
+  const warned = useRef(new Set<string>())
   const [, refresh] = useReducer((x: number) => x + 1, 0)
   useEffect(() => { loadGame().then(s => setSaved(s && s.version === 6 ? s : null)) }, [])
 
@@ -110,6 +112,8 @@ export function App() {
   const today = userFixtureToday(g), next = nextUserFixture(g)
   const opp = next ? g.clubs[next.home === club.id ? next.away : next.home] : null
   const ctx = { g, route, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => saveGame(g), openPress: () => setPress(true), settings, setSettings }
+  /** Atajos de una tecla encendidos (Ajustes › Accesibilidad). */
+  const single = settings.singleKeys !== false
   // atajos de teclado (ver SHORTCUTS en Nav.tsx)
   api.current.key = (e: KeyboardEvent) => {
     const t = e.target as HTMLElement
@@ -121,16 +125,26 @@ export function App() {
     if (typing || match || post != null || overlay || document.querySelector('.modal')) return
     if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); back(); return }
     if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); fwd(); return }
+    // atajos de una tecla (Espacio, Mayús + Espacio, 0-9, / y ?): se apagan en Ajustes (AM-03, WCAG 2.1.4). Ctrl + K, Alt + flechas y Esc siguen.
+    if (!single) { if (e.key === ' ' && t?.matches?.('[role=option]')) e.preventDefault(); return }
     if (e.key === '/') { e.preventDefault(); setOverlay('palette'); return }
     if (e.key === '?') { setOverlay('help'); return }
     // Espacio es Continuar, salvo sobre un control: ahí hace lo suyo (un botón se aprieta). Las filas de una lista (role=option) sí continúan.
     if (e.key === ' ') { if (!t?.matches?.('[role=option]') && t?.closest?.(CONTROLS)) return; e.preventDefault(); advance(e.shiftKey); return }
     if (busy) return
-    if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) { const i = (Number(e.key) + 9) % 10; if (PAGES[i]) setPage(PAGES[i][0]) }
+    // los números cambian de pantalla, salvo con el foco en una fila de lista
+    if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && !t?.matches?.('[role=option]')) { const i = (Number(e.key) + 9) % 10; if (PAGES[i]) setPage(PAGES[i][0]) }
+  }
+  /** El primer pendiente cuyo último día para responder es hoy y que todavía no se avisó (lo marca como avisado si `take`). */
+  const expiring = (take: boolean) => {
+    const k = expiringKeys(g).find(x => !warned.current.has(`${x}@${g.date}`))
+    if (k && take) warned.current.add(`${k}@${g.date}`)
+    return k
   }
   /**
    * Avanza día por día cediéndole el turno al navegador entre días: la interfaz no se congela, se ve el progreso y se puede frenar.
-   * Hasta el partido se detiene si aparece una decisión nueva (oferta, oferta de trabajo, jugador que quiere irse, conferencia).
+   * Hasta el partido se detiene si aparece una decisión nueva (oferta, oferta de trabajo, jugador que quiere irse, conferencia)
+   * y el día anterior a que venza una oferta o una oferta de trabajo pendiente, aunque no sea nueva (AC-02): una vez por cada una.
    */
   const advance = async (toMatch = false) => {
     if (busy) { stopRef.current = true; return }
@@ -144,13 +158,16 @@ export function App() {
     }
     const total = next ? Math.max(1, Math.round((Date.parse(next.date) - Date.parse(g.date)) / 86400000)) : 7
     const before = decisionKeys(g)
+    // hoy es el último día de algo pendiente: no se avanza, se abre la bandeja con eso elegido
+    const now = expiring(true)
+    if (now) { nav({ page: 'inbox', tab: 'pend', sel: now }); refresh(); return }
     stopRef.current = false
     let r = 'day', done = 0
     setBusy({ done: 0, total })
     for (;;) {
       r = advanceDay(g); done++
       if (r === 'match' || r === 'season' || r === 'press') break
-      if ([...decisionKeys(g)].some(k => !before.has(k))) { r = 'decision'; break }
+      if ([...decisionKeys(g)].some(k => !before.has(k)) || expiring(false)) { r = 'decision'; break }
       if (stopRef.current || done >= 400) break
       setBusy({ done, total }); refresh()
       await new Promise(res => setTimeout(res, 45))
@@ -158,8 +175,10 @@ export function App() {
     setBusy(null)
     saveGame(g)
     if (r === 'press' && g.press) setPress(true)
-    // la bandeja abre con la decisión que frenó el avance (la primera en el orden del bloque si llegaron varias)
-    if (r === 'decision') nav({ page: 'inbox', tab: 'pend', sel: pendingOf(g).find(p => p.k !== 'season' && !before.has(p.key))?.key })
+    // la bandeja abre con la decisión que frenó el avance: primero la que vence mañana; si no, la nueva (la primera en el orden del bloque).
+    // Si el avance terminó en el día del partido o en una conferencia y hoy vence algo, también se abre la bandeja con eso elegido.
+    const exp = r !== 'season' ? expiring(true) : undefined
+    if (r === 'decision' || exp) nav({ page: 'inbox', tab: 'pend', sel: exp ?? pendingOf(g).find(p => p.k !== 'season' && !before.has(p.key))?.key })
     refresh()
   }
   const pend = pendingOf(g), count = inboxCount(g)
@@ -167,7 +186,11 @@ export function App() {
   const found0 = GROUPS.find(gr => gr.pages.some(p => p[0] === page))
   if (found0) lastGroup.current = found0.id
   const group = GROUPS.find(gr => gr.id === lastGroup.current) ?? GROUPS[0]
-  const badge = (id: string): ReactNode => (id === 'inbox' && count > 0 ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}${count > pend.length ? ` y ${count - pend.length} sin leer` : ''}` : `${count} sin leer`}>{count}</span> : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores">{g.offers.length}</span> : null)
+  // insignias: el número se ve; el lector de pantalla oye qué cuenta ("Bandeja, 4 sin leer y 2 para decidir"). Con decisiones, "!" además del color (AV-08).
+  const unread = count - pend.length, inboxSays = [unread ? `${unread} sin leer` : '', pend.length ? `${pend.length} para decidir` : ''].filter(Boolean).join(' y ')
+  const badge = (id: string, inGroup = false): ReactNode => (id === 'inbox' && count > 0
+    ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}${unread ? ` y ${unread} sin leer` : ''}` : `${count} sin leer`}><span aria-hidden="true">{pend.length > 0 && <i className="dot-bang">!</i>}{count}</span><span className="vh">{inGroup ? `, bandeja: ${inboxSays}` : `, ${inboxSays}`}</span></span>
+    : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores"><span aria-hidden="true">{g.offers.length}</span><span className="vh">{`${inGroup ? ', mercado' : ''}, ${g.offers.length} ${g.offers.length === 1 ? 'oferta' : 'ofertas'} por tus jugadores`}</span></span> : null)
   const ql = q.trim().toLowerCase()
   const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8) : []
   const theme = clubTheme(club) as object
@@ -189,7 +212,7 @@ export function App() {
             <aside className="side" aria-label="Navegación">
               <div className="brand">TECHNICAL <i>AREA</i></div>
               <button className="nav more-btn" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <span aria-hidden>✕</span> : <span aria-hidden>☰</span>}{menuOpen ? 'Cerrar' : 'Más'}</button>
-              {PAGES.map(([id, label, icon], i) => <button key={id} data-page={id} aria-current={page === id ? 'page' : undefined} className={`nav ${page === id ? 'on' : ''} ${['home', 'inbox', 'squad', 'tactics'].includes(id) ? 'prim' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'inbox' && badge('inbox')}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
+              {PAGES.map(([id, label, icon], i) => <button key={id} data-page={id} aria-current={page === id ? 'page' : undefined} className={`nav ${page === id ? 'on' : ''} ${['home', 'inbox', 'squad', 'tactics'].includes(id) ? 'prim' : ''}`} title={i < 10 && single ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{badge(id)}</button>)}
               {(g.favs ?? []).length > 0 && <div className="favs"><div className="favs-h">Favoritos</div>{(g.favs ?? []).map(f => {
                 const p = f.k === 'p' ? g.players[f.id] : undefined, c = f.k === 'c' ? g.clubs[f.id] : undefined
                 if (!p && !c) return null
@@ -204,7 +227,7 @@ export function App() {
             <header className="top">
               <div className="row" style={{ gap: 4 }}>
                 <button className="btn sm icon" disabled={hist.i === 0} title="Atrás (Alt + ←)" aria-label="Atrás" onClick={back}>◂</button>
-                <button className="btn sm icon hide-sm" disabled={hist.i >= hist.stack.length - 1} title="Adelante (Alt + →)" aria-label="Adelante" onClick={fwd}>▸</button>
+                <button className="btn sm icon hide-sm hide-md" disabled={hist.i >= hist.stack.length - 1} title="Adelante (Alt + →)" aria-label="Adelante" onClick={fwd}>▸</button>
               </div>
               <button className="crestblock" onClick={() => ctx.openClub(club.id)} title={`Ficha de ${club.name}`}><Badge club={club} size={40} /></button>
               <div className="club-meta hide-lg" style={{ minWidth: 0 }}><div className="ell"><b>{club.name}</b></div><div className="dim ell sm">{fmtDate(g.date)}</div></div>
@@ -221,7 +244,7 @@ export function App() {
               {busy ? (
                 <div className="advancing" role="status">
                   <div className="sm"><b>Avanzando</b> · {fmtDate(g.date)}<div className="adv-bar"><span style={{ width: `${Math.min(100, (busy.done / busy.total) * 100)}%` }} /></div></div>
-                  <button className="btn" title="Frenar (Esc o Espacio)" onClick={() => (stopRef.current = true)}>Frenar</button>
+                  <button className="btn" title={single ? 'Frenar (Esc o Espacio)' : 'Frenar (Esc)'} onClick={() => (stopRef.current = true)}>Frenar</button>
                 </div>
               ) : (<>
                 {!today && !g.seasonOver && <button className="btn" title="Avanza día por día hasta el próximo partido. Se frena si llega algo para decidir." onClick={() => advance(true)} aria-label="Ir al partido"><span className="hide-sm">Ir al partido </span>▸▸</button>}
@@ -242,12 +265,12 @@ export function App() {
         )}
         <HoverCard />
         {overlay === 'palette' && <CommandPalette pages={PAGES.map(([id, l]) => [id, l])} onClose={() => setOverlay(null)} actions={[
-          ...(g.seasonOver ? [] : [{ label: today ? 'Jugar el partido' : 'Continuar un día', hint: 'Espacio', run: () => advance() }]),
-          ...(today || g.seasonOver ? [] : [{ label: 'Ir al partido', hint: 'Mayús + Espacio', run: () => advance(true) }]),
+          ...(g.seasonOver ? [] : [{ label: today ? 'Jugar el partido' : 'Continuar un día', hint: single ? 'Espacio' : undefined, run: () => advance() }]),
+          ...(today || g.seasonOver ? [] : [{ label: 'Ir al partido', hint: single ? 'Mayús + Espacio' : undefined, run: () => advance(true) }]),
           ...(g.press ? [{ label: 'Responder la conferencia de prensa', hint: 'Prensa', run: () => setPress(true) }] : []),
-          { label: 'Ajustes', hint: 'Densidad, texto, partido', run: () => setOverlay('settings') }, { label: 'Atajos de teclado', hint: '?', run: () => setOverlay('help') },
+          { label: 'Ajustes', hint: 'Densidad, texto, partido', run: () => setOverlay('settings') }, { label: 'Atajos de teclado', hint: single ? '?' : undefined, run: () => setOverlay('help') },
         ]} />}
-        {overlay === 'help' && <ShortcutsHelp onClose={() => setOverlay(null)} />}
+        {overlay === 'help' && <ShortcutsHelp single={single} onSettings={() => setOverlay('settings')} onClose={() => setOverlay(null)} />}
         {overlay === 'settings' && <SettingsModal s={settings} onChange={setSettings} onClose={() => setOverlay(null)} onTour={() => { setPage('home'); setTour(true) }} />}
         {tour && !match && post == null && <Guide onDone={() => { setTour(false); setSettings({ ...settings, tourDone: true }) }} />}
         {press && g.press && <PressModal onClose={() => setPress(false)} />}

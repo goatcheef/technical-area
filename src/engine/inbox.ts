@@ -36,6 +36,12 @@ export function pendingText(ps: Pending[]): string {
 }
 /** Las decisiones que frenan el avance hasta el partido cuando aparecen. */
 export const decisionKeys = (g: Game) => new Set(pendingOf(g).filter(p => p.k !== 'season').map(p => p.key))
+/**
+ * Pendientes con plazo para los que hoy es el último día para responder (mañana ya no están): ofertas por jugadores
+ * (`marketTick` las borra al cerrar el día de `offerDeadline`) y ofertas de trabajo (`pendingOf` las deja hasta `until`).
+ * El avance hasta el partido frena acá (AC-02) aunque la decisión no sea nueva.
+ */
+export const expiringKeys = (g: Game): string[] => pendingOf(g).filter(p => (p.k === 'offer' || p.k === 'job') && p.deadline <= g.date).map(p => p.key)
 
 /** Clave del pendiente que resuelve este mensaje, si lo tiene (oferta, trabajo, jugador que quiere irse). */
 export function pendingKeyOf(n: News): string | null {
