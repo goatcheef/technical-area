@@ -1,14 +1,26 @@
 // El plantel como grupo: personalidades, rol de cada jugador, minutos, promesas, charlas,
 // armonía del vestuario, reserva, ojeo con incertidumbre y negociación de contratos.
+import { canSell } from './career'
 import { addDays, news, squadOf, valuation } from './game'
 import { bestRating, ageOn } from './positions'
 import { Rng, clamp } from './rng'
 import { A, type Game, type Personality, type Player, type SquadStatus, type Terms } from './types'
-import { sab } from './week'
+import { addProgress, sab } from './week'
 
 // ---------- personalidad ----------
 const h = (a: number, b: number) => (((a * 2654435761) ^ (b * 40503)) >>> 0) % 1000 / 1000
 const g4 = (pid: number, k: number) => (h(pid, k) + h(pid, k + 7) + h(pid, k + 13) + h(pid, k + 29) - 2) * 1.73 // aprox. normal
+/** Azar fijo de 0 a 1 para un par de números (mezcla mejor que `h`; para sorteos que se repiten por semana o por nivel). */
+export const hash01 = (a: number, b: number) => {
+  let x = Math.imul(a ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul((b + 0x632be59b) | 0, 0xc2b2ae35)
+  x ^= x >>> 16; x = Math.imul(x, 0x7feb352d); x ^= x >>> 15; x = Math.imul(x, 0x846ca68b); x ^= x >>> 16
+  return (x >>> 0) / 4294967296
+}
+/**
+ * Personalidad. Sale del id y de cómo era el jugador al aparecer en la partida, y se guarda en ese momento:
+ * `ensurePersonalities` la fija para todos al empezar la partida y, cada día, para los que se sumaron.
+ * Así sus efectos en los partidos (presión, temperamento) no dependen de qué fichas miró el DT.
+ */
 export function persOf(p: Player): Personality {
   if (p.pers) return p.pers
   const age = Number(p.birth.slice(0, 4))
@@ -20,6 +32,8 @@ export function persOf(p: Player): Personality {
   }
   return p.pers
 }
+/** Fija la personalidad de todos los jugadores que todavía no la tienen (es barato: solo mira los que faltan). */
+export function ensurePersonalities(g: Game) { for (const p of Object.values(g.players)) if (!p.pers) persOf(p) }
 /** Rasgos visibles de la personalidad. */
 export function persLabels(p: Player): string[] {
   const q = persOf(p), out: string[] = []
@@ -54,7 +68,8 @@ export function naturalStatus(g: Game, p: Player): SquadStatus {
   return age <= 21 ? 'young' : 'sub'
 }
 export function initSquad(g: Game, clubId: number) {
-  for (const p of squadOf(g, clubId)) { persOf(p); if (!p.status) p.status = naturalStatus(g, p); p.happy ??= 70; p.recent ??= [] }
+  ensurePersonalities(g)
+  for (const p of squadOf(g, clubId)) { if (!p.status) p.status = naturalStatus(g, p); p.happy ??= 70; p.recent ??= [] }
 }
 const share = (p: Player) => (p.recent?.length ? p.recent.reduce((a, b) => a + b, 0) / (p.recent.length * 90) : 0)
 export const minutesShare = share
@@ -78,15 +93,20 @@ export function afterUserMatch(g: Game, mins: Record<number, number>) {
     if (deficit > 0) p.happy = clamp(p.happy - deficit * 22 * tol * (1 + (q.amb - 10) * 0.05) * (1 - (q.loy - 10) * 0.04), 0, 100)
     else p.happy = clamp(p.happy + 2 + (p.happy < 60 ? 2 : 0), 0, 100)
     if (p.happy < 35) p.morale = clamp(p.morale - 1.5 - (q.temp - 10) * 0.12, 5, 100)
-    if (!p.wantsOut && p.happy < 18 && q.loy < 15 && st.lvl >= 1 && h(p.id, p.recent.length + g.season) < 0.5) {
+    // el azar se sortea de nuevo cada semana (fijo dentro de la semana): no queda decidido para toda la temporada
+    if (!p.wantsOut && p.happy < 18 && q.loy < 15 && st.lvl >= 1 && hash01(p.id, weekNo(g.date)) < 0.5) {
       p.wantsOut = true
       news(g, { tag: 'club', clubId: c.id, pid: p.id, act: 'out', title: `${p.name} quiere irse`, body: `${p.name} está disconforme con los minutos que tiene y le pidió al cuerpo técnico salir del club. Podés responderle desde este mensaje.` })
     }
   }
 }
 
+/** Número de semana (lunes a domingo) de una fecha ISO: sirve de semilla para sorteos semanales. */
+export const weekNo = (d: string) => Math.floor((Date.parse(d) / 86400000 + 3) / 7)
+
 /** Promesas vencidas, ojeo y reserva. Se llama una vez por día. */
 export function dailySquad(g: Game, rng: Rng) {
+  ensurePersonalities(g) // los que se sumaron ayer (juveniles, refuerzos del exterior)
   const c = g.clubs[g.userClubId], sq = squadOf(g, c.id)
   for (const p of sq) {
     const pr = p.promise
@@ -119,10 +139,17 @@ export function dailySquad(g: Game, rng: Rng) {
 }
 export function weeklyReserve(g: Game, rng: Rng) {
   const c = g.clubs[g.userClubId]
-  const res = squadOf(g, c.id).filter(p => p.reserve && !p.injury)
-  if (res.length < 7) return
+  const marked = squadOf(g, c.id).filter(p => p.reserve), res = marked.filter(p => !p.injury)
+  if (res.length < 7) {
+    // si el DT armó la reserva y no alcanza, se le avisa (si no marcó a nadie, no usa la reserva y no hace falta)
+    if (marked.length) {
+      const hurt = marked.length - res.length
+      news(g, { tag: 'partido', clubId: c.id, me: true, title: 'Reserva: no hubo partido', body: `La reserva de ${c.short} no jugó esta semana: hacen falta al menos siete futbolistas del plantel marcados para la reserva y sanos, y había ${res.length}${hurt ? ` (${hurt} ${hurt === 1 ? 'está lesionado' : 'están lesionados'})` : ''}. Podés marcar más desde el Vestuario.` })
+    }
+    return
+  }
   for (const p of res) {
-    p.tx = (p.tx ?? 0) + 0.18 * (ageOn(p.birth, g.date) <= 21 ? 1 : 0.4)
+    addProgress(p, 0.18 * (ageOn(p.birth, g.date) <= 21 ? 1 : 0.4)) // hasta su potencial
     if (p.status === 'young' || p.status === 'sub') p.happy = clamp((p.happy ?? 60) + 3, 0, 100)
     p.cond = Math.max(70, p.cond - 6)
   }
@@ -149,7 +176,15 @@ export type TalkKind = 'praise' | 'demand' | 'promise' | 'patience' | 'status' |
 /** Declara (o quita) transferible a un jugador del plantel. */
 export function setListed(g: Game, pid: number, listed: boolean) { const p = g.players[pid]; if (p?.clubId === g.userClubId) p.listed = listed }
 export function canTalk(g: Game, p: Player) { return !p.lastTalk || g.date >= addDays(p.lastTalk, 7) }
+/** Desde qué día se puede volver a hablar con él. */
+export const nextTalk = (p: Player) => (p.lastTalk ? addDays(p.lastTalk, 7) : '')
+/** Aplica una charla. Una por semana con cada jugador: si ya hablaron, no hace nada y lo dice. */
 export function talk(g: Game, p: Player, kind: TalkKind, newStatus?: SquadStatus): string {
+  if (p.clubId !== g.userClubId) return ''
+  if (!canTalk(g, p)) return 'Ya hablaste con él esta semana. Dale unos días antes de volver a sentarte a charlar.'
+  if (kind === 'status' && (!newStatus || newStatus === p.status)) return ''
+  // un préstamo no es del club: no se lo puede declarar transferible (la charla no se gasta)
+  if (kind === 'free' && !canSell(p)) return 'Está a préstamo: no se lo puede declarar transferible. Vuelve a su club cuando termine el préstamo.'
   const q = persOf(p), form = p.form.length ? p.form.reduce((a, b) => a + b, 0) / p.form.length : 6.5
   p.lastTalk = g.date
   const mh = (d: number) => { p.happy = clamp((p.happy ?? 60) + d, 0, 100) }, mm = (d: number) => { p.morale = clamp(p.morale + d, 5, 100) }
@@ -158,7 +193,7 @@ export function talk(g: Game, p: Player, kind: TalkKind, newStatus?: SquadStatus
       if (form >= 6.9 || p.stats.goals >= 3) { mm(7); return 'Se lo nota agradecido: "Gracias, profe. Voy a seguir así."' }
       mm(-2); return 'Te mira raro: "¿En serio? Sé que no estoy jugando bien."'
     case 'demand':
-      if (p.prof >= 14) { mm(2); p.tx = (p.tx ?? 0) + 0.25; return '"Tiene razón. Voy a meterle más en las prácticas."' }
+      if (p.prof >= 14) { mm(2); addProgress(p, 0.25); return '"Tiene razón. Voy a meterle más en las prácticas."' }
       if (q.temp >= 14) { mm(-8); mh(-6); return 'Se va enojado: "No me parece justo, dejo todo en cada práctica."' }
       mm(-2); return 'Lo escucha sin mucho entusiasmo: "Está bien."'
     case 'promise':
@@ -169,7 +204,7 @@ export function talk(g: Game, p: Player, kind: TalkKind, newStatus?: SquadStatus
       if (q.loy >= 13 || q.amb <= 8) { mh(10); return '"Lo entiendo. Voy a esperar mi oportunidad."' }
       mh(-6); mm(-3); return 'No le convence: "Ya esperé bastante."'
     case 'status': {
-      if (!newStatus || newStatus === p.status) return ''
+      if (!newStatus) return ''
       const up = STATUS[newStatus].lvl - STATUS[p.status ?? 'sub'].lvl
       p.status = newStatus
       if (up > 0) { mh(16); mm(6); p.wantsOut = false; return `Está contento con su nuevo rol: ${STATUS[newStatus].name.toLowerCase()}. Ahora espera jugar en consecuencia.` }
@@ -192,21 +227,45 @@ export function talk(g: Game, p: Player, kind: TalkKind, newStatus?: SquadStatus
 export function knowOf(g: Game, p: Player): number {
   if (p.clubId === g.userClubId) return 100
   if (g.know[p.id] != null) return g.know[p.id]
-  const same = g.clubs[p.clubId]?.division === g.clubs[g.userClubId].division
-  return (same ? 35 : 20) + (p.ca >= 78 ? 25 : p.ca >= 72 ? 10 : 0)
+  const c = g.clubs[p.clubId], same = c?.division === g.clubs[g.userClubId].division
+  // lo que se sabe sin ojear: a los de tu categoría los ves seguido; a los de los clubes grandes y a los más caros
+  // (su valor de mercado es público) los muestra la tele. Nunca mira su nivel real: el ancho del rango lo delataría.
+  const fame = (p.value >= 4e6 ? 15 : p.value >= 1.5e6 ? 8 : 0) + Math.max(0, Math.round(((c?.rep ?? 0) - 72) * 0.6))
+  return (same ? 35 : 20) + Math.min(25, fame)
 }
+/**
+ * Rango de ancho ±w para un valor real v. No está centrado en v: se corre al azar hasta 0,8·w (fijo por jugador,
+ * dato y ancho, así no cambia al volver a mirarlo y se vuelve a sortear cuando se lo conoce mejor). Siempre contiene v.
+ */
+export function rangeAround(pid: number, v: number, w: number, salt: number, lo = 1, hi = 20): [number, number] {
+  if (w <= 0) return [v, v]
+  const s = Math.round((hash01(pid * 131 + salt, w) * 2 - 1) * w * 0.8)
+  return [clamp(v - w + s, lo, hi), clamp(v + w + s, lo, hi)]
+}
+/** Ancho del rango para lo que se conoce de un jugador (0 si se lo conoce del todo). */
+export const knowWidth = (g: Game, p: Player, maxW: number) => Math.round(((100 - knowOf(g, p)) / 100) * maxW)
 /** Rango que se muestra para un valor, según cuánto se conoce al jugador. Siempre contiene el valor real. */
 export function shown(g: Game, p: Player, v: number, maxW: number, salt: number, lo = 1, hi = 20): [number, number] {
-  const w = Math.round(((100 - knowOf(g, p)) / 100) * maxW)
-  if (!w) return [v, v]
-  const s = Math.round((h(p.id, salt) - 0.5) * w)
-  return [clamp(v - w + s, lo, hi), clamp(v + w + s, lo, hi)]
+  return rangeAround(p.id, v, knowWidth(g, p, maxW), salt, lo, hi)
+}
+/** La valoración que conoce el DT (exacta si lo conoce, si no el punto medio del rango): para ordenar y filtrar sin revelar. */
+export function knownRating(g: Game, p: Player): number {
+  const r = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99)
+  return (r[0] + r[1]) / 2
 }
 export const fmtRange = (r: [number, number]) => (r[0] === r[1] ? String(r[0]) : `${r[0]}-${r[1]}`)
 export function scout(g: Game, p: Player) {
   if (p.clubId === g.userClubId || g.scouting.includes(p.id)) return
   g.scouting = [...g.scouting, p.id].slice(-10)
   if (!g.shortlist.includes(p.id)) g.shortlist = [...g.shortlist, p.id]
+}
+/** Agrega o saca a un jugador ajeno de la lista de seguimiento. Devuelve si quedó en seguimiento. */
+export function toggleShortlist(g: Game, pid: number): boolean {
+  const p = g.players[pid]
+  if (g.shortlist.includes(pid)) { g.shortlist = g.shortlist.filter(x => x !== pid); return false }
+  if (!p || p.clubId === g.userClubId) return false
+  g.shortlist = [...g.shortlist, pid]
+  return true
 }
 /** Ver jugar a un rival enseña algo de cada uno de sus titulares. */
 export function learnFromMatch(g: Game, playerIds: number[]) {

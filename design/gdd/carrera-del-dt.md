@@ -65,7 +65,7 @@ Construir una carrera de entrenador en el fútbol argentino: arrancar en un club
 **Prestigio** (`manager.rep`)
 
 1. Inicial: el de la trayectoria.
-2. Balance de la temporada (`game.ts:534`): +4 si cumpliste el objetivo, −2 si no; +8 por título; +6 si ascendiste por la Primera Nacional; −8 si descendiste. Clamp 5–99.
+2. Balance de la temporada (`seasonReview`): +4 si cumpliste el objetivo, −2 si no; +8 por título; +6 si ascendiste (a Primera o desde la tercera); −8 si descendiste. Clamp 5–99.
 3. Aceptar una oferta de trabajo: +2. Tomar un club después de un despido: −6. Clamp 15–99 (`career.ts:90-101`).
 4. Promesa de minutos rota a un jugador: −1 (`squad.ts:102`).
 5. Respuestas de prensa con `rep` (`week.ts:283`, ver `prensa-e-informes`).
@@ -80,13 +80,13 @@ Construir una carrera de entrenador en el fútbol argentino: arrancar en un club
 **Mercado de entrenadores semanal** — `managerMarket`, `career.ts:110-139`, los lunes (`week.ts:311-321`)
 
 1. Primero vencen las ofertas de trabajo con `until < hoy`: si el club seguía con "Cuerpo técnico interino", nombra un DT nuevo (nombre generado) y sale una noticia.
-2. Para cada torneo de liga en fase de liga (`AP`, `CL`, `PN`, `T3`), cada club que no sea el tuyo, que no haya echado DT esta temporada (`firedAt`) y que haya jugado 6 partidos o más echa a su DT si su promedio de puntos está 0,55 o más por debajo de lo esperable y sale un 30 % (ver Formulas). Queda `firedAt = temporada`.
+2. Para cada torneo de liga en fase de liga (`AP`, `CL`, `PN`, `T3`), cada club que no sea el tuyo, que no haya echado DT esta temporada (`firedAt`) y que haya jugado 5 partidos o más echa a su DT con el mismo criterio que la dirigencia del usuario (`boardDemand`, ver `economia-y-dirigencia`): con una racha de derrotas de 5 (clubes exigentes, `boardDemand ≥ 1,3`), 6 o 7 (chicos, `< 0,9`) sale un 70 %; si no, si su promedio de puntos está `0,55 / boardDemand` o más por debajo de lo esperable, un 30 %. Queda `firedAt = temporada`.
 3. Si ese club tiene reputación de al menos la de tu club menos 2, tu prestigio es de al menos su reputación menos 14 y no estás despedido, el club queda con "Cuerpo técnico interino" y **te ofrece el cargo** por 7 días (`until = hoy + 6`, inclusive).
 4. Si no, contrata enseguida a un DT con nombre generado.
 
 **Ofertas de fin de temporada** — `seasonOffers`, `career.ts:141-150`, en `closeSeason` (`game.ts:521`)
 
-1. Solo si la confianza de tu dirigencia es 60 o más. Se mira **antes** del balance de la temporada, que se calcula después (`game.ts:523`).
+1. Solo si la confianza de tu dirigencia es 60 o más. Se mira **después** del balance de la temporada (`seasonReview` corre primero en `closeSeason`).
 2. Candidatos: clubes de las tres categorías argentinas, distintos del tuyo, con reputación mayor que la de tu club más 1 y no mayor que tu prestigio más 6. Se mezclan, se toman 2, y cada uno ofrece con 55 %. Plazo: `until = hoy + 20`.
 3. El club que ofrece conserva a su DT hasta que aceptes.
 
@@ -98,7 +98,8 @@ Construir una carrera de entrenador en el fútbol argentino: arrancar en un club
 4. Se inicializa el vestuario del club nuevo (`initSquad`).
 5. Se borran **todas** las ofertas por jugadores (`g.offers`), **todas** las ofertas de trabajo (`g.jobOffers`) y la conferencia pendiente.
 6. Noticia "{DT}, nuevo DT de {club}".
-7. No se tocan: el cuerpo técnico (queda en el club anterior: en el nuevo todos los puestos rinden como vacantes, ver Edge Cases), el entrenamiento, la delegación, el seguimiento, el ojeo, los favoritos, la táctica y la familiaridad del club nuevo, su caja y su presupuesto.
+7. Cuerpo técnico (`moveStaff`): el ayudante de campo y el preparador físico se van con el DT; el médico, el jefe de scouting y el coordinador de inferiores quedan en el club anterior y el club nuevo completa esos puestos con su gente (calidad según su reputación). Noticia "{nombres} llegan con vos a {club}" o "Llegás solo a {club}".
+8. No se tocan: el entrenamiento, la delegación, el seguimiento, el ojeo, los favoritos, la táctica y la familiaridad del club nuevo, su caja y su presupuesto.
 
 **Rechazar un trabajo**: la interfaz saca la oferta de `g.jobOffers` (`Inbox.tsx:179`, `:197`). No hay función del motor ni noticia.
 
@@ -129,7 +130,7 @@ Construir una carrera de entrenador en el fútbol argentino: arrancar en un club
 | `plantel` | Promesas rotas (prestigio −1) | Moral (`mot`), juveniles (`you`), `initSquad` del club nuevo |
 | `mercado-de-pases` | — | `neg`; se borran las ofertas por jugadores al cambiar de club |
 | `prensa-e-informes` | `PressAnswer.rep` | Se borra la conferencia al cambiar de club |
-| `entrenamiento-y-cuerpo-tecnico` | `sab()` del cuerpo técnico | El cuerpo técnico no te sigue al club nuevo |
+| `entrenamiento-y-cuerpo-tecnico` | `sab()` del cuerpo técnico | El ayudante y el preparador físico te siguen al club nuevo; el resto queda en el club |
 | `comunicacion-y-bandeja` | — | Noticias con `act: 'job'`; pendiente `job` |
 
 ## Formulas
@@ -200,17 +201,17 @@ P(ofertas de fin de temporada con 2+ candidatos): 0 → 20,25 %, 1 → 49,5 %, 2
 
 | Scenario | Expected Behavior (código actual) | Rationale |
 |----------|------------------|-----------|
-| Rechazás una oferta de un club con interino | El club queda con "Cuerpo técnico interino" toda la temporada: el reemplazo solo se hace al vencer la oferta, y la oferta rechazada ya no está en la lista | ⚠️ Defecto. `design/ux/bandeja.md` pide una función `rejectJob` que, entre otras cosas, debería resolver esto |
-| Aceptás una oferta y había otros clubes con interino esperándote | Se borran todas las ofertas y esos clubes quedan con interino | ⚠️ Mismo defecto |
-| Cambiás de club | El cuerpo técnico queda en el club anterior; en el nuevo los cinco puestos rinden como vacantes (`sab` = 4) hasta contratar | ⚠️ Probable defecto. `INTENT UNKNOWN — inferred from implementation, not confirmed` |
-| Despido siendo DT de un club de reputación 77 o más | La lista de clubes puede incluir clubes del exterior (división 0, reputación 73 a 90), que no juegan liga ni llevan economía | ⚠️ Defecto: falta filtrar `division >= 1` |
-| Pantalla de despido | Muestra "Liga Profesional" o "Primera Nacional" aunque el club sea de la tercera categoría o del exterior (`App.tsx:172`) | ⚠️ Texto incorrecto |
+| Rechazás una oferta de un club con interino | `rejectJob` → `dropJob`: el club nombra DT en el acto | ✅ Resuelto (2026-11-14) |
+| Aceptás una oferta y había otros clubes con interino esperándote | `acceptJob` pasa las otras por `dropJob`: cada club nombra DT | ✅ Resuelto (2026-11-14) |
+| Cambiás de club | El ayudante y el preparador físico se van con vos; los puestos del club los cubre el club nuevo (regla 7 de Aceptar un trabajo). La bandeja lo dice antes de aceptar | ✅ Resuelto (2026-11-14) |
+| Despido siendo DT de un club de reputación 77 o más | La lista solo tiene clubes argentinos (`division >= 1`) | ✅ Resuelto (2026-11-14) |
+| Pantalla de despido | Muestra la categoría real con `divName` (Primera B o Federal A en la tercera), igual que Club, la ficha breve, la barra de comandos y la bandeja | ✅ Resuelto (2026-11-14) |
 | Despido sin clubes en la lista | No hay botones: la partida queda trabada | Imposible con la base actual (siempre hay más de 3 clubes de reputación ≤ 52) |
 | Oferta de fin de temporada aceptada | Cambia de club en el acto, con la fecha congelada; la temporada siguiente empieza en el club nuevo. La noticia dice "empezás la próxima temporada en el club" | Coherente en la práctica |
 | Oferta de fin de temporada sin responder | Desaparece al "Comenzar temporada" si su plazo es anterior al 10 de enero (la fecha salta ahí); si la temporada terminó después del 20 de diciembre, sobrevive a la temporada nueva | ⚠️ El plazo real depende del día en que terminó la temporada |
-| Las ofertas de fin de temporada se deciden con la confianza y el prestigio previos al balance | Una temporada que termina mal puede traer ofertas igual, y una que termina bien no las trae si la confianza venía baja | ⚠️ Orden de llamadas en `closeSeason` |
+| Las ofertas de fin de temporada se deciden con la confianza y el prestigio que dejó el balance | `seasonReview` corre antes de `seasonOffers` | ✅ Resuelto (2026-11-14) |
 | Texto del plazo | El pendiente dice "Respondé antes del {until}" pero `until` es el último día válido (inclusive) | ⚠️ Texto ambiguo |
-| No se distingue el tipo de oferta | `jobOffers` guarda solo `{clubId, until}`: la bandeja no puede saber si es de mitad o de fin de temporada | Ver Open Questions |
+| No se distingue el tipo de oferta | `JobOffer.kind` (`mid` / `season`; `jobKind` para las partidas viejas) | ✅ Resuelto (2026-11-14) |
 | Prestigio bajo 15 al cambiar de club | Sube a 15 por el clamp de `switchClub` (en el resto del juego el piso es 5) | ⚠️ Inconsistencia menor |
 | Despedido con conferencia pendiente o ofertas abiertas | `takeJob` las borra | — |
 | Los títulos del club en Club y DT | Se listan todos los títulos del club desde que empezó la partida (`g.honours`), aunque los haya ganado otro DT; el contador usa `m.titles` | ⚠️ Mezcla club y DT |
@@ -265,7 +266,7 @@ Una oferta de trabajo tiene que sentirse como un momento: frena el avance, muest
 
 | Hecho | Noticia (`tag`, `act`, `pid`, `ref`, `me`) | Pendiente (`pendingOf`) | Qué tiene que poder hacer el jugador |
 |-------|-------------------------------------------|------------------------|-------------------------------------|
-| Oferta a mitad de temporada | `directiva`, `act: 'job'`, `ref` = id del club, `clubId` = club que ofrece, `me` (por `act`); "{club} te quiere como DT", "Tenés una semana para responder" (`career.ts:132`) | `job` (key `job{clubId}`, con `until`) mientras `until >= hoy` | Ver el club ofertante comparado con el tuyo (categoría, reputación, presupuesto); el **último día** para responder; que aceptar te cambia de club **ya**, borra las ofertas por tus jugadores, la conferencia y las demás ofertas de trabajo, y que tu cuerpo técnico no te sigue; Aceptar, Rechazar, Ver el club |
+| Oferta a mitad de temporada | `directiva`, `act: 'job'`, `ref` = id del club, `clubId` = club que ofrece, `me` (por `act`); "{club} te quiere como DT", "Tenés una semana para responder" (`career.ts:132`) | `job` (key `job{clubId}`, con `until`) mientras `until >= hoy` | Ver el club ofertante comparado con el tuyo (categoría, reputación, presupuesto); el **último día** para responder; que aceptar te cambia de club **ya**, borra las ofertas por tus jugadores, la conferencia y las demás ofertas de trabajo, y que el ayudante y el preparador físico se van con vos y el médico, el scouting y las inferiores quedan; Aceptar, Rechazar, Ver el club |
 | Oferta de fin de temporada | `directiva`, `act: 'job'`, `ref` = id del club; "{club} te ofrece dirigir", "Si aceptás, empezás la próxima temporada en el club" (`:148`) | `job`, igual | Lo mismo, más: que vence al comenzar la temporada nueva si no la respondés |
 | Oferta vencida o respondida | — | Desaparece | La noticia muestra "La oferta ya no está vigente." |
 | Club que reemplaza a su interino | `club`, sin `act`, no es `me` | — | Solo lectura |
@@ -299,7 +300,7 @@ La bandeja recibe hoy el rechazo de un trabajo como una edición directa de `g.j
 - [ ] En un lunes, un club de la IA con 6 partidos o más, que no echó DT esta temporada y con promedio ≤ esperado − 0,55, puede echar a su DT; otro club en la misma situación con `firedAt` igual a la temporada no lo hace.
 - [ ] Si el club que echa cumple la elegibilidad, aparece en `g.jobOffers` con `until = hoy + 6`, su DT pasa a "Cuerpo técnico interino" y llega una noticia `act: 'job'` con `ref` igual a su id.
 - [ ] El pendiente `job` desaparece el día `until + 1` y, el lunes siguiente, el club nombra un DT nuevo si seguía con interino.
-- [ ] Rechazar una oferta deja al club sin interino a más tardar al lunes siguiente (hoy falla).
+- [x] Rechazar una oferta deja al club sin interino en el acto (`rejectJob`).
 - [ ] `acceptJob` cambia `g.userClubId`, suma 2 de prestigio, deja la confianza en 55 y vacía `g.offers`, `g.jobOffers` y `g.press`; el club anterior tiene un DT con nombre distinto del tuyo.
 - [ ] Con confianza < 60 al cerrar la temporada no hay ofertas de fin de temporada.
 - [ ] Con `g.board.fired`, `advanceDay` devuelve `season`, la aplicación muestra la pantalla de despido con 3 clubes de división 1 a 3 (hoy puede incluir división 0), y elegir uno resta 6 de prestigio y agrega una fila "Despedido" al historial.
@@ -309,9 +310,9 @@ La bandeja recibe hoy el rechazo de un trabajo como una edición directa de `g.j
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| Agregar `rejectJob(g, clubId)` al motor: ¿qué hace el club rechazado (nombra DT en el acto)? ¿Rechazar tiene costo de prestigio o de confianza? | usuario + programación | Antes de implementar `design/ux/bandeja.md` | No implementado |
-| Guardar el tipo de oferta (`mid` / `season`) en `jobOffers` para que la bandeja pueda decir "Empezás la próxima temporada" | programación | Ídem | No implementado |
-| ¿El cuerpo técnico tiene que seguir al DT, quedarse en el club, o el club nuevo traer el suyo? `INTENT UNKNOWN — inferred from implementation, not confirmed` | usuario | — | — |
+| Agregar `rejectJob(g, clubId)` al motor: ¿qué hace el club rechazado (nombra DT en el acto)? ¿Rechazar tiene costo de prestigio o de confianza? | usuario + programación | Antes de implementar `design/ux/bandeja.md` | Resuelta (2026-11-14): `rejectJob` nombra DT en el acto; sin costo |
+| Guardar el tipo de oferta (`mid` / `season`) en `jobOffers` para que la bandeja pueda decir "Empezás la próxima temporada" | programación | Ídem | Resuelta (2026-11-14): `JobOffer.kind` |
+| ¿El cuerpo técnico tiene que seguir al DT, quedarse en el club, o el club nuevo traer el suyo? `INTENT UNKNOWN — inferred from implementation, not confirmed` | usuario | — | Resuelta (2026-11-14): el ayudante y el preparador físico siguen al DT; el resto es del club |
 | ¿Los atributos del DT tienen que progresar con la carrera (cursos, experiencia)? Hoy son fijos | usuario | — | No implementado |
 | ¿El prestigio alto tiene que mejorar la relación con el vestuario, como promete el texto de "Ex figura internacional"? | usuario | — | No implementado |
 | ¿Poder renunciar o rechazar todas las opciones después de un despido (quedar sin club)? | usuario | — | No implementado |
@@ -326,3 +327,4 @@ La bandeja recibe hoy el rechazo de un trabajo como una edición directa de `g.j
 | 2026-11-14 | Claude (reverse-doc, systems-designer) | Documentación inicial desde `src/engine/career.ts` y `src/ui/Start.tsx` en `d9b251a` |
 
 *This document was generated by `/reverse-document design src/engine/career.ts`*
+| 2026-11-14 | Claude | Resueltos: el ayudante y el preparador físico se van con el DT, despidos de la IA con el criterio de la dirigencia, sin clubes del exterior tras un despido, categoría real en la pantalla de despido, ofertas de fin de temporada después del balance, `rejectJob` y tipo de oferta |

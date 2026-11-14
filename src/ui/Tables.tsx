@@ -1,17 +1,27 @@
 import { useState } from 'react'
+import { DIV_NAMES } from '../engine/career'
 import { groupTable } from '../engine/cups'
-import { annualTable, clubsIn, fmtDate, leagueFx, promedios, relegationZone, tableOf, type Row } from '../engine/game'
+import { annualTable, clubsIn, fmtDate, leagueFx, promedios, relegationZone, tableOf, zoneRule, type Mark, type Row } from '../engine/game'
 import type { Fixture, Game, Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
-import { Badge, MatchReport, PosPill, avgRat, resultText } from './common'
+import { Badge, MatchReport, PosPill, avgRat, dec, resultText } from './common'
 import { PlayerTable, scoutBulk } from './PlayerTable'
 
-function Table({ g, rows, marks }: { g: Game; rows: Row[]; marks?: (i: number, id: number) => string }) {
+export const MARK_CLASS: Record<Mark, string> = { q: 'zone-q', p: 'zone-p', r: 'zone-r', '': '' }
+const MARK_COLOR: Record<Mark, string> = { q: 'var(--good)', p: 'var(--info)', r: 'var(--bad)', '': 'transparent' }
+/** Referencias de las marcas de una tabla, con la regla del motor (`zoneRule`). */
+export function Legend({ items }: { items: [Mark, string][] }) {
+  return <div className="dim sm row wrap" style={{ gap: '4px 14px' }}>{items.map(([m, t]) => <span key={t} className="row" style={{ gap: 6 }}><i className="qbar" style={{ background: MARK_COLOR[m] }} aria-hidden />{t}</span>)}</div>
+}
+/** Clase de la fila según la regla del torneo. */
+const marksOf = (g: Game, comp: string) => { const r = zoneRule(g, comp); return (i: number, id: number, n: number) => MARK_CLASS[r.mark(i, n, id)] }
+
+function Table({ g, rows, marks }: { g: Game; rows: Row[]; marks?: (i: number, id: number, n: number) => string }) {
   return (
     <table>
       <thead><tr><th>#</th><th>Equipo</th><th className="r">PJ</th><th className="r">G</th><th className="r">E</th><th className="r">P</th><th className="r">GF</th><th className="r">GC</th><th className="r">DG</th><th className="r">Pts</th></tr></thead>
       <tbody>{rows.map((r, i) => (
-        <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${marks?.(i, r.clubId) ?? ''}`}>
+        <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${marks?.(i, r.clubId, rows.length) ?? ''}`}>
           <td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td>
           <td className="r num">{r.pj}</td><td className="r num">{r.g}</td><td className="r num">{r.e}</td><td className="r num">{r.p}</td><td className="r num">{r.gf}</td><td className="r num">{r.gc}</td>
           <td className="r num">{r.gf - r.gc > 0 ? '+' : ''}{r.gf - r.gc}</td><td className="r num"><b>{r.pts}</b></td>
@@ -47,29 +57,33 @@ export function Tables() {
       {tab === 'T3' && g.comps.T3 && (<>
         <div className="grid2">{['A', 'B'].map(z => (
           <div key={z} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{z === 'A' ? 'Primera B' : 'Federal A'}</h3>
-            <Table g={g} rows={tableOf(leagueFx(g, 'T3'), clubsIn(g, 3, z))} marks={i => (i < 2 ? 'zone-q' : '')} /></div>))}</div>
-        <div className="dim" style={{ fontSize: '.84rem' }}>Los dos primeros de cada zona ascienden a la Primera Nacional, y bajan los dos últimos de cada zona de la Primera Nacional.</div>
+            <Table g={g} rows={tableOf(leagueFx(g, 'T3'), clubsIn(g, 3, z))} marks={marksOf(g, 'T3')} /></div>))}</div>
+        <Legend items={zoneRule(g, 'T3').legend} />
+        <div className="dim" style={{ fontSize: '.84rem' }}>Los dos primeros de cada zona ascienden a la Primera Nacional, y bajan los dos últimos de cada zona de la Primera Nacional. Con igualdad de puntos: diferencia de gol, goles a favor y sorteo.</div>
       </>)}
       {tab === 'CA' && g.comps.CA && <><div className="dim" style={{ fontSize: '.84rem' }}>64 equipos de las tres categorías, a partido único en cancha neutral. El campeón juega la próxima Libertadores.</div><Knockout g={g} comp="CA" onOpen={setRep} /></>}
       {(tab === 'LIB' || tab === 'SUD') && g.comps[tab] && (<>
         <div className="grid2">{[0, 1, 2, 3].map(i => (
           <div key={i} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{g.comps[tab].name} · Grupo {'ABCD'[i]}</h3>
-            <Table g={g} rows={groupTable(g, tab, i)} marks={j => (j < 2 ? 'zone-q' : '')} /></div>))}</div>
+            <Table g={g} rows={groupTable(g, tab, i)} marks={marksOf(g, tab)} /></div>))}</div>
+        <Legend items={zoneRule(g, tab).legend} />
         <div className="dim" style={{ fontSize: '.84rem' }}>Los dos primeros de cada grupo pasan a cuartos. Cuartos y semifinales se juegan ida y vuelta (sin alargue: si el global queda igual, penales). La final es a partido único.</div>
         <Knockout g={g} comp={tab} onOpen={setRep} />
       </>)}
       {(tab === 'AP' || tab === 'CL' || tab === 'PN') && (<>
         <div className="grid2">{['A', 'B'].map(z => (
           <div key={z} className="card scroll-x"><h3 style={{ marginBottom: 6 }}>{g.comps[tab].name} · Zona {z}</h3>
-            <Table g={g} rows={tableOf(leagueFx(g, tab), clubsIn(g, tab === 'PN' ? 2 : 1, z))} marks={i => (tab === 'PN' ? (i === 0 ? 'zone-q' : i < 4 ? 'zone-p' : '') : i < 8 ? 'zone-q' : '')} /></div>))}</div>
-        <div className="dim" style={{ fontSize: '.84rem' }}>{tab === 'PN' ? 'Verde: juega la final por el ascenso. Azul: clasifica al Reducido por el segundo ascenso.' : 'Verde: clasifica a octavos de final. Cada equipo juega 14 partidos de zona y 2 interzonales.'}</div>
+            <Table g={g} rows={tableOf(leagueFx(g, tab), clubsIn(g, tab === 'PN' ? 2 : 1, z))} marks={marksOf(g, tab)} /></div>))}</div>
+        <Legend items={zoneRule(g, tab).legend} />
+        <div className="dim" style={{ fontSize: '.84rem' }}>{tab === 'PN' ? 'Con igualdad de puntos: diferencia de gol, goles a favor y sorteo.' : 'Cada equipo juega 14 partidos de zona y 2 interzonales. Con igualdad de puntos: diferencia de gol, goles a favor, partidos entre sí, fair play y sorteo.'}</div>
         <Knockout g={g} comp={tab} onOpen={setRep} />
       </>)}
-      {tab === 'AN' && <div className="card scroll-x"><h3 style={{ marginBottom: 6 }}>Tabla anual {g.season}</h3><Table g={g} rows={annualTable(g)} marks={(i, id) => (id === rel[0] ? 'zone-r' : i < 3 ? 'zone-q' : i < 9 ? 'zone-p' : '')} />
-        <div className="dim" style={{ fontSize: '.84rem', marginTop: 8 }}>Suma las fases de zonas del Apertura y el Clausura. El último desciende; los primeros puestos dan plazas en copas internacionales.</div></div>}
+      {tab === 'AN' && <div className="card scroll-x"><h3 style={{ marginBottom: 6 }}>Tabla anual {g.season}</h3><Table g={g} rows={annualTable(g)} marks={marksOf(g, 'AN')} />
+        <div className="col" style={{ gap: 6, marginTop: 8 }}><Legend items={zoneRule(g, 'AN').legend} />
+          <div className="dim" style={{ fontSize: '.84rem' }}>Suma las fases de zonas del Apertura y el Clausura. {g.seasonOver ? 'Clasificados' : 'Si terminara hoy'}: a la Libertadores van los campeones del Apertura, del Clausura y de la Copa Argentina y el primero de la anual, y se completan cinco con la anual; los cinco siguientes, a la Sudamericana. El último desciende (y el peor promedio). Con igualdad de puntos: diferencia de gol, goles a favor, fair play y sorteo.</div></div></div>}
       {tab === 'PR' && <div className="card scroll-x"><h3 style={{ marginBottom: 6 }}>Promedios</h3>
         <table><thead><tr><th>#</th><th>Equipo</th><th className="r">Pts</th><th className="r">PJ</th><th className="r">Promedio</th></tr></thead>
-          <tbody>{promedios(g).map((r, i) => <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${r.clubId === rel[1] ? 'zone-r' : ''}`}><td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td><td className="r num">{r.pts}</td><td className="r num">{r.pj}</td><td className="r num"><b>{r.avg.toFixed(3)}</b></td></tr>)}</tbody></table>
+          <tbody>{promedios(g).map((r, i) => <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${r.clubId === rel[1] ? 'zone-r' : ''}`}><td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td><td className="r num">{r.pts}</td><td className="r num">{r.pj}</td><td className="r num"><b>{dec(r.avg, 3)}</b></td></tr>)}</tbody></table>
         <div className="dim" style={{ fontSize: '.84rem', marginTop: 8 }}>Puntos por partido de las últimas tres temporadas en Primera. El peor promedio desciende (además del último de la tabla anual).</div></div>}
       {rep && <MatchReport g={g} f={rep} onClose={() => setRep(null)} />}
     </div>
@@ -123,7 +137,7 @@ export function Stats() {
   ]
   return (
     <div className="page">
-      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
+      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{DIV_NAMES[d]}</button>)}</div></div>
       <div className="grid2">{boards.map(([title, val, show, filter]) => (
         <div key={title} className="card"><h3 style={{ marginBottom: 6 }}>{title}</h3>
           <table><tbody>{ps.filter(p => pj(p) > 0 && (!filter || filter(p))).sort((a, b) => val(b) - val(a)).slice(0, 10).map((p, i) => (

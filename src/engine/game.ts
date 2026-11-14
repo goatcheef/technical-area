@@ -5,14 +5,14 @@ import { FORMATIONS, FORMATION_NAMES, POS_WEIGHTS, ageOn, bestRole, fixRoles, po
 import { Rng, clamp } from './rng'
 import { emptyLedger, emptyStats, type Club, type Competition, type Fixture, type Game, type Manager, type News, type Player, type Tactic } from './types'
 import { planMatch } from './ai'
-import { aggFor, computeQual, isCup, progressCup, scheduleCups } from './cups'
+import { aggFor, computeQual, isCup, progressCup, qualOf, scheduleCups } from './cups'
 import { afterUserMatch, dailySquad, harmonyBoost, initSquad, learnFromMatch, weeklyReserve } from './squad'
 import { isDerby } from './week'
 import { answerPress, dailyTraining, dayEvents, delegatePress, docFactor, initStaff, makePostPress, refreshPool, trainEdge } from './week'
 import { expireSeasonJobs, seasonOffers } from './career'
 import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
 
-const db = dbJson as unknown as { start: string; dbVersion: number; clubs: any[]; players: any[] }
+const db = dbJson as unknown as { start: string; dbVersion?: number; clubs: any[]; players: any[] }
 export const DB_CLUBS = db.clubs as { id: number; name: string; short: string; division: number; zone: string; rep: number; colors: [string, string]; city: string; stadium: string; manager: string }[]
 
 /** Clásicos (por código de club). Definen el interzonal de cada fecha. */
@@ -123,20 +123,88 @@ const REF_N = ['Martín', 'Gustavo', 'Fernando', 'Pablo', 'Diego', 'Sergio', 'An
 const REF_A = ['Iriarte', 'Landaburu', 'Echeverri', 'Ocampo', 'Sarmiento', 'Bertolotti', 'Galarza', 'Quinteros', 'Villafañe', 'Arregui', 'Montesano', 'Lucero', 'Cabrera', 'Ledesma', 'Pizarro']
 
 // ---------- tablas ----------
-export interface Row { clubId: number; pj: number; g: number; e: number; p: number; gf: number; gc: number; pts: number }
-export function tableOf(fixtures: Fixture[], teams: number[]): Row[] {
-  const rows = new Map<number, Row>(teams.map(id => [id, { clubId: id, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, pts: 0 }]))
+/** `fp`: puntos de fair play (amarilla 1, expulsión 3; menos es mejor). */
+export interface Row { clubId: number; pj: number; g: number; e: number; p: number; gf: number; gc: number; pts: number; fp: number }
+/** Criterios de desempate con igualdad de puntos (reglamentos 2026):
+ *  - `lpf`: zonas del Apertura y el Clausura. Reglamento de Torneos LPF Primera 2026, art. 23: diferencia de gol, goles a favor,
+ *    partidos entre los empatados (puntos, diferencia de gol y goles a favor entre ellos, repetido las veces que haga falta),
+ *    Tabla General de Fair Play y sorteo del Comité Ejecutivo.
+ *  - `lpf-anual`: tabla anual (art. 24.3): diferencia de gol, goles a favor, fair play y sorteo; sin partidos entre sí.
+ *  - `afa`: Primera Nacional 2026 (Boletín Especial AFA 6823) y, por extensión, la tercera categoría y los grupos de copa:
+ *    diferencia de gol, goles a favor y sorteo.
+ *  El partido de desempate que el reglamento manda para los puestos de descenso (art. 111 del Reglamento General) no se juega:
+ *  se usan estos mismos criterios. El fair play es una aproximación con las tarjetas del torneo (amarilla 1, expulsión 3). */
+export type TieRule = 'lpf' | 'lpf-anual' | 'afa'
+function ruleFor(fixtures: Fixture[]): TieRule {
+  let ap = false, cl = false
+  for (const f of fixtures) { if (f.comp === 'AP') ap = true; else if (f.comp === 'CL') cl = true; else return 'afa' }
+  return ap && cl ? 'lpf-anual' : ap || cl ? 'lpf' : 'afa'
+}
+/** Sorteo: un orden fijo por club y torneo que sale del fixture (la localía de la primera fecha depende de la semilla de la partida). */
+function drawKey(clubId: number, salt: number) {
+  let h = Math.imul(clubId ^ salt, 0x9e3779b1) ^ 0x85ebca6b
+  h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d); h = Math.imul(h ^ (h >>> 12), 0x297a2d39)
+  return (h ^ (h >>> 15)) >>> 0
+}
+function tally(fixtures: Fixture[], teams: Iterable<number>, fp = false): Map<number, Row> {
+  const rows = new Map<number, Row>([...teams].map(id => [id, { clubId: id, pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, pts: 0, fp: 0 }]))
   for (const f of fixtures) {
     if (!f.played) continue
-    const h = rows.get(f.home), a = rows.get(f.away)
-    const upd = (r: Row | undefined, gf: number, gc: number) => {
+    const upd = (r: Row | undefined, gf: number, gc: number, side: 0 | 1) => {
       if (!r) return
       r.pj++; r.gf += gf; r.gc += gc
       if (gf > gc) { r.g++; r.pts += 3 } else if (gf === gc) { r.e++; r.pts++ } else r.p++
+      if (fp && f.stats) r.fp += (f.stats.yc?.[side] ?? 0) + 3 * (f.stats.rc?.[side] ?? 0)
     }
-    upd(h, f.hg, f.ag); upd(a, f.ag, f.hg)
+    upd(rows.get(f.home), f.hg, f.ag, 0); upd(rows.get(f.away), f.ag, f.hg, 1)
   }
-  return [...rows.values()].sort((x, y) => y.pts - x.pts || (y.gf - y.gc) - (x.gf - x.gc) || y.gf - x.gf || x.clubId - y.clubId)
+  return rows
+}
+/** Puntos, diferencia de gol y goles a favor (el orden común a todos los torneos). */
+export const cmpRows = (x: Row, y: Row) => y.pts - x.pts || (y.gf - y.gc) - (x.gf - x.gc) || y.gf - x.gf
+/** Parte una lista ya ordenada en grupos que siguen empatados según `cmp`. */
+function ties<T>(list: T[], cmp: (a: T, b: T) => number): T[][] {
+  const out: T[][] = []
+  for (const r of list) { const last = out[out.length - 1]; if (last && cmp(last[0], r) === 0) last.push(r); else out.push([r]) }
+  return out
+}
+/** Tabla de posiciones. Sin `rule`, el criterio sale de los partidos: Apertura o Clausura → `lpf`; los dos → `lpf-anual`; el resto → `afa`. */
+export function tableOf(fixtures: Fixture[], teams: number[], rule: TieRule = ruleFor(fixtures)): Row[] {
+  const rows = tally(fixtures, teams, rule !== 'afa')
+  const f0 = fixtures[0], salt = f0 ? f0.id * 131 + f0.home * 7 + Number(f0.date.slice(0, 4)) : 0
+  const last = (group: Row[]) => group.sort((x, y) => (rule === 'afa' ? 0 : x.fp - y.fp) || drawKey(x.clubId, salt) - drawKey(y.clubId, salt))
+  const resolve = (group: Row[]): Row[] => {
+    if (group.length < 2) return group
+    if (rule !== 'lpf') return last(group)
+    const ids = new Set(group.map(r => r.clubId))
+    const mini = tally(fixtures.filter(f => ids.has(f.home) && ids.has(f.away)), ids)
+    const h2h = (x: Row, y: Row) => cmpRows(mini.get(x.clubId)!, mini.get(y.clubId)!)
+    const sub = ties([...group].sort(h2h), h2h)
+    // si los partidos entre sí no separan a nadie, siguen el fair play y el sorteo; si separan a algunos, se repite con los que quedan
+    return sub.length === 1 ? last(group) : sub.flatMap(resolve)
+  }
+  return ties([...rows.values()].sort(cmpRows), cmpRows).flatMap(resolve)
+}
+/** Cupos por zona que usan las fases del motor (y las marcas de las tablas, con `zoneRule`). */
+export const SPOTS = { ko: 8, pnFinal: 1, pnReducido: 4, pnDown: 2, t3Up: 2, groupUp: 2 }
+export type Mark = 'q' | 'p' | 'r' | ''
+/** Qué significa cada puesto de una tabla, con la misma regla que aplica el motor al cerrar la fase o la temporada.
+ *  `comp`: AP, CL, PN, T3, LIB, SUD (grupos) o AN (tabla anual: copas según `qualOf` y descenso según `relegationZone`). */
+export function zoneRule(g: Game, comp: string): { mark: (i: number, n: number, clubId: number) => Mark; legend: [Mark, string][] } {
+  if (comp === 'PN') return {
+    mark: (i, n) => (i < SPOTS.pnFinal ? 'q' : i < SPOTS.pnReducido ? 'p' : i >= n - SPOTS.pnDown ? 'r' : ''),
+    legend: [['q', 'Final por el ascenso'], ['p', 'Reducido por el segundo ascenso'], ['r', 'Descienden a la tercera categoría']],
+  }
+  if (comp === 'T3') return { mark: i => (i < SPOTS.t3Up ? 'q' : ''), legend: [['q', 'Ascienden a la Primera Nacional']] }
+  if (comp === 'LIB' || comp === 'SUD') return { mark: i => (i < SPOTS.groupUp ? 'q' : ''), legend: [['q', 'Pasan a cuartos de final']] }
+  if (comp === 'AN') {
+    const q = g.seasonOver && g.qual ? g.qual : qualOf(g), lib = new Set(q.lib), sud = new Set(q.sud), last = relegationZone(g)[0]
+    return {
+      mark: (_i, _n, id) => (id === last ? 'r' : lib.has(id) ? 'q' : sud.has(id) ? 'p' : ''),
+      legend: [['q', 'Copa Libertadores'], ['p', 'Copa Sudamericana'], ['r', 'Desciende (último de la anual)']],
+    }
+  }
+  return { mark: i => (i < SPOTS.ko ? 'q' : ''), legend: [['q', 'Clasifican a los octavos de final']] }
 }
 export const clubsIn = (g: Game, division: number, zone?: string) =>
   Object.values(g.clubs).filter(c => c.division === division && (!zone || c.zone === zone)).map(c => c.id)
@@ -145,13 +213,14 @@ export const zoneTable = (g: Game, comp: string, division: number, zone: string)
 export const annualTable = (g: Game) => tableOf(g.fixtures.filter(f => (f.comp === 'AP' || f.comp === 'CL') && !f.knockout), clubsIn(g, 1))
 export interface AvgRow { clubId: number; pts: number; pj: number; avg: number }
 export function promedios(g: Game): AvgRow[] {
-  const cur = new Map(annualTable(g).map(r => [r.clubId, r]))
+  const ann = annualTable(g), cur = new Map(ann.map(r => [r.clubId, r])), at = new Map(ann.map((r, i) => [r.clubId, i]))
+  // con el mismo promedio queda más arriba el mejor de la tabla anual (el reglamento manda un partido de desempate)
   return clubsIn(g, 1).map(id => {
     const c = g.clubs[id], r = cur.get(id)!
     const hist = c.avgHist.filter(h => h.season >= g.season - 2)
     const pts = hist.reduce((s, h) => s + h.pts, 0) + r.pts, pj = hist.reduce((s, h) => s + h.pj, 0) + r.pj
     return { clubId: id, pts, pj, avg: pj ? pts / pj : 0 }
-  }).sort((a, b) => b.avg - a.avg)
+  }).sort((a, b) => b.avg - a.avg || at.get(a.clubId)! - at.get(b.clubId)!)
 }
 
 // ---------- fixture ----------
@@ -252,7 +321,7 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   const managerName = manager.name
   const rng = new Rng(seed)
   const g: Game = {
-    version: 6, dbVersion: db.dbVersion, seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
+    version: 6, dbVersion: dbHash(), seed, rngState: 0, date: db.start, season: Number(db.start.slice(0, 4)), userClubId, managerName,
     clubs: {}, players: {}, fixtures: [], comps: {}, news: [], nextId: 100000, honours: [], seasonOver: false,
     manager, board: { confidence: clamp(48 + manager.rep / 5, 40, 70), objective: '', target: 0, fired: false, offers: [] }, offers: [], transfers: [], shortlist: [],
     staff: [], training: { intensity: 1, focus: 'equil', restAfter: true }, delegate: { training: false, press: false }, press: null, know: {}, scouting: [],
@@ -298,21 +367,46 @@ export function newGame(userClubId: number, manager: Manager, seed = Date.now() 
   return g
 }
 
+/** Versión de la base: un hash del contenido (clubes y jugadores), no la fecha de construcción. Volver a correr `npm run db`
+ *  sin cambios da la misma versión y no dispara `refreshDb`. Se calcula una vez, la primera vez que se pide. */
+let dbHashMemo: number | undefined
+export function dbHash(): number {
+  if (dbHashMemo != null) return dbHashMemo
+  const txt = db.start + JSON.stringify(db.clubs) + JSON.stringify(db.players)
+  let h = 0x811c9dc5 // FNV-1a de 32 bits
+  for (let i = 0; i < txt.length; i++) h = Math.imul(h ^ txt.charCodeAt(i), 0x01000193)
+  return (dbHashMemo = h >>> 0)
+}
+
 /** Si la base de jugadores se actualizó después de crear la partida, trae puestos y atributos nuevos.
- *  Solo en la primera temporada, para no pisar la evolución de una carrera avanzada. */
+ *  Solo en la primera temporada, para no pisar la evolución de una carrera avanzada. Solo cuenta (y avisa) a los jugadores que
+ *  de verdad cambiaron. En tu club respeta los contratos que negociaste: el sueldo se recalcula solo si sigue siendo el de la base. */
 export function refreshDb(g: Game): number {
-  if (g.dbVersion === db.dbVersion) return 0
+  const ver = dbHash()
+  if (g.dbVersion === ver) return 0
   let n = 0
+  const same = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x, i) => x === b[i])
+  // códigos y colores: las partidas viejas tienen códigos repetidos (los clásicos) y colores anteriores; valen en cualquier temporada
+  const byName = new Map(Object.values(g.clubs).map(c => [c.name, c]))
+  for (const d of db.clubs) {
+    const c = byName.get(d.name)
+    if (c) { c.code = d.code; c.colors = [...d.colors] as [string, string] }
+  }
   if (g.season === Number(db.start.slice(0, 4))) for (const d of db.players) {
     const p = g.players[d.id]
     if (!p || p.name !== d.name) continue
+    if (p.ca === d.ca && p.pa === d.pa && p.line === d.line && same(p.attrs, d.attrs) && same(p.positions, d.positions)) continue
+    // sueldo de origen: el que le dio `newGame` con los datos viejos; si es otro, lo firmaste vos (renovación o pase)
+    const negotiated = p.clubId === g.userClubId && p.wage !== valuation(p, db.start).wage
+    const w = p.wage
     p.attrs = [...d.attrs]; p.ca = d.ca; p.pa = d.pa; p.positions = [...d.positions]; p.line = d.line
     Object.assign(p, valuation(p, g.date)); n++
+    if (negotiated) p.wage = w
   }
-  g.dbVersion = db.dbVersion
+  g.dbVersion = ver
   if (n) {
     for (const c of Object.values(g.clubs)) if (c.id !== g.userClubId) Object.assign(c.tactic, autoPick(g, c.id, c.tactic.formation))
-    news(g, { tag: 'club', me: true, title: 'Base de jugadores actualizada', body: `Se actualizaron las valoraciones y los puestos de ${n} jugadores con los datos más recientes. Revisá tu once titular en Tácticas.` })
+    news(g, { tag: 'club', me: true, title: 'Base de jugadores actualizada', body: `Se actualizaron las valoraciones y los puestos de ${n} jugadores con los datos más recientes. Revisá tu once titular en Tácticas. Los contratos que firmaste se mantienen.` })
   }
   return n
 }
@@ -350,7 +444,7 @@ export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
 export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   const isUser = f.home === g.userClubId || f.away === g.userClubId
   f.played = true; f.hg = res.hg; f.ag = res.ag; f.pens = res.pens; f.et = res.et; f.stats = res.stats
-  f.events = isUser ? res.events : res.events.filter(e => ['goal', 'pen-goal', 'rc', 'yc2'].includes(e.type))
+  f.events = isUser ? res.events : res.events.filter(e => ['goal', 'pen-goal', 'own', 'rc', 'yc2'].includes(e.type))
   if (isUser) { f.lines = res.lines; f.shots = res.shots; f.analysis = res.analysis }
   const hc = g.clubs[f.home]
   f.att = Math.round(hc.capacity * clamp(0.35 + hc.rep / 160 + (g.rngState % 100) / 500, 0.2, 1))
@@ -410,7 +504,7 @@ function matchNews(g: Game, f: Fixture, res: MatchResult) {
   const body = `${f.stage} · ${g.comps[f.comp].name}. ${us === 0 ? 'De local' : 'De visitante'}, el equipo de ${me.manager} ${won ? 'se quedó con la victoria' : drew ? 'no pudo pasar del empate' : 'sufrió una derrota'}`
     + `${res.pens ? ` en la definición por penales (${res.pens[us]}-${res.pens[1 - us]})` : ''}. `
     + (scorers.length ? `Goles: ${scorers.join(', ')}. ` : '')
-    + `Remates ${res.stats.shots[us]}-${res.stats.shots[1 - us]}, posesión ${res.stats.poss[us]}%, xG ${res.stats.xg[us].toFixed(2)}-${res.stats.xg[1 - us].toFixed(2)}. `
+    + `Remates ${res.stats.shots[us]}-${res.stats.shots[1 - us]}, posesión ${res.stats.poss[us]}%, xG ${res.stats.xg[us].toFixed(2).replace('.', ',')}-${res.stats.xg[1 - us].toFixed(2).replace('.', ',')}. `
     + `La figura fue ${star.name} (${g.clubs[star.clubId].short}).`
   news(g, { tag: 'partido', clubId: me.id, act: 'result', ref: f.id, pid: star?.id, title, body })
 }
@@ -445,7 +539,7 @@ function progressLiga(g: Game, comp: Competition, fx: Fixture[]) {
     const ta = zoneTable(g, comp.id, 1, 'A'), tb = zoneTable(g, comp.id, 1, 'B')
     const a = (n: number) => ta[n - 1].clubId, b = (n: number) => tb[n - 1].clubId
     const seeds: number[] = []
-    for (let i = 0; i < 8; i++) { const x = ta[i], y = tb[i]; seeds.push(...(x.pts >= y.pts ? [x.clubId, y.clubId] : [y.clubId, x.clubId])) }
+    for (let i = 0; i < SPOTS.ko; i++) { const x = ta[i], y = tb[i]; seeds.push(...(cmpRows(x, y) <= 0 ? [x.clubId, y.clubId] : [y.clubId, x.clubId])) }
     ex.seeds = seeds
     ex.bracket = [a(1), b(8), b(4), a(5), b(2), a(7), a(3), b(6), b(1), a(8), a(4), b(5), a(2), b(7), b(3), a(6)]
     comp.phase = 'ko'; comp.koRound = 0
@@ -476,7 +570,9 @@ function progressLiga(g: Game, comp: Competition, fx: Fixture[]) {
 function progressNacional(g: Game, comp: Competition, fx: Fixture[]) {
   const ex = comp.extra as any
   const ta = zoneTable(g, 'PN', 2, 'A'), tb = zoneTable(g, 'PN', 2, 'B')
-  const rank = (id: number) => { const i = ta.findIndex(r => r.clubId === id), j = tb.findIndex(r => r.clubId === id); const k = i >= 0 ? i : j; return k * 1000 - (i >= 0 ? ta[i].pts : tb[j].pts) }
+  // "Tabla General de Posiciones" del reglamento para cruces y localía: puesto en la zona, puntos, diferencia de gol, goles a favor
+  const general = [...ta.map((r, i) => ({ r, i })), ...tb.map((r, i) => ({ r, i }))].sort((x, y) => x.i - y.i || cmpRows(x.r, y.r)).map(x => x.r.clubId)
+  const rank = (id: number) => general.indexOf(id)
   const mk = (x: number, y: number, stage: string, neutral = false) => {
     const [h, a] = rank(x) <= rank(y) ? [x, y] : [y, x]
     addFx(g, { comp: 'PN', stage, round: 100 + comp.koRound, date: ex.koDate, home: h, away: a, knockout: true, neutral })
@@ -485,7 +581,7 @@ function progressNacional(g: Game, comp: Competition, fx: Fixture[]) {
   if (comp.phase === 'league') {
     comp.phase = 'ko'; comp.koRound = 0
     mk(ta[0].clubId, tb[0].clubId, 'Final por el ascenso', true)
-    ex.down = [...ta.slice(-2), ...tb.slice(-2)].map(r => r.clubId)
+    ex.down = [...ta.slice(-SPOTS.pnDown), ...tb.slice(-SPOTS.pnDown)].map(r => r.clubId)
     news(g, { tag: 'torneo', title: 'Descensos en la Primera Nacional', body: `Bajan a la tercera categoría ${ex.down.map((id: number) => g.clubs[id].name).join(', ')}.` })
     news(g, { tag: 'torneo', title: 'Primera Nacional: se viene la final por el ascenso', body: `${g.clubs[ta[0].clubId].name} y ${g.clubs[tb[0].clubId].name} ganaron sus zonas y definirán al campeón en cancha neutral.` })
   } else if (comp.koRound === 0) {
@@ -533,9 +629,11 @@ function closeSeason(g: Game) {
     body: `${g.clubs[ann[0].clubId].name} terminó primero en la tabla anual con ${ann[0].pts} puntos. Descienden ${g.clubs[rel[0]].name} (tabla anual) y ${g.clubs[rel[1]].name} (promedios). Ascienden ${pro.map(id => g.clubs[id].name).join(' y ')}.`,
   })
   computeQual(g)
-  withRng(g, r => seasonOffers(g, r))
   news(g, { tag: 'torneo', title: `Clasificados a las copas ${g.season + 1}`, body: `Copa Libertadores: ${g.qual!.lib.map(id => g.clubs[id].name).join(', ')}. Copa Sudamericana: ${g.qual!.sud.map(id => g.clubs[id].name).join(', ')}.` })
-  seasonReview(g, rel, pro)
+  // el balance va primero: las ofertas de fin de temporada miran la confianza y el prestigio que dejó la temporada
+  const up3 = ((g.comps.T3?.extra as any)?.promoted ?? []) as number[], down3 = ((g.comps.PN.extra as any).down ?? []) as number[]
+  seasonReview(g, [...rel, ...down3], [...pro, ...up3])
+  withRng(g, r => seasonOffers(g, r))
   const top = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division === 1).sort((a, b) => b.stats.goals - a.stats.goals)[0]
   if (top) news(g, { tag: 'premio', clubId: top.clubId, pid: top.id, title: `${top.name}, goleador de la temporada`, body: `El jugador de ${g.clubs[top.clubId].name} fue el máximo artillero de Primera con ${top.stats.goals} goles.` })
 }
@@ -565,6 +663,12 @@ function passDays(g: Game, n: number) {
   withRng(g, r => marketTick(g, n, r))
 }
 
+/** Al empezar cada día: el plantel y, los miércoles, la reserva (también si el día anterior jugaste vos). */
+function nightSquad(g: Game, r: Rng) {
+  dailySquad(g, r)
+  if (new Date(g.date + 'T12:00:00Z').getUTCDay() === 3) weeklyReserve(g, r)
+}
+
 export type DayResult = 'day' | 'match' | 'press' | 'season'
 const userPlayedOn = (g: Game, d: string) => g.fixtures.some(f => f.date === d && f.played && (f.home === g.userClubId || f.away === g.userClubId))
 
@@ -580,7 +684,7 @@ export function advanceDay(g: Game): DayResult {
   if (!userPlayedOn(g, g.date)) withRng(g, r => dailyTraining(g, r, userPlayedOn(g, addDays(g.date, -1))))
   g.date = addDays(g.date, 1)
   withRng(g, r => dayEvents(g, r))
-  withRng(g, r => { dailySquad(g, r); if (new Date(g.date + 'T12:00:00Z').getUTCDay() === 3) weeklyReserve(g, r) })
+  withRng(g, r => nightSquad(g, r))
   if (userFixtureToday(g)) return 'match'
   return g.press ? 'press' : 'day'
 }
@@ -609,7 +713,7 @@ export function finishUserMatch(g: Game, f: Fixture, res: MatchResult, others: {
   passDays(g, 1)
   g.date = addDays(g.date, 1)
   withRng(g, r => dayEvents(g, r))
-  withRng(g, r => dailySquad(g, r))
+  withRng(g, r => nightSquad(g, r))
 }
 
 // ---------- nueva temporada ----------
@@ -619,13 +723,32 @@ function develop(p: Player, age: number, rng: Rng, k = 1) {
   if (age <= 24 && p.ca < p.pa) {
     const play = 0.6 + Math.min(1, p.stats.mins / 1500) * 0.7
     const gain = Math.min(p.pa - p.ca, (age <= 20 ? 4.5 : age <= 22 ? 3 : 1.5) * play * k * (0.6 + p.prof / 20) * (0.5 + rng.next()))
-    for (let n = Math.round(gain * 2.6); n > 0; n--) { const i = rng.weighted(idx, k => w[k]); if (p.attrs[i] < 20) p.attrs[i]++ }
+    // punto por punto: el que lo pasaría de su potencial no se suma y ahí termina el crecimiento del año
+    for (let n = Math.round(gain * 2.6); n > 0; n--) {
+      const i = rng.weighted(idx, k => w[k])
+      if (p.attrs[i] >= 20) continue
+      p.attrs[i]++
+      if (Math.round(rawRating(p.attrs, pos)) > p.pa) { p.attrs[i]--; break }
+    }
+    p.ca = Math.round(rawRating(p.attrs, pos))
   } else if (age >= 31) {
     for (const i of [18, 19, 20, 22]) if (rng.chance(0.3 + (age - 31) * 0.1)) p.attrs[i] = Math.max(1, p.attrs[i] - 1)
     if (age >= 34) for (let n = 2; n > 0; n--) { const i = rng.pick(idx); p.attrs[i] = Math.max(1, p.attrs[i] - 1) }
-  }
-  p.ca = Math.round(rawRating(p.attrs, pos))
-  p.pa = Math.max(p.pa, p.ca)
+    p.ca = Math.round(rawRating(p.attrs, pos))
+    p.pa = Math.max(p.pa, p.ca)
+  } else p.ca = Math.round(rawRating(p.attrs, pos))
+}
+
+// ---------- reputación de los clubes ----------
+/** Regla única de la reputación por resultados (al empezar la temporada siguiente): cada logro suma `REP_STEP` y el resultado
+ *  queda dentro del rango de la categoría en la que el club va a jugar (`REP_RANGE`, piso y techo). Los logros más grandes empujan
+ *  más (la Libertadores suma 4 con el título, un torneo local 1), pero nadie pasa el techo de su categoría. Un logro nunca baja la
+ *  reputación ni un descenso la sube: si ya estaba fuera del rango (un grande que desciende), solo se mueve hacia adentro. */
+export const REP_RANGE: Record<number, [number, number]> = { 0: [40, 97], 1: [40, 97], 2: [40, 80], 3: [38, 62] }
+export const REP_STEP = { up: 3, down: -3, title: 1, SUD: 2, LIB: 4 }
+export function bumpRep(c: Club, delta: number) {
+  const [lo, hi] = REP_RANGE[c.division] ?? REP_RANGE[1]
+  c.rep = delta >= 0 ? Math.max(c.rep, Math.min(hi, c.rep + delta)) : Math.min(c.rep, Math.max(lo, c.rep + delta))
 }
 
 export function startNewSeason(g: Game) {
@@ -645,16 +768,17 @@ export function startNewSeason(g: Game) {
     if (!u) return
     const z = d.zone
     d.division = 3; d.zone = u.zone; u.division = 2; u.zone = z
-    d.rep = Math.max(38, d.rep - 3); u.rep = Math.min(80, u.rep + 3)
+    bumpRep(d, REP_STEP.down); bumpRep(u, REP_STEP.up)
   })
   rel.forEach((id, i) => {
     const down = g.clubs[id], up = g.clubs[pro[i]]
     const z = down.zone
     down.division = 2; down.zone = up.zone; down.avgHist = []
     up.division = 1; up.zone = z; up.avgHist = []
-    down.rep = Math.max(40, down.rep - 3); up.rep = Math.min(95, up.rep + 3)
+    bumpRep(down, REP_STEP.down); bumpRep(up, REP_STEP.up)
   })
-  for (const comp of Object.values(g.comps)) if (comp.champion) g.clubs[comp.champion].rep = Math.min(96, g.clubs[comp.champion].rep + 1)
+  // los títulos se cuentan después de los ascensos y descensos: el techo es el de la categoría en la que el club juega el año que viene
+  for (const comp of Object.values(g.comps)) if (comp.champion) bumpRep(g.clubs[comp.champion], REP_STEP[comp.id as 'LIB' | 'SUD'] ?? REP_STEP.title)
   g.season++
   g.date = `${g.season}-01-10`
   expireSeasonJobs(g)
@@ -666,7 +790,8 @@ export function startNewSeason(g: Game) {
     p.listed = false; p.ups = 0
   }
   seasonTurnover(g, rng)
-  for (const p of Object.values(g.players)) { const w = p.wage; Object.assign(p, valuation(p, g.date)); if (p.clubId === g.userClubId && !p.gen) p.wage = w }
+  // el valor se actualiza para todos; el sueldo solo en los clubes de la IA: en el tuyo manda el contrato firmado (también el de los juveniles)
+  for (const p of Object.values(g.players)) { const w = p.wage; Object.assign(p, valuation(p, g.date)); if (p.clubId === g.userClubId) p.wage = w }
   g.offers = []
   for (const st of g.staff) if (st.clubId === g.userClubId && st.contractEnd < g.season) st.contractEnd = g.season + 1
   { const r = new Rng(g.rngState); refreshPool(g, r); g.rngState = r.s }

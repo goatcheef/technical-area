@@ -1,10 +1,10 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode } from 'react'
-import { takeJob, windowOpen } from '../engine/career'
+import { divName, takeJob, windowOpen } from '../engine/career'
 import { advanceDay, fmtDate, nextUserFixture, refreshDb, userFixtureToday } from '../engine/game'
 import type { Fixture, Game } from '../engine/types'
-import { GameCtx, loadGame, loadSettings, saveGame, storeSettings, type Route, type Settings } from '../store'
+import { GameCtx, exportGame, getLastSaveError, loadGame, loadSettings, saveGame, storeSettings, type Route, type SaveError, type Settings } from '../store'
 import { Club } from './Club'
-import { Badge, Face, ManagerFace, PosPill, Val, clubTheme } from './common'
+import { Badge, Face, ManagerFace, PosPill, Val, clubTheme, seenRating } from './common'
 import { ClubPage, CommandPalette, HoverCard, SettingsModal, ShortcutsHelp } from './Nav'
 import { PlayerPage } from './PlayerPage'
 import { PostMatch } from './MatchPanels'
@@ -106,12 +106,16 @@ export function App() {
   const warned = useRef(new Set<string>())
   const [, refresh] = useReducer((x: number) => x + 1, 0)
   useEffect(() => { loadGame().then(s => setSaved(s && s.version === 6 ? s : null)) }, [])
+  // guardado: si IndexedDB falla, el aviso queda hasta el próximo guardado que salga bien (o hasta que el jugador lo cierre)
+  const [saveErr, setSaveErr] = useState<SaveError | null>(null)
+  const [saveErrHidden, setSaveErrHidden] = useState(false)
+  const persist = (game: Game) => saveGame(game).then(ok => { setSaveErr(getLastSaveError()); if (ok) setSaveErrHidden(false); return ok })
 
-  if (!g) return <Start saved={saved ?? null} onStart={game => { refreshDb(game); setG(game); setHist({ stack: [{ page: 'home' }], i: 0 }); saveGame(game); if (!settings.tourDone && !game.fixtures.some(f => f.played)) setTour(true) }} />
+  if (!g) return <Start saved={saved ?? null} onStart={game => { refreshDb(game); setG(game); setHist({ stack: [{ page: 'home' }], i: 0 }); persist(game); if (!settings.tourDone && !game.fixtures.some(f => f.played)) setTour(true) }} />
   const club = g.clubs[g.userClubId]
   const today = userFixtureToday(g), next = nextUserFixture(g)
   const opp = next ? g.clubs[next.home === club.id ? next.away : next.home] : null
-  const ctx = { g, route, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => saveGame(g), openPress: () => setPress(true), settings, setSettings }
+  const ctx = { g, route, refresh, go: setPage, nav, back, openPlayer: (id: number) => nav({ page: 'player', id, tab: 'resumen' }), openClub: (id: number) => nav({ page: 'clubv', id, tab: 'plantel' }), save: () => persist(g), lastSaveError: saveErr, openPress: () => setPress(true), settings, setSettings }
   /** Atajos de una tecla encendidos (Ajustes › Accesibilidad). */
   const single = settings.singleKeys !== false
   // atajos de teclado (ver SHORTCUTS en Nav.tsx)
@@ -152,7 +156,7 @@ export function App() {
     if (today) { setMatch(today); return }
     if (!toMatch) {
       const r = advanceDay(g)
-      saveGame(g)
+      persist(g)
       if (r === 'press' && g.press) setPress(true)
       refresh(); return
     }
@@ -173,7 +177,7 @@ export function App() {
       await new Promise(res => setTimeout(res, 45))
     }
     setBusy(null)
-    saveGame(g)
+    persist(g)
     if (r === 'press' && g.press) setPress(true)
     // la bandeja abre con la decisión que frenó el avance: primero la que vence mañana; si no, la nueva (la primera en el orden del bloque).
     // Si el avance terminó en el día del partido o en una conferencia y hoy vence algo, también se abre la bandeja con eso elegido.
@@ -192,21 +196,27 @@ export function App() {
     ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}${unread ? ` y ${unread} sin leer` : ''}` : `${count} sin leer`}><span aria-hidden="true">{pend.length > 0 && <i className="dot-bang">!</i>}{count}</span><span className="vh">{inGroup ? `, bandeja: ${inboxSays}` : `, ${inboxSays}`}</span></span>
     : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores"><span aria-hidden="true">{g.offers.length}</span><span className="vh">{`${inGroup ? ', mercado' : ''}, ${g.offers.length} ${g.offers.length === 1 ? 'oferta' : 'ofertas'} por tus jugadores`}</span></span> : null)
   const ql = q.trim().toLowerCase()
-  const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8) : []
+  const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).map(p => [p, seenRating(g, p)] as const).sort((a, b) => b[1] - a[1]).map(([p]) => p).slice(0, 8) : []
   const theme = clubTheme(club) as object
+  const saveAlert = saveErr && !saveErrHidden && (
+    <div className="save-alert" role="alert">
+      <span className="grow">No se pudo guardar la partida. Lo que hiciste sigue en esta sesión; probá exportar la partida desde Ajustes.</span>
+      <button className="btn sm" onClick={() => exportGame(g)}>Exportar</button>
+      <button className="btn sm icon" aria-label="Cerrar aviso" title="Cerrar aviso" onClick={() => setSaveErrHidden(true)}>✕</button>
+    </div>)
 
   if (g.board.fired) return (
     <div className="main" style={{ height: '100%', ...theme }}><div className="page" style={{ maxWidth: 820, paddingTop: 40 }}>
       <div className="hero col"><h3>Fin de ciclo</h3><h1>{club.name} te despidió</h1>
         <p className="dim" style={{ lineHeight: 1.55 }}>La dirigencia perdió la confianza después de {g.manager.cur.g} triunfos, {g.manager.cur.e} empates y {g.manager.cur.p} derrotas. Tu carrera sigue: estos clubes quieren contratarte.</p></div>
       <div className="clubgrid">{g.board.offers.map(id => { const c = g.clubs[id]; return (
-        <button key={id} className="clubcard" onClick={() => { takeJob(g, id); saveGame(g); setPage('home'); refresh() }}><Badge club={c} size={44} /><span className="grow"><b>{c.name}</b><br /><span className="dim sm">{c.division === 1 ? 'Liga Profesional' : 'Primera Nacional'} · Rep. {c.rep}</span></span></button>) })}</div>
-    </div></div>)
+        <button key={id} className="clubcard" onClick={() => { takeJob(g, id); persist(g); setPage('home'); refresh() }}><Badge club={c} size={44} /><span className="grow"><b>{c.name}</b><br /><span className="dim sm">{divName(c)} · Rep. {c.rep}</span></span></button>) })}</div>
+    </div>{saveAlert}</div>)
 
   return (
     <GameCtx.Provider value={ctx}>
       <div className={settings.density === 'compact' ? 'dense' : ''} style={{ height: '100%', ...theme }}>
-        {match ? <MatchView fixture={match} onDone={id => { setMatch(null); saveGame(g); setPost(id); refresh() }} /> : post != null ? <PostMatch fixtureId={post} onDone={() => { setPost(null); setPage('home'); saveGame(g); refresh() }} /> : (
+        {match ? <MatchView fixture={match} onDone={id => { setMatch(null); persist(g); setPost(id); refresh() }} /> : post != null ? <PostMatch fixtureId={post} onDone={() => { setPost(null); setPage('home'); persist(g); refresh() }} /> : (
           <div className={`shell ${menuOpen ? 'side-open' : ''}`}>
             <a className="skip" href="#main" onClick={e => { e.preventDefault(); document.getElementById('main')?.focus() }}>Saltar al contenido</a>
             <aside className="side" aria-label="Navegación">
@@ -221,7 +231,7 @@ export function App() {
               <div className="sidefoot card" style={{ marginTop: 'auto', padding: 12 }}>
                 <div className="row"><ManagerFace a={g.manager.avatar} size={38} /><div className="grow"><div className="ell"><b>{g.manager.name}</b></div><div className="dim sm">Prestigio {Math.round(g.manager.rep)}</div></div></div>
                 <div className="row" style={{ marginTop: 10, gap: 6 }}><button className="btn sm grow" onClick={() => setOverlay('settings')}>Ajustes</button><button className="btn sm" title="Atajos de teclado (?)" onClick={() => setOverlay('help')}>?</button></div>
-                <button className="btn sm" style={{ marginTop: 6, width: '100%' }} onClick={() => { saveGame(g); setSaved(g); setG(null) }}>Menú principal</button>
+                <button className="btn sm" style={{ marginTop: 6, width: '100%' }} onClick={() => { persist(g); setSaved(g); setG(null) }}>Menú principal</button>
               </div>
             </aside>
             <header className="top">
@@ -251,7 +261,7 @@ export function App() {
                 <button className="btn primary cta" title={g.seasonOver ? 'Ir al resumen de la temporada' : today ? '' : 'Avanza un día'} onClick={() => advance()}><span>{g.seasonOver ? 'Nueva temporada' : today ? 'Jugar' : 'Continuar'}</span><svg viewBox="0 0 24 24" aria-hidden><path d="M9 6l6 6-6 6" /></svg></button>
               </>)}
             </header>
-            <SubNav g={g} group={group} page={page} go={setPage} badge={badge} onSettings={() => setOverlay('settings')} onHelp={() => setOverlay('help')} onMainMenu={() => { saveGame(g); setSaved(g); setG(null) }}
+            <SubNav g={g} group={group} page={page} go={setPage} badge={badge} onSettings={() => setOverlay('settings')} onHelp={() => setOverlay('help')} onMainMenu={() => { persist(g); setSaved(g); setG(null) }}
               right={<>
                 {pend.length > 0 && !busy && <button className="btn sm pendbtn" title={`Pendiente: ${pendingText(pend)}. Clic para verlo en la bandeja.`} onClick={() => nav({ page: 'inbox', tab: 'pend' })}><span className="pdot">{pend.length}</span><span className="ell">{pendingText(pend).replace(/^./, c => c.toUpperCase())}</span></button>}
                 {opp && next && !g.seasonOver && <button className="linkish row topnext" style={{ gap: 8 }} onClick={() => ctx.openClub(opp.id)} title="Próximo rival"><span className="dim right sm">{next.home === club.id ? 'Local vs' : 'Visitante en'} <b style={{ color: 'var(--text)' }}>{opp.short}</b> · {fmtDate(next.date).replace(/ \d{4}$/, '')}</span><Badge club={opp} size={22} /></button>}
@@ -263,6 +273,7 @@ export function App() {
             </div></main>
           </div>
         )}
+        {saveAlert}
         <HoverCard />
         {overlay === 'palette' && <CommandPalette pages={PAGES.map(([id, l]) => [id, l])} onClose={() => setOverlay(null)} actions={[
           ...(g.seasonOver ? [] : [{ label: today ? 'Jugar el partido' : 'Continuar un día', hint: single ? 'Espacio' : undefined, run: () => advance() }]),
@@ -271,7 +282,7 @@ export function App() {
           { label: 'Ajustes', hint: 'Densidad, texto, partido', run: () => setOverlay('settings') }, { label: 'Atajos de teclado', hint: single ? '?' : undefined, run: () => setOverlay('help') },
         ]} />}
         {overlay === 'help' && <ShortcutsHelp single={single} onSettings={() => setOverlay('settings')} onClose={() => setOverlay(null)} />}
-        {overlay === 'settings' && <SettingsModal s={settings} onChange={setSettings} onClose={() => setOverlay(null)} onTour={() => { setPage('home'); setTour(true) }} />}
+        {overlay === 'settings' && <SettingsModal s={settings} onChange={setSettings} onClose={() => setOverlay(null)} onTour={() => { setPage('home'); setTour(true) }} onExport={() => exportGame(g)} />}
         {tour && !match && post == null && <Guide onDone={() => { setTour(false); setSettings({ ...settings, tourDone: true }) }} />}
         {press && g.press && <PressModal onClose={() => setPress(false)} />}
       </div>

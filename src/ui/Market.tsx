@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { acceptOffer, askingPrice, haggle, rejectOffer, wageBill, windowOpen } from '../engine/career'
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, ageOn } from '../engine/positions'
+import { knownRating } from '../engine/squad'
 import type { Player, Pos } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Face, Ovr, PosPill, money } from './common'
@@ -22,9 +23,11 @@ export function Market() {
   const [note, setNote] = useState('')
   const club = g.clubs[g.userClubId], open = windowOpen(g.date)
   const done = () => { save(); refresh() }
-  const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && g.clubs[p.clubId]?.division > 0 && (!pos || p.positions.includes(pos as Pos)) && p.ca >= minOvr
-    && ageOn(p.birth, g.date) <= maxAge && (!maxVal || askingPrice(g, p) <= maxVal) && (!div || g.clubs[p.clubId].division === div) && (!only || p.listed || p.contractEnd <= g.season))
-    .sort((a, b) => b.ca - a.ca).slice(0, 400), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
+  // filtro y recorte por lo que sabe el DT (punto medio del rango), no por la valoración real: no revelan lo que el ojeo no sabe
+  const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && g.clubs[p.clubId]?.division > 0 && (!pos || p.positions.includes(pos as Pos))
+    && ageOn(p.birth, g.date) <= maxAge && (!div || g.clubs[p.clubId].division === div) && (!only || p.listed || p.contractEnd <= g.season))
+    .map(p => [p, knownRating(g, p)] as const).filter(([p, v]) => v >= minOvr && (!maxVal || askingPrice(g, p) <= maxVal))
+    .sort((a, b) => b[1] - a[1]).slice(0, 400).map(([p]) => p), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
   const rows = (id: string, list: Player[], empty: string) => <PlayerTable id={id} players={list} views={['ojeo', 'general', 'contrato', 'stats', 'fisico']} def="ojeo" defSort={[{ k: 'val', d: -1 }]} bulk={scoutBulk(g)} limit={100} empty={empty} />
   const L = club.ledger
   return (
@@ -50,12 +53,13 @@ export function Market() {
 
       {tab === 'offers' && <div className="col">
         {note && <div className="card acc">{note}</div>}
+        {!open && g.offers.some(o => g.players[o.pid]) && <div className="dim sm">El libro de pases está cerrado: no podés aceptar ni pedir más, solo rechazar.</div>}
         {g.offers.map(o => { const p = g.players[o.pid]; if (!p) return null; return (
           <div key={o.id} className="card row wrap" style={{ gap: 14 }}>
             <Face p={p} club={club} size={46} /><div className="grow" data-pid={p.id} style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><b>{p.name}</b> <PosPill p={p} /> <Ovr v={p.ca} /><div className="dim sm">Valor {money(p.value)} · llegó el {fmtDate(o.date)}</div></div>
             <div className="row">{o.from ? <Badge club={g.clubs[o.from]} size={30} /> : <span className="chip">Exterior</span>}<div><b>{o.fromName}</b><div className="big" style={{ fontSize: '1.4rem' }}>{money(o.fee)}</div></div></div>
             <div className="row"><button className="btn primary" disabled={!open} onClick={() => { acceptOffer(g, o); setNote(`Vendiste a ${p.name} a ${o.fromName} por ${money(o.fee)}.`); done() }}>Aceptar</button>
-              <button className="btn" onClick={() => { const ok = haggle(g, o); setNote(ok ? `${o.fromName} mejoró su oferta por ${p.name}.` : `${o.fromName} se retiró de la negociación por ${p.name}.`); done() }}>Pedir más</button>
+              <button className="btn" disabled={!open} onClick={() => { const ok = haggle(g, o); setNote(ok ? `${o.fromName} mejoró su oferta por ${p.name}.` : `${o.fromName} se retiró de la negociación por ${p.name}.`); done() }}>Pedir más</button>
               <button className="btn danger" onClick={() => { rejectOffer(g, o); done() }}>Rechazar</button></div>
           </div>) })}
         {!g.offers.length && <div className="card dim">No hay ofertas pendientes. Durante el libro de pases los clubes del país y del exterior pueden ofertar por tus jugadores; si declarás transferible a alguno, llegan más.</div>}

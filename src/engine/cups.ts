@@ -1,5 +1,5 @@
 // Tercera categoría, Copa Argentina, Copa Libertadores y Copa Sudamericana.
-import { addDays, addFx, annualTable, clubsIn, firstSaturday, news, roundRobin, tableOf, zoneTable } from './game'
+import { SPOTS, addDays, addFx, annualTable, clubsIn, firstSaturday, news, roundRobin, tableOf, zoneTable } from './game'
 import { prize } from './career'
 import { Rng } from './rng'
 import type { Competition, Fixture, Game } from './types'
@@ -38,15 +38,18 @@ function initialQual(g: Game) {
   const d1 = clubsIn(g, 1).sort((a, b) => (g.clubs[b].avgHist[0]?.pts ?? 0) - (g.clubs[a].avgHist[0]?.pts ?? 0))
   return { lib: d1.slice(0, 5), sud: d1.slice(5, 10) }
 }
-/** Al cerrar la temporada: campeones y mejores de la tabla anual van a la Libertadores; los siguientes, a la Sudamericana. */
-export function computeQual(g: Game) {
+/** Campeones y mejores de la tabla anual van a la Libertadores; los siguientes, a la Sudamericana. Durante la temporada es la
+ *  proyección "si terminara hoy" (con los campeones ya definidos); las tablas la usan para marcar los puestos (`zoneRule`). */
+export function qualOf(g: Game): { lib: number[]; sud: number[] } {
   const ann = annualTable(g).map(r => r.clubId)
   const lib: number[] = []
   for (const id of [g.comps.AP?.champion, g.comps.CL?.champion, ann[0], g.comps.CA?.champion]) if (id && !lib.includes(id)) lib.push(id)
   for (const id of ann) if (lib.length < 5 && !lib.includes(id)) lib.push(id)
   const sud = ann.filter(id => !lib.includes(id)).slice(0, 5)
-  g.qual = { lib, sud }
+  return { lib, sud }
 }
+/** Al cerrar la temporada fija los clasificados del año siguiente. */
+export function computeQual(g: Game) { g.qual = qualOf(g) }
 
 // ---------- fixture de la temporada ----------
 export function scheduleCups(g: Game, rng: Rng) {
@@ -105,7 +108,7 @@ export const groupTable = (g: Game, comp: string, gi: number) => {
 export function progressCup(g: Game, comp: Competition, fx: Fixture[]) {
   const ex = comp.extra as any, y = g.season
   if (comp.id === 'T3') {
-    const up = ['A', 'B'].flatMap(z => zoneTable(g, 'T3', 3, z).slice(0, 2).map(r => r.clubId))
+    const up = ['A', 'B'].flatMap(z => zoneTable(g, 'T3', 3, z).slice(0, SPOTS.t3Up).map(r => r.clubId))
     ex.promoted = up; comp.phase = 'done'; comp.champion = up[0]
     news(g, { tag: 'torneo', title: 'Ascensos a la Primera Nacional', body: `Terminó la tercera categoría. Ascienden ${up.map(id => g.clubs[id].name).join(', ')}.` })
     return
@@ -161,6 +164,6 @@ export function progressCup(g: Game, comp: Competition, fx: Fixture[]) {
   prize(g, w, P[3]); prize(g, l, P[2])
   g.honours.push({ season: y, comp: comp.name, clubId: w })
   if (w === g.userClubId) g.manager.titles.push(comp.name)
-  g.clubs[w].rep = Math.min(97, g.clubs[w].rep + (comp.id === 'LIB' ? 3 : 1))
+  // la reputación del campeón sube al empezar la temporada siguiente (`bumpRep` en game.ts), con la misma regla que el resto de los logros
   news(g, { tag: 'torneo', clubId: w, title: `¡${g.clubs[w].name}, campeón de la ${comp.name}!`, body: `${g.clubs[w].name} le ganó la final a ${g.clubs[l].name} ${fin.hg}-${fin.ag}${fin.pens ? ` (${fin.pens[0]}-${fin.pens[1]} en los penales)` : ''}.` })
 }

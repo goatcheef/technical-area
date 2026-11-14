@@ -4,7 +4,7 @@ import { POS_LABEL, ageOn } from '../engine/positions'
 import { STAFF_ROLES, type Fixture, type StaffRole, type Tactic } from '../engine/types'
 import { FOCUS, IND_FOCUS, INTENSITY, answerPress, assistantPlan, daysTo, delegatePress, fireStaff, hireStaff, sab, scoutReport, staffBill, staffOf } from '../engine/week'
 import { useGame } from '../store'
-import { Badge, Cond, MatchReport, Modal, PosPill, Seg, Status, money, resultText } from './common'
+import { Badge, Cond, MatchReport, Modal, PosPill, Seg, Status, dec, money, resultText } from './common'
 import { PageTip } from './Guide'
 
 const AbBar = ({ v }: { v: number }) => (
@@ -152,16 +152,26 @@ export function PressModal({ onClose }: { onClose: () => void }) {
 /** Las preguntas de la conferencia con sus respuestas (sin la ventana). */
 export function PressPanel({ onDone, onLater }: { onDone: () => void; onLater?: () => void }) {
   const { g, refresh, save } = useGame()
-  const pr = g.press
+  // la conferencia queda a mano después de responder, para mostrar qué movió lo que se dijo
+  const [pr] = useState(() => g.press)
   const [picks, setPicks] = useState<number[]>(() => pr?.questions.map(() => -1) ?? [])
+  const [effect, setEffect] = useState<{ txt: string; who: string } | null>(null)
   if (!pr) return null
   const f = g.fixtures.find(x => x.id === pr.fixtureId), me = g.clubs[g.userClubId]
   const opp = f ? g.clubs[f.home === me.id ? f.away : f.home] : null
   const finish = () => { save(); refresh(); onDone() }
+  const answered = (txt: string) => { save(); setEffect({ txt, who: 'Respondiste la conferencia' }) }
+  if (effect) return (
+    <div className="col" style={{ gap: 12 }}>
+      <div className="row">{opp && <Badge club={opp} size={40} />}<div className="grow"><h3>Conferencia de prensa</h3><h2>{effect.who}</h2></div></div>
+      <div role="status" className="card" style={{ lineHeight: 1.55 }}>{effect.txt}</div>
+      <div className="dim sm">Lo dicho a mano pesa más, para bien y para mal; el ayudante va a lo seguro y mueve la mitad.</div>
+      <div className="row"><span className="grow" /><button className="btn primary" autoFocus onClick={finish}>Listo</button></div>
+    </div>)
   return (
     <div>
       <div className="row" style={{ marginBottom: 12 }}>{opp && <Badge club={opp} size={40} />}<div className="grow"><h3>Conferencia de prensa</h3><h2>{pr.kind === 'pre' ? `Antes de jugar con ${opp?.short}` : `Después del partido con ${opp?.short}`}</h2></div>{onLater && <button className="btn sm" onClick={onLater}>Más tarde</button>}</div>
-      <div className="dim sm" style={{ marginBottom: 12, lineHeight: 1.5 }}>Lo que digas llega al vestuario y a la dirigencia. Si no respondés antes de seguir, habla el ayudante con respuestas prudentes.</div>
+      <div className="dim sm" style={{ marginBottom: 12, lineHeight: 1.5 }}>Lo que digas llega al vestuario y a la dirigencia, y pesa más que lo que diría el ayudante. Si no respondés antes de seguir, habla él con respuestas prudentes y de poco efecto.</div>
       <div className="col" style={{ gap: 16 }}>{pr.questions.map((q, i) => (
         <div key={i} className="col" style={{ gap: 6 }}><b>{q.q}</b>
           {q.opts.map((o, j) => <button key={j} className={`opt ${picks[i] === j ? 'on' : ''}`} onClick={() => setPicks(picks.map((x, k) => (k === i ? j : x)))}><span>{o.t}</span></button>)}
@@ -170,7 +180,7 @@ export function PressPanel({ onDone, onLater }: { onDone: () => void; onLater?: 
         <button className={`btn sm ${g.delegate.press ? 'on' : ''}`} onClick={() => { g.delegate.press = !g.delegate.press; save(); refresh() }}>{g.delegate.press ? '✓ ' : ''}Que hable siempre el ayudante</button>
         <span className="grow" />
         <button className="btn" onClick={() => { delegatePress(g); finish() }}>Que hable el ayudante</button>
-        <button className="btn primary" disabled={picks.some(p => p < 0)} onClick={() => { answerPress(g, picks); finish() }}>Responder</button>
+        <button className="btn primary" disabled={picks.some(p => p < 0)} onClick={() => answered(answerPress(g, picks))}>Responder</button>
       </div>
     </div>
   )
@@ -188,7 +198,7 @@ export function ReportModal({ f, onClose, onApply }: { f: Fixture; onClose: () =
         <Badge club={r.opp} size={72} />
         <div className="grow"><h3>Informe del rival · {fmtDate(f.date)}</h3><h1 style={{ fontSize: '2.2rem', marginTop: 4 }}>{r.opp.name}</h1><div className="dim">DT {r.opp.manager} · {r.formation} · precisión {prec} ({staffOf(g, 'scout')?.name ?? 'sin jefe de scouting'})</div></div>
         {r.form.length ? <><div className="kpi"><h3>Forma</h3><span className="row" style={{ gap: 3 }}>{r.form.map((x, i) => <span key={i} className="chip" style={{ color: x === 'G' ? 'var(--good)' : x === 'P' ? 'var(--bad)' : 'var(--dim)' }}>{x}</span>)}</span></div>
-        <div className="kpi"><h3>Goles por partido</h3><b>{r.gf.toFixed(1)} / {r.gc.toFixed(1)}</b><span className="dim sm">a favor / en contra</span></div></>
+        <div className="kpi"><h3>Goles por partido</h3><b>{dec(r.gf, 1)} / {dec(r.gc, 1)}</b><span className="dim sm">a favor / en contra</span></div></>
           : <div className="kpi"><h3>Forma</h3><span className="dim">Todavía no jugó esta temporada</span></div>}
         <button className="btn sm" onClick={onClose}>Cerrar ✕</button>
       </div>

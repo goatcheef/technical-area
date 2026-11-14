@@ -94,6 +94,7 @@ export function Pitch2D({ sim, players, colors, tickMs }: { sim: MatchSim; playe
   const cv = useRef<HTMLCanvasElement>(null)
   const st = useRef<{ dots: Dot[]; play: Play | null; tick: number; ball: { x: number; y: number }; flash: number; flashSide: 0 | 1 }>({ dots: [], play: null, tick: -1, ball: { x: 50, y: 50 }, flash: 0, flashSide: 0 })
   const tick = sim.tick
+  const simRef = useRef(sim); simRef.current = sim
 
   // nuevo minuto: reubicar jugadores y armar la jugada
   useEffect(() => {
@@ -145,6 +146,16 @@ export function Pitch2D({ sim, players, colors, tickMs }: { sim: MatchSim; playe
         const sp = Math.min(1, dt * (holder === d.pid ? 9 : 4.2))
         d.x += (d.tx - d.x) * sp; d.y += (d.ty - d.y) * sp
       }
+      // marca personal: aro punteado sobre el marcado y línea punteada hasta su marcador (forma, no solo color)
+      const marks = simRef.current.sides.map(sd => sd.tactic.manMark).filter(Boolean) as { by: number; target: number }[]
+      const marked = new Set<number>()
+      for (const mm of marks) {
+        const t = S.dots.find(d => d.pid === mm.target), b = S.dots.find(d => d.pid === mm.by)
+        if (!t || !b) continue
+        marked.add(t.pid)
+        ctx.save(); ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,.45)'
+        ctx.beginPath(); ctx.moveTo(px(b.x), py(b.y)); ctx.lineTo(px(t.x), py(t.y)); ctx.stroke(); ctx.restore()
+      }
       // jugadores
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
       for (const d of S.dots) {
@@ -153,6 +164,7 @@ export function Pitch2D({ sim, players, colors, tickMs }: { sim: MatchSim; playe
         ctx.beginPath(); ctx.arc(X, Y, 13.5, 0, 7); ctx.fillStyle = col; ctx.fill()
         ctx.lineWidth = holder === d.pid ? 3.5 : 2; ctx.strokeStyle = holder === d.pid ? '#fff' : 'rgba(0,0,0,.55)'; ctx.stroke()
         ctx.fillStyle = ink(col); ctx.font = '700 13px Inter, sans-serif'; ctx.fillText(String(d.num), X, Y + 0.5)
+        if (marked.has(d.pid)) { ctx.save(); ctx.setLineDash([4, 3]); ctx.lineWidth = 2.2; ctx.strokeStyle = '#fff'; ctx.beginPath(); ctx.arc(X, Y, 19, 0, 7); ctx.stroke(); ctx.restore() }
         if (holder === d.pid || pl?.shot?.pid === d.pid) { ctx.font = '650 13px Inter, sans-serif'; const w = ctx.measureText(d.name).width + 10; ctx.fillStyle = 'rgba(6,10,14,.8)'; ctx.fillRect(X - w / 2, Y - 34, w, 17); ctx.fillStyle = '#fff'; ctx.fillText(d.name, X, Y - 25) }
       }
       // pelota

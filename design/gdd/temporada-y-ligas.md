@@ -51,7 +51,7 @@ El calendario y las reglas del fútbol argentino de 2026: Liga Profesional con A
 2. Al terminar: final por el ascenso entre los ganadores de zona en cancha neutral; descienden a la tercera categoría los dos últimos de cada zona (4).
 3. El ganador de la final asciende (premio 400.000) y se arma el Reducido: `A2–B4`, `B2–A4`, `A3–B3`. Semifinales: el perdedor de la final contra el peor de los tres ganadores, y los otros dos entre sí. Final del Reducido; el ganador es el segundo ascenso. Local, el mejor ubicado (`rank` = posición·1000 − puntos), una ronda por semana.
 
-**C. Tablas** (`tableOf`, `game.ts:127-140`): 3 puntos por triunfo, 1 por empate. Orden: puntos, diferencia de gol, goles a favor, id de club. Solo cuenta partidos jugados del conjunto recibido.
+**C. Tablas** (`tableOf`): 3 puntos por triunfo, 1 por empate. Orden: puntos, diferencia de gol, goles a favor y después el desempate del reglamento 2026 según el torneo (F1). Solo cuenta partidos jugados del conjunto recibido.
 
 **D. Crear y volcar un partido**
 1. `createMatch` (`game.ts:318-333`): para cada lado de la IA llama a `planMatch` (`ia-rivales.md`); para el usuario corrige la alineación (`fixLineup`: reemplaza no disponibles por el mejor en el puesto y completa banco de 9 con un arquero). Calcula `boost` y `sp` del usuario, `importance` (1 en eliminación, serie o clásico), público (F3) y árbitro (nombre ficticio de `REF_N` y `REF_A`, `strict` 0,75–1,30).
@@ -64,8 +64,8 @@ El calendario y las reglas del fútbol argentino de 2026: Liga Profesional con A
 4. `continueGame`: solo para simulaciones sin interfaz.
 
 **F. Cierre y nueva temporada**
-1. `closeSeason` (cuando todas las competencias están en `done`): marca `seasonOver`, guarda los descensos, noticia de fin de temporada, clasificados a copas (`computeQual`, `copas.md`), ofertas de fin de temporada (`seasonOffers`, `carrera-del-dt.md`), balance de la dirigencia (F8) y goleador de Primera.
-2. `startNewSeason` (lo dispara el jugador desde Inicio): guarda puntos y partidos de la anual en `avgHist` (últimas 2 temporadas), intercambia descendidos y ascendidos de la Primera Nacional con la tercera (zona por zona, ±3 de reputación, piso 38 / techo 80) y de Primera con la Primera Nacional (`avgHist` vacío para los dos, ±3, piso 40 / techo 95), +1 de reputación a cada campeón (techo 96), suma la temporada al historial de cada jugador, lo desarrolla o envejece (F9), reinicia estadísticas, físico, lesiones, suspensiones, moral 70 y transferibles, renueva planteles (`seasonTurnover`), revalúa valores (el sueldo del plantel del usuario se mantiene), borra ofertas, renueva contratos vencidos del cuerpo técnico propio por un año, refresca la bolsa de técnicos, rearma el plantel (`initSquad`), elige el mejor dibujo de cada club de la IA, arma el fixture, fecha `AAAA-01-10`, nuevo objetivo y confianza F10.
+1. `closeSeason` (cuando todas las competencias están en `done`): marca `seasonOver`, guarda los descensos, noticia de fin de temporada, clasificados a copas (`computeQual`, `copas.md`), balance de la dirigencia (F8, con los ascensos y descensos de las tres categorías), ofertas de fin de temporada (`seasonOffers`, `carrera-del-dt.md`, que miran la confianza y el prestigio que dejó el balance) y goleador de Primera.
+2. `startNewSeason` (lo dispara el jugador desde Inicio): guarda puntos y partidos de la anual en `avgHist` (últimas 2 temporadas), intercambia descendidos y ascendidos de la Primera Nacional con la tercera (zona por zona) y de Primera con la Primera Nacional (`avgHist` vacío para los dos), con la regla única de reputación (F11: ±3 por ascenso o descenso, +1 por título local, +2 la Sudamericana, +4 la Libertadores, dentro del rango de la categoría en la que juega el año siguiente), suma la temporada al historial de cada jugador, lo desarrolla o envejece (F9), reinicia estadísticas, físico, lesiones, suspensiones, moral 70 y transferibles, renueva planteles (`seasonTurnover`), revalúa valores (el sueldo del plantel del usuario se mantiene), borra ofertas, renueva contratos vencidos del cuerpo técnico propio por un año, refresca la bolsa de técnicos, rearma el plantel (`initSquad`), elige el mejor dibujo de cada club de la IA, arma el fixture, fecha `AAAA-01-10`, nuevo objetivo y confianza F10.
 
 **G. Noticias** (`news`, `game.ts:176-185`): se marcan `me` si son del club del usuario, traen acción (`act`) o hablan de un jugador propio. Con más de 320 se borran las más viejas que no son `me` hasta quedar en 300; tope duro 400.
 
@@ -103,10 +103,15 @@ El calendario y las reglas del fútbol argentino de 2026: Liga Profesional con A
 ### F1 · Puntos y orden de la tabla (`game.ts:135-139`)
 
 ```
-pts = 3·G + 1·E;   orden = pts ↓, (GF − GC) ↓, GF ↓, clubId ↑
+pts = 3·G + 1·E;   orden = pts ↓, (GF − GC) ↓, GF ↓, desempate(regla)
+lpf        (zonas de Apertura y Clausura, art. 23): partidos entre los empatados (pts, dif., GF; se repite con los que siguen
+            empatados) → fair play (amarilla 1, roja 3; menos es mejor) → sorteo
+lpf-anual  (tabla anual, art. 24.3): fair play → sorteo
+afa        (Primera Nacional, tercera y grupos de copa): sorteo
+sorteo     = orden fijo por club y torneo que sale del fixture (drawKey)
 ```
 
-Ejemplo: 8G 4E 4P → 28 puntos; ante igualdad total gana el id menor.
+Ejemplo: 8G 4E 4P → 28 puntos; ante igualdad de puntos, diferencia y goles en una zona del Apertura decide el partido entre ellos. El partido de desempate que el reglamento manda para los descensos no se juega: se usan estos mismos criterios (en los promedios, con igual promedio queda arriba el mejor de la anual).
 
 ### F2 · Promedio (`promedios`, `game.ts:147-155`)
 
@@ -170,7 +175,7 @@ se cumple: susp −= 1 por cada partido de su club (cualquier competencia) en el
 ### F8 · Balance de temporada de la dirigencia (`seasonReview`, `game.ts:528-538`)
 
 ```
-ok = puesto ≤ objetivo ∨ campeón ∨ ascendido a Primera
+ok = puesto ≤ objetivo ∨ campeón ∨ ascendido (a Primera o desde la tercera a la Primera Nacional)
 confianza = clamp(confianza + (ok ? 15 : −min(25, 1.5·(puesto − objetivo))) + 20·títulos − (descendido ? 30 : 0), 0, 100)
 rep_DT = clamp(rep_DT + (ok ? 4 : −2) + 8·títulos + (ascenso ? 6 : 0) − (descenso ? 8 : 0), 5, 99)
 ```
@@ -181,12 +186,13 @@ rep_DT = clamp(rep_DT + (ok ? 4 : −2) + 8·títulos + (ascenso ? 6 : 0) − (d
 
 ```
 ≤ 24 años y ca < pa: gain = min(pa − ca, base·(0.6 + min(1, minutos/1500)·0.7)·k·(0.6 + prof/20)·(0.5 + U))
-   base = 4.5 (≤20) | 3 (≤22) | 1.5 (≤24);  se suben round(2.6·gain) atributos del puesto, ponderados por su peso
+   base = 4.5 (≤20) | 3 (≤22) | 1.5 (≤24);  se suben hasta round(2.6·gain) atributos del puesto, ponderados por su peso,
+   de a uno: el que lo pasaría de su pa se deshace y ahí termina (el potencial no sube)
 ≥ 31: cada uno de pac, acc, sta, str baja 1 con 0.3 + 0.1·(edad − 31); ≥ 34: además 2 atributos al azar −1
 k = 1 + (you_DT − 10)·0.04 en el club del usuario, 1 en el resto
 ```
 
-**Ejemplo**: 19 años, 1500 minutos, `prof 12`, U 0,5 → `4,5·1,3·1,2·1 = 7,0` → 18 atributos +1 (tope `pa − ca`).
+**Ejemplo**: 19 años, 1500 minutos, `prof 12`, U 0,5 → `4,5·1,3·1,2·1 = 7,0` → hasta 18 atributos +1 (corta antes si llega a `pa`). Solo en la rama de envejecimiento se ajusta `pa = max(pa, ca)`.
 
 ### F10 · Confianza al empezar el año (`game.ts:665`)
 
@@ -196,16 +202,27 @@ confianza = clamp(0.6·confianza + 24, 0, 100)
 
 Ejemplo: 90 → 78; 20 → 36. Comprime hacia 60.
 
+### F11 · Reputación de los clubes por resultados (`bumpRep`, `game.ts`)
+
+```
+REP_RANGE = { Primera y exterior: 40–97, Primera Nacional: 40–80, tercera: 38–62 }   // de la categoría del año siguiente
+REP_STEP  = { ascenso +3, descenso −3, título local +1, Sudamericana +2, Libertadores +4 }
+logro:    rep = max(rep, min(techo, rep + paso))     // nunca baja
+descenso: rep = min(rep, max(piso, rep − 3))         // nunca sube
+```
+
+Se aplica al empezar la temporada siguiente, primero ascensos y descensos y después los títulos. Ejemplo: un club de 79 que asciende a Primera y gana la Copa Argentina → 82 y 83; uno de la Primera Nacional campeón con 80 queda en 80.
+
 ## Edge Cases
 
 | Situación | Qué pasa | Estado |
 |---|---|---|
-| Empate total en la tabla | Decide el id de club, sin enfrentamiento directo ni sorteo | ❓ |
+| Empate total en la tabla | Partidos entre sí (zonas de la Liga Profesional), fair play y sorteo según el reglamento 2026 (F1) | ✅ Resuelto (2026-11-14) |
 | Último de la anual y peor promedio son el mismo | El segundo descenso es el peor promedio de los otros 29 | ✅ |
 | Rivales clásicos en la misma zona | No se alinean; esa fecha libre se cruza con otro club | ✅ |
 | Clasificado a copas que desciende | Juega la copa del año siguiente desde la Primera Nacional (los clasificados se fijan antes del descenso) | ❓ |
-| Ascenso desde la tercera con el usuario | `seasonReview` solo reconoce como "Ascenso" el paso a Primera: un ascenso a la Primera Nacional cuenta como `ok` por objetivo, pero la nota no dice "Ascenso" y no suma +6 | ⚠️ |
-| El usuario juega un martes (Libertadores) | `finishUserMatch` no corre `weeklyReserve`: si el día siguiente es miércoles, esa semana no hay reserva | ⚠️ |
+| Ascenso desde la tercera con el usuario | `seasonReview` recibe también los ascensos y descensos entre la Primera Nacional y la tercera: nota "Ascenso" y +6 | ✅ Resuelto (2026-11-14) |
+| El usuario juega un martes (Libertadores) | `finishUserMatch` pasa por `nightSquad`, que corre la reserva los miércoles | ✅ Resuelto (2026-11-14) |
 | El usuario no responde una conferencia | Al avanzar, la contesta el ayudante | ✅ |
 | Día con partido del usuario | `advanceDay` no simula nada: los otros partidos del torneo se juegan en vivo a la par (`syncLive`) y se registran con el resultado visto | ✅ |
 | Varias ofertas o decisiones en un mismo avance | El bucle de la interfaz frena en la primera nueva | ✅ |
@@ -329,16 +346,17 @@ Pendiente que este sistema habilita: `season` (`pendingOf`, `Inbox.tsx:23`), que
 
 | Pregunta | Owner | Deadline | Resolution |
 |---|---|---|---|
-| `INTENT UNKNOWN — inferred from implementation, not confirmed`: desempate final por id de club. ¿Enfrentamiento directo, sorteo o definición? | usuario | — | — |
+| `INTENT UNKNOWN — inferred from implementation, not confirmed`: desempate final por id de club. ¿Enfrentamiento directo, sorteo o definición? | usuario | — | Resuelta (2026-11-14): reglamento 2026 (F1) |
 | `INTENT UNKNOWN`: ¿un clasificado a copas que desciende debe jugarlas igual? | usuario | — | — |
-| `INTENT UNKNOWN`: ¿el ascenso desde la tercera debe contar como "Ascenso" en el balance (+6 de reputación)? | usuario | — | — |
+| `INTENT UNKNOWN`: ¿el ascenso desde la tercera debe contar como "Ascenso" en el balance (+6 de reputación)? | usuario | — | Resuelta (2026-11-14): sí |
 | `INTENT UNKNOWN`: ¿las sanciones de liga deben cumplirse también en copas? | usuario | — | — |
-| ¿La reserva semanal debe correr aunque el usuario juegue el martes? | usuario | — | — |
+| ¿La reserva semanal debe correr aunque el usuario juegue el martes? | usuario | — | Resuelta (2026-11-14): sí (`nightSquad`) |
 | `CLAUDE.md` marca como faltantes los descensos desde la tercera (no hay cuarta), la Supercopa y el Trofeo de Campeones. | usuario | — | Fuera del código actual |
-| Techos de reputación distintos (95 al ascender, 96 por título, 97 por la Libertadores, 80 al subir de la tercera): ¿son a propósito? | usuario | — | — |
+| Techos de reputación distintos (95 al ascender, 96 por título, 97 por la Libertadores, 80 al subir de la tercera): ¿son a propósito? | usuario | — | Resuelta (2026-11-14): una sola regla con rango por categoría (F11) |
 
 ## Version History
 
 | Fecha | Autor | Cambios |
 |---|---|---|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/game.ts` (`d9b251a`) |
+| 2026-11-14 | Claude | Resueltos: desempate del reglamento 2026 (F1), ascenso desde la tercera en el balance (F8), reserva del martes, techos de reputación con una regla (F11), ofertas de fin de temporada después del balance y tope de potencial en `develop` (F9) |

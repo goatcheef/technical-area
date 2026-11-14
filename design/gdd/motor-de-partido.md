@@ -248,9 +248,10 @@ p3 = clamp( 0.352 + (a3 − d3)·0.035 + bonus3 + 0.02(mentality−2) + 0.025(te
 ### F7 · xG y probabilidad de gol (`match.ts:409-412`)
 
 ```
-xg    = tipo = penal ? 0.77 : base · (0.54 + 0.72·U),  U ~ [0,1)
+q     = tipo = penal ? 0.77 : base · (0.54 + 0.72·U),  U ~ [0,1)
 gkQ   = hay arquero ? posRating(GK)/100 · eff/max(0.5, roleFit) : 0.3
-pGoal = clamp( xg · (0.49 + 0.92·skRem) · role.shoot^0.25 · (1.62 − 0.9·gkQ) · (lejos y arquero sk ? 1.2 : 1), 0.008, 0.95 )
+xg    = clamp( q · (0.49 + 0.92·skRem) · role.shoot^0.25 · (1.62 − 0.9·gkQ) · (lejos y arquero sk ? 1.2 : 1), 0.008, 0.95 )
+gol   = U' < xg   (si es gol: gol en contra con 7 % cabezazo, 2,8 % resto, 1 % mano a mano, 0 penal)
 ```
 
 | Variable | Tipo | Rango | Fuente | Descripción |
@@ -259,10 +260,10 @@ pGoal = clamp( xg · (0.49 + 0.92·skRem) · role.shoot^0.25 · (1.62 − 0.9·g
 | skRem | float | 0,05–1 | atributos/20–80 | Calidad de definición (p. ej. `(2·fin+com+fto)/80`) |
 | role.shoot | float | 0,5–1,8 | `ROLES` | Peso del rol al rematar |
 | gkQ | float | 0–≈1,1 | arquero rival | Calidad del arquero |
-| xg | float | 0,019–0,32 (penal 0,77) | calculado | xG que se muestra y se suma |
-| pGoal | float | 0,008–0,95 | calculado | Probabilidad real de gol |
+| q | float | 0,019–0,32 (penal 0,77) | calculado | Calidad de la ocasión antes del rematador y el arquero |
+| xg | float | 0,008–0,95 | calculado | Probabilidad real de gol: es el xG que se muestra y se suma |
 
-**Rango**: acotado. El máximo sin tope (penal, definidor 20, rol 1,8, sin arquero) pasa 2, por eso el techo 0,95. **Ejemplo**: medialuna, U 0,5 → xg 0,081; `fin 14, com 12, fto 12` → skRem 0,65; arquero de 70 con eff 0,95 → gkQ 0,665; `0,081·1,088·1·1,021 = 0,090`. El xG mostrado queda, en promedio, algo por debajo de la probabilidad real (factor medio ≈1,08 con valores típicos).
+**Rango**: acotado. El máximo sin tope (penal, definidor 20, rol 1,8, sin arquero) pasa 2, por eso el techo 0,95. **Ejemplo**: medialuna, U 0,5 → q 0,081; `fin 14, com 12, fto 12` → skRem 0,65; arquero de 70 con eff 0,95 → gkQ 0,665; `xg = 0,081·1,088·1·1,021 = 0,090`. Desde el 2026-11-14 el xG mostrado es la misma probabilidad con la que se sortea el gol (antes se mostraba `q`, ≈8 % por debajo).
 
 ### F8 · Contraataque tras una pérdida (`match.ts:345`)
 
@@ -333,10 +334,10 @@ final: +0.5 arquero/defensor y +0.25 volante central con valla invicta y ≥ 60'
 | Banda sin jugadores | Ese carril pesa ×0,15 | ✅ `match.ts:181` |
 | Carril o grupo vacío | `inCh` cae a cualquiera de campo, después a cualquiera; `grp` vacío vale 8 | ✅ |
 | Orden "marcarlo encima" sobre un rival más rápido | Mejora al atacante (×1,04): castiga la orden mal dada | ✅ |
-| Marca personal cuyo encargado sale de la cancha | `O.on.find` no lo encuentra: la marca deja de aplicarse sin aviso | ⚠️ no se limpia `manMark` |
+| Marca personal cuyo encargado sale de la cancha | `markGone` termina la marca y lo dice el relato ("Termina la marca personal de …"); en la IA, si entra un DM o un DC a su puesto, toma la marca. Lo mismo si el marcado sale o pasa al arco | ✅ Resuelto (2026-11-14): la marca se limpia y se anuncia; se ve en la lista de jugadores (⊙ / →) y en la cancha 2D (aro punteado sobre el marcado) |
 | Charla previa y charla del entretiempo | La segunda reemplaza a la primera (`S.talk = eff`) | ❓ ver Open Questions |
 | `preTalk` en cancha neutral | Los dos lados se calculan como visitantes (−4) | ❓ |
-| Gol en contra | El tipo `own` existe y la UI lo muestra, pero el motor nunca lo genera | ⚠️ |
+| Gol en contra | Cuando un remate es gol, con probabilidad 7 % (cabezazo), 2,8 % (resto), 1 % (mano a mano) y 0 (penal) lo convierte un defensor o un DM rival (`ownGoal`): cuenta para el que atacaba, el relato dice "Gol en contra de …" | ✅ Resuelto (2026-11-14): `own` se genera y se conserva también en los partidos entre clubes de la IA (`simFixture`) |
 | Goles en el descuento | Se anotan como 45' o 90' (los minutos del descuento repiten el número) | ✅ por diseño de `ticks` |
 | Más de un cambio de dibujo en el partido | Cada uno baja la familiaridad del lado 0,02, piso 0,9 | ✅ |
 | Cambiar de dibujo en vivo y el valor de `club.fam` | La táctica del partido es una copia: `applyResult` mide la familiaridad con el dibujo previo | ✅ |
@@ -363,7 +364,7 @@ final: +0.5 arquero/defensor y +0.25 volante central con valla invicta y ≥ 60'
 
 | Métrica | Meta | Perillas principales |
 |---|---|---|
-| Goles por partido | 2,1–2,3 | bases de F7, `0,49`/`0,92`/`1,62`/`0,9` de `pGoal`, `0,352` de F6 |
+| Goles por partido | 2,1–2,3 | bases de F7, `0,49`/`0,92`/`1,62`/`0,9` de `xg` (F7), `0,352` de F6 |
 | Triunfos locales | 39–42 % | `0,045` (medio), `0,02` (`home`), crowd `0,35 + rep/160` |
 | Empates / 0-0 | 26–28 % / 12–14 % | indirecto: volumen de ocasiones y `pGoal` |
 | Remates | 22 | `0,352` (F6), `0,6` (F5), `0,93` (F4) |
@@ -481,15 +482,16 @@ El juego no tiene audio: todas las columnas de sonido son "—".
 |---|---|---|---|
 | `INTENT UNKNOWN — inferred from implementation, not confirmed`: ¿la charla del entretiempo debe reemplazar a la previa o sumarse? Hoy reemplaza. | usuario | — | — |
 | `INTENT UNKNOWN`: ¿el lado del usuario debería reacomodarse solo tras una expulsión, como la IA? | usuario | — | — |
-| `INTENT UNKNOWN`: la marca personal se pierde sin aviso si el encargado sale. ¿Avisar, reasignar o limpiarla? | usuario | — | — |
+| `INTENT UNKNOWN`: la marca personal se pierde sin aviso si el encargado sale. ¿Avisar, reasignar o limpiarla? | usuario | — | Resuelta (2026-11-14): termina con aviso en el relato; en la IA la toma el que entra (DM o DC) |
 | `INTENT UNKNOWN`: 5 cambios sin ventanas. ¿Se quieren las 3 ventanas del reglamento? | usuario | — | — |
-| `INTENT UNKNOWN`: no hay goles en contra pese a que `own` existe en tipos y UI. ¿Se agregan o se quita el tipo? | usuario | — | — |
+| `INTENT UNKNOWN`: no hay goles en contra pese a que `own` existe en tipos y UI. ¿Se agregan o se quita el tipo? | usuario | — | Resuelta (2026-11-14): se agregan (`ownGoal`, ver F7) |
 | `INTENT UNKNOWN`: `preTalk` trata a los dos equipos como visitantes en cancha neutral. ¿Es a propósito? | usuario | — | — |
-| ¿El xG mostrado debe coincidir con la probabilidad real de gol? Hoy la subestima en ≈8 % con valores típicos. | usuario + systems-designer | — | — |
-| Las metas de calibración no se verificaron al escribir este documento (no se corrió la simulación). | — | — | Pendiente de `npm run sim -- 2` |
+| ¿El xG mostrado debe coincidir con la probabilidad real de gol? Hoy la subestima en ≈8 % con valores típicos. | usuario + systems-designer | — | Resuelta (2026-11-14): sí; el xG mostrado es la probabilidad del sorteo (F7) |
+| Las metas de calibración no se verificaron al escribir este documento (no se corrió la simulación). | — | — | Medido el 2026-11-14 con `npm run sim -- 3` (semilla del script; por temporada): 1,94–2,12 goles, 38,8–40,6 % local, 28,2–28,8 % empates, 13,7–15,1 % 0-0, 20,7–21,9 remates, 9,0–9,3 córners, 3,3 offsides, 5,2–5,4 amarillas y 0,31–0,35 rojas por partido. Goles y empates quedan en el borde inferior y superior de la meta (ya pasaba antes de esta ronda: 2,04–2,07 goles) |
 
 ## Version History
 
 | Fecha | Autor | Cambios |
 |---|---|---|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/match.ts` (`d9b251a`) |
+| 2026-11-14 | Claude | Edge Cases y Open Questions: resueltos la marca personal que se pierde sin aviso, los goles en contra y el xG que no era la probabilidad real (F7 actualizada) |

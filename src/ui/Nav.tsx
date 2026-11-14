@@ -1,15 +1,15 @@
 // Navegación de la etapa 1: ficha de club, ficha breve al pasar el mouse, barra de comandos, atajos y ajustes.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { divName } from '../engine/career'
 import { clubsIn, fmtDate, leagueFx, squadOf, tableOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
 import { knowOf } from '../engine/squad'
 import type { Club, Game } from '../engine/types'
 import { useGame, type Settings } from '../store'
-import { Badge, Cond, Face, Modal, PosPill, Seg, Status, Val, avgRat, money, resultText } from './common'
+import { Badge, Cond, Face, Modal, PosPill, Seg, Status, Val, avgRat, dec, money, resultText, seenRating } from './common'
 import { FavButton } from './PlayerPage'
 import { SquadTable } from './Squad'
 
-export const DIV_NAME = ['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A']
 const leagueComp = (g: Game, c: Club) => (c.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : c.division === 2 ? 'PN' : c.division === 3 ? 'T3' : '')
 function standing(g: Game, c: Club): string {
   const comp = leagueComp(g, c)
@@ -29,13 +29,13 @@ export function ClubPage({ id, tab = 'plantel' }: { id: number; tab?: string }) 
   const sq = squadOf(g, id), mine = id === g.userClubId
   const fx = g.fixtures.filter(f => f.home === id || f.away === id)
   const TABS: [string, string][] = [['plantel', 'Plantel'], ['partidos', 'Partidos'], ['club', 'El club']]
-  const best = [...sq].sort((a, b) => b.ca - a.ca).slice(0, 3)
+  const best = sq.map(p => [p, mine ? p.ca : seenRating(g, p)] as const).sort((a, b) => b[1] - a[1]).map(([p]) => p).slice(0, 3)
   return (
     <div className="page">
       <div className="hero row wrap" style={{ gap: 22 }}>
         <Badge club={c} size={96} />
-        <div className="grow"><h3>{DIV_NAME[c.division]}{c.division ? ` · Zona ${c.zone}` : ` · ${c.country ?? ''}`}</h3><h1 style={{ marginTop: 4 }}>{c.name}</h1>
-          <div className="dim">{c.city}{c.stadium ? ` · ${c.stadium}` : ''}{c.capacity ? ` · ${c.capacity.toLocaleString('es-AR')} espectadores` : ''}</div>
+        <div className="grow"><h3>{divName(c)}{c.division === 3 ? '' : c.division ? ` · Zona ${c.zone}` : ` · ${c.country ?? ''}`}</h3><h1 style={{ marginTop: 4 }}>{c.name}</h1>
+          <div className="dim">{c.city}{c.stadium ? ` · ${c.stadium}` : ''}{c.capacity ? ` · ${dec(c.capacity)} espectadores` : ''}</div>
           <div className="dim sm" style={{ marginTop: 4 }}>DT: {c.manager} · {standing(g, c) || 'sin torneo de liga en curso'}</div></div>
         <div className="kpi"><h3>Reputación</h3><b>{c.rep}</b></div>
         <div className="kpi"><h3>Forma</h3><FormChips f={formOf(g, id)} /></div>
@@ -52,7 +52,7 @@ export function ClubPage({ id, tab = 'plantel' }: { id: number; tab?: string }) 
       {tab === 'club' && <div className="dash">
         <div className="card s4 col"><h3>Plantel</h3>
           <div className="row between"><span className="dim">Jugadores</span><b>{sq.length}</b></div>
-          <div className="row between"><span className="dim">Edad media</span><b>{(sq.reduce((s, p) => s + ageOn(p.birth, g.date), 0) / Math.max(1, sq.length)).toFixed(1)}</b></div>
+          <div className="row between"><span className="dim">Edad media</span><b>{dec(sq.reduce((s, p) => s + ageOn(p.birth, g.date), 0) / Math.max(1, sq.length), 1)}</b></div>
           <div className="row between"><span className="dim">Valor</span><b>{money(sq.reduce((s, p) => s + p.value, 0))}</b></div></div>
         <div className="card s4 col"><h3>Figuras</h3>{best.map(p => <button key={p.id} className="linkish row" data-pid={p.id} onClick={() => openPlayer(p.id)}><Face p={p} size={28} /><span className="grow ell">{p.name}</span><Val p={p} /></button>)}</div>
         <div className="card s4 col"><h3>Palmarés en tu carrera</h3>{g.honours.filter(h => h.clubId === id).length ? g.honours.filter(h => h.clubId === id).map((h, i) => <div key={i} className="chip acc">🏆 {h.comp}</div>) : <div className="dim sm">Sin títulos desde que empezó tu carrera.</div>}</div>
@@ -132,7 +132,7 @@ export function HoverCard() {
     const c = g.clubs[hc.id]
     if (!c) return null
     body = (<>
-      <div className="row"><Badge club={c} size={40} /><div className="grow" style={{ minWidth: 0 }}><b className="ell" style={{ display: 'block' }}>{c.name}</b><span className="dim sm">{DIV_NAME[c.division]}{c.division ? ` · Zona ${c.zone}` : ''}</span></div></div>
+      <div className="row"><Badge club={c} size={40} /><div className="grow" style={{ minWidth: 0 }}><b className="ell" style={{ display: 'block' }}>{c.name}</b><span className="dim sm">{divName(c)}{c.division && c.division !== 3 ? ` · Zona ${c.zone}` : ''}</span></div></div>
       <div className="hc-grid">
         <span className="dim">Posición</span><span>{standing(g, c) || '–'}</span>
         <span className="dim">Forma</span><FormChips f={formOf(g, c.id)} />
@@ -158,8 +158,8 @@ export function CommandPalette({ pages, actions, onClose }: { pages: [string, st
   for (const a of actions) if (match(a.label)) items.push(a)
   pages.forEach(([id, l], i) => { if (match(l)) items.push({ label: l, hint: i < 10 && single ? `Pantalla · tecla ${(i + 1) % 10}` : 'Pantalla', run: () => go(id) }) })
   if (ql.length >= 2) {
-    Object.values(g.clubs).filter(c => c.name.toLowerCase().includes(ql) || c.short.toLowerCase().includes(ql)).slice(0, 5).forEach(c => items.push({ label: c.name, hint: `Club · ${DIV_NAME[c.division]}`, run: () => openClub(c.id), icon: <Badge club={c} size={20} /> }))
-    Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8).forEach(p => items.push({ label: p.name, hint: `Jugador · ${g.clubs[p.clubId]?.short}`, run: () => openPlayer(p.id), icon: <Face p={p} size={22} /> }))
+    Object.values(g.clubs).filter(c => c.name.toLowerCase().includes(ql) || c.short.toLowerCase().includes(ql)).slice(0, 5).forEach(c => items.push({ label: c.name, hint: `Club · ${divName(c)}`, run: () => openClub(c.id), icon: <Badge club={c} size={20} /> }))
+    Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).map(p => [p, seenRating(g, p)] as const).sort((a, b) => b[1] - a[1]).slice(0, 8).forEach(([p]) => items.push({ label: p.name, hint: `Jugador · ${g.clubs[p.clubId]?.short}`, run: () => openPlayer(p.id), icon: <Face p={p} size={22} /> }))
   }
   const run = (c?: Command) => { if (!c) return; onClose(); c.run() }
   return (
@@ -196,7 +196,7 @@ export function ShortcutsHelp({ onClose, single = true, onSettings }: { onClose:
     <div className="row wrap" style={{ gap: 10, marginBottom: 12 }}><span className="grow sm">Atajos de una tecla: <b>{single ? 'encendidos' : 'apagados'}</b>. {single ? 'Se pueden apagar en Ajustes, en Accesibilidad.' : 'Las teclas marcadas no hacen nada; se encienden en Ajustes.'}</span>{onSettings && <button className="btn sm" onClick={() => { onClose(); onSettings() }}>Ir a Ajustes</button>}</div>
     <table><tbody>{SHORTCUTS.map(([k, d, one]) => <tr key={k} className={one && !single ? 'kbd-off' : ''}><td><span className="kbd">{k}</span></td><td>{d}{one && <span className="dim">{single ? ' · una tecla' : ' · apagado'}</span>}</td></tr>)}</tbody></table></Modal>
 }
-export function SettingsModal({ s, onChange, onClose, onTour }: { s: Settings; onChange: (s: Settings) => void; onClose: () => void; onTour?: () => void }) {
+export function SettingsModal({ s, onChange, onClose, onTour, onExport }: { s: Settings; onChange: (s: Settings) => void; onClose: () => void; onTour?: () => void; onExport?: () => void }) {
   return <Modal onClose={onClose}>
     <div className="row between" style={{ marginBottom: 14 }}><h2>Ajustes</h2><button className="btn sm" onClick={onClose}>Listo</button></div>
     <div className="col" style={{ gap: 16 }}>
@@ -211,6 +211,8 @@ export function SettingsModal({ s, onChange, onClose, onTour }: { s: Settings; o
       <h3 style={{ marginTop: 6 }}>Ayudas</h3>
       <div className="row wrap"><Seg label="Ayudas en cada pantalla" value={s.tips === false ? 1 : 0} options={['Mostrar ayudas en cada pantalla', 'Ocultarlas']} onChange={v => onChange({ ...s, tips: !v, seenTips: v ? s.seenTips : [] })} />
         {onTour && <button className="btn sm" onClick={() => { onClose(); onTour() }}>Volver a ver la guía</button>}</div>
+      {onExport && <><h3 style={{ marginTop: 6 }}>Partida</h3>
+        <div className="row wrap"><button className="btn sm" onClick={onExport}>Exportar partida</button><span className="dim sm">Baja un archivo con la partida: sirve de copia si el navegador no puede guardarla.</span></div></>}
       <div className="dim sm">Los ajustes se guardan en este navegador.</div>
     </div>
   </Modal>

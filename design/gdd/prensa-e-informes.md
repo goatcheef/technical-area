@@ -46,13 +46,13 @@ Tres piezas que rodean cada partido del DT: el informe del rival (llega 3 días 
 
 1. Calcula `días` = días enteros hasta el próximo partido del DT (`nextUserFixture`).
 2. **Informe del rival**: si `días ≤ 3` y todavía no se mandó para ese partido (`training.reportFor ≠ id`), marca `reportFor = id`, arma `scoutReport` y emite una noticia `tag: 'club'`, `clubId: rival`, `act: 'rival'`, `ref: id del partido`. El cuerpo lleva las dos primeras líneas de estilo y el punto débil, firmados por el jefe de scouting (o "El cuerpo técnico" si está vacante).
-3. **Conferencia previa**: si `días = 1`, todavía no se generó para ese partido (`training.pressFor ≠ id`) y **no hay otra conferencia abierta** (`!g.press`), marca `pressFor = id` y crea `g.press = makePrePress`. Si `g.delegate.press` está activo, la responde el ayudante en el acto.
+3. **Conferencia previa**: si `días = 1` y todavía no se generó para ese partido (`training.pressFor ≠ id`): sin conferencia abierta, marca `pressFor = id` y crea `g.press = makePrePress` (si `g.delegate.press` está activo, la responde el ayudante en el acto); si sigue abierta la posterior del partido anterior (partidos a dos días), le suma las dos primeras preguntas de la previa y se responde o se delega antes del partido.
 4. El lunes, `dayEvents` además emite el parte de entrenamiento y corre el mercado de entrenadores (fuera de este documento). Todos los días descuenta los sueldos del cuerpo técnico.
 
 **Informe del rival** (`scoutReport`, `week.ts:142-193`). Se recalcula **cada vez que se abre**, con el estado del momento; la noticia es una foto del día en que llegó.
 
 5. **Precisión**: `acc = round(scout × 0,6 + asst × 0,4)` (F1). Con `acc ≥ 16` las valoraciones son exactas; si no, son rangos de ancho `2 × spread` (F2). La pantalla dice precisión alta (≥ 16), media (≥ 10) o baja.
-6. **Once probable**: el once que elegiría la IA con su dibujo (`autoPick`), no el que fija el plan del partido (`planMatch`). Se lista ordenado por valoración real de mayor a menor, con la valoración como rango.
+6. **Once probable**: el plan que la IA prevé para ese partido (`predictPlan`: dibujo, once, rotación e instrucciones, con el mismo azar que el plan del día). Se lista ordenado por la valoración que estima el cuerpo técnico (punto medio del rango), no por la real.
 7. **Cómo juega**: frases según las instrucciones del rival. Siempre una de mentalidad (≤ 1 replegado, ≥ 3 ofensivo, si no equilibrado) y una de salida (larga, corta o mixta); además presión alta o nula, línea adelantada o baja, centros (`finalThird = 2`), remate de media distancia (`finalThird = 3`) y contragolpe (`onWin = 1`).
 8. **Forma**: G, E o P de sus últimos 5 partidos jugados (todas las competencias) y goles a favor y en contra por partido.
 9. **Punto débil**: el defensor de menor valoración. El texto dice su puesto, la valoración si `acc ≥ 10` y por dónde atacar: su lateral derecho → "por tu izquierda" (`focus 0`), su lateral izquierdo → "por tu derecha" (`focus 2`), un central → "por el medio" (`focus 1`). Sin defensores: "No se le ve un punto débil claro en la defensa."
@@ -97,7 +97,7 @@ P8 garantiza al menos una pregunta.
 
 **Responder** (`answerPress`, `week.ts:272-288`)
 
-14. Por cada pregunta se toma la opción elegida (si falta, la 0). Se aplican los efectos (F3): `morale` a **todo** el plantel (también lesionados), `star` al jugador de la pregunta, `board` a la confianza de la dirigencia, `rep` al prestigio del DT.
+14. Por cada pregunta se toma la opción elegida (si falta, la 0). Se aplican los efectos (F3) con su peso: a mano ×1,5, delegada la mitad hacia cero. `morale` a **todo** el plantel (también lesionados), `star` al jugador de la pregunta, `board` a la confianza de la dirigencia, `rep` al prestigio del DT. `answerPress` devuelve el efecto en una línea ("Efecto: moral del plantel +5, …") que la ventana muestra al responder.
 15. Sale una noticia `tag: 'club'`, `clubId: club del DT`, sin `act`, con título `{quién}: "{primera cita}"` y todas las citas en el cuerpo. `{quién}` es el DT, o el ayudante (o "El ayudante de campo" si está vacante) si se delegó.
 16. `g.press` queda en `null`.
 
@@ -150,20 +150,22 @@ Ejemplo: scout 12, asst 10 → 11 (media). Ambos vacantes (4) → 4 (baja).
 **F2. Rango de una valoración** (`week.ts:149-150`)
 ```
 spread = acc ≥ 16 ? 0 : round((20 − acc) / 2,5)
-est(v) = spread = 0 ? round(v) : "max(1, round(v) − spread)–min(99, round(v) + spread)"
+w      = min(spread, knowWidth(jugador, 9))          // nunca peor que lo que ya se sabe por el ojeo
+est(v) = rangeAround(pid, round(v), w, 61, 1, 99)    // corrimiento fijo de hasta 0,8·w: no se centra en el valor real
 ```
 | acc | 4 | 8 | 10 | 12 | 14 | 15 | 16+ |
 |---|---|---|---|---|---|---|---|
 | spread | 6 | 5 | 4 | 3 | 2 | 2 | 0 |
 
-Ejemplo: valoración real 72 con acc 11 → "68-76".
+Ejemplo: valoración real 72 con acc 11 y un jugador poco conocido → ancho 4, un rango de 8 puntos que contiene el 72 (por ejemplo "66-74").
 
 **F3. Efectos de una respuesta** (`week.ts:280-283`)
 ```
-para cada jugador del plantel: morale = clamp(morale + a.morale, 5, 100)
-jugador de la pregunta:       morale = clamp(morale + a.star, 5, 100)
-dirigencia:                   confidence = clamp(confidence + a.board, 0, 100)
-DT:                           rep = clamp(rep + a.rep, 5, 99)
+peso(v)  = delegada ? trunc(v / 2) : signo(v) · round(|v| · 1,5)
+para cada jugador del plantel: morale = clamp(morale + peso(a.morale), 5, 100)
+jugador de la pregunta:       morale = clamp(morale + peso(a.star), 5, 100)
+dirigencia:                   confidence = clamp(confidence + peso(a.board), 0, 100)
+DT:                           rep = clamp(rep + peso(a.rep), 5, 99)
 ```
 | Variable | Tipo | Rango | Fuente | Descripción |
 |---|---|---|---|---|
@@ -207,11 +209,11 @@ informe si días ≤ 3;  conferencia previa si días = 1
 
 | Scenario | Comportamiento actual | Nota |
 |----------|----------------------|------|
-| Partido dos días después de otro | La posterior sigue abierta cuando `dayEvents` evalúa `días = 1` (`!g.press` falla) y al día siguiente ya es día de partido: **no hay conferencia previa**. Pasa siempre con partidos a 2 días, salvo con delegación permanente. | Posible error. |
+| Partido dos días después de otro | Las preguntas de la previa se suman a la posterior que sigue abierta (regla 3) | ✅ Resuelto (2026-11-14) |
 | Conferencia previa sin responder y se juega | Imposible por el flujo actual (el avance la delega), salvo el caso anterior. Si existiera, `finishUserMatch` la delega después del partido y la moral llega tarde. | — |
 | Rachas con copas | `streak` asume que `g.fixtures` está en orden de fecha; los partidos de copa se agregan aparte | A verificar. |
-| El informe revela el orden real | El once se ordena por la valoración real aunque se muestren rangos | Contradice la regla de `CLAUDE.md` de ordenar por el punto medio del rango. |
-| Once probable distinto del real | El informe usa `autoPick` y no `planMatch` (rotaciones, marca personal) | El informe puede fallar sin que lo explique la precisión. |
+| El informe revela el orden real | El once se ordena por el punto medio del rango estimado | ✅ Resuelto (2026-11-14) |
+| Once probable distinto del real | El informe usa el plan previsto (`predictPlan`), con el mismo azar que el plan del día | ✅ Resuelto (2026-11-14): solo difiere si cambia algo entre el informe y el partido (lesiones, físico) |
 | `stars` calculado y no mostrado | — | Dato muerto. |
 | Prestigio mínimo distinto | Prensa acota a 5–99; el cambio de club a 15–99 | Inconsistencia menor. |
 | Moral a lesionados | La moral de la respuesta llega también a los lesionados | `INTENT UNKNOWN`. |
@@ -219,7 +221,7 @@ informe si días ≤ 3;  conferencia previa si días = 1
 
 **Degenerate strategies**
 
-- **Delegar siempre es casi óptimo.** La opción 0 nunca baja la moral ni el prestigio, y su único costo posible es dirigencia −1 (Q3). En P1 hay una opción que domina a la 0 en todo (moral +3, dirigencia +1, prestigio +1 contra nada); en P4 la 0 (moral +3) ya es la mejor. El dilema existe solo para quien busca el máximo.
+- ✅ Resuelto (2026-11-14) con el peso de F3 (a mano ×1,5, delegada la mitad). Antes: **Delegar siempre era casi óptimo.** La opción 0 nunca baja la moral ni el prestigio, y su único costo posible es dirigencia −1 (Q3). En P1 hay una opción que domina a la 0 en todo (moral +3, dirigencia +1, prestigio +1 contra nada); en P4 la 0 (moral +3) ya es la mejor. El dilema existe solo para quien busca el máximo.
 - **Respuestas dominantes**: P1 opción 1 domina a la 0; P3 opción 0 domina a la 2; Q1 opción 0 o 1 domina a la 2 si no importa la dirigencia. Ver Open Questions.
 - **Aplicar todo sin pensar**: las sugerencias solo miran al rival, no tu plantel (salvo T2 y T5/T6). Aplicar todo siempre es razonable y achica la decisión táctica. `INTENT UNKNOWN` si es asistencia buscada.
 
@@ -254,12 +256,13 @@ informe si días ≤ 3;  conferencia previa si días = 1
 | Racha para P2 y P3 (gate) | 3 | 2–5 | — | — |
 | Puntaje para la pregunta del mejor jugador (gate) | 7,3 | 7–8 | — | — |
 | Máximo de preguntas previas (gate) | 3 | 2–4 | — | — |
-| Efectos de cada respuesta (curve) | moral −4 a +3; jugador −5 a +6; dirigencia −1 a +2; prestigio −2 a +1 | — | La prensa pesa más que el resultado | Prensa decorativa |
-| Opción del ayudante (feel) | siempre la 0 | — | — | — |
+| Efectos de cada respuesta (curve) | moral −4 a +3; jugador −5 a +6; dirigencia −1 a +2; prestigio −2 a +1 (antes del peso) | — | La prensa pesa más que el resultado | Prensa decorativa |
+| Peso de la respuesta (curve) | a mano ×1,5; delegada ×0,5 hacia cero | — | — | Delegar vuelve a ser óptimo |
+| Opción del ayudante (feel) | siempre la 0, con la mitad del efecto | — | — | — |
 
 **Balance concerns**
 - ⚠️ Un +3 de moral a todo el plantel equivale, en el motor, a ~+0,3 % de efectividad: el efecto en el partido es casi invisible; el efecto real es en la dirigencia y el prestigio. Medir con `npm run sim`.
-- ⚠️ La delegación es casi óptima (ver Degenerate strategies). Si la prensa tiene que ser un dilema, el ayudante tendría que elegir por un criterio con costo (por ejemplo, prudente = sin efecto) o la opción 0 no tendría que ser la mejor.
+- ✅ Resuelto (2026-11-14): la delegación ya no es casi óptima. El ayudante mueve la mitad (hacia cero) y responder a mano pesa ×1,5, para bien y para mal.
 
 ## Visual/Audio Requirements
 
@@ -359,11 +362,11 @@ Sin audio en el juego. Columna de audio: "—".
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| ¿La opción del ayudante tiene que ser la 0 (hoy casi siempre la mejor)? | usuario | Próxima pasada de balance | `INTENT UNKNOWN` |
-| Falta la conferencia previa con partidos a 2 días: ¿error o intención? | usuario + gameplay-programmer | Antes de la próxima versión | `INTENT UNKNOWN` (parece error) |
+| ¿La opción del ayudante tiene que ser la 0 (hoy casi siempre la mejor)? | usuario | Próxima pasada de balance | Resuelta (2026-11-14): sigue siendo la 0, pero con la mitad del efecto; a mano pesa ×1,5 (F3) |
+| Falta la conferencia previa con partidos a 2 días: ¿error o intención? | usuario + gameplay-programmer | Antes de la próxima versión | Resuelta (2026-11-14): era un error; las preguntas se suman a la posterior abierta |
 | ¿Qué consecuencias más allá del partido tiene que tener la prensa? (`CLAUDE.md`: "Falta: que la prensa tenga consecuencias más allá del partido") | usuario | — | Pendiente |
-| ¿El informe tiene que usar el plan real del rival (`planMatch`) en lugar de `autoPick`? | usuario | — | Pendiente |
-| ¿El orden del once del informe tiene que salir del punto medio del rango, como en las tablas? | usuario + ux-designer | — | Pendiente |
+| ¿El informe tiene que usar el plan real del rival (`planMatch`) en lugar de `autoPick`? | usuario | — | Resuelta (2026-11-14): sí (`predictPlan`) |
+| ¿El orden del once del informe tiene que salir del punto medio del rango, como en las tablas? | usuario + ux-designer | — | Resuelta (2026-11-14): sí |
 | ¿Se muestran las figuras del rival (`stars`) o se borra el cálculo? | usuario | — | Pendiente |
 | Dos listas de clásicos (`RIVAL_PAIRS` en `week.ts`, `RIVALS` en `game.ts`): ¿se unifican? | lead-programmer | — | Pendiente |
 | "Eventos del día" (`dayEvents`) no tiene eventos al azar: es la agenda diaria. ¿Hacen falta eventos propiamente dichos (visitas, pedidos de la prensa, rumores)? | usuario | — | Pendiente |
@@ -375,3 +378,4 @@ Sin audio en el juego. Columna de audio: "—".
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/week.ts`, `src/engine/game.ts` y las pantallas de prensa e informe |
 
 *Generado por `/reverse-document design src/engine/week.ts`.*
+| 2026-11-14 | Claude | Resueltos: conferencia previa con partidos seguidos, peso de las respuestas (F3, delegar ya no es óptimo), informe con el plan previsto y orden por lo estimado, rango del informe sin centrar (F2) |

@@ -40,7 +40,7 @@ Ser el DT que arma su plantel con poca plata: detectar al jugador que su club no
 **Ventanas (libro de pases)** — `src/engine/career.ts:153-156`
 
 1. El libro está abierto del 1 de enero al 20 de febrero y del 25 de junio al 10 de agosto, ambos extremos incluidos (se compara `MM-DD` del día de juego).
-2. Con el libro cerrado: no se puede ofertar ni pedir préstamo (motor y botones), la IA no hace pases ni manda ofertas nuevas (`marketTick` corta en `:267`), y en la interfaz "Aceptar" una oferta queda deshabilitado (`Inbox.tsx:158`, `Market.tsx:57`). Pedir más y Rechazar siguen habilitados. El motor (`acceptOffer`) no comprueba la ventana: solo la interfaz lo impide.
+2. Con el libro cerrado: no se puede ofertar ni pedir préstamo (motor y botones), la IA no hace pases ni manda ofertas nuevas (`marketTick` corta en `:267`), y una oferta por un jugador propio no se puede aceptar ni negociar: `acceptOffer` y `haggle` devuelven `false` sin cambiar nada, y en la interfaz "Aceptar" y "Pedir más" quedan deshabilitados con el motivo visible (bandeja y Mercado › Ofertas). Rechazar sigue habilitado.
 3. Las renovaciones de contrato no dependen de la ventana.
 
 **Compra de un jugador ajeno** — `PlayerPage.tsx:42-47`, `career.ts:176-198`
@@ -71,7 +71,7 @@ Ser el DT que arma su plantel con poca plata: detectar al jugador que su club no
 4. **Vencimiento**: al comienzo de cada `marketTick` se borran las ofertas con `fecha + 8 días < hoy` y las de jugadores que ya no existen (`career.ts:266`). Como el filtro corre antes de pasar al día siguiente, una oferta del día D sigue en la lista, y se puede responder, hasta el día D+9 inclusive; la bandeja muestra "Vence el D+8" y la noticia dice "vence en una semana". Ver Edge Cases.
 5. **Aceptar** (`acceptOffer`): club argentino → `doTransfer`; exterior → `sellAbroad`, que saca al jugador del juego. Se borran todas las ofertas por ese jugador.
 6. **Rechazar** (`rejectOffer`): se borra la oferta, sin consecuencias para el jugador ni para el club.
-7. **Pedir más** (`haggle`, `career.ts:255-262`): el comprador sube 15 % si el nuevo monto no pasa su techo y sale un 75 % (azar fijo por oferta). Si mejora, la oferta cambia de monto **y de id**, y conserva su fecha (no se renueva el plazo). Si no, se retira y la oferta desaparece.
+7. **Pedir más** (`haggle`, `career.ts:255-262`): el comprador sube 15 % si el nuevo monto no pasa su techo y sale un 75 % (azar fijo por oferta). Cada pedido es una tirada nueva (`o.asks`). Si mejora, la oferta cambia de monto, conserva su id y su fecha (no se renueva el plazo). Con el libro cerrado no negocia: devuelve `false` y la oferta queda como estaba. Si no, se retira y la oferta desaparece.
 
 **Ventas, préstamos y movimientos entre clubes de la IA**
 
@@ -95,9 +95,9 @@ Ser el DT que arma su plantel con poca plata: detectar al jugador que su club no
 |-------|----------------|----------------|----------|
 | Abierta | `pushOffer` | Aceptar, Rechazar, Pedir más, vencimiento, el jugador se va por otra vía | Es un pendiente `offer` en `pendingOf`; frena "Ir al partido" la primera vez que aparece |
 | Abierta, libro cerrado | La ventana cierra con la oferta viva | Igual que Abierta | Aceptar deshabilitado en la interfaz; Pedir más y Rechazar habilitados |
-| Mejorada | `haggle` devuelve `true` | Vuelve a Abierta con monto nuevo e id nuevo | Fecha original; el `ref` de la noticia queda apuntando al id viejo |
+| Mejorada | `haggle` devuelve `true` | Vuelve a Abierta con monto nuevo y el mismo id | Fecha original; la noticia la sigue mostrando |
 | Aceptada | `acceptOffer` | — | Se ejecuta el pase; se borran las demás ofertas por ese jugador |
-| Rechazada / retirada / vencida | `rejectOffer`, `haggle` falso, `fecha+8 < hoy`, jugador inexistente | — | Desaparece de `g.offers`; no deja noticia |
+| Rechazada / retirada / vencida | `rejectOffer`, `haggle` falso con el libro abierto, `fecha+8 < hoy`, jugador inexistente | — | Desaparece de `g.offers`; no deja noticia |
 
 **Compra iniciada por el DT**
 
@@ -248,19 +248,19 @@ mejora si asked <= top y hash(offer.id, p.id) < 0.75
 | Scenario | Expected Behavior (código actual) | Rationale |
 |----------|------------------|-----------|
 | Oferta del día D | Visible y respondible hasta el D+9; la bandeja dice "Vence el D+8"; la noticia dice "vence en una semana" | ⚠️ Tres plazos distintos para lo mismo. `INTENT UNKNOWN — inferred from implementation, not confirmed` (probablemente la intención es 7 u 8 días) |
-| Pedir más con éxito y después abrir la noticia de la oferta | La noticia (`ref` = id viejo) muestra "Esta oferta ya fue respondida o venció" aunque la oferta sigue viva con id nuevo; el pendiente sí la muestra | ⚠️ Defecto: `haggle` cambia `o.id` (`career.ts:259`) |
-| Pedir más con el libro cerrado | Se permite y puede subir el monto de una oferta que no se puede aceptar | ⚠️ Sin intención clara |
+| Pedir más con éxito y después abrir la noticia de la oferta | La oferta conserva su id (cada pedido es una tirada nueva con `o.asks`): la noticia sigue mostrando la oferta mejorada | ✅ Resuelto (2026-11-14) |
+| Pedir más con el libro cerrado | El motor no negocia (`haggle` devuelve `false`, la oferta queda como estaba) y el botón está deshabilitado | ✅ Resuelto (2026-11-14) |
 | Pedir más no renueva el plazo | La oferta mejorada vence en la fecha original | Coherente con el código; confirmar |
 | La ventana cierra con ofertas abiertas | Siguen hasta su vencimiento con Aceptar deshabilitado; no hay aviso de "el libro cerró" | La bandeja debe decirlo (ver UI Requirements) |
 | Dos clubes ofertan por el mismo jugador | Se permite (dedupe por club y jugador); aceptar una borra las demás | — |
 | 8 ofertas abiertas | Las nuevas se descartan en silencio | Tope de ruido |
 | Un club paga la cláusula de tu jugador | Pase inmediato sin pendiente; noticia sin `act` | Es la consecuencia de haber firmado una cláusula baja |
 | Pagar la cláusula de un jugador ajeno | Solo pasa con jugadores a los que vos les pusiste cláusula y después quedaron en otro club por un cambio de club tuyo: un pase a la IA borra la cláusula (`career.ts:218`). Saltea los controles de plantel, reputación y tope salarial del club (el tope se vuelve a mirar en la negociación) | La rama es casi inalcanzable |
-| Jugador tuyo a préstamo declarado transferible | Pueden llegar ofertas por él y, si las aceptás, **cobrás vos** el pase de un jugador que no es tuyo (`career.ts:329` no filtra `loanFrom`) | ⚠️ Defecto |
+| Jugador tuyo a préstamo | `canSell` es falso: no se puede declarar transferible (la ficha esconde el botón, la acción masiva lo saltea, la charla "puede buscar club" está deshabilitada), no recibe ofertas y `acceptOffer` no lo vende | ✅ Resuelto (2026-11-14) |
 | Renovar a un jugador que está a préstamo en tu club | Se permite; igual vuelve a su club al cambiar de temporada | ⚠️ Sin control |
-| Jugador generado (juvenil o refuerzo del exterior, `p.gen`) en tu club | Su sueldo se recalcula con `valuation` al empezar cada temporada y pisa el que negociaste (`game.ts:653`) | ⚠️ Probable defecto |
+| Jugador generado (juvenil o refuerzo del exterior, `p.gen`) en tu club | Su sueldo se mantiene al cambiar de temporada, como el de todo tu plantel (solo se revalúa el valor) | ✅ Resuelto (2026-11-14) |
 | Comprador y vendedor del mismo pase con presupuesto negativo | `doTransfer` no lo impide para la IA (se controla antes de elegir) | — |
-| Vendés a un club argentino | La noticia del pase se crea con `clubId` del comprador cuando el jugador ya es suyo: no queda marcada "para vos" (`me`) | ⚠️ El usuario no ve su venta en "Para vos" |
+| Vendés a un club argentino | La noticia del pase lleva `me` si el vendedor es tu club | ✅ Resuelto (2026-11-14) |
 | Cancelar la ventana de negociación tras un "sí" del club | No se guarda el acuerdo con el club; se puede volver a ofertar el mismo monto | — |
 | Contrato vencido de un jugador tuyo | Se va libre a un club de rep ±10 sin aviso previo en la bandeja | Ver Open Questions |
 | Ofertas abiertas al cambiar de temporada o de club | Se borran (`game.ts:654`, `career.ts:104`) | — |
@@ -367,7 +367,7 @@ Las renovaciones **no** son un pendiente ni generan aviso previo: hoy el único 
 - [ ] En una compra, ofrecer exactamente lo que pide `demand` (sin cláusula, rol natural, años sugeridos, prima pedida) cierra el acuerdo con cualquier personalidad (puntaje ≥ 1,02). En una renovación, el mismo ofrecimiento a un jugador de lealtad 1 y conformidad 0 no alcanza (≈ 0,85).
 - [ ] Romper una renovación fija `negBlock = hoy + 30` y el botón queda deshabilitado hasta esa fecha.
 - [ ] Una oferta creada el día D sigue en `g.offers` hasta que `g.date > D + 8`; la bandeja muestra el mismo último día que el motor respeta (hoy falla: ver Edge Cases).
-- [ ] `haggle` con éxito sube el monto a `round10k(fee × 1,15)`, deja la oferta respondible desde la bandeja y desde su noticia (hoy falla desde la noticia).
+- [ ] `haggle` con éxito sube el monto a `round10k(fee × 1,15)`, deja la oferta respondible desde la bandeja y desde su noticia.
 - [ ] Aceptar una oferta del exterior saca al jugador de `g.players`; aceptar una de un club argentino lo pasa a ese club; en ambos casos no queda ninguna otra oferta por él.
 - [ ] No puede haber más de 8 ofertas abiertas ni dos del mismo club por el mismo jugador.
 - [ ] Un jugador propio con `contractEnd < season` al empezar la temporada cambia de club y genera la noticia "se fue libre".
@@ -379,13 +379,13 @@ Las renovaciones **no** son un pendiente ni generan aviso previo: hoy el único 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
 | ¿Cuál es el plazo real de una oferta: 7, 8 o 9 días? Unificar noticia, bandeja y motor. `INTENT UNKNOWN — inferred from implementation, not confirmed` | usuario | Antes de implementar `design/ux/bandeja.md` | — |
-| ¿Pedir más tiene que conservar el id de la oferta (para que la noticia siga funcionando) y renovar el plazo? | usuario + programación | Ídem | — |
-| ¿Se puede pedir más con el libro cerrado? | usuario | — | — |
+| ¿Pedir más tiene que conservar el id de la oferta (para que la noticia siga funcionando) y renovar el plazo? | usuario + programación | Ídem | Resuelta (2026-11-14): conserva el id; el plazo no se renueva |
+| ¿Se puede pedir más con el libro cerrado? | usuario | — | Resuelta (2026-11-14): no |
 | Préstamos de tus juveniles a otros clubes (pendiente 2 de `CLAUDE.md`): `Offer.loan` existe en el tipo pero nunca se usa | usuario | — | No implementado |
 | Agentes libres: ¿tiene que haber una bolsa de jugadores sin club para fichar gratis? Hoy no existe | usuario | — | No implementado |
 | ¿Avisar en la bandeja (pendiente o noticia) cuando a un jugador propio le queda poco contrato? | usuario | Antes de la UX de bandeja | No implementado |
-| Bloquear ofertas y renovaciones de jugadores que están a préstamo en tu club | programación | — | Defecto |
-| ¿El sueldo negociado de un jugador generado debe sobrevivir al cambio de temporada? | usuario | — | — |
+| Bloquear ofertas y renovaciones de jugadores que están a préstamo en tu club | programación | — | Ofertas y transferibles: resuelto (2026-11-14, `canSell`). Renovaciones: pendiente |
+| ¿El sueldo negociado de un jugador generado debe sobrevivir al cambio de temporada? | usuario | — | Resuelta (2026-11-14): sí |
 | Ofertas de la IA por préstamo, cláusulas para los jugadores de la IA, ofertas con jugadores incluidos o en cuotas | usuario | — | No implementado |
 | `renew` y `renewCost` (`career.ts:343-352`) no se usan desde que existe la negociación: ¿se borran? | programación | — | Código muerto |
 | `squadRank` filtra por línea con `|| true` (`career.ts:161`): el rango es de todo el plantel. ¿Era por línea? | usuario | — | `INTENT UNKNOWN` |
@@ -397,3 +397,4 @@ Las renovaciones **no** son un pendiente ni generan aviso previo: hoy el único 
 | 2026-11-14 | Claude (reverse-doc, systems-designer) | Documentación inicial desde `src/engine/career.ts` y `src/engine/squad.ts` en `d9b251a` |
 
 *This document was generated by `/reverse-document design src/engine/career.ts`*
+| 2026-11-14 | Claude | Resueltos: Pedir más con el libro cerrado (motor e interfaz), id de la oferta al pedir más, préstamos que no se venden ni se declaran transferibles, sueldos de los jugadores generados y venta propia en "Para vos"; un pase definitivo saca el chip "Inferiores" (`p.youth = false`) |
