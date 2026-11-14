@@ -10,6 +10,7 @@ import { PlayerPage } from './PlayerPage'
 import { PostMatch } from './MatchPanels'
 import { DataCenter } from './DataCenter'
 import { Guide } from './Guide'
+import { TopNav, type Group } from './TopNav'
 import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
 import { Home } from './Home'
 import { Market } from './Market'
@@ -21,13 +22,26 @@ import { Tactics } from './Tactics'
 import { LockerPage } from './Locker'
 import { CalendarPage, PressModal, StaffPage, TrainingPage } from './Week'
 
-const I = (d: string) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
+const I = (d: string) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
 const PAGES: [string, string, ReactNode][] = [
   ['home', 'Inicio', I('M3 11l9-8 9 8M5 10v10h14V10')], ['inbox', 'Bandeja', I('M3 13l3-8h12l3 8v6H3zM3 13h5l1 2h6l1-2h5')], ['squad', 'Plantel', I('M16 20v-1a4 4 0 0 0-8 0v1M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M20 20v-1a3 3 0 0 0-2-2.8M4 20v-1a3 3 0 0 1 2-2.8')],
   ['tactics', 'Tácticas', I('M4 4h16v16H4zM4 12h16M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5')], ['locker', 'Vestuario', I('M6 3h12v18H6zM12 3v18M9 12h1M14 12h1')], ['training', 'Entrenamiento', I('M4 12h3M17 12h3M7 8v8M17 8v8M7 12h10')], ['calendar', 'Calendario', I('M5 5h14v15H5zM5 10h14M9 3v4M15 3v4M9 14h2M13 14h2')],
   ['market', 'Mercado', I('M4 7h13l-3-3M20 17H7l3 3')], ['staff', 'Cuerpo técnico', I('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6M3 20v-1a6 6 0 0 1 12 0v1M16 11l2 2 4-4')],
   ['fixtures', 'Fixture', I('M5 5h14v15H5zM5 10h14M9 3v4M15 3v4')], ['tables', 'Posiciones', I('M4 6h16M4 12h16M4 18h10')],
   ['stats', 'Estadísticas', I('M5 20V10M12 20V4M19 20v-7')], ['data', 'Centro de datos', I('M4 19l5-6 4 3 7-9M4 4v16h16')], ['club', 'Club y DT', I('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z')],
+]
+
+// secciones de la barra superior: las que tienen más de una pantalla abren un menú
+const P = (id: string) => PAGES.find(p => p[0] === id)!
+const GROUPS: Group[] = [
+  { id: 'home', label: 'Inicio', icon: P('home')[2], pages: [P('home')] },
+  { id: 'inbox', label: 'Bandeja', icon: P('inbox')[2], pages: [P('inbox')] },
+  { id: 'squad', label: 'Plantel', icon: P('squad')[2], pages: [P('squad'), P('locker'), P('staff')] },
+  { id: 'tactics', label: 'Tácticas', icon: P('tactics')[2], pages: [P('tactics'), P('training')] },
+  { id: 'comp', label: 'Competición', icon: P('tables')[2], pages: [P('calendar'), P('fixtures'), P('tables'), P('stats')] },
+  { id: 'market', label: 'Mercado', icon: P('market')[2], pages: [P('market')] },
+  { id: 'data', label: 'Centro de datos', icon: P('data')[2], pages: [P('data')] },
+  { id: 'club', label: 'Club', icon: P('club')[2], pages: [P('club')] },
 ]
 
 export function App() {
@@ -201,6 +215,9 @@ export function App() {
                 <button className="btn primary cta" title={g.seasonOver ? 'Ir al resumen de la temporada' : today ? '' : 'Avanza un día'} onClick={() => advance()}>{g.seasonOver ? 'Nueva temporada ▸' : today ? 'Jugar ▸' : 'Continuar ▸'}</button>
               </>)}
             </header>
+            <TopNav g={g} groups={GROUPS} page={page} go={setPage} favActive={(k, id) => route.id === id && (page === 'player') === (k === 'p')}
+              badge={id => (id === 'inbox' && unread + pend.length > 0 ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : `${unread} sin leer`}>{unread + pend.length}</span> : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores">{g.offers.length}</span> : null)}
+              onOpenPlayer={ctx.openPlayer} onOpenClub={ctx.openClub} onSettings={() => setOverlay('settings')} onHelp={() => setOverlay('help')} onMainMenu={() => { saveGame(g); setSaved(g); setG(null) }} />
             <main className="main" id="main" tabIndex={-1} ref={mainRef}><div key={`${page}:${route.id ?? ''}`} className="page-in">
               {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
               {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}

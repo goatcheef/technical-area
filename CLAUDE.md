@@ -29,7 +29,8 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
   - Fichas como páginas con pestañas: `PlayerPage.tsx` (página `player`) y `ClubPage` en `Nav.tsx` (página `clubv`). Las ventanas emergentes quedan para decisiones cortas (negociación, charla, prensa).
   - `Nav.tsx`: ficha breve al pasar el mouse (`HoverCard`: cualquier elemento con `data-pid` o `data-cid`; un escudo o nombre de club suelto con `data-cid` abre su ficha al hacer clic), barra de comandos (Ctrl+K o /), atajos (`SHORTCUTS`) y ajustes (densidad, texto, velocidad y modo del partido; en `localStorage`).
   - `useSticky(clave, inicial)` de `store.ts`: estado de pantalla (filtros, orden, pestañas) que sobrevive a la navegación. Usarlo en vez de `useState` para todo lo que el jugador esperaría encontrar igual al volver.
-  - Favoritos: `g.favs` (jugadores y clubes, hasta 8) en la barra lateral.
+  - Sin barra lateral (pedido del usuario): `TopNav.tsx` es la barra de secciones debajo de la barra superior, con menús desplegables (`GROUPS` en `App.tsx`: Plantel agrupa plantel, vestuario y cuerpo técnico; Tácticas agrupa tácticas y entrenamiento; Competición agrupa calendario, fixture, posiciones y estadísticas) y, a la derecha, favoritos, ayuda, ajustes y el menú del DT. Debajo de 1240 px las secciones quedan solo con ícono.
+  - Favoritos: `g.favs` (jugadores y clubes, hasta 8) en el menú ★ de la barra de secciones.
   - Bandeja de entrada (`Inbox.tsx`, página `inbox`): las noticias llevan `pid` (jugador), `act` (acción: oferta, trabajo, jugador que quiere irse, informe, resultado) y `ref` (oferta, club o partido), y `me` si son para el DT. Al crear una noticia nueva desde el motor, completar esos campos para que la bandeja ofrezca la acción. Los pendientes (`pendingOf`: prensa, ofertas, ofertas de trabajo, jugadores que quieren irse) se calculan del estado, no se guardan.
   - Avance: "Ir al partido" avanza día por día cediéndole el turno al navegador (se ve el progreso, se puede frenar con Esc) y se detiene si aparece una decisión nueva (`decisionKeys`). No hace falta un web worker: un día cuesta 1 ms de mediana y copiar el estado a un worker costaría más.
   - Inicio configurable: mosaicos con orden y ancho en `settings.home` (`localStorage`).
@@ -43,7 +44,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 ## Decisiones tomadas
 
 - El usuario pidió nombres, clubes y escudos reales.
-- La interfaz es un diseño propio: moderna, del género, sin copiar la de Football Manager.
+- La interfaz es un diseño propio: moderna, del género, sin copiar la de Football Manager. El usuario mostró como referencia una recreación de FM26 y pidió sacar la barra lateral y un estilo más firme: se tomaron esas ideas (navegación arriba, íconos de trazo grueso, tarjetas con relieve y títulos marcados, botones sólidos, el principal con corte en diagonal) con diseño propio.
 - Foto de jugadores: la silueta genérica que eligió el usuario (`src/assets/player.webp`). El DT usa el avatar ilustrado. No usar fotos reales.
 - En las fichas de Wikipedia, "delantero" o "mediocampista" a secas no dicen el puesto: `tools/build-db.ts` los reparte entre los puestos de la línea. Solo "centrodelantero", "extremo", "enganche", etc. se toman literales.
 - La valoración sale de la reputación del club, la edad, la trayectoria real (`data/players_meta.json`: puesto, debut, selección, exterior, notoriedad) y el presente: partidos jugados en 2026 según la tabla de estadísticas de cada ficha (`tools/fetch_stats.py` → `data/players_stats.json`).
