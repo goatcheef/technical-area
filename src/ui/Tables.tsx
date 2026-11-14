@@ -4,6 +4,7 @@ import { annualTable, clubsIn, fmtDate, leagueFx, promedios, relegationZone, tab
 import type { Fixture, Game, Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, MatchReport, PosPill, avgRat, resultText } from './common'
+import { PlayerTable, scoutBulk } from './PlayerTable'
 
 function Table({ g, rows, marks }: { g: Game; rows: Row[]; marks?: (i: number, id: number) => string }) {
   return (
@@ -130,6 +131,8 @@ export function Stats() {
               <td className="num dim">{i + 1}</td><td><b style={{ fontWeight: 600 }}>{p.name}</b></td><td><PosPill p={p} /></td>
               <td><span className="row dim"><Badge club={g.clubs[p.clubId]} size={18} />{g.clubs[p.clubId].short}</span></td><td className="r num dim">{pj(p)} PJ</td><td className="r num"><b>{show(p)}</b></td></tr>))}</tbody></table>
         </div>))}</div>
+      <h2 style={{ marginTop: 8 }}>Todos los jugadores</h2>
+      <PlayerTable id="stats" players={ps.filter(p => pj(p) > 0)} views={['stats', 'general', 'ojeo']} def="stats" defSort={[{ k: 'gol', d: -1 }, { k: 'rat', d: -1 }]} bulk={scoutBulk(g)} limit={100} empty="Todavía no se jugaron partidos en esta categoría." />
     </div>
   )
 }

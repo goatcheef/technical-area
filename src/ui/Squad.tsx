@@ -1,12 +1,9 @@
-import { useState } from 'react'
 import { squadOf } from '../engine/game'
-import { ageOn, bestRating } from '../engine/positions'
-import type { Player } from '../engine/types'
+import { ageOn } from '../engine/positions'
 import { useGame, useSticky } from '../store'
-import { Badge, Cond, Face, PosPill, Status, Val, avgRat, money, ratClass } from './common'
+import { PlayerTable, ownBulk, scoutBulk } from './PlayerTable'
+import { Badge, money } from './common'
 
-type Col = { k: string; l: string; v: (p: Player) => number | string; r?: boolean }
-const LINE_ORDER = { GK: 0, DF: 1, MF: 2, FW: 3 }
 
 export function Squad() {
   const { g } = useGame()
@@ -29,32 +26,8 @@ export function Squad() {
 
 /** Tabla de plantel de cualquier club (se usa en Plantel y en la ficha de club). */
 export function SquadTable({ clubId }: { clubId: number }) {
-  const { g, openPlayer } = useGame()
-  const club = g.clubs[clubId]
-  const [sort, setSort] = useSticky<{ k: string; d: number }>('sq.sort', { k: 'pos', d: 1 })
-  const cols: Col[] = [
-    { k: 'num', l: 'N°', v: p => p.num, r: true }, { k: 'name', l: 'Jugador', v: p => p.name }, { k: 'pos', l: 'Pos', v: p => LINE_ORDER[p.line] * 100 - bestRating(p) },
-    { k: 'age', l: 'Edad', v: p => ageOn(p.birth, g.date), r: true }, { k: 'val', l: 'Val', v: p => Math.round(bestRating(p)), r: true },
-    { k: 'cond', l: 'Físico', v: p => p.cond }, { k: 'mor', l: 'Moral', v: p => p.morale },
-    { k: 'pj', l: 'PJ', v: p => p.stats.apps + p.stats.subs, r: true }, { k: 'gol', l: 'G', v: p => p.stats.goals, r: true }, { k: 'ast', l: 'A', v: p => p.stats.ast, r: true },
-    { k: 'rat', l: 'Prom', v: p => (p.stats.apps + p.stats.subs ? p.stats.ratSum / (p.stats.apps + p.stats.subs) : 0), r: true },
-    { k: 'value', l: 'Valor', v: p => p.value, r: true }, { k: 'wage', l: 'Sueldo/mes', v: p => p.wage, r: true }, { k: 'con', l: 'Contrato', v: p => p.contractEnd, r: true },
-  ]
-  const col = cols.find(c => c.k === sort.k)!
-  const list = squadOf(g, clubId).sort((a, b) => { const x = col.v(a), y = col.v(b); return (x < y ? -1 : x > y ? 1 : 0) * sort.d })
-  return (
-      <div className="card scroll-x">
-        <table>
-          <thead><tr>{cols.map(c => <th key={c.k} className={`sortable ${c.r ? 'r' : ''}`} onClick={() => setSort({ k: c.k, d: sort.k === c.k ? -sort.d : ['name', 'pos', 'num', 'age'].includes(c.k) ? 1 : -1 })}>{c.l}{sort.k === c.k ? (sort.d > 0 ? ' ▴' : ' ▾') : ''}</th>)}<th /></tr></thead>
-          <tbody>{list.map(p => (
-            <tr key={p.id} className="click" data-pid={p.id} onClick={() => openPlayer(p.id)}>
-              <td className="r num dim">{p.num}</td><td><span className="row"><Face p={p} club={club} size={28} /><b style={{ fontWeight: 600 }}>{p.name}</b></span> {p.nat !== 'Argentina' && <span className="dim" style={{ fontSize: '.8rem' }}>{p.nat}</span>}</td><td><PosPill p={p} /></td>
-              <td className="r num">{ageOn(p.birth, g.date)}</td><td className="r"><Val p={p} /></td><td><Cond v={p.cond} /></td><td><Cond v={p.morale} /></td>
-              <td className="r num">{p.stats.apps}{p.stats.subs ? <span className="dim"> ({p.stats.subs})</span> : ''}</td><td className="r num">{p.stats.goals}</td><td className="r num">{p.stats.ast}</td>
-              <td className={`r num ${ratClass(p.stats.apps + p.stats.subs ? p.stats.ratSum / (p.stats.apps + p.stats.subs) : 6.5)}`}>{avgRat(p.stats)}</td>
-              <td className="r num">{money(p.value)}</td><td className="r num dim">{money(p.wage)}</td><td className={`r num ${p.contractEnd <= g.season ? 'warn' : 'dim'}`}>{p.contractEnd}</td><td><Status p={p} /></td>
-            </tr>))}</tbody>
-        </table>
-      </div>
-  )
+  const { g } = useGame()
+  const mine = clubId === g.userClubId
+  return <PlayerTable id={mine ? 'squad' : 'clubsq'} players={squadOf(g, clubId)} views={mine ? ['general', 'fisico', 'contrato', 'stats'] : ['general', 'ojeo', 'stats', 'fisico']}
+    def="general" bulk={mine ? ownBulk(g) : scoutBulk(g)} filters />
 }

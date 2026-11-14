@@ -4,8 +4,8 @@ import { fmtDate } from '../engine/game'
 import { POS_LABEL, ageOn } from '../engine/positions'
 import type { Player, Pos } from '../engine/types'
 import { useGame, useSticky } from '../store'
-import { knowOf } from '../engine/squad'
-import { Badge, Face, Ovr, PosPill, Status, Val, money } from './common'
+import { Badge, Face, Ovr, PosPill, money } from './common'
+import { PlayerTable, scoutBulk } from './PlayerTable'
 
 const POSS: Pos[] = ['GK', 'DR', 'DC', 'DL', 'DM', 'MC', 'MR', 'ML', 'AMC', 'AMR', 'AML', 'ST']
 
@@ -23,17 +23,8 @@ export function Market() {
   const done = () => { save(); refresh() }
   const results = useMemo(() => Object.values(g.players).filter(p => p.clubId !== club.id && g.clubs[p.clubId]?.division > 0 && (!pos || p.positions.includes(pos as Pos)) && p.ca >= minOvr
     && ageOn(p.birth, g.date) <= maxAge && (!maxVal || askingPrice(g, p) <= maxVal) && (!div || g.clubs[p.clubId].division === div) && (!only || p.listed || p.contractEnd <= g.season))
-    .sort((a, b) => b.ca - a.ca).slice(0, 60), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
-  const rows = (list: Player[]) => (
-    <div className="card scroll-x"><table>
-      <thead><tr><th>Jugador</th><th>Pos</th><th>Club</th><th className="r">Edad</th><th className="r">Val</th><th className="r">Pot.</th><th className="r">Valor</th><th className="r">Pedido</th><th className="r">Sueldo</th><th className="r">Contrato</th><th className="r">Conoc.</th></tr></thead>
-      <tbody>{list.map(p => { const c = g.clubs[p.clubId], age = ageOn(p.birth, g.date), gap = p.pa - p.ca; return (
-        <tr key={p.id} data-pid={p.id} className="click" onClick={() => openPlayer(p.id)}>
-          <td><span className="row"><Face p={p} club={c} size={30} /><b style={{ fontWeight: 600 }}>{p.name}</b><Status p={p} /></span></td><td><PosPill p={p} /></td>
-          <td><span className="row"><Badge club={c} size={20} />{c.short}</span></td><td className="r num">{age}</td><td className="r"><Val p={p} /></td>
-          <td className="r">{age <= 23 && knowOf(g, p) >= 70 ? <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span> : <span className="dim">–</span>}</td>
-          <td className="r num">{money(p.value)}</td><td className="r num"><b>{money(askingPrice(g, p))}</b></td><td className="r num dim">{money(p.wage)}</td><td className="r num dim">{p.contractEnd}</td><td className="r num dim">{g.scouting.includes(p.id) ? 'Ojeando' : `${Math.round(knowOf(g, p))}%`}</td></tr>) })}</tbody>
-    </table>{!list.length && <div className="dim sm" style={{ padding: 12 }}>No hay jugadores que cumplan esos filtros.</div>}</div>)
+    .sort((a, b) => b.ca - a.ca).slice(0, 400), [g, g.date, g.transfers.length, pos, maxAge, maxVal, minOvr, div, only, club.id])
+  const rows = (id: string, list: Player[], empty: string) => <PlayerTable id={id} players={list} views={['ojeo', 'general', 'contrato', 'stats', 'fisico']} def="ojeo" defSort={[{ k: 'val', d: -1 }]} bulk={scoutBulk(g)} limit={100} empty={empty} />
   const L = club.ledger
   return (
     <div className="page">
@@ -53,7 +44,7 @@ export function Market() {
           <label className="f">Precio máximo<select id="mk-val" value={maxVal} onChange={e => setMaxVal(Number(e.target.value))}><option value={0}>Sin límite</option><option value={club.budget}>Mi presupuesto</option>{[250000, 500000, 1000000, 2500000, 5000000, 10000000].map(v => <option key={v} value={v}>{money(v)}</option>)}</select></label>
           <button className={`btn ${only ? 'on' : ''}`} onClick={() => setOnly(!only)}>Solo transferibles o con contrato por vencer</button>
         </div>
-        {rows(results)}</>)}
+        {rows('market', results, 'No hay jugadores que cumplan esos filtros.')}</>)}
 
       {tab === 'offers' && <div className="col">
         {note && <div className="card acc">{note}</div>}
@@ -68,7 +59,7 @@ export function Market() {
         {!g.offers.length && <div className="card dim">No hay ofertas pendientes. Durante el libro de pases los clubes del país y del exterior pueden ofertar por tus jugadores; si declarás transferible a alguno, llegan más.</div>}
       </div>}
 
-      {tab === 'short' && rows(g.shortlist.map(id => g.players[id]).filter(Boolean))}
+      {tab === 'short' && rows('shortlist', g.shortlist.map(id => g.players[id]).filter(Boolean), 'No seguís a ningún jugador. Seleccioná jugadores en la búsqueda y tocá Seguir.')}
 
       {tab === 'moves' && <div className="card scroll-x"><table><thead><tr><th>Fecha</th><th>Jugador</th><th>Desde</th><th>Hacia</th><th className="r">Monto</th></tr></thead>
         <tbody>{g.transfers.slice(0, 80).map((t, i) => <tr key={i} data-pid={g.players[t.pid] ? t.pid : undefined} className={g.players[t.pid] ? 'click' : ''} onClick={() => g.players[t.pid] && openPlayer(t.pid)}><td className="dim sm">{fmtDate(t.date)}</td><td><b style={{ fontWeight: 600 }}>{t.name}</b></td><td>{t.from}</td><td>{t.to}</td><td className="r num">{t.loan ? 'Préstamo' : t.fee ? money(t.fee) : 'Libre'}</td></tr>)}</tbody></table>
