@@ -8,6 +8,7 @@ import { Badge, Face, ManagerFace, PosPill, Val, clubTheme } from './common'
 import { ClubPage, CommandPalette, HoverCard, SettingsModal, ShortcutsHelp } from './Nav'
 import { PlayerPage } from './PlayerPage'
 import { PostMatch } from './MatchPanels'
+import { DataCenter } from './DataCenter'
 import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
 import { Home } from './Home'
 import { Market } from './Market'
@@ -25,7 +26,7 @@ const PAGES: [string, string, ReactNode][] = [
   ['tactics', 'Tácticas', I('M4 4h16v16H4zM4 12h16M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5')], ['locker', 'Vestuario', I('M6 3h12v18H6zM12 3v18M9 12h1M14 12h1')], ['training', 'Entrenamiento', I('M4 12h3M17 12h3M7 8v8M17 8v8M7 12h10')], ['calendar', 'Calendario', I('M5 5h14v15H5zM5 10h14M9 3v4M15 3v4M9 14h2M13 14h2')],
   ['market', 'Mercado', I('M4 7h13l-3-3M20 17H7l3 3')], ['staff', 'Cuerpo técnico', I('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6M3 20v-1a6 6 0 0 1 12 0v1M16 11l2 2 4-4')],
   ['fixtures', 'Fixture', I('M5 5h14v15H5zM5 10h14M9 3v4M15 3v4')], ['tables', 'Posiciones', I('M4 6h16M4 12h16M4 18h10')],
-  ['stats', 'Estadísticas', I('M5 20V10M12 20V4M19 20v-7')], ['club', 'Club y DT', I('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z')],
+  ['stats', 'Estadísticas', I('M5 20V10M12 20V4M19 20v-7')], ['data', 'Centro de datos', I('M4 19l5-6 4 3 7-9M4 4v16h16')], ['club', 'Club y DT', I('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z')],
 ]
 
 export function App() {
@@ -186,7 +187,7 @@ export function App() {
               </>)}
             </header>
             <main className="main" ref={mainRef}>
-              {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
+              {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
               {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}
               {page === 'player' && route.id != null && <PlayerPage key={route.id} id={route.id} tab={route.tab} />}{page === 'clubv' && route.id != null && <ClubPage key={route.id} id={route.id} tab={route.tab} />}
             </main>

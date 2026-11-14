@@ -77,10 +77,18 @@ Resultado: una sola tabla para plantel, ficha de club, mercado, seguimiento y es
 
 Resultado: la cancha ocupa el centro y siete paneles (mi equipo y táctica, ayudante, otros partidos, tabla en vivo, relato, estadísticas, remates y dominio) se ponen al costado, abajo u ocultos; hay modo cancha grande. Los otros partidos del torneo se juegan minuto a minuto junto al tuyo, con el gol recién hecho resaltado, y la tabla en vivo muestra subas y bajas. Lo que se ve en vivo es lo que queda registrado. Atajos: Espacio, 1-4, M, C, T, R, P y Esc. Al terminar, tres pasos: resultado (goles, puntajes y resto de la fecha), análisis y conferencia, con la opción de saltearlos.
 
-### Etapa 5: centro de datos
+### Etapa 5: centro de datos — hecha
 - Gráficos de rendimiento del equipo por partido y temporada: xG a favor y en contra, forma, peligro por sector.
 - Rendimiento por jugador y por rol; minutos y desgaste del plantel.
 - Análisis de rivales y de la liga.
+
+Resultado: pantalla "Centro de datos" con cuatro pestañas.
+- **Mi equipo:** seis cifras con su puesto en la categoría (puntos, xG a favor y en contra, definición, posesión, remates), xG por partido, carrera de puntos contra el líder, peligro por sector, pérdidas por fase y goles por tramo.
+- **Jugadores:** minutos, promedio y su tendencia, G+A cada 90, puestos que ocupó con su promedio, minutos de los últimos cinco partidos y de los últimos 30 días, físico y aviso de desgaste.
+- **Rivales:** cualquier club, con el próximo rival por defecto: estilo, cifras, xG por partido, resultados, goles por tramo, figuras y goleadores.
+- **Liga:** dispersión de xG a favor contra xG en contra, goles por tramo de la categoría y tabla de xG ordenable.
+
+Cada gráfico tiene tooltip y vista de tabla; la paleta pasó el validador de daltonismo y contraste sobre el fondo de los paneles.
 
 ### Etapa 6: pulido
 - Microinteracciones y transiciones cortas, consistencia visual con un sistema de componentes.
