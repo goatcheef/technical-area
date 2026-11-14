@@ -50,10 +50,33 @@ const WARN_HUES = [hueSat('#ffb547')[0], hueSat('#f3d34a')[0]]
  * se confunde con "para decidir" en los clubes amarillos y naranjas.
  */
 export const selColor = (hi: string) => { const [h, s] = hueSat(hi); return s >= 0.35 && WARN_HUES.some(w => hueGap(h, w) < 25) ? '#f1f2fa' : hi }
+// OKLab / OKLCH (Björn Ottosson): aclarar ahí conserva el matiz y la intensidad que se pierden al mezclar con blanco
+const toLin = (v: number) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }
+const toSrgb = (v: number) => 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055)
+const oklab = (hex: string) => {
+  const [r, g, b] = rgb(hex).map(toLin)
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+  return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s]
+}
+/** sRGB lineal (0-1) de un color OKLab; puede salir del rango si el color no existe en sRGB. */
+const fromLab = (L: number, A: number, B: number) => {
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3, m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3, s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3
+  return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s]
+}
+/**
+ * Aclara un color oscuro hasta la luminosidad (OKLab) que tendría mezclado con blanco al `t`, pero con su matiz y su croma:
+ * el azul marino queda azul (Gimnasia #1a2b57 → #738abd) en vez de gris (#818aa3). Si ese croma no entra en sRGB, se baja lo justo.
+ */
+const lift = (hex: string, t: number) => {
+  const [, A, B] = oklab(hex), L = oklab(mix(hex, t))[0]
+  let k = 1
+  for (let i = 0; i < 40 && fromLab(L, A * k, B * k).some(v => v < -1e-4 || v > 1 + 1e-4); i++) k *= 0.97
+  return '#' + fromLab(L, A * k, B * k).map(v => Math.round(Math.min(255, Math.max(0, toSrgb(Math.min(1, Math.max(0, v)))))).toString(16).padStart(2, '0')).join('')
+}
 /** Variables de tema a partir de los colores del club (regla repetida en tools/check-contrast.mjs). */
 export function clubTheme(c: { colors: [string, string] }): Record<string, string> {
   let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'
-  if (lum(a) < 95) a = mix(a, lum(a) < 60 ? 0.45 : 0.28)
+  if (lum(a) < 95) a = lift(a, lum(a) < 60 ? 0.45 : 0.28)
   const [acc, k] = inked(a), [r, g, b] = rgb(acc), hi = blend(acc, '#ffffff', 0.7)
   const soft = (h: string, o: number) => { const [x, y, z] = rgb(h); return `rgba(${x}, ${y}, ${z}, ${o})` }
   return { '--accent': acc, '--accent-ink': k, '--accent-soft': `rgba(${r}, ${g}, ${b}, .14)`, '--accent-hi': hi, '--sel': selColor(hi), '--accent-2': fit(blend(acc, '#ff6fb5', 0.55), k),
@@ -94,12 +117,24 @@ export function Face({ p, size = 40 }: { p: Player; club?: Club; size?: number }
 export function ManagerFace({ a, size = 48 }: { a: Avatar; size?: number }) { return <FaceSvg a={a} shirt={SUITS[a.suit % 6]} trim="#e8ecf2" size={size} /> }
 
 // ---------- formato ----------
-export const money = (v: number) => (Math.abs(v) >= 1e6 ? `US$ ${(v / 1e6).toFixed(Math.abs(v) >= 1e7 ? 1 : 2)} M` : `US$ ${Math.round(v / 1000)} mil`)
-export const avgRat = (s: SeasonStats) => (s.apps + s.subs ? (s.ratSum / (s.apps + s.subs)).toFixed(2) : '–')
+// números como se escriben en la Argentina: coma decimal y punto de miles ("US$ 2,4 M", "1.250 mil", "xG 0,85")
+const NF = new Map<string, Intl.NumberFormat>()
+const nf = (min: number, max: number) => { const k = `${min}:${max}`; let f = NF.get(k); if (!f) NF.set(k, (f = new Intl.NumberFormat('es-AR', { minimumFractionDigits: min, maximumFractionDigits: max }))); return f }
+/** Número con `d` decimales fijos (por defecto ninguno), coma decimal y punto de miles: `dec(0.853, 2)` → "0,85". */
+export const dec = (v: number, d = 0) => nf(d, d).format(v)
+/** Plata: millones con hasta dos decimales (uno desde los diez millones), sin ceros de más: "US$ 3 M", "US$ 2,45 M", "US$ 850 mil". */
+export const money = (v: number) => {
+  const a = Math.abs(v)
+  if (a < 1e6 && Math.round(a / 1000) < 1000) return `US$ ${nf(0, 0).format(Math.round(v / 1000))} mil`
+  return `US$ ${nf(0, a >= 1e7 ? 1 : 2).format(v / 1e6)} M`
+}
+export const avgRat = (s: SeasonStats) => (s.apps + s.subs ? dec(s.ratSum / (s.apps + s.subs), 2) : '–')
 export const ratClass = (r: number) => (r >= 7.5 ? 'good' : r < 6 ? 'bad' : '')
 export const attrClass = (v: number) => (v >= 16 ? 'a-top' : v >= 13 ? 'a-hi' : v >= 9 ? 'a-mid' : 'a-lo')
 export const resultText = (f: Fixture) => `${f.hg}-${f.ag}${f.pens ? ` (${f.pens[0]}-${f.pens[1]} p)` : ''}`
 export function Ovr({ v }: { v: number }) { const r = Math.round(v); return <span className={`ovr ${r >= 80 ? 't5' : r >= 72 ? 't4' : r >= 64 ? 't3' : r >= 56 ? 't2' : 't1'}`}>{r}</span> }
+/** La valoración que conoce el DT, para ordenar: la exacta si la sabe, si no el punto medio del rango que muestra `Val` (como `PlayerTable`). */
+export const seenRating = (g: Game, p: Player) => { const r = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99); return (r[0] + r[1]) / 2 }
 /** Valoración que se ve de un jugador: exacta si es tuyo o lo conocés bien, un rango si no. */
 export function Val({ p }: { p: Player }) {
   const { g } = useGame()
@@ -208,7 +243,7 @@ export function ShotMap({ shots, colors }: { shots: Shot[]; colors: [string, str
       {shots.map((s, i) => {
         const d = 6 + (s.y / 52.5) * (W / 2 - 6), x = s.side === 0 ? W - d : d, y = 6 + (s.x / 100) * (H - 12), r = 3 + Math.sqrt(s.xg) * 13
         const goal = s.out === 'goal'
-        return <circle key={i} cx={x} cy={y} r={r} fill={goal ? colors[s.side] : 'transparent'} stroke={goal ? '#fff' : colors[s.side]} strokeWidth={goal ? 2 : 1.6} opacity={goal ? 1 : s.out === 'saved' ? 0.95 : 0.55}><title>{`${s.min}' · xG ${s.xg.toFixed(2)} · ${{ goal: 'Gol', saved: 'Atajado', off: 'Afuera', block: 'Bloqueado', post: 'Palo' }[s.out]}`}</title></circle>
+        return <circle key={i} cx={x} cy={y} r={r} fill={goal ? colors[s.side] : 'transparent'} stroke={goal ? '#fff' : colors[s.side]} strokeWidth={goal ? 2 : 1.6} opacity={goal ? 1 : s.out === 'saved' ? 0.95 : 0.55}><title>{`${s.min}' · xG ${dec(s.xg, 2)} · ${{ goal: 'Gol', saved: 'Atajado', off: 'Afuera', block: 'Bloqueado', post: 'Palo' }[s.out]}`}</title></circle>
       })}
     </svg>
   )
@@ -248,8 +283,8 @@ export function Analysis({ g, f, cols }: { g: Game; f: Fixture; cols: [string, s
     <h3>Peligro por sector (xG)</h3>
     {(['Izquierda', 'Centro', 'Derecha'] as const).map((n, k) => (
       <div key={n} className="row sm" style={{ gap: 8 }}><span className="dim" style={{ width: 70 }}>{n}</span>
-        <Bar v={an[0].xg[k]} c={cols[0]} /><b className="num" style={{ width: 34 }}>{an[0].xg[k].toFixed(2)}</b>
-        <Bar v={an[1].xg[k]} c={cols[1]} /><b className="num" style={{ width: 34 }}>{an[1].xg[k].toFixed(2)}</b></div>))}
+        <Bar v={an[0].xg[k]} c={cols[0]} /><b className="num" style={{ width: 34 }}>{dec(an[0].xg[k], 2)}</b>
+        <Bar v={an[1].xg[k]} c={cols[1]} /><b className="num" style={{ width: 34 }}>{dec(an[1].xg[k], 2)}</b></div>))}
     <div className="dim sm">Cada sector visto desde el ataque de cada equipo: la izquierda de uno es la derecha del otro.</div>
     <h3>Dónde se perdió la pelota</h3>
     {([0, 1] as const).map(si => <div key={si} className="row between sm"><span style={{ color: cols[si] }}>● {g.clubs[si === 0 ? f.home : f.away].short}</span><span className="num">salida {an[si].lost[0]} · elaboración {an[si].lost[1]} · último tercio {an[si].lost[2]}</span></div>)}
@@ -264,13 +299,13 @@ export function MatchReport({ g, f, onClose }: { g: Game; f: Fixture; onClose: (
 export function ReportBody({ g, f }: { g: Game; f: Fixture }) {
   const h = g.clubs[f.home], a = g.clubs[f.away], s = f.stats, cols = duoColors(h, a)
   const rows: [string, (i: 0 | 1) => string | number][] = s ? [
-    ['Posesión', i => `${s.poss[i]}%`], ['Remates', i => s.shots[i]], ['Al arco', i => s.sot[i]], ['xG', i => s.xg[i].toFixed(2)],
+    ['Posesión', i => `${s.poss[i]}%`], ['Remates', i => s.shots[i]], ['Al arco', i => s.sot[i]], ['xG', i => dec(s.xg[i], 2)],
     ['Pases', i => `${s.passes[i]} (${Math.round((s.passOk[i] / Math.max(1, s.passes[i])) * 100)}%)`], ['Córners', i => s.corners[i]],
     ['Faltas', i => s.fouls[i]], ['Offsides', i => s.offs[i]], ['Amarillas', i => s.yc[i]], ['Rojas', i => s.rc[i]],
   ] : []
   return (
     <div>
-      <div className="dim center sm">{g.comps[f.comp]?.name} · {f.stage} · {fmtDate(f.date)}{f.att ? ` · ${f.att.toLocaleString('es-AR')} espectadores` : ''}</div>
+      <div className="dim center sm">{g.comps[f.comp]?.name} · {f.stage} · {fmtDate(f.date)}{f.att ? ` · ${dec(f.att)} espectadores` : ''}</div>
       <div className="row" style={{ justifyContent: 'center', gap: 22, margin: '10px 0 16px' }}>
         <div className="row grow" style={{ justifyContent: 'flex-end' }}><b>{h.name}</b><Badge club={h} size={48} /></div><div className="score" style={{ fontSize: '3rem' }}>{resultText(f)}</div><div className="row grow"><Badge club={a} size={48} /><b>{a.name}</b></div>
       </div>
@@ -284,7 +319,7 @@ export function ReportBody({ g, f }: { g: Game; f: Fixture }) {
           {f.lines && <><h3>Puntajes</h3>
             <div className="grid2" style={{ gap: 12 }}>{([0, 1] as const).map(si => <div key={si}>{f.lines!.filter(l => l.side === si).map(l => (
               <div key={l.pid} className="row between sm" style={{ padding: '2px 0' }}>
-                <span data-pid={g.players[l.pid] ? l.pid : undefined} className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name ?? 'Jugador'}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{l.rating.toFixed(1)}</b></div>))}</div>)}</div></>}
+                <span data-pid={g.players[l.pid] ? l.pid : undefined} className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name ?? 'Jugador'}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{dec(l.rating, 1)}</b></div>))}</div>)}</div></>}
         </div>
       </div>
     </div>

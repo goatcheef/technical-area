@@ -422,6 +422,8 @@ h3 { font-size: .8rem; text-transform: none; letter-spacing: 0; color: var(--dim
 .searchbox { position: relative; display: flex; align-items: center; max-width: none; min-width: 0; flex: none; width: 150px; border-right: 1px solid var(--line2); margin-right: 2px; }
 .searchbox input { background: none !important; border: 0 !important; padding: 6px 8px 6px 28px; width: 100%; font-weight: 600; font-size: .86rem; }
 .searchbox input:focus-visible { outline: none; } .searchbox:focus-within { box-shadow: inset 0 -2px 0 var(--sel); }
+/* la caja mide 150 px: la lista de resultados se abre más ancha para que se lean nombre y club */
+.searchbox .results { right: auto; width: 340px; }
 .sb-ico { position: absolute; left: 8px; width: 15px; height: 15px; fill: none; stroke: var(--dim); stroke-width: 2.4; stroke-linecap: round; pointer-events: none; }
 .dateblock { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; border: 1px solid var(--line); border-radius: 12px; padding: 5px 12px; background: #0d0f22; min-width: 86px; }
 .dateblock b { font-size: .95rem; font-weight: 800; letter-spacing: -.02em; } .dateblock span { font-size: .68rem; color: var(--dim); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
@@ -842,4 +844,12 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
   .ib-filters { flex-direction: column; align-items: stretch; gap: 8px; } .ib-filters-sep { display: none; }
   .ib-filters .seg button, .ibchip { height: 44px; }
   .ib-more { min-height: 44px; }
+}
+
+/* aviso de guardado fallido (App.tsx): fijo hasta el próximo guardado bueno o hasta cerrarlo; texto #f1f2fa sobre panel2 (13:1), borde --danger */
+.save-alert { position: fixed; z-index: 70; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(640px, calc(100vw - 32px)); display: flex; align-items: center; gap: 10px; background: var(--panel2); color: var(--text); border: 1px solid var(--danger); border-left-width: 4px; border-radius: 12px; padding: 10px 12px 10px 14px; box-shadow: 0 18px 50px -12px #000; font-size: .9rem; font-weight: 600; line-height: 1.45; }
+.save-alert .btn { flex: none; }
+@media (max-width: 760px) {
+  .save-alert { top: 64px; bottom: auto; align-items: flex-start; }
+  .save-alert .btn { min-height: 44px; }
 }

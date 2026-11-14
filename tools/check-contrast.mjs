@@ -1,5 +1,5 @@
 // Contraste de la tinta sobre el acento del club para los clubes con economía (división > 0) de src/data/db.json.
-// Reproduce clubTheme de src/ui/common.tsx: si cambia la regla allá, cambiarla acá. Uso: node tools/check-contrast.mjs [-v]
+// Reproduce clubTheme de src/ui/common.tsx (aclarado en OKLab con lift): si cambia la regla allá, cambiarla acá. Uso: node tools/check-contrast.mjs [-v]
 import fs from 'node:fs'
 const db = JSON.parse(fs.readFileSync(new URL('../src/data/db.json', import.meta.url), 'utf8'))
 const clubs = (Array.isArray(db.clubs) ? db.clubs : Object.values(db.clubs)).filter(c => c && c.colors && c.division > 0)
@@ -8,6 +8,12 @@ const hex = c => '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0')).j
 const lum = h => { const [r, g, b] = rgb(h); return r * .299 + g * .587 + b * .114 }
 const sat = h => { const [r, g, b] = rgb(h); return Math.max(r, g, b) - Math.min(r, g, b) }
 const mix = (h, t) => '#' + rgb(h).map(v => Math.round(v + (255 - v) * t).toString(16).padStart(2, '0')).join('')
+// aclarar en OKLab (como lift en common.tsx): la luminosidad de mezclar con blanco al t, con el matiz y el croma del color
+const toLin = v => { v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }
+const toSrgb = v => 255 * (v <= .0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - .055)
+const oklab = h => { const [r, g, b] = rgb(h).map(toLin), l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b); return [.2104542553 * l + .793617785 * m - .0040720468 * s, 1.9779984951 * l - 2.428592205 * m + .4505937099 * s, .0259040371 * l + .7827717662 * m - .808675766 * s] }
+const fromLab = (L, A, B) => { const l = (L + .3963377774 * A + .2158037573 * B) ** 3, m = (L - .1055613458 * A - .0638541728 * B) ** 3, s = (L - .0894841775 * A - 1.291485548 * B) ** 3; return [4.0767416621 * l - 3.3077115913 * m + .2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - .3413193965 * s, -.0041960863 * l - .7034186147 * m + 1.707614701 * s] }
+const lift = (h, t) => { const [, A, B] = oklab(h), L = oklab(mix(h, t))[0]; let k = 1; for (let i = 0; i < 40 && fromLab(L, A * k, B * k).some(v => v < -1e-4 || v > 1 + 1e-4); i++) k *= .97; return '#' + fromLab(L, A * k, B * k).map(v => Math.round(Math.min(255, Math.max(0, toSrgb(Math.min(1, Math.max(0, v)))))).toString(16).padStart(2, '0')).join('') }
 const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }
 const L = h => { const [r, g, b] = rgb(h).map(lin); return .2126 * r + .7152 * g + .0722 * b }
 const cr = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) }
@@ -26,7 +32,7 @@ const hueSat = h => { const [r, g, b] = rgb(h).map(v => v / 255), mx = Math.max(
 const gap = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d) }
 const WARN = ['#ffb547', '#f3d34a'], WARN_H = WARN.map(w => hueSat(w)[0])
 const selOf = hi => { const [h, s] = hueSat(hi); return s >= .35 && WARN_H.some(w => gap(h, w) < 25) ? '#f1f2fa' : hi }
-const base = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = mix(a, lum(a) < 60 ? .45 : .28); return a }
+const base = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = lift(a, lum(a) < 60 ? .45 : .28); return a }
 const theme = c => { const b = base(c), [a, k, shift] = inked(b), hi = blend(a, W, .7); return { name: c.short, base: b, a, k, shift, a2: fit(blend(a, '#ff6fb5', .55), k), hi, sel: selOf(hi) } }
 
 const v = process.argv.includes('-v'), T = clubs.map(theme)

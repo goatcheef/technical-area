@@ -25,7 +25,10 @@ export interface Ctx {
   back: () => void
   openPlayer: (id: number) => void
   openClub: (id: number) => void
-  save: () => void
+  /** Guarda la partida; `false` si falló (el aviso del armazón lo muestra). */
+  save: () => Promise<boolean>
+  /** El error del último guardado, hasta que uno salga bien. */
+  lastSaveError: SaveError | null
   openPress: () => void
   settings: Settings
   setSettings: (s: Settings) => void
@@ -42,15 +45,29 @@ function open(): Promise<IDBDatabase> {
     r.onerror = () => rej(r.error)
   })
 }
-export async function saveGame(g: Game): Promise<void> {
+/** Falla al guardar la partida en IndexedDB (sin espacio, almacenamiento bloqueado o navegación privada). */
+export class SaveError extends Error {
+  constructor(readonly cause?: unknown) { super('No se pudo guardar la partida'); this.name = 'SaveError' }
+}
+let lastSaveError: SaveError | null = null
+/** El error del último guardado, o `null` si salió bien. */
+export const getLastSaveError = () => lastSaveError
+/** Guarda la partida. Devuelve `false` si falló (y deja el error en `getLastSaveError`): lo hecho sigue en memoria, pero no en el disco. */
+export async function saveGame(g: Game): Promise<boolean> {
   try {
     const db = await open()
     await new Promise<void>((res, rej) => {
       const tx = db.transaction(STORE, 'readwrite')
       tx.objectStore(STORE).put(JSON.stringify(g), 'auto')
-      tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error)
+      tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error ?? new Error('Guardado cancelado'))
     })
-  } catch (e) { console.warn('No se pudo guardar', e) }
+    lastSaveError = null
+    return true
+  } catch (e) {
+    console.warn('No se pudo guardar', e)
+    lastSaveError = new SaveError(e)
+    return false
+  }
 }
 export async function loadGame(): Promise<Game | null> {
   try {
