@@ -11,7 +11,8 @@ import { PostMatch } from './MatchPanels'
 import { DataCenter } from './DataCenter'
 import { Guide } from './Guide'
 import { Sections, SubNav, Tools, type Group } from './TopNav'
-import { Inbox, decisionKeys, pendingOf, pendingText, unreadOf } from './Inbox'
+import { Inbox } from './Inbox'
+import { decisionKeys, inboxCount, pendingOf, pendingText } from '../engine/inbox'
 import { Home } from './Home'
 import { Market } from './Market'
 import { MatchView } from './MatchView'
@@ -64,8 +65,10 @@ export function App() {
   const nav = (r: Route) => { remember(); setHist(h => {
     const cur = h.stack[h.i]
     // misma pantalla y mismo id: cambiar solo la pestaña o la selección reemplaza la entrada en lugar de apilarla
-    const same = cur.page === r.page && cur.id === r.id
-    if (same && cur.tab === r.tab && cur.sel === r.sel) return h
+    if (cur.page === r.page && cur.id === r.id && cur.tab === r.tab && cur.sel === r.sel) return h
+    // en pantallas angostas, pasar de la lista a un elemento (sin selección → con selección) apila: Atrás vuelve a la lista
+    const detail = cur.page === r.page && !cur.sel && !!r.sel && window.matchMedia('(max-width: 900px)').matches
+    const same = cur.page === r.page && cur.id === r.id && !detail
     const stack = [...h.stack.slice(0, same ? h.i : h.i + 1), r].slice(-60)
     if (!same) delete scrolls.current[stack.length - 1]
     return { stack, i: stack.length - 1 }
@@ -155,15 +158,16 @@ export function App() {
     setBusy(null)
     saveGame(g)
     if (r === 'press' && g.press) setPress(true)
-    if (r === 'decision') nav({ page: 'inbox', tab: 'pend' })
+    // la bandeja abre con la decisión que frenó el avance (la primera en el orden del bloque si llegaron varias)
+    if (r === 'decision') nav({ page: 'inbox', tab: 'pend', sel: pendingOf(g).find(p => p.k !== 'season' && !before.has(p.key))?.key })
     refresh()
   }
-  const pend = pendingOf(g), unread = unreadOf(g)
+  const pend = pendingOf(g), count = inboxCount(g)
   // la sección activa: en las fichas de jugador o de club queda la última usada
   const found0 = GROUPS.find(gr => gr.pages.some(p => p[0] === page))
   if (found0) lastGroup.current = found0.id
   const group = GROUPS.find(gr => gr.id === lastGroup.current) ?? GROUPS[0]
-  const badge = (id: string): ReactNode => (id === 'inbox' && unread + pend.length > 0 ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : `${unread} sin leer`}>{unread + pend.length}</span> : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores">{g.offers.length}</span> : null)
+  const badge = (id: string): ReactNode => (id === 'inbox' && count > 0 ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}${count > pend.length ? ` y ${count - pend.length} sin leer` : ''}` : `${count} sin leer`}>{count}</span> : id === 'market' && g.offers.length > 0 ? <span className="dot" title="Ofertas por tus jugadores">{g.offers.length}</span> : null)
   const ql = q.trim().toLowerCase()
   const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).sort((a, b) => b.ca - a.ca).slice(0, 8) : []
   const theme = clubTheme(club) as object
@@ -185,7 +189,7 @@ export function App() {
             <aside className="side" aria-label="Navegación">
               <div className="brand">TECHNICAL <i>AREA</i></div>
               <button className="nav more-btn" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <span aria-hidden>✕</span> : <span aria-hidden>☰</span>}{menuOpen ? 'Cerrar' : 'Más'}</button>
-              {PAGES.map(([id, label, icon], i) => <button key={id} data-page={id} aria-current={page === id ? 'page' : undefined} className={`nav ${page === id ? 'on' : ''} ${['home', 'inbox', 'squad', 'tactics'].includes(id) ? 'prim' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'inbox' && unread + pend.length > 0 && <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}` : ''}>{unread + pend.length}</span>}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
+              {PAGES.map(([id, label, icon], i) => <button key={id} data-page={id} aria-current={page === id ? 'page' : undefined} className={`nav ${page === id ? 'on' : ''} ${['home', 'inbox', 'squad', 'tactics'].includes(id) ? 'prim' : ''}`} title={i < 10 ? `Tecla ${(i + 1) % 10}` : ''} onClick={() => setPage(id)}>{icon}{label}{id === 'inbox' && badge('inbox')}{id === 'market' && g.offers.length > 0 && <span className="dot">{g.offers.length}</span>}</button>)}
               {(g.favs ?? []).length > 0 && <div className="favs"><div className="favs-h">Favoritos</div>{(g.favs ?? []).map(f => {
                 const p = f.k === 'p' ? g.players[f.id] : undefined, c = f.k === 'c' ? g.clubs[f.id] : undefined
                 if (!p && !c) return null
@@ -230,7 +234,7 @@ export function App() {
                 {opp && next && !g.seasonOver && <button className="linkish row topnext" style={{ gap: 8 }} onClick={() => ctx.openClub(opp.id)} title="Próximo rival"><span className="dim right sm">{next.home === club.id ? 'Local vs' : 'Visitante en'} <b style={{ color: 'var(--text)' }}>{opp.short}</b> · {fmtDate(next.date).replace(/ \d{4}$/, '')}</span><Badge club={opp} size={22} /></button>}
               </>} />
             <main className="main" id="main" tabIndex={-1} ref={mainRef}><div key={`${page}:${route.id ?? ''}`} className="page-in">
-              {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
+              {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} busy={!!busy} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market />}
               {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}
               {page === 'player' && route.id != null && <PlayerPage key={route.id} id={route.id} tab={route.tab} />}{page === 'clubv' && route.id != null && <ClubPage key={route.id} id={route.id} tab={route.tab} />}
             </div></main>

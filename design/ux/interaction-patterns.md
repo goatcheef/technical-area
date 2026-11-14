@@ -81,7 +81,7 @@ Los ocho principios de `docs/plan-ui-ux.md`, en su forma operativa:
 | D5 | Gráfico con tooltip y tabla | Datos | Gráfico SVG con tooltip y vista alternativa en tabla. | Centro de datos | Estable |
 | D6 | Escalas y chips de estado | Datos | Valoración, físico, estado, puesto y forma con color y texto. | Todas las pantallas con jugadores | Estable |
 | D7 | Fila clickeable | Datos / Entrada | Fila de tabla que abre algo; alcanzable con Tab y Enter. | Tablas en general | Estable |
-| F1 | Lista y lectura lado a lado | Decisión | Bandeja: lista a la izquierda, mensaje a la derecha. | Bandeja | Estable |
+| F1 | Lista y lectura lado a lado | Decisión | Bandeja: `listbox` con foco itinerante, bloque "Para decidir" arriba, mensajes por día; lectura al lado (o detalle aparte en ≤ 900 px). | Bandeja | Estable |
 | F2 | Acción en el mensaje | Decisión | Los botones para decidir viven en el mismo mensaje. | Bandeja, Pendientes, Mercado | Estable |
 | F3 | Indicador de pendientes | Información | Insignias y botón que resumen lo que falta decidir. | Navegación, barra de pantallas, Inicio | Estable |
 | F4 | Avance progresivo con freno | Juego / Información | Continuar un día o avanzar hasta el partido con progreso y Esc. | Barra superior | Estable |
@@ -93,6 +93,7 @@ Los ocho principios de `docs/plan-ui-ux.md`, en su forma operativa:
 | C2 | Botones | Entrada | Primario, CTA, común, alternable, peligro, ícono, enlace. | Todas las pantallas | Estable |
 | C3 | Disposición personalizable | Entrada | Modo edición con botones de orden, ancho y ocultar. | Inicio, paneles del partido, columnas | Estable |
 | C4 | Estado de pantalla que se recuerda | Persistencia | Tres niveles: memoria de navegación, navegador y partida. | Filtros, pestañas, ajustes, partida | Estable |
+| C5 | Filtro con chips y contador | Entrada | Alcance segmentado más chips de tema con contador de sin leer; una parada de Tab por grupo. | Bandeja | Estable |
 | M1 | Paneles del día de partido | Juego / Disposición | Siete paneles al costado, abajo u ocultos; cancha grande. | Día de partido | Estable |
 | M2 | Control de ritmo del partido | Juego / Entrada | Velocidad, modo, ir al final y pausas automáticas. | Día de partido | Estable |
 | M3 | Selección en dos toques | Entrada | Primer toque marca, segundo ejecuta (cambio o intercambio). | Día de partido, Tácticas | Estable |
@@ -578,26 +579,35 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 #### F1. Lista y lectura lado a lado
 
-**Categoría**: Decisión · **Estado**: Estable
+**Categoría**: Decisión · **Estado**: Estable (variante `listbox`, especificada en `design/ux/bandeja.md`)
 
-**Cuándo usarlo**: para recorrer muchos ítems y leer o resolver uno por vez sin cambiar de pantalla (la bandeja de entrada).
+**Cuándo usarlo**: para recorrer muchos ítems y leer o resolver uno por vez sin cambiar de pantalla (la bandeja de entrada). Lo que espera respuesta va arriba, separado de la correspondencia.
 
-**Anatomía**: pestañas por categoría con contador (N6: Para vos, Pendientes, Plantel, Mercado, Partidos, Torneos, Todo el fútbol); lista `.ib-list` (pendientes arriba con borde de advertencia, separador "Mensajes", luego mensajes con ícono, título, tipo y fecha); panel de lectura `.ib-read` fijo al hacer scroll. Arriba, el resumen de pendientes y "Marcar N como leídas".
+**Anatomía**
+- Encabezado: título, buscador (`input type=search`, no se recuerda al salir) y "Marcar N como leídos" (los sin leer de la vista, con "Deshacer").
+- Filtros: alcance y tema (C5).
+- Lista `.ib-list`: un `role="listbox"` con `aria-label="Mensajes"`. Adentro, el bloque **"Para decidir · N"** (`role="group"` con nombre, encabezado `.ib-block-h`) con las decisiones de `pendingOf` ordenadas por urgencia (conferencia, lo que vence antes, lo que no vence); nunca se filtra ni se busca. Con 0 decisiones, una línea "Nada para decidir. Podés seguir con Continuar." Después, los mensajes de la vista **agrupados por día** (`role="group"` por día, encabezado `.msg-day`: "Hoy · sáb 14 nov", "Ayer · …", la fecha). Filas con la anatomía `.msg` del mosaico del Inicio (`MsgBody` en `src/ui/msg.tsx`): ícono redondo del tema ("!" ámbar en las decisiones), remitente "Tipo · entidad", título, plazo (`.ib-due`) en las decisiones, chip de acción (`.ib-tag`: "Para decidir", "Ver informe", "Informe") y punto de sin leer. "Mostrar N más" es un botón **fuera** del `listbox`, la parada de Tab siguiente.
+- Lectura `.ib-read`: plantilla por tipo (tarjetas de jugador y club, cifras `.ib-kpi`, plazo y hechos, cuerpo, acciones F2 con confirmación F6 y nota F7).
+- ≤ 900 px: solo la lista; tocar una fila abre el **detalle** como entrada nueva del historial (la única selección que apila), con "◂ Bandeja", "N de M ‹ ›" y la barra de acciones fija abajo.
 
 **Estados**
 
 | Estado | Visual / respuesta |
 |--------|-------------------|
-| Sin leer | Punto de acento y título en negrita |
-| Elegido | Fondo de acento suave; al quedar activo, se marca como leído |
-| Pendiente | `.ib-row.pend` con borde izquierdo de advertencia y la fecha de vencimiento |
-| Elegido que desapareció | Se elige el primero de la lista (por ejemplo, tras responder una oferta) |
-| Vacío | "No tenés nada pendiente." o "No hay mensajes en esta categoría." |
-| Ancho ≤ 900 px | Lista y lectura en una sola columna |
+| Sin leer | Título en 700 y punto `--accent-hi` con `aria-label="Sin leer"` (solo mensajes del DT) |
+| Elegido | Fondo `--accent-soft`, barra izquierda de 3 px `--accent-hi`, `aria-selected="true"` |
+| Elegido por el DT | Clic, ↑ ↓, Enter, ‹ › o un clic en el mosaico del Inicio: marca leído (`markRead`) |
+| Elegido al entrar | La ruta (`sel`); si no, la primera decisión, el primer sin leer o el primero. **No marca leído**: el panel muestra "● Sin leer" |
+| Decisión | Riel ámbar continuo y plazo en texto ("Vence en 3 días · el 18 nov", "Vence mañana", "No vence") |
+| Resuelto | Tras responder, la fila queda en el bloque con ícono ✓ y "✓ Resuelto" hasta cambiar de selección; el panel muestra la nota F7 (`role="status"`) y "Siguiente pendiente" con el foco. El panel no salta a otro mensaje |
+| Vencida o respondida en otro lado | Si seguía elegida, la fila queda como "Ya no está vigente" y el panel cambia las acciones por un texto tenue ("Esta oferta venció el …") |
+| Vacío | F8 con el texto del tema; búsqueda sin coincidencias con "Borrar búsqueda" y "Buscar en todo el fútbol" |
 
-**Teclado y mouse**: clic elige; ↑ ↓ recorren la lista (fuera de campos y modales) y la desplazan para que el elegido quede a la vista.
+**Teclado y mouse**: la lista es una sola parada de Tab (foco itinerante: solo la fila elegida tiene `tabindex=0`). El oyente está en el `listbox`, no en `window`, y respeta `defaultPrevented` (con un menú abierto la lista no recibe las teclas). ↑ ↓ eligen y mueven el foco juntos (sin dar la vuelta), Inicio y Fin, Re Pág y Av Pág (10 filas); Enter lleva el foco al botón primario del mensaje (en ≤ 900 px abre el detalle); Esc en el panel vuelve a la fila. Espacio sobre una fila sigue siendo Continuar (`role=option` no tiene función propia). Clic elige; hover solo cambia el fondo.
 
-**Dónde está**: `Inbox`, `PendRow`, `Message`, `PendDetail` en `src/ui/Inbox.tsx`. CSS: `.inbox`, `.ib-*`.
+**Dónde está**: `Inbox`, `Panel`, `Actions`, `Toggles` en `src/ui/Inbox.tsx`; `MsgBody`, `DayHead`, `TAG_ICON` en `src/ui/msg.tsx`; motor en `src/engine/inbox.ts` (`pendingOf`, `pendingKeyOf`, `unreadOf`, `inboxCount`). La selección va en `Route.sel` (`"n<id>"` o la clave del pendiente). CSS: `.inbox`, `.ib-*`, `.msg*`.
+
+**Hacé**: que cada decisión cuente una vez (un mensaje con la decisión abierta suma como pendiente, no como sin leer). **No hagas**: marcar leído lo que el DT no abrió, ni sacar la fila de la decisión de abajo del cursor al resolverla.
 
 ---
 
@@ -827,6 +837,27 @@ En modo edición, los mosaicos llevan contorno punteado (`.tile.editing`) y una 
 Más el scroll por entrada del historial (N4).
 
 **Hacé**: usá `useSticky` en vez de `useState` para filtros, orden y pestañas. **No hagas**: guardar preferencias de presentación en `Game` (viajan con la partida y no son del juego), ni guardar en `Game` lo que se puede calcular (como los pendientes).
+
+---
+
+#### C5. Filtro con chips y contador
+
+**Categoría**: Entrada · **Estado**: Estable
+
+**Cuándo usarlo**: para filtrar una lista larga por dos ejes a la vez: un alcance de 2 opciones (segmentado C1) y un tema entre 4 y 7 opciones, cuando conviene ver dónde hay novedades sin abrirlas.
+**Cuándo no**: si las opciones son vistas distintas de la pantalla (usá pestañas N6) o si hay que combinar varios temas (usá casillas).
+
+**Anatomía**: una fila `.ib-filters`: el segmentado de alcance, un separador vertical de 1 px y los chips `.ibchip` de tema. Cada chip lleva su etiqueta y, si hay sin leer, un contador `.cnt` (píldora `--panel3`, 12 px 800, cifras tabulares; nada de "0"). Cada grupo es un `role="group"` con `aria-label` ("Alcance", "Tema") y cada botón expone `aria-pressed`. El contador se lee como ", 3 sin leer" (texto oculto). Un tema activo por vez.
+
+**Estados**: normal; hover (`--panel2`); activo con el lenguaje único de "elegido": fondo `--accent-soft` compuesto sobre `--panel`, borde `--accent-hi`, ✓ antes de la etiqueta, texto `--text` 700 (nunca blanco sobre acento sólido); foco con anillo `--accent-hi`.
+
+**Teclado**: cada grupo es una parada de Tab (foco itinerante en la opción activa); ← → mueven el foco dentro del grupo; Enter o Espacio eligen. Cambiar de alcance o tema **reemplaza** la entrada del historial y se recuerda con `useSticky` (C4).
+
+**Celular (≤ 760 px)**: alcance y chips en dos filas, 44 px de alto; los chips nunca pasan a dos filas: se desplazan de costado con un degradé de máscara en el borde derecho. La página no se desplaza de costado.
+
+**Dónde está**: `Toggles` en `src/ui/Inbox.tsx`. CSS: `.ib-filters`, `.ibchips`, `.ibchip`, `.ibchip .cnt`.
+
+**Hacé**: contar solo lo que el jugador tiene que leer (en la bandeja, los sin leer del DT sin decisión abierta). **No hagas**: contadores en un alcance que no tiene "sin leer" (en "Todo el fútbol" los chips no cuentan).
 
 ---
 
