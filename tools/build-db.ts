@@ -57,7 +57,7 @@ const META: Record<string, Meta> = {
   'Club Atlético All Boys': ['All Boys', 'All Boys', 'ALL', 52, '#ffffff', '#111111'],
   'Club Almirante Brown': ['Almirante Brown', 'Alte. Brown', 'ALM', 52, '#ffd400', '#111111'],
   'Club Atlético Nueva Chicago': ['Nueva Chicago', 'Chicago', 'CHI', 52, '#0a7d3b', '#111111'],
-  'Club Atlético Los Andes': ['Los Andes', 'Los Andes', 'LAN2', 51, '#d6001c', '#ffffff'],
+  'Club Atlético Los Andes': ['Los Andes', 'Los Andes', 'AND', 51, '#d6001c', '#ffffff'],
   'Club Deportivo Maipú': ['Deportivo Maipú', 'Maipú', 'MAI', 52, '#d6001c', '#ffffff'],
   'Club de Gimnasia y Tiro': ['Gimnasia y Tiro', 'Gimnasia y Tiro', 'GYT', 52, '#75aadb', '#ffffff'],
   'Club Atlético Estudiantes': ['Estudiantes (BA)', 'Estudiantes (BA)', 'EBA', 51, '#ffffff', '#111111'],
@@ -69,7 +69,7 @@ const META: Record<string, Meta> = {
   'Club Atlético Racing': ['Racing (C)', 'Racing (C)', 'RCC', 50, '#75aadb', '#ffffff'],
   'Club Atlético Central Norte (Salta)': ['Central Norte', 'Central Norte', 'CNO', 49, '#111111', '#ffffff'],
   'Club Atlético San Telmo': ['San Telmo', 'San Telmo', 'STE', 49, '#1d4f9c', '#75aadb'],
-  'Club Ciudad de Bolívar': ['Ciudad de Bolívar', 'Bolívar', 'BOL', 50, '#75aadb', '#ffffff'],
+  'Club Ciudad de Bolívar': ['Ciudad de Bolívar', 'Bolívar', 'CDB', 50, '#75aadb', '#ffffff'],
   'Club Atlético Colegiales (Munro)': ['Colegiales', 'Colegiales', 'CLG', 49, '#1d4f9c', '#d6001c'],
   'Club Atlético Ferrocarril Midland': ['Ferrocarril Midland', 'Midland', 'MID', 49, '#1d4f9c', '#ffffff'],
   'Club Atlético San Miguel': ['San Miguel', 'San Miguel', 'SMI', 48, '#0a7d3b', '#ffffff'],
@@ -79,7 +79,38 @@ const META: Record<string, Meta> = {
 
 const START = '2026-01-10'
 const raw = JSON.parse(readFileSync(new URL('../data/clubs_raw.json', import.meta.url), 'utf8')) as any[]
-const rng = new Rng(20260110)
+
+/** FNV-1a de 32 bits: semilla estable a partir de la identidad de un jugador o de un club. */
+const hash = (s: string) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) } return h >>> 0 }
+/** Tiradas guardadas por jugador (data/rolls.json, base64 de enteros de 32 bits). */
+const ROLLS = (() => { try { return JSON.parse(readFileSync(new URL('../data/rolls.json', import.meta.url), 'utf8')) as Record<string, string> } catch { return {} } })()
+const tapeOf = (key: string): number[] => {
+  const b = ROLLS[key] ? Buffer.from(ROLLS[key], 'base64') : Buffer.alloc(0)
+  return Array.from({ length: b.length >> 2 }, (_, i) => b.readUInt32BE(i * 4))
+}
+/**
+ * Azar propio de cada jugador (o de cada plantel generado), sembrado con su identidad: corregir a uno
+ * (un override, un dato nuevo) no cambia a los demás. Primero consume sus tiradas de data/rolls.json,
+ * que reproducen la base anterior (valoración, pie, puestos secundarios, contrato), y después sigue con su semilla.
+ */
+class Stream extends Rng {
+  private tape: number[]
+  private i = 0
+  constructor(key: string, tape: number[] = []) { super(hash(key)); this.tape = tape }
+  next(): number { return this.i < this.tape.length ? this.tape[this.i++] / 4294967296 : super.next() }
+}
+/** Nacionalidades: Wikipedia a veces trae el código FIFA en vez del nombre. Se usa el nombre en castellano. */
+const NAT_FIX: Record<string, string> = {
+  ARG: 'Argentina', URU: 'Uruguay', PAR: 'Paraguay', COL: 'Colombia', CHI: 'Chile', BRA: 'Brasil', VEN: 'Venezuela', ECU: 'Ecuador', PER: 'Perú', BOL: 'Bolivia',
+  ESP: 'España', ITA: 'Italia', MEX: 'México', USA: 'Estados Unidos', ARM: 'Armenia', SUI: 'Suiza', SYR: 'Siria', JPN: 'Japón', PUR: 'Puerto Rico', SVN: 'Eslovenia',
+}
+const natOf = (n: string | undefined): string => {
+  const v = (n ?? '').trim()
+  if (!v) return 'Argentina'
+  if (NAT_FIX[v.toUpperCase()]) return NAT_FIX[v.toUpperCase()]
+  if (/^[A-Z]{2,3}$/.test(v)) throw new Error(`Nacionalidad sin traducir: ${v} (agregarla a NAT_FIX en tools/build-db.ts y a NAT en tools/import_wiki.py)`)
+  return v
+}
 const START_YEAR = Number(START.slice(0, 4))
 
 const LINE_POS: Record<Line, [Pos, number][]> = {
@@ -93,7 +124,7 @@ const SECOND: Partial<Record<Pos, Pos[]>> = {
   AMC: ['MC', 'ST', 'AML', 'AMR'], MR: ['AMR', 'DR', 'MC'], ML: ['AML', 'DL', 'MC'], AMR: ['MR', 'AML', 'ST'], AML: ['ML', 'AMR', 'ST'], ST: ['AMR', 'AML', 'AMC'],
 }
 
-function genAttrs(pos: Pos, target: number, age: number): number[] {
+function genAttrs(rng: Rng, pos: Pos, target: number, age: number): number[] {
   const base = 3 + target * 0.15
   const w = POS_WEIGHTS[pos]
   const attrs = ATTRS.map((a, i) => {
@@ -113,10 +144,10 @@ function genAttrs(pos: Pos, target: number, age: number): number[] {
   if (age >= 30) { attrs[A.dec] += 1; attrs[A.pos] += 0.8; attrs[A.lea] += 1.5; attrs[A.com] += 0.6 }
   if (age <= 21) { attrs[A.dec] -= 0.8; attrs[A.lea] -= 1.5 }
   let out = attrs.map(v => clamp(Math.round(v), 1, 20))
-  // ajuste fino para acercar la valoración al objetivo
+  // ajuste fino: la valoración redondeada queda igual al objetivo (la valoración no depende del azar de los atributos)
   for (let it = 0; it < 40; it++) {
     const diff = target - rawRating(out, pos)
-    if (Math.abs(diff) < 0.6) break
+    if (Math.abs(diff) < 0.5) break
     const cand = out.map((_, i) => i).filter(i => w[i] > 0 && (diff > 0 ? out[i] < 20 : out[i] > 1))
     if (!cand.length) break
     const i = rng.weighted(cand, c => w[c])
@@ -189,7 +220,7 @@ raw.forEach((c, idx) => {
   const id = idx + 1
   const mgr = (c.manager || '').replace(/'/g, '').trim()
   clubs.push({
-    id, name: m[0], short: m[1], code: m[2].slice(0, 3), city: c.city, stadium: c.stadium, capacity: c.capacity,
+    id, name: m[0], short: m[1], code: m[2], city: c.city, stadium: c.stadium, capacity: c.capacity,
     division: div, zone: c.zone, rep, colors: [m[4], m[5]],
     manager: !mgr || /vacante/i.test(mgr) ? 'Cuerpo técnico interino' : mgr,
     ppg: ppg, pj: div === 1 ? 32 : 34,
@@ -204,8 +235,12 @@ raw.forEach((c, idx) => {
   const list = (c.players as any[]).slice(0, 44)
   for (const p of list) if (p.num && p.num < 100) { if (used.has(p.num)) p.num = null; else used.add(p.num) }
   // primera pasada: habilidad objetivo; se normaliza para que el once titular refleje la reputación
-  const birthOf = (p: any): string => (p.birth ??= `${rng.int(1994, 2005)}-${String(rng.int(1, 12)).padStart(2, '0')}-${String(rng.int(1, 28)).padStart(2, '0')}`)
+  const birthOf = (p: any): string => (p.birth ??= `${p.rng.int(1994, 2005)}-${String(p.rng.int(1, 12)).padStart(2, '0')}-${String(p.rng.int(1, 28)).padStart(2, '0')}`)
   for (const p of list) {
+    const key = `${m[1]}|${p.name}`
+    p.rng = new Stream(key, tapeOf(key)); p.arng = new Stream('atributos|' + key)
+    p.nat = natOf(p.nat)
+    const rng = p.rng as Rng
     const age = ageOn(birthOf(p), START)
     const ageAdj = age <= 17 ? -13 : age === 18 ? -10 : age <= 20 ? -6.5 : age <= 22 ? -3 : age <= 31 ? 1 : age <= 33 ? -0.5 : age <= 35 ? -2.5 : -5
     const numAdj = p.num && p.num <= 11 ? 1 : p.num && p.num >= 35 ? -1.5 : 0
@@ -217,6 +252,7 @@ raw.forEach((c, idx) => {
   const top = list.map(p => p.t as number).sort((a, b) => b - a).slice(0, 14)
   const shiftCa = 35.5 + rep * 0.5 - top.reduce((a, b) => a + b, 0) / top.length
   for (const p of list) {
+    const rng = p.rng as Rng
     const line = p.pos as Line
     const birth: string = birthOf(p)
     const age = ageOn(birth, START)
@@ -225,17 +261,21 @@ raw.forEach((c, idx) => {
     const lead = PSTATS[p.wiki ?? '']?.lead ?? undefined, box = PMETA[p.wiki ?? '']?.ok ? PMETA[p.wiki].pos : undefined
     const specific = (t?: string) => !!t && SPECIFIC.test(t)
     const ptxt = specific(lead) ? `${lead} / ${specific(box) ? box : ''}` : box ?? lead
-    let real = ov?.pos ? [ov.pos] : parsePositions(ptxt).filter(x => (x === 'GK') === (line === 'GK'))
+    // El puesto se calcula aunque haya override: los repartos (parsePositions y PATTERN) avanzan igual,
+    // así corregir a un jugador no cambia el puesto de los que vienen después.
+    let auto = parsePositions(ptxt).filter(x => (x === 'GK') === (line === 'GK'))
     // "delantero" a secas: si en 2026 convierte seguido, es un nueve; si no, se queda como estaba
     const st = PSTATS[p.wiki ?? '']
-    if (!ov?.pos && line === 'FW' && !specific(ptxt) && st?.a26 && st.a26 >= 5 && (st as any).g26 / st.a26 >= 0.25) real = ['ST' as Pos, ...real.filter(x => x !== 'ST')].slice(0, 2)
-    const pos = real[0] ?? PATTERN[line][cnt[line]++ % PATTERN[line].length]
+    if (line === 'FW' && !specific(ptxt) && st?.a26 && st.a26 >= 5 && (st as any).g26 / st.a26 >= 0.25) auto = ['ST' as Pos, ...auto.filter(x => x !== 'ST')].slice(0, 2)
+    const fallback = auto.length ? undefined : PATTERN[line][cnt[line]++ % PATTERN[line].length]
+    const real = ov?.pos ? [ov.pos] : auto
+    const pos = real[0] ?? fallback!
     const positions: Pos[] = real.length ? [...real] : [pos]
     if (pos !== 'GK' && positions.length === 1 && rng.chance(0.55)) positions.push(rng.pick(SECOND[pos]!))
     if (pos !== 'GK' && !real.length && rng.chance(0.15)) { const e = rng.pick(SECOND[pos]!); if (!positions.includes(e)) positions.push(e) }
     let ca = ov?.ca ?? p.t + shiftCa
     ca = clamp(Math.round(ca), 30, 93)
-    const attrs = genAttrs(pos, ca, age)
+    const attrs = genAttrs(p.arng, pos, ca, age)
     const realCa = Math.round(rawRating(attrs, pos))
     let pa = realCa
     if (age <= 23) pa = realCa + Math.round(2 + rng.next() * ((24 - age) * 2.6 + 3) + (rng.chance(0.07) ? 8 : 0))
@@ -266,6 +306,7 @@ const extra = JSON.parse(readFileSync(new URL('../data/clubs_extra.json', import
 for (const c of extra) {
   clubs.push({ id: c.id, name: c.name, short: c.short, code: c.code, city: c.city, stadium: c.stadium || `Estadio de ${c.short}`, capacity: c.capacity, division: c.division, zone: c.zone || 'A', rep: c.rep, colors: c.colors, manager: c.manager, country: c.country, ppg: null, pj: 0 })
   const br = c.country === 'Brasil', n = c.division === 0 ? 23 : 26
+  const rng = new Stream('gen|' + c.wiki, tapeOf('gen|' + c.wiki)), arng = new Stream('atributos|gen|' + c.wiki)
   const used = new Set<number>()
   const pos = GEN_POS.filter((_, i) => i < 3 || i >= 3 + (GEN_POS.length - n))
   const mean = 31 + c.rep * 0.5
@@ -273,7 +314,7 @@ for (const c of extra) {
     const age = rng.int(18, 34)
     const ageAdj = age <= 19 ? -6 : age <= 21 ? -3 : age <= 31 ? 1 : -1
     const ca0 = clamp(Math.round(mean + ageAdj + rng.gauss() * 4), 30, 90)
-    const attrs = genAttrs(pp, ca0, age)
+    const attrs = genAttrs(arng, pp, ca0, age)
     const realCa = Math.round(rawRating(attrs, pp))
     let num = pp === 'GK' ? 1 : 2
     while (used.has(num)) num++
@@ -290,6 +331,14 @@ for (const c of extra) {
       contractEnd: 2026 + rng.int(0, 3), loan: false, youth: false, gen: true, prof: clamp(Math.round(11 + rng.gauss() * 3.5), 1, 20),
     })
   }
+}
+
+// los clásicos (RIVALS en src/engine/game.ts) y la prensa buscan a los clubes por código: tiene que ser único
+const codes = new Map<string, string>()
+for (const c of clubs) {
+  if ([...c.code].length !== 3) throw new Error(`Código de club de 3 letras: ${c.name} (${c.code})`)
+  if (codes.has(c.code)) throw new Error(`Código de club repetido: ${c.code} (${codes.get(c.code)} y ${c.name})`)
+  codes.set(c.code, c.name)
 }
 
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })

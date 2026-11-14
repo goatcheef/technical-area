@@ -32,7 +32,7 @@ FOREIGN = [
     ('Club Olimpia', 'Olimpia', 'Olimpia', 'OLI', 'Paraguay', 77, ('#111111', '#ffffff')),
     ('Club Cerro Porteño', 'Cerro Porteño', 'Cerro Porteño', 'CCP', 'Paraguay', 77, ('#1d3f8f', '#c8102e')),
     ('Club Libertad', 'Libertad', 'Libertad', 'LIB', 'Paraguay', 76, ('#111111', '#ffffff')),
-    ('Club Social y Deportivo Colo-Colo', 'Colo-Colo', 'Colo-Colo', 'CC', 'Chile', 77, ('#ffffff', '#111111')),
+    ('Club Social y Deportivo Colo-Colo', 'Colo-Colo', 'Colo-Colo', 'CLC', 'Chile', 77, ('#ffffff', '#111111')),
     ('Club Universidad de Chile', 'Universidad de Chile', 'U. de Chile', 'UCH', 'Chile', 76, ('#1d3f8f', '#c8102e')),
     ('Atlético Nacional', 'Atlético Nacional', 'Atl. Nacional', 'ATN', 'Colombia', 77, ('#0a7d3b', '#ffffff')),
     ('Millonarios Fútbol Club', 'Millonarios', 'Millonarios', 'MIL', 'Colombia', 75, ('#1d3f8f', '#ffffff')),
@@ -40,6 +40,31 @@ FOREIGN = [
     ('Club Bolívar', 'Bolívar', 'Bolívar', 'BOL', 'Bolivia', 73, ('#75aadb', '#ffffff')),
 ]
 T3_COLORS = ['#d6001c', '#1d4f9c', '#0a7d3b', '#ffd400', '#111111', '#75aadb', '#7a1531', '#ff7a00']
+# Tercera categoría: código único (los clásicos se buscan por código y no puede repetir el de otro club) y colores
+# reales, del campo «colores», el apodo o el uniforme titular de la ficha del club (data/raw/). Un club que no
+# figure acá toma las tres primeras letras y un color de T3_COLORS: hay que agregarlo.
+T3 = {
+    'Arsenal Fútbol Club': ('ARS', ('#27bef8', '#d6001c')),  # celeste con banda roja
+    'Club Social y Cultural Deportivo Laferrere': ('LAF', ('#0a7d3b', '#ffffff')),  # verde y blanco
+    'Club Atlético Talleres (Remedios de Escalada)': ('TRE', ('#d6001c', '#ffffff')),  # rojo y blanco
+    'Club Villa Dálmine': ('VIL', ('#400080', '#ffffff')),  # violeta
+    'Club Atlético Argentino (Merlo)': ('AME', ('#75aadb', '#ffffff')),  # celeste y blanco
+    'Club Deportivo Armenio': ('ARM', ('#d90012', '#0033a0')),  # rojo, azul y naranja (bandera de Armenia)
+    'Club Social y Deportivo Merlo': ('MER', ('#1d4f9c', '#ffffff')),  # azul y blanco
+    'Real Pilar Fútbol Club': ('RPI', ('#111111', '#fd99d9')),  # negro, blanco y rosa
+    'Club Sportivo Dock Sud': ('DOC', ('#1d3f8f', '#ffcc00')),  # azul y amarillo
+    'Club Atlético Excursionistas': ('EXC', ('#007744', '#ffffff')),  # verde y blanco
+    'Club Atlético Sarmiento (Resistencia)': ('SRE', ('#d6001c', '#ffd400')),  # «Aurirrojo»: amarillo y rojo
+    'Club Atlético Boca Unidos': ('BUN', ('#d6001c', '#ffd400')),  # «Aurirrojo»
+    'Club Olimpo': ('OLM', ('#ffd400', '#111111')),  # amarillo y negro
+    'Club Atlético Douglas Haig': ('DOU', ('#d6001c', '#111111')),  # rojo y negro
+    'Club Sportivo Belgrano (San Francisco)': ('SPB', ('#0a7d3b', '#ffffff')),  # «La Verde»
+    'Club Social y Atlético Guillermo Brown': ('GBR', ('#ffffff', '#1a2b57')),  # blanco y azul
+    'Centro Juventud Antoniana': ('JUV', ('#1d3f8f', '#ffffff')),  # azul, blanco y marrón
+    'Club Sol de América (Formosa)': ('SOL', ('#1d4f9c', '#ffd400')),  # azul y amarillo
+    'Club Cipolletti': ('CIP', ('#ffffff', '#111111')),  # albinegro
+    'Club Atlético Huracán Las Heras': ('HLH', ('#ffffff', '#d6001c')),  # blanco y rojo
+}
 
 
 def thumb(title, dst):
@@ -80,7 +105,9 @@ def main():
         for i, t in enumerate(teams):
             out.append(dict(id=next_id, wiki=t["wiki"], name=t["name"], short=t["name"], city=t["city"], stadium=t["stadium"],
                             capacity=t["capacity"], division=3, zone=zone, rep=rep0 - i // 3, country="Argentina",
-                            colors=[T3_COLORS[next_id % len(T3_COLORS)], "#ffffff"]))
+                            colors=list(T3[t["wiki"]][1]) if t["wiki"] in T3 else [T3_COLORS[next_id % len(T3_COLORS)], "#ffffff"]))
+            if t["wiki"] in T3:
+                out[-1]["code"] = T3[t["wiki"]][0]
             next_id += 1
     # nombres repetidos dentro de la tercera: se aclara la ciudad
     names = [c["name"] for c in out]

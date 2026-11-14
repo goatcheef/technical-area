@@ -134,7 +134,9 @@ def find_templates(text, name):
 
 NAT = {"AR": "Argentina", "UY": "Uruguay", "PY": "Paraguay", "CO": "Colombia", "CL": "Chile", "BR": "Brasil", "VE": "Venezuela", "EC": "Ecuador", "PE": "Perú", "BO": "Bolivia", "ARG": "Argentina", "URU": "Uruguay", "PAR": "Paraguay", "COL": "Colombia", "CHI": "Chile",
        "BRA": "Brasil", "VEN": "Venezuela", "ECU": "Ecuador", "PER": "Perú", "BOL": "Bolivia",
-       "ESP": "España", "ITA": "Italia", "MEX": "México", "USA": "Estados Unidos"}
+       "ESP": "España", "ITA": "Italia", "MEX": "México", "USA": "Estados Unidos",
+       "ARM": "Armenia", "SUI": "Suiza", "SYR": "Siria", "JPN": "Japón", "PUR": "Puerto Rico", "SVN": "Eslovenia"}
+# (tools/build-db.ts repite esta tabla en NAT_FIX y se corta si encuentra un código sin traducir)
 POS = {"POR": "GK", "ARQ": "GK", "GK": "GK", "DEF": "DF", "DF": "DF", "MED": "MF", "VOL": "MF",
        "MF": "MF", "MC": "MF", "CEN": "MF", "DEL": "FW", "FW": "FW", "ATA": "FW"}
 

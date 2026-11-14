@@ -12,8 +12,8 @@
   "rep": 47,
   "country": "Argentina",
   "colors": [
-   "#ffd400",
-   "#ffffff"
+   "#27bef8",
+   "#d6001c"
   ],
   "manager": "Fabián Lisa",
   "code": "ARS"
@@ -31,11 +31,11 @@
   "rep": 47,
   "country": "Argentina",
   "colors": [
-   "#111111",
+   "#0a7d3b",
    "#ffffff"
   ],
   "manager": "Pablo Nieva",
-  "code": "DEP"
+  "code": "LAF"
  },
  {
   "id": 69,
@@ -50,11 +50,11 @@
   "rep": 47,
   "country": "Argentina",
   "colors": [
-   "#75aadb",
+   "#d6001c",
    "#ffffff"
   ],
   "manager": "Juan Carlos Kopriva",
-  "code": "TAL"
+  "code": "TRE"
  },
  {
   "id": 70,
@@ -69,7 +69,7 @@
   "rep": 46,
   "country": "Argentina",
   "colors": [
-   "#7a1531",
+   "#400080",
    "#ffffff"
   ],
   "manager": "Ariel Fuscaldo",
@@ -88,11 +88,11 @@
   "rep": 46,
   "country": "Argentina",
   "colors": [
-   "#ff7a00",
+   "#75aadb",
    "#ffffff"
   ],
   "manager": "Cristian Tula",
-  "code": "ARG"
+  "code": "AME"
  },
  {
   "id": 72,
@@ -107,11 +107,11 @@
   "rep": 46,
   "country": "Argentina",
   "colors": [
-   "#d6001c",
-   "#ffffff"
+   "#d90012",
+   "#0033a0"
   ],
   "manager": "Fernando Ruiz",
-  "code": "DEP"
+  "code": "ARM"
  },
  {
   "id": 73,
@@ -130,7 +130,7 @@
    "#ffffff"
   ],
   "manager": "Néstor Omar Piccoli",
-  "code": "DEP"
+  "code": "MER"
  },
  {
   "id": 74,
@@ -145,11 +145,11 @@
   "rep": 45,
   "country": "Argentina",
   "colors": [
-   "#0a7d3b",
-   "#ffffff"
+   "#111111",
+   "#fd99d9"
   ],
   "manager": "Gabriel Torres",
-  "code": "REA"
+  "code": "RPI"
  },
  {
   "id": 75,
@@ -164,8 +164,8 @@
   "rep": 45,
   "country": "Argentina",
   "colors": [
-   "#ffd400",
-   "#ffffff"
+   "#1d3f8f",
+   "#ffcc00"
   ],
   "manager": "Jesus Diaz",
   "code": "DOC"
@@ -183,7 +183,7 @@
   "rep": 44,
   "country": "Argentina",
   "colors": [
-   "#111111",
+   "#007744",
    "#ffffff"
   ],
   "manager": "Rodrigo Bilbao",
@@ -202,11 +202,11 @@
   "rep": 46,
   "country": "Argentina",
   "colors": [
-   "#75aadb",
-   "#ffffff"
+   "#d6001c",
+   "#ffd400"
   ],
   "manager": "Miguel Urbina",
-  "code": "SAR"
+  "code": "SRE"
  },
  {
   "id": 78,
@@ -221,11 +221,11 @@
   "rep": 46,
   "country": "Argentina",
   "colors": [
-   "#7a1531",
-   "#ffffff"
+   "#d6001c",
+   "#ffd400"
   ],
   "manager": "Lucas Batistuta",
-  "code": "BOC"
+  "code": "BUN"
  },
  {
   "id": 79,
@@ -240,11 +240,11 @@
   "rep": 46,
   "country": "Argentina",
   "colors": [
-   "#ff7a00",
-   "#ffffff"
+   "#ffd400",
+   "#111111"
   ],
   "manager": "Carlos Mungo",
-  "code": "OLI"
+  "code": "OLM"
  },
  {
   "id": 80,
@@ -260,7 +260,7 @@
   "country": "Argentina",
   "colors": [
    "#d6001c",
-   "#ffffff"
+   "#111111"
   ],
   "manager": "Hernán Medina",
   "code": "DOU"
@@ -278,11 +278,11 @@
   "rep": 45,
   "country": "Argentina",
   "colors": [
-   "#1d4f9c",
+   "#0a7d3b",
    "#ffffff"
   ],
   "manager": "Marcelo Vázquez",
-  "code": "SPO"
+  "code": "SPB"
  },
  {
   "id": 82,
@@ -297,11 +297,11 @@
   "rep": 45,
   "country": "Argentina",
   "colors": [
-   "#0a7d3b",
-   "#ffffff"
+   "#ffffff",
+   "#1a2b57"
   ],
   "manager": "Christián Corrales",
-  "code": "GUI"
+  "code": "GBR"
  },
  {
   "id": 83,
@@ -316,7 +316,7 @@
   "rep": 44,
   "country": "Argentina",
   "colors": [
-   "#ffd400",
+   "#1d3f8f",
    "#ffffff"
   ],
   "manager": "Germán Noce",
@@ -335,8 +335,8 @@
   "rep": 44,
   "country": "Argentina",
   "colors": [
-   "#111111",
-   "#ffffff"
+   "#1d4f9c",
+   "#ffd400"
   ],
   "manager": "Pablo Ríos",
   "code": "SOL"
@@ -354,8 +354,8 @@
   "rep": 44,
   "country": "Argentina",
   "colors": [
-   "#75aadb",
-   "#ffffff"
+   "#ffffff",
+   "#111111"
   ],
   "manager": "Fabián Enriquez",
   "code": "CIP"
@@ -373,11 +373,11 @@
   "rep": 43,
   "country": "Argentina",
   "colors": [
-   "#7a1531",
-   "#ffffff"
+   "#ffffff",
+   "#d6001c"
   ],
   "manager": "Gabriel Vallés",
-  "code": "HUR"
+  "code": "HLH"
  },
  {
   "id": 87,
@@ -707,7 +707,7 @@
   "wiki": "Club Social y Deportivo Colo-Colo",
   "name": "Colo-Colo",
   "short": "Colo-Colo",
-  "code": "CC",
+  "code": "CLC",
   "city": "Chile",
   "stadium": "",
   "capacity": 40000,
