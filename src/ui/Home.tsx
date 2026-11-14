@@ -1,13 +1,13 @@
 import { useState, type ReactNode } from 'react'
 import { wageBill, windowOpen } from '../engine/career'
 import { FOCUS, INTENSITY } from '../engine/week'
-import { harmony } from '../engine/squad'
+import { harmony, knownRating } from '../engine/squad'
 import { ReportModal } from './Week'
 import { annualTable, clubsIn, fmtDate, leagueFx, markRead, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf, zoneRule } from '../engine/game'
 import { Legend, MARK_CLASS } from './Tables'
 import type { Fixture } from '../engine/types'
 import { exportGame, useGame } from '../store'
-import { Badge, Face, Gauge, MatchReport, Val, avgRat, money, resultText } from './common'
+import { Badge, Face, Gauge, MatchReport, Val, avgRat, dec, money, resultText } from './common'
 import { pendingOf, pendingText, unreadOf } from '../engine/inbox'
 import { DayHead, MsgBody, TAG_ICON, TAG_NAME } from './msg'
 
@@ -29,7 +29,7 @@ export function Home() {
   const chip = (r: string, i: number) => <span key={i} className="chip" style={{ color: r === 'G' ? 'var(--good)' : r === 'P' ? 'var(--bad)' : 'var(--dim)', padding: '3px 8px' }}>{r}</span>
   const opp = next ? g.clubs[next.home === club.id ? next.away : next.home] : null
   const oppFx = opp ? g.fixtures.filter(f => f.played && (f.home === opp.id || f.away === opp.id)).slice(-5) : []
-  const oppStar = opp ? squadOf(g, opp.id).sort((a, b) => b.ca - a.ca)[0] : null
+  const oppStar = opp ? squadOf(g, opp.id).map(p => [p, knownRating(g, p)] as const).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null : null
   const best = squad.filter(p => p.stats.apps + p.stats.subs >= Math.max(1, mine.length / 3)).sort((a, b) => b.stats.ratSum / (b.stats.apps + b.stats.subs) - a.stats.ratSum / (a.stats.apps + a.stats.subs)).slice(0, 4)
   const inj = squad.filter(p => p.injury), sus = squad.filter(p => p.susp), exp = squad.filter(p => p.contractEnd <= g.season && !p.loanFrom)
   const m = g.manager, bill = wageBill(g, club.id)
@@ -164,7 +164,7 @@ export function Home() {
         <div className="card glow col">
           <h2>Terminó la temporada {g.season}</h2>
           <div className="dim" style={{ lineHeight: 1.6 }}>Campeones: {Object.values(g.comps).map(c => `${c.name}: ${g.clubs[c.champion!]?.name}`).join(' · ')}.<br />
-            Tabla anual: 1.º {g.clubs[annualTable(g)[0].clubId].name}. Descienden {relegationZone(g).map(id => g.clubs[id].name).join(' y ')}. Peor promedio: {promedios(g).slice(-1).map(r => `${g.clubs[r.clubId].short} (${r.avg.toFixed(3)})`)}.</div>
+            Tabla anual: 1.º {g.clubs[annualTable(g)[0].clubId].name}. Descienden {relegationZone(g).map(id => g.clubs[id].name).join(' y ')}. Peor promedio: {promedios(g).slice(-1).map(r => `${g.clubs[r.clubId].short} (${dec(r.avg, 3)})`)}.</div>
           {confirmStart && jobs.length > 0
             ? <div className="col" role="alert" style={{ gap: 8 }}>
               <span className="warn">Tenés {jobs.length} {jobs.length === 1 ? 'oferta' : 'ofertas'} de trabajo sin responder: si comenzás la temporada, se pierden.</span>

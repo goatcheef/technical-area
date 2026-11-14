@@ -42,10 +42,10 @@ El cerebro de los entrenadores que no maneja el usuario: antes de cada partido a
 2. En una partida nueva esos valores son aleatorios por club (`game.ts:255-257`: `int(0,2)` cada uno; `finalThird` de `[0,1,1,1,2,2,3]`; `onLoss`, `onWin` `int(0,1)`). La identidad no cambia entre partidos ni entre temporadas.
 
 **B. Plan del partido** (`planMatch`), en este orden:
-1. **Rotación**: busca otro partido del club a 3,5 días o menos (`congested`). Rota si la importancia de este partido es menor que la de ese otro (F3) y sale el 75 %.
-2. **Fuerzas**: fuerza propia con el once que pondría (con rotación si corresponde) en el dibujo actual; fuerza del rival con su once. Si el rival es el usuario, se usa su alineación real (los disponibles de `tactic.lineup`, hasta 11); si no, el once automático del rival en su dibujo actual (F1).
+1. **Rotación**: entre los partidos **por jugar** del club en los 3,5 días siguientes elige el más importante (`congested`). Rota si la importancia de este partido es menor que la de ese otro (F3) y sale el 75 %. El azar del plan sale del partido y del club (`planRng`): el plan previsto días antes (`predictPlan`, informe del rival) y el del día toman las mismas decisiones.
+2. **Fuerzas**: fuerza propia con el once que pondría (con rotación si corresponde, el mismo criterio para cada dibujo que prueba) en el dibujo actual; fuerza del rival con su once, con la táctica que el rival tenía **antes** de planificar este partido (`lastPlan`: los dos lados planifican con la misma información). Si el rival es el usuario, se usa su alineación real (los disponibles de `tactic.lineup`, hasta 11); si no, el once automático del rival en su dibujo actual (F1).
 3. **Diferencia**: `diff` por F2 (localía ±2).
-4. **Dibujo**: si `diff ≤ −4`, prueba `5-3-2`, `4-1-4-1`, `4-4-1-1` y `4-2-3-1` y se queda con el más fuerte si no pierde más de 1,5 puntos de fuerza respecto del actual. Si no, conserva el dibujo que ya tenía.
+4. **Dibujo**: parte del dibujo de identidad (`club.style.formation`). Si `diff ≤ −4` y además ya estaba metido atrás, el rival es muy superior (`diff ≤ −7`) o el próximo rival también lo es, prueba la identidad, el actual y `5-3-2`, `4-1-4-1`, `4-4-1-1`, `4-2-3-1`, con un costo por familiaridad para el que no es el entrenado y un premio a los defensivos que crece con la diferencia (hasta 3). Si venía con un defensivo, lo conserva mientras el rival siga siendo mejor (`diff ≤ 0`, o `≤ 3` si el siguiente lo pide); si no, **vuelve a su dibujo**.
 5. **Once y banco** con `autoPick` (con rotación si corresponde); rol de cada puesto con `bestRole`.
 6. **Identidad**: se copian los valores de `club.style` sobre la táctica.
 7. **Mentalidad y planteo** según `diff` (F4).
@@ -60,13 +60,13 @@ El cerebro de los entrenadores que no maneja el usuario: antes de cada partido a
 **D. Durante el partido** (`aiManage`, cada minuto, por lado de la IA)
 1. **Cambios por desgaste**: desde el 56' con cambios disponibles, probabilidad 0,09 por minuto (0,16 desde el 75'). Sale el de mayor F6; entra el mejor suplente para su puesto (`pickSub`). Solo si el que sale tiene físico menor a 78 o ya pasó el 70'.
 2. **Más gente arriba** (una vez, `shift 0 → 1`): perdiendo, desde el 62', con 10 o más en cancha, 25 % por minuto. Saca a un volante central, mediocampista o central que lleve más de 20' en cancha (prefiere el de peor nota y más cansado, +8 si es volante central) y mete al delantero de mayor `ca` del banco; cambia al dibujo más ofensivo de la tabla `MORE` (`match.ts:668`); evento "cambia el dibujo y manda más gente al ataque".
-3. **Todo o nada** (`shift → 2`): perdiendo por 2 o más, desde el 72', con 10 o más, 30 % por minuto: `3-4-3`, mentalidad 4, línea 2, presión 2; evento "se juega todo".
+3. **Todo o nada** (`shift → 2`): perdiendo por 2 o más, desde el 72', con 10 o más, 30 % por minuto: `3-4-3`, mentalidad 4, línea 2, presión 2; evento "se juega todo". La mentalidad 4 se sostiene hasta el final mientras no gane (D.5 no la baja).
 4. **Cerrarse** (`shift 0 → −1`): ganando por 1, desde el 80', sin cambios de planteo previos y con dibujo de base distinto de `5-3-2`, 20 % por minuto. Saca al delantero más cansado con más de 15' y mete al central o volante central de mayor `ca` del banco; pasa a `5-3-2`; evento "se cierra atrás con línea de cinco".
 5. **Mentalidad por marcador** (cada minuto, sobre la mentalidad del plan): perdiendo +1 desde el 60' y +2 desde el 78' (tope 4); ganando −1 desde el 75' y −2 desde el 85' (piso 0). Al cambiarla, ganando pasa a contraatacar (`onWin 1`); si no, vuelve al `onWin` del plan.
 6. Los cambios de dibujo en el partido usan `setTactic`: reacomodan al equipo (`reshape`) y bajan la familiaridad del lado 0,02 (ver `motor-de-partido.md`).
 7. **Expulsión**: `reshape(lado, keepRoles)` vuelve a ubicar a los que quedan en los puestos del dibujo, descartando primero los más ofensivos; conserva los roles.
 
-**E. Entrenamiento semanal** (`weeklyAiTraining`, los lunes): para todo jugador que no es del club del usuario, no está lesionado y tiene 30 años o menos, suma progreso (F5). Al llegar a 1, sube 1 un atributo del puesto natural (peso `(21 − valor)·(1 + peso del atributo en el puesto)`, solo los menores a 20), recalcula `ca` y sube `pa` si hace falta.
+**E. Entrenamiento semanal** (`weeklyAiTraining`, los lunes): para todo jugador que no es del club del usuario, no está lesionado y tiene 30 años o menos, suma progreso (F5). Al llegar a 1, sube 1 un atributo del puesto natural (peso `(21 − valor)·(1 + peso del atributo en el puesto)`, solo los menores a 20), recalcula `ca`; si ese punto lo pasara de su `pa`, se deshace (el potencial nunca sube). El que ya está en su potencial no suma progreso (`addProgress`, la misma regla que la práctica del usuario).
 
 ### States and Transitions
 
@@ -138,7 +138,7 @@ Después se aplican las reglas B.8 (línea baja) y B.11 (salida larga), que pued
 ### F5 · Progreso semanal de entrenamiento (`ai.ts:108-109`)
 
 ```
-tx += 6 · 0.007 · ageF · (0.55 + prof/20) · (ca < pa ? 1 : 0.15)
+tx += ca < pa ? 6 · 0.007 · ageF · (0.55 + prof/20) : (tx = 0)   // addProgress: en su techo no progresa
 ageF = 1.8 (≤19) | 1.5 (≤21) | 1.15 (≤23) | 0.6 (≤26) | 0.3 (≤30)
 ```
 
@@ -148,7 +148,7 @@ ageF = 1.8 (≤19) | 1.5 (≤21) | 1.15 (≤23) | 0.6 (≤26) | 0.3 (≤30)
 | ca, pa | int | 1–100 | jugador | Habilidad actual y potencial |
 | tx | float | ≥ 0 | `p.tx` | Progreso acumulado; a 1 sube un atributo |
 
-**Rango** por semana: 0,0019 (30 años, `prof 1`, en su techo) a 0,086 (≤ 19, `prof 20`). **Ejemplo**: 18 años, `prof 10`, debajo de su potencial → `0,042·1,8·1,05 = 0,079` por semana: un atributo cada 13 semanas, unos 4 por temporada (además de `develop` al cambiar de temporada).
+**Rango** por semana: 0 (en su techo), 0,0076 (30 años, `prof 1`) a 0,086 (≤ 19, `prof 20`). **Ejemplo**: 18 años, `prof 10`, debajo de su potencial → `0,042·1,8·1,05 = 0,079` por semana: un atributo cada 13 semanas, unos 4 por temporada (además de `develop` al cambiar de temporada).
 
 ### F6 · A quién saca la IA por desgaste (`match.ts:663`)
 
@@ -162,19 +162,19 @@ Sale el de mayor puntaje entre los de campo. **Ejemplo**: físico 60, amonestado
 
 | Situación | Qué pasa | Estado |
 |---|---|---|
-| Ganó un dibujo defensivo contra un grande | El club lo conserva en los partidos siguientes (B.4 parte del dibujo actual) hasta otro `diff ≤ −4` o la temporada siguiente; cada cambio de dibujo cuesta 30 de familiaridad | ⚠️ ver Open Questions |
-| Dos clubes de la IA se enfrentan | El local planifica primero con la táctica vieja del visitante; el visitante ve el plan nuevo del local (para presión y salida larga) | ⚠️ asimetría |
-| El otro partido cercano ya se jugó | `congested` no filtra por jugado: puede rotar para "cuidar" a los jugadores de un partido pasado | ⚠️ |
-| Varios partidos a menos de 3,5 días | Compara solo con el primero que encuentra | ⚠️ |
-| Rotación y dibujos candidatos | La fuerza de los candidatos se mide sin rotación y la actual con rotación: con rotación es más fácil cambiar de dibujo | ⚠️ |
-| "Todo o nada" | La mentalidad 4 se pisa el mismo minuto con la regla D.5: entre el 72' y el 77' queda en `base + 1` (4 solo si la base es 3 o más); desde el 78', en `base + 2` (4 si la base es 2 o más) | ⚠️ |
+| Ganó un dibujo defensivo contra un grande | Vuelve a su dibujo de identidad cuando el rival ya no es mejor y el siguiente no lo pide (B.4) | ✅ Resuelto (2026-11-14): la identidad guarda el dibujo (`style.formation`) |
+| Dos clubes de la IA se enfrentan | Cada uno mira la táctica que el otro tenía antes de planificar (`lastPlan`) | ✅ Resuelto (2026-11-14): sin asimetría por el orden |
+| El otro partido cercano ya se jugó | `congested` solo mira partidos por jugar y posteriores | ✅ Resuelto (2026-11-14) |
+| Varios partidos a menos de 3,5 días | Compara con el más importante | ✅ Resuelto (2026-11-14) |
+| Rotación y dibujos candidatos | Todos los dibujos se miden con el mismo criterio de rotación | ✅ Resuelto (2026-11-14) |
+| "Todo o nada" | La mentalidad 4 se sostiene hasta el final salvo que dé vuelta el partido | ✅ Resuelto (2026-11-14) |
 | Expulsado un jugador de la IA | Reacomoda; a partir de ahí D.2 a D.4 piden 10 o más en cancha, así que con 9 no cambia el planteo | ✅ |
 | Rival sin dos laterales (línea de tres) | `focus 3` | ✅ |
 | Rival sin delanteros en el once | Velocidad media por defecto 24 | ✅ |
 | Club que el usuario deja | `club.style` no existe mientras lo maneja el usuario; la primera vez que lo planifica la IA, la identidad queda copiada de la última táctica del usuario | ❓ |
-| Informe del rival | Se arma 3 días antes con la táctica del partido anterior del rival; el plan real se calcula el día del partido | ❓ ver Open Questions |
+| Informe del rival | Muestra el plan previsto para ese partido (`predictPlan`, con el mismo azar que el plan del día) | ✅ Resuelto (2026-11-14) |
 | Club del exterior (división 0) | Planifica y entrena igual que los demás | ✅ |
-| Jugador en su potencial | Sigue sumando a un 15 % del ritmo y su `pa` sube con su `ca` | ⚠️ crecimiento sin techo hasta 20 por atributo |
+| Jugador en su potencial | No suma progreso; un punto que lo pasaría de su `pa` se deshace (también en `develop` al cambiar de temporada) | ✅ Resuelto (2026-11-14): tope de crecimiento |
 
 ## Dependencies
 
@@ -266,12 +266,12 @@ Sin audio. Lo visible de la IA son eventos del relato (`info`, `sub`) en el part
 
 | Pregunta | Owner | Deadline | Resolution |
 |---|---|---|---|
-| `INTENT UNKNOWN — inferred from implementation, not confirmed`: ¿el club de la IA debe volver a su dibujo de base cuando deja de enfrentar a un superior? Hoy conserva el defensivo. | usuario | — | — |
-| `INTENT UNKNOWN`: ¿el informe del rival debe adelantar el plan del próximo partido o es niebla a propósito? Hoy describe el plan anterior. | usuario | — | — |
-| `INTENT UNKNOWN`: ¿"todo o nada" debe forzar mentalidad 4 hasta el final? Hoy la regla de mentalidad la baja el mismo minuto. | usuario | — | — |
-| `INTENT UNKNOWN`: ¿la rotación debe considerar solo partidos por jugar? | usuario | — | — |
-| ¿La marca personal de la IA sobre un jugador del usuario se debería ver (relato, pestaña Rival, informe)? | usuario + ux-designer | — | — |
-| `CLAUDE.md` dice en "Plan de jugabilidad" y en "Pendiente" que falta que los rivales entrenen, pero `weeklyAiTraining` existe. ¿Qué falta en realidad (intensidad, foco, lesiones de práctica)? | usuario | — | — |
+| `INTENT UNKNOWN — inferred from implementation, not confirmed`: ¿el club de la IA debe volver a su dibujo de base cuando deja de enfrentar a un superior? Hoy conserva el defensivo. | usuario | — | Resuelta (2026-11-14): vuelve a su dibujo de identidad (B.4) |
+| `INTENT UNKNOWN`: ¿el informe del rival debe adelantar el plan del próximo partido o es niebla a propósito? Hoy describe el plan anterior. | usuario | — | Resuelta (2026-11-14): adelanta el plan previsto (`predictPlan`) |
+| `INTENT UNKNOWN`: ¿"todo o nada" debe forzar mentalidad 4 hasta el final? Hoy la regla de mentalidad la baja el mismo minuto. | usuario | — | Resuelta (2026-11-14): sí, salvo que dé vuelta el partido |
+| `INTENT UNKNOWN`: ¿la rotación debe considerar solo partidos por jugar? | usuario | — | Resuelta (2026-11-14): sí, solo partidos por jugar y posteriores |
+| ¿La marca personal de la IA sobre un jugador del usuario se debería ver (relato, pestaña Rival, informe)? | usuario + ux-designer | — | Resuelta (2026-11-14): se anuncia en el relato, se marca en las listas (⊙) y en la cancha 2D, y el ayudante lo comenta |
+| `CLAUDE.md` dice en "Plan de jugabilidad" y en "Pendiente" que falta que los rivales entrenen, pero `weeklyAiTraining` existe. ¿Qué falta en realidad (intensidad, foco, lesiones de práctica)? | usuario | — | Resuelta (2026-11-14): `CLAUDE.md` ya no lo lista como pendiente; intensidad, foco y lesiones de práctica de la IA quedan fuera |
 | La IA no usa charlas, multiplicadores del DT ni pelota parada entrenada; el lado del usuario sí. ¿Es la ventaja buscada? | usuario | — | — |
 
 ## Version History
@@ -279,3 +279,4 @@ Sin audio. Lo visible de la IA son eventos del relato (`info`, `sub`) en el part
 | Fecha | Autor | Cambios |
 |---|---|---|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/ai.ts` y `aiManage` (`d9b251a`) |
+| 2026-11-14 | Claude | Resueltos: vuelta al dibujo de identidad, orden de planificación, `congested`, rotación pareja, Todo o nada, informe con el plan previsto, marca personal visible y tope de crecimiento (F5 y regla E) |

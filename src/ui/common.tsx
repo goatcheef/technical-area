@@ -133,8 +133,8 @@ export const ratClass = (r: number) => (r >= 7.5 ? 'good' : r < 6 ? 'bad' : '')
 export const attrClass = (v: number) => (v >= 16 ? 'a-top' : v >= 13 ? 'a-hi' : v >= 9 ? 'a-mid' : 'a-lo')
 export const resultText = (f: Fixture) => `${f.hg}-${f.ag}${f.pens ? ` (${f.pens[0]}-${f.pens[1]} p)` : ''}`
 export function Ovr({ v }: { v: number }) { const r = Math.round(v); return <span className={`ovr ${r >= 80 ? 't5' : r >= 72 ? 't4' : r >= 64 ? 't3' : r >= 56 ? 't2' : 't1'}`}>{r}</span> }
-/** La valoración que conoce el DT, para ordenar: la exacta si la sabe, si no el punto medio del rango que muestra `Val` (como `PlayerTable`). */
-export const seenRating = (g: Game, p: Player) => { const r = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99); return (r[0] + r[1]) / 2 }
+/** La valoración que conoce el DT, para ordenar: la exacta si la sabe, si no el punto medio del rango que muestra `Val`. Es `knownRating` del motor. */
+export { knownRating as seenRating } from '../engine/squad'
 /** Valoración que se ve de un jugador: exacta si es tuyo o lo conocés bien, un rango si no. */
 export function Val({ p }: { p: Player }) {
   const { g } = useGame()

@@ -656,7 +656,7 @@ export class MatchSim {
     const sum = (a: number[]) => a.reduce((x, y) => x + y, 0)
     // el sector izquierdo del rival es nuestra derecha
     const w = op.xg.indexOf(Math.max(...op.xg))
-    if (op.xg[w] >= 0.45 && op.xg[w] >= sum(op.xg) * 0.5) out.push(`El rival nos lastima por ${['nuestra derecha', 'el medio', 'nuestra izquierda'][w]}: ${op.xg[w].toFixed(2)} de xG por ese sector.`)
+    if (op.xg[w] >= 0.45 && op.xg[w] >= sum(op.xg) * 0.5) out.push(`El rival nos lastima por ${['nuestra derecha', 'el medio', 'nuestra izquierda'][w]}: ${op.xg[w].toFixed(2).replace('.', ',')} de xG por ese sector.`)
     const lost = S.on.map(x => ({ x, d: me.duels[x.p.id] })).filter(o => o.d && o.d[1] - o.d[0] >= 3).sort((a, b) => (b.d[1] - b.d[0]) - (a.d[1] - a.d[0]))[0]
     if (lost) out.push(`${this.nm(lost.x)} pierde los duelos: ganó ${lost.d[0]} de ${lost.d[0] + lost.d[1]}. Pensá en cambiarlo o en darle ayuda por ese lado.`)
     const ace = S.on.map(x => ({ x, d: me.duels[x.p.id] })).filter(o => o.d && o.d[0] - o.d[1] >= 3 && POS_LINE[o.x.pos] !== 'DF').sort((a, b) => (b.d[0] - b.d[1]) - (a.d[0] - a.d[1]))[0]

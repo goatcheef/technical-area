@@ -1,18 +1,19 @@
 // Centro de datos: rendimiento del equipo, uso del plantel, análisis de rivales y de la liga.
 import { useState, type ReactNode } from 'react'
+import { DIV_NAMES } from '../engine/career'
 import { compOf, goalsByBin, leagueBins, leagueRows, matchRows, playerUse, pointsRace, sectors, summary, type LeagueRow, type MatchRow } from '../engine/analytics'
 import { clubsIn, fmtDate, leagueFx, nextUserFixture, squadOf, tableOf } from '../engine/game'
 import { POS_LABEL } from '../engine/positions'
 import type { Game } from '../engine/types'
 import { useGame, useSticky } from '../store'
-import { Badge, Cond, Face, PosPill, Spark, avgRat, ratClass } from './common'
+import { Badge, Cond, Face, PosPill, Spark, avgRat, dec, ratClass } from './common'
 import { ChartCard, Columns, HBars, Lines, Meter, SERIES, Scatter, fmtN } from './charts'
 import { PageTip } from './Guide'
 
 const BINS = ["1'-15'", "16'-30'", "31'-45'", "46'-60'", "61'-75'", "76'-90'"]
 const TABS: [string, string][] = [['equipo', 'Mi equipo'], ['jugadores', 'Jugadores'], ['rivales', 'Rivales'], ['liga', 'Liga']]
-const f2 = (v: number) => v.toFixed(2).replace('.', ',')
-const sign = (v: number) => `${v > 0 ? '+' : ''}${v.toFixed(1).replace('.', ',')}`
+const f2 = (v: number) => dec(v, 2)
+const sign = (v: number) => `${v > 0 ? '+' : ''}${dec(v, 1)}`
 const code = (g: Game, id: number) => (g.clubs[id].code ?? g.clubs[id].short).slice(0, 3).toUpperCase()
 
 export function DataCenter({ tab }: { tab?: string }) {
@@ -99,7 +100,7 @@ function TeamView({ clubId }: { clubId: number }) {
       <div className="s4"><ChartCard title="Dónde se pierde la pelota" sub="Pérdidas por partido en cada fase de la jugada."
         legend={[{ name: c.short, color: SERIES.s1 }, { name: 'Rivales', color: SERIES.s2 }]}
         table={{ head: ['Fase', c.short, 'Rivales'], rows: ['Salida', 'Elaboración', 'Último tercio'].map((l, i) => [l, +(sec.lost[i] / n).toFixed(1), +(sec.lostOpp[i] / n).toFixed(1)]) }}>
-        <HBars labelW={104} cats={['Salida', 'Elaboración', 'Último tercio']} series={[{ name: c.short, color: SERIES.s1, values: sec.lost.map(v => v / n) }, { name: 'Rivales', color: SERIES.s2, values: sec.lostOpp.map(v => v / n) }]} fmt={v => v.toFixed(1).replace('.', ',')} />
+        <HBars labelW={104} cats={['Salida', 'Elaboración', 'Último tercio']} series={[{ name: c.short, color: SERIES.s1, values: sec.lost.map(v => v / n) }, { name: 'Rivales', color: SERIES.s2, values: sec.lostOpp.map(v => v / n) }]} fmt={v => dec(v, 1)} />
       </ChartCard></div>
       <div className="s4">{binsChart(goalsByBin(g, clubId), 'Goles por tramo')}</div>
     </div>
@@ -122,7 +123,7 @@ function PlayersView() {
     <div className="stats-row">
       <Stat label="Jugadores usados" value={String(use.filter(u => u.apps).length)} note={`de ${use.length} en el plantel`} />
       <Stat label="Con desgaste" value={String(risk.length)} note={risk.length ? risk.slice(0, 3).map(u => u.p.name.split(' ').slice(-1)[0]).join(', ') : 'nadie en riesgo'} />
-      <Stat label="Mejor promedio" value={(() => { const b = use.filter(u => u.apps >= 3).sort((a, b) => b.rat - a.rat)[0]; return b ? `${b.rat.toFixed(2).replace('.', ',')}` : '–' })()} note={use.filter(u => u.apps >= 3).sort((a, b) => b.rat - a.rat)[0]?.p.name ?? 'con 3 partidos o más'} />
+      <Stat label="Mejor promedio" value={(() => { const b = use.filter(u => u.apps >= 3).sort((a, b) => b.rat - a.rat)[0]; return b ? dec(b.rat, 2) : '–' })()} note={use.filter(u => u.apps >= 3).sort((a, b) => b.rat - a.rat)[0]?.p.name ?? 'con 3 partidos o más'} />
     </div>
     <div className="dash">
       <div className="card s12 col" style={{ gap: 8 }}>
@@ -132,10 +133,10 @@ function PlayersView() {
             <tr key={u.p.id} data-pid={u.p.id} className="click" onClick={() => openPlayer(u.p.id)}>
               <td><span className="row" style={{ gap: 8 }}><Face p={u.p} size={24} /><span className="ell" style={{ fontWeight: 600 }}>{u.p.name}</span>{u.risk && <span className="chip warn" title="Muchos minutos recientes con el físico bajo o con edad: riesgo de lesión y de bajo rendimiento">⚠ Desgaste</span>}</span></td>
               <td><PosPill p={u.p} /></td><td className="r num">{u.apps}</td><td className="r num dim">{u.mins}</td>
-              <td className={`r num ${u.apps ? ratClass(u.rat) : 'dim'}`}>{u.apps ? u.rat.toFixed(2).replace('.', ',') : '–'}</td>
+              <td className={`r num ${u.apps ? ratClass(u.rat) : 'dim'}`}>{u.apps ? dec(u.rat, 2) : '–'}</td>
               <td className="hide-md">{u.ratings.length >= 2 ? <Spark values={u.ratings} w={84} h={22} /> : <span className="dim sm">–</span>}</td>
-              <td className="r num">{u.mins >= 90 ? u.ga90.toFixed(2).replace('.', ',') : <span className="dim">–</span>}</td>
-              <td className="sm hide-md">{u.byPos.slice(0, 2).map(b => <span key={b.pos} className="chip" style={{ marginRight: 4 }} title={`${b.n} partidos de ${POS_LABEL[b.pos]}`}>{POS_LABEL[b.pos]} <b className={ratClass(b.rat)}>{b.rat.toFixed(1).replace('.', ',')}</b></span>)}</td>
+              <td className="r num">{u.mins >= 90 ? dec(u.ga90, 2) : <span className="dim">–</span>}</td>
+              <td className="sm hide-md">{u.byPos.slice(0, 2).map(b => <span key={b.pos} className="chip" style={{ marginRight: 4 }} title={`${b.n} partidos de ${POS_LABEL[b.pos]}`}>{POS_LABEL[b.pos]} <b className={ratClass(b.rat)}>{dec(b.rat, 1)}</b></span>)}</td>
               <td><span className="row" style={{ gap: 2 }} title={u.last5.join(' · ')}>{u.last5.map((m, i) => <span key={i} className="pip" style={{ height: 4 + (m / 90) * 14, opacity: m ? 1 : 0.25 }} />)}</span></td>
               <td><span className="row" style={{ gap: 6 }}><Meter v={u.mins30} max={540} color={u.risk ? 'var(--warn)' : SERIES.s1} /><span className="num dim sm">{u.mins30}</span></span></td>
               <td><Cond v={u.p.cond} /></td>
@@ -144,7 +145,7 @@ function PlayersView() {
       <div className="s5">
         <ChartCard title="Promedio por línea" sub="Puntaje medio en los puestos que ocuparon de verdad."
           table={{ head: ['Línea', 'Promedio'], rows: lines.map(([l], i) => [l, byLine[i] ? +byLine[i].toFixed(2) : '–']) }}>
-          <HBars cats={lines.map(([l]) => l)} series={[{ name: 'Promedio', color: SERIES.s1, values: byLine }]} fmt={v => (v ? v.toFixed(2).replace('.', ',') : '–')} labelW={118} />
+          <HBars cats={lines.map(([l]) => l)} series={[{ name: 'Promedio', color: SERIES.s1, values: byLine }]} fmt={v => (v ? dec(v, 2) : '–')} labelW={118} />
         </ChartCard>
       </div>
       <div className="s7"><div className="card col sm dim" style={{ gap: 6 }}><h3>Cómo leerlo</h3><span>"Desgaste" marca a quien sumó más de 420 minutos en 30 días (partidos entre semana) sin recuperar el físico, o a los mayores de 32 con 450 minutos o más: conviene rotarlos.</span><span>Las barritas de "Últimos 5" son los minutos de cada uno de los últimos cinco partidos.</span><span>"Puestos que ocupó" muestra dónde jugó de verdad y con qué promedio: sirve para ver si rinde más en otro puesto.</span></div>
@@ -161,17 +162,19 @@ function RivalsView() {
   const def = next ? (next.home === g.userClubId ? next.away : next.home) : Object.values(g.clubs).find(c => c.division === g.clubs[g.userClubId].division && c.id !== g.userClubId)!.id
   const [id, setId] = useSticky<number>('dc.rival', def)
   const c = g.clubs[id] ?? g.clubs[def], rows = matchRows(g, c.id)
+  // instrucciones: las de su identidad (`style`, las que la IA conserva entre partidos); dibujo: el del último partido y, si es otro, el habitual
   const st = { ...c.tactic, ...(c.style ?? {}) } as Game['clubs'][number]['tactic']
+  const lastForm = c.tactic.formation, baseForm = c.style?.formation
   const top = squadOf(g, c.id).filter(p => p.stats.apps + p.stats.subs >= 2).sort((a, b) => b.stats.ratSum / (b.stats.apps + b.stats.subs) - a.stats.ratSum / (a.stats.apps + a.stats.subs)).slice(0, 6)
   const scorers = squadOf(g, c.id).filter(p => p.stats.goals).sort((a, b) => b.stats.goals - a.stats.goals).slice(0, 4)
   return <>
     <div className="card row wrap" style={{ gap: 14 }}>
       <Badge club={c} size={48} />
       <div className="grow"><button className="linkish" onClick={() => openClub(c.id)}><h2 style={{ textTransform: 'none' }}>{c.name}</h2></button>
-        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}><span className="chip acc">{c.tactic.formation}</span>{STYLE.map(([k, l]) => <span key={k} className="chip">{l[(st[k] as number) ?? 1]}</span>)}<span className="dim sm">DT {c.manager}</span></div></div>
+        <div className="row wrap" style={{ gap: 6, marginTop: 4 }}><span className="chip acc" title="Dibujo del último partido">{lastForm}</span>{baseForm && baseForm !== lastForm && <span className="chip" title="Su dibujo habitual">Habitual: {baseForm}</span>}{STYLE.map(([k, l]) => <span key={k} className="chip">{l[(st[k] as number) ?? 1]}</span>)}<span className="dim sm">DT {c.manager}</span></div></div>
       <label className="f">Rival a analizar<select value={c.id} onChange={e => setId(Number(e.target.value))}>
         {next && <option value={def}>Próximo rival: {g.clubs[def].name}</option>}
-        {[1, 2, 3, 0].map(d => <optgroup key={d} label={['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}>{Object.values(g.clubs).filter(x => x.division === d && x.id !== g.userClubId).sort((a, b) => a.name.localeCompare(b.name)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</optgroup>)}
+        {[1, 2, 3, 0].map(d => <optgroup key={d} label={DIV_NAMES[d]}>{Object.values(g.clubs).filter(x => x.division === d && x.id !== g.userClubId).sort((a, b) => a.name.localeCompare(b.name)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</optgroup>)}
       </select></label>
     </div>
     {!rows.length ? <Empty text={`${c.name} todavía no jugó partidos esta temporada.`} /> : <>
@@ -198,10 +201,10 @@ function LeagueView() {
   const cols: [keyof LeagueRow, string, (r: LeagueRow) => ReactNode, string?][] = [
     ['pj', 'PJ', r => r.pj], ['pts', 'Pts', r => <b>{r.pts}</b>], ['xg', 'xG/p', r => f2(r.xg)], ['xga', 'xGC/p', r => f2(r.xga), 'xG en contra por partido'],
     ['xgd', 'Dif. xG', r => <span className={r.xgd > 0.15 ? 'good' : r.xgd < -0.15 ? 'bad' : ''}>{sign(r.xgd)}</span>], ['finishing', 'G − xG', r => sign(r.finishing), 'Goles menos xG en la temporada: positivo, convierte más de lo esperado'],
-    ['poss', 'Pos.', r => `${Math.round(r.poss)} %`], ['shots', 'Rem/p', r => r.shots.toFixed(1).replace('.', ',')],
+    ['poss', 'Pos.', r => `${Math.round(r.poss)} %`], ['shots', 'Rem/p', r => dec(r.shots, 1)],
   ]
   return <>
-    <div className="row wrap"><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div>
+    <div className="row wrap"><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{DIV_NAMES[d]}</button>)}</div>
       <span className="dim sm">Partidos de liga de la temporada {g.season}.</span></div>
     {!rows.length ? <Empty /> : <div className="dash">
       <div className="s7"><ChartCard title="Quién genera y quién concede" sub="Cada punto es un club; en azul, el tuyo. Arriba a la derecha, los que generan mucho y conceden poco. Las líneas marcan el promedio. Clic en un punto para ver el club."

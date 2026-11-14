@@ -3,7 +3,7 @@ import { squadOf } from '../engine/game'
 import { ageOn } from '../engine/positions'
 import { MGR_ATTRS } from '../engine/types'
 import { useGame } from '../store'
-import { Badge, Gauge, ManagerFace, Radar, money } from './common'
+import { Badge, Gauge, ManagerFace, Radar, dec, money } from './common'
 
 export function Club() {
   const { g } = useGame()
@@ -16,7 +16,7 @@ export function Club() {
         <Badge club={c} size={110} />
         <div className="grow"><h3>{divName(c)}{c.division === 1 || c.division === 2 ? ` · Zona ${c.zone}` : ''}</h3><h1 style={{ marginTop: 4 }}>{c.name}</h1><div className="dim">{c.city} · {c.stadium} · {c.capacity.toLocaleString('es-AR')} espectadores</div></div>
         <div className="kpi"><h3>Reputación</h3><b>{c.rep}</b></div><div className="kpi"><h3>Plantel</h3><b>{sq.length}</b></div>
-        <div className="kpi"><h3>Edad media</h3><b>{(sq.reduce((s, p) => s + ageOn(p.birth, g.date), 0) / sq.length).toFixed(1)}</b></div><div className="kpi"><h3>Valor</h3><b>{money(sq.reduce((s, p) => s + p.value, 0))}</b></div>
+        <div className="kpi"><h3>Edad media</h3><b>{dec(sq.reduce((s, p) => s + ageOn(p.birth, g.date), 0) / sq.length, 1)}</b></div><div className="kpi"><h3>Valor</h3><b>{money(sq.reduce((s, p) => s + p.value, 0))}</b></div>
       </div>
       <div className="dash">
         <div className="card s4 col" style={{ alignItems: 'center', textAlign: 'center' }}>

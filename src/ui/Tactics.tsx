@@ -3,7 +3,7 @@ import { autoPick, available, squadOf } from '../engine/game'
 import { FORMATIONS, FORMATION_NAMES, POS_LABEL, ROLE, bestRating, bestRole, fixRoles, posRating, roleFit, rolesFor } from '../engine/positions'
 import type { Club, Player, Tactic } from '../engine/types'
 import { useGame } from '../store'
-import { PosPill, Seg, Status } from './common'
+import { PosPill, Seg, Status, dec } from './common'
 import { PageTip } from './Guide'
 
 type Opt = [keyof Tactic, string, string[], string]
@@ -129,7 +129,7 @@ export function Tactics() {
             <h3>Plan de juego</h3>
             <label className="f">Dibujo<select value={t.formation} onChange={e => { t.formation = e.target.value; t.roles = fixRoles(t.formation, undefined); setSel(null); done() }}>{FORMATION_NAMES.map(f => <option key={f}>{f}</option>)}</select></label>
             <div className="tkpis">
-              <div><span className="dim sm">Valoración del once</span><b className="num">{(xi.reduce((a2, b2) => a2 + b2, 0) / 11).toFixed(1)}</b></div>
+              <div><span className="dim sm">Valoración del once</span><b className="num">{dec(xi.reduce((a2, b2) => a2 + b2, 0) / 11, 1)}</b></div>
               <div title="Sube jugando con el mismo dibujo y cae al cambiarlo. Con poca familiaridad el equipo rinde hasta un 6 % menos."><span className="dim sm">Familiaridad</span><b className="num">{Math.round(fam)} %</b><span className="bar" style={{ width: '100%' }}><i style={{ width: `${fam}%`, background: fam >= 75 ? 'var(--good)' : fam >= 50 ? 'var(--warn)' : 'var(--bad)' }} /></span></div>
             </div>
           </div>
@@ -170,7 +170,7 @@ export function Tactics() {
       </div>
       <div className="dash">
         <div className="card s5 col"><h3>Análisis del once</h3>
-          {([['Arquero', 'GK'], ['Defensa', 'DF'], ['Mediocampo', 'MF'], ['Ataque', 'FW']] as const).map(([l, k]) => { const v = lineAvg(k); return <div key={k} className="row" style={{ gap: 10 }}><span style={{ width: 96 }} className="dim">{l}</span><span className="bar grow" style={{ height: 8 }}><i style={{ width: `${Math.max(0, Math.min(100, (v - 40) * 2))}%`, background: 'var(--s1)' }} /></span><b className="num" style={{ width: 34, textAlign: 'right' }}>{v ? v.toFixed(0) : '–'}</b></div> })}
+          {([['Arquero', 'GK'], ['Defensa', 'DF'], ['Mediocampo', 'MF'], ['Ataque', 'FW']] as const).map(([l, k]) => { const v = lineAvg(k); return <div key={k} className="row" style={{ gap: 10 }}><span style={{ width: 96 }} className="dim">{l}</span><span className="bar grow" style={{ height: 8 }}><i style={{ width: `${Math.max(0, Math.min(100, (v - 40) * 2))}%`, background: 'var(--s1)' }} /></span><b className="num" style={{ width: 34, textAlign: 'right' }}>{v ? dec(v) : '–'}</b></div> })}
           {warns.length ? <div className="col" style={{ gap: 4 }}>{warns.slice(0, 5).map(w => <div key={w} className="sm warn">⚠ {w}</div>)}</div> : <div className="sm good">Todo en orden: el once está en sus puestos y descansado.</div>}
         </div>
         <div className="card s7 col"><h3>Pelota parada</h3><div className="grid3" style={{ gap: 10 }}>{taker('pen', 'Penales')}{taker('fk', 'Tiros libres')}{taker('corner', 'Córners')}</div>

@@ -4,7 +4,7 @@ import type { MatchSim } from '../engine/match'
 import { FORMATION_NAMES, POS_LABEL, ROLE, posRating, rolesFor } from '../engine/positions'
 import type { Fixture } from '../engine/types'
 import { useGame } from '../store'
-import { Badge, Cond, Momentum, PosPill, ShotMap, duoColors, ratClass } from './common'
+import { Badge, Cond, Momentum, PosPill, ShotMap, dec, duoColors, ratClass } from './common'
 import { Pitch2D } from './Pitch2D'
 import { TacticControls } from './Tactics'
 import { LiveOthers, LiveTable, PanelMenu, panelsOf, syncLive, type Live } from './MatchPanels'
@@ -58,7 +58,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
   const stats: [string, string | number, string | number, number][] = [
     ['Posesión', `${s.poss[0]}%`, `${s.poss[1]}%`, s.poss[0] / 100],
     ['Remates', s.shots[0], s.shots[1], share(s.shots)], ['Al arco', s.sot[0], s.sot[1], share(s.sot)],
-    ['xG', s.xg[0].toFixed(2), s.xg[1].toFixed(2), share(s.xg)], ['Pases', s.passes[0], s.passes[1], share(s.passes)],
+    ['xG', dec(s.xg[0], 2), dec(s.xg[1], 2), share(s.xg)], ['Pases', s.passes[0], s.passes[1], share(s.passes)],
     ['Precisión', pct(s.passOk[0], s.passes[0]), pct(s.passOk[1], s.passes[1]), 0.5], ['Córners', s.corners[0], s.corners[1], share(s.corners)],
     ['Faltas', s.fouls[0], s.fouls[1], share(s.fouls)], ['Offsides', s.offs[0], s.offs[1], share(s.offs)],
     ['Amarillas', s.yc[0], s.yc[1], share(s.yc)], ['Rojas', s.rc[0], s.rc[1], share(s.rc)],
@@ -133,7 +133,7 @@ export function MatchView({ fixture, onDone }: { fixture: Fixture; onDone: (fixt
                 <table><tbody>{v.on.map(o => { const p = g.players[o.pid]; return (
                   <tr key={o.pid} className="click" style={(tab === 'team' ? out : riv) === o.pid ? { outline: '2px solid var(--accent)' } : undefined} onClick={() => { if (sim.finished) return; if (tab === 'team') setOut(out === o.pid ? null : o.pid); else setRiv(riv === o.pid ? null : o.pid) }}>
                     <td><span className="pill" title={ROLE[o.role]?.name}>{POS_LABEL[o.pos]}</span></td><td>{p.name}{tab === 'rival' && (mine.tactic.oppo?.[o.pid]?.tight || mine.tactic.oppo?.[o.pid]?.hard || mine.tactic.oppo?.[o.pid]?.press || mine.tactic.manMark?.target === o.pid) ? <span className="acc"> ◎</span> : ''}<MarkTag pid={o.pid} own={v.tactic.manMark} opp={(tab === 'team' ? theirs : mine).tactic.manMark} alert={tab === 'team'} names={g.players} />{o.yellow ? <span className="warn"> ▮</span> : ''}{o.goals ? ` ⚽${o.goals > 1 ? o.goals : ''}` : ''}</td>
-                    <td><Cond v={o.cond} /></td><td className="r"><span className={`ratbox ${ratClass(o.rating)}`}>{o.rating.toFixed(1)}</span></td></tr>) })}</tbody></table>
+                    <td><Cond v={o.cond} /></td><td className="r"><span className={`ratbox ${ratClass(o.rating)}`}>{dec(o.rating, 1)}</span></td></tr>) })}</tbody></table>
                 {tab === 'rival' && !sim.finished && (riv != null && g.players[riv] ? (() => { const oo = mine.tactic.oppo?.[riv] ?? {}, mm = mine.tactic.manMark; return (
                   <div className="col" style={{ marginTop: 12, gap: 8 }}><h3>Órdenes sobre {g.players[riv].name}</h3>
                     <div className="row wrap">{([['tight', 'Marcarlo encima', 'Lo anula si no tiene cambio de ritmo. Un rápido se saca la marca y queda solo. Cansa a tu marcador.'], ['hard', 'Entrarle fuerte', 'Le cuesta más pasar, pero vas a cometer más faltas y arriesgás tarjetas.'], ['press', 'Presionarlo en la salida', 'Complica al rival cuando la jugada empieza o pasa por él.']] as const).map(([k, l, h]) => (

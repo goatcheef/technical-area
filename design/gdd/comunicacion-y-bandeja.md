@@ -331,7 +331,7 @@ barra = min(100 %, días avanzados / total)
 
 | Scenario | Comportamiento actual | Severidad |
 |----------|----------------------|-----------|
-| **Pedir más con éxito** | `haggle` le da a la oferta un `id` nuevo (`career.ts:259`); el mensaje original (`ref` = id viejo) pasa a "Esta oferta ya fue respondida o venció." aunque la oferta mejorada sigue en Pendientes. La nota "mejoró su oferta" se pierde con el redibujo. | Alta: contradice al jugador en el mismo panel. |
+| **Pedir más con éxito** | `haggle` le da a la oferta un `id` nuevo (`career.ts:259`); el mensaje original (`ref` = id viejo) pasa a "Esta oferta ya fue respondida o venció." aunque la oferta mejorada sigue en Pendientes. La nota "mejoró su oferta" se pierde con el redibujo. | ✅ Resuelto (2026-11-14): la oferta conserva su id (`o.asks`) y la bandeja deja la nota a la vista. Con el libro cerrado Pedir más está deshabilitado. |
 | **Doble conteo** | Una oferta, un trabajo o un pedido de salida suman 2 en la insignia y en "Para vos" (F3) | Media |
 | **Selección automática marca leído** | Al entrar a una vista sin pendientes, el primer mensaje queda leído sin que el DT lo mire; al recorrer con ↑ ↓ se marcan todos los que se cruzan | Media |
 | **Clic en el mosaico del Inicio** | Abre la bandeja sin ese mensaje elegido; en general se ve otro | Media |
@@ -340,10 +340,10 @@ barra = min(100 %, días avanzados / total)
 | **Orden de pendientes** | Orden fijo por tipo, no por plazo: una oferta que vence mañana queda debajo de un trabajo que vence en 6 días | Media |
 | **Plazos que no coinciden** | La oferta dice "vence en una semana" y dura 8 días (+ la mañana del noveno); el trabajo dice "Tenés una semana" y dura 6 días + hoy | Baja |
 | **Textos que mandan a otra pantalla** | La oferta dice "desde la pantalla de Mercado" (`career.ts:339`) y el pedido de salida "desde el Vestuario" (`squad.ts:83`), aunque la acción está en el mensaje | Baja |
-| **Venta propia fuera de "Para vos"** | La venta de un jugador del DT a un club argentino (`career.ts:228`) no es `me` ni cuenta como sin leer | Media |
-| **Aviso de base actualizada fuera de "Para vos"** | `game.ts:300` no lleva `clubId` del DT | Baja |
+| **Venta propia fuera de "Para vos"** | La venta de un jugador del DT a un club argentino (`career.ts:228`) no es `me` ni cuenta como sin leer | ✅ Resuelto (2026-11-14): `doTransfer` marca `me` si vende tu club |
+| **Aviso de base actualizada fuera de "Para vos"** | `game.ts:300` no lleva `clubId` del DT | ✅ Resuelto (2026-11-14): lleva `me` |
 | **Acciones sin confirmación** | Aceptar o Rechazar una oferta y Aceptar un trabajo (cambia de club en el acto, a mitad de temporada) son de un clic | Alta |
-| **Rechazar un trabajo** | Se borra la oferta desde la interfaz, sin noticia; el club queda con "Cuerpo técnico interino" para siempre, porque `managerMarket` solo reemplaza al interino de las ofertas que siguen en la lista | Media |
+| **Rechazar un trabajo** | Se borra la oferta desde la interfaz, sin noticia; el club queda con "Cuerpo técnico interino" para siempre, porque `managerMarket` solo reemplaza al interino de las ofertas que siguen en la lista | ✅ Resuelto (2026-11-14): `rejectJob` nombra DT en el acto |
 | **Continuar de a un día** | Con una conferencia abierta, el ayudante la responde sin aviso (solo lo advierte el texto de la ventana); con una decisión nueva no lleva a la bandeja | Media |
 | **Nota de resultado perdida** | Al aceptar o rechazar desde Pendientes, el pendiente desaparece y la nota ("Vendiste a…") no llega a verse | Media |
 | **"Todo el fútbol" y leído** | Las ajenas se ven en negrita sin contar en ninguna insignia; "Marcar N como leídas" cuenta ajenas | Baja |
@@ -546,11 +546,11 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 |----------|-------|----------|-----------|
 | ¿El avance tiene que frenar antes de que venza una decisión ya pendiente (UR-33)? `design/ux/bandeja.md` (pregunta 8) recomienda el día anterior. | usuario | Antes de implementar la especificación de la bandeja | Pendiente |
 | ¿"Continuar" de un día también tiene que llevar a la bandeja con una decisión nueva? | usuario | Ídem | `INTENT UNKNOWN` |
-| `haggle` cambia el id de la oferta: ¿se conserva el id (y el `ref` del mensaje) o se actualiza el `ref`? | gameplay-programmer | Antes de implementar | Pendiente (parece error) |
+| `haggle` cambia el id de la oferta: ¿se conserva el id (y el `ref` del mensaje) o se actualiza el `ref`? | gameplay-programmer | Antes de implementar | Resuelta (2026-11-14): se conserva el id |
 | ¿Una decisión cuenta una vez (pendiente) o dos (pendiente + mensaje sin leer)? | usuario + ux-designer | Ídem | Pendiente |
-| Rechazar un trabajo deja al club con DT interino para siempre: ¿el motor tiene que nombrar uno al rechazar? | gameplay-programmer | — | Pendiente (parece error) |
+| Rechazar un trabajo deja al club con DT interino para siempre: ¿el motor tiene que nombrar uno al rechazar? | gameplay-programmer | — | Resuelta (2026-11-14): `rejectJob` nombra uno |
 | ¿Las decisiones tienen que tener costo por omisión (por ejemplo, ignorar un pedido de salida empeora la armonía)? | usuario | — | `INTENT UNKNOWN` |
-| ¿La venta de un jugador propio tiene que ser `me` (emitir con el `clubId` del vendedor o calcular `me` antes del traspaso)? | gameplay-programmer | — | Pendiente |
+| ¿La venta de un jugador propio tiene que ser `me` (emitir con el `clubId` del vendedor o calcular `me` antes del traspaso)? | gameplay-programmer | — | Resuelta (2026-11-14): sí |
 | ¿El pedido de salida tiene que vencer o escalar con el tiempo? | usuario | — | `INTENT UNKNOWN` |
 | Mover `pendingOf`, `isMine` y las escrituras de la interfaz (`n.read`, `g.jobOffers`, `p.listed`) al motor (`design/ux/bandeja.md`, pregunta 5). | ui-programmer + lead-programmer | Antes de implementar | Pendiente |
 | ¿Hace falta un tema Dirigencia en la bandeja? (`design/ux/bandeja.md` lo propone) | usuario | — | Pendiente |
@@ -562,3 +562,4 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `news()`, `advanceDay`, `Inbox.tsx`, `App.tsx`, `Home.tsx`, `TopNav.tsx` |
 
 *Generado por `/reverse-document design src/ui/Inbox.tsx`.*
+| 2026-11-14 | Claude | Resueltos: id de la oferta al pedir más, venta propia y base actualizada en "Para vos", rechazar un trabajo; la nota "Error al guardar" (F7 en `--bad`) aparece tras una decisión si falla el guardado (`design/ux/bandeja.md`); la línea de consecuencias de un trabajo nombra al cuerpo técnico que se va con el DT y al que queda |

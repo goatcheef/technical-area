@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
+import { askingPrice, canSell, divName, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, POS_NAME, ageOn, bestRating, posRating } from '../engine/positions'
 import { STATUS, canTalk, fmtRange, knowOf, minutesShare, nextTalk, persLabels, scout, shown, toggleShortlist } from '../engine/squad'
 import { ATTR_GROUPS, ATTR_LABEL, A, type SeasonStats } from '../engine/types'
 import { sab } from '../engine/week'
 import { useGame } from '../store'
-import { Badge, Cond, Face, Radar, Status, attrClass, avgRat, clubTheme, money, radarOf, ratClass } from './common'
+import { Badge, Cond, Face, Radar, Status, attrClass, avgRat, clubTheme, dec, money, radarOf, ratClass } from './common'
 import { NegotiationModal, TalkModal } from './Locker'
 
 function StatLine({ s, label }: { s: SeasonStats; label: string }) {
@@ -62,7 +62,7 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
             <div className="row wrap" style={{ gap: 8 }}><span className="boxed">{p.nat}</span><b>{age} años</b><span className="dim">({fmtDate(p.birth)})</span><span className="dim">· pie {p.foot === 'D' ? 'derecho' : p.foot === 'I' ? 'izquierdo' : 'ambidiestro'}</span></div>
           </div>
           <div className="pband-sep" />
-          <button className="pband-block linkish" onClick={() => openClub(c.id)}><Badge club={c} size={40} /><span className="col" style={{ gap: 4 }}><span className="boxed"><b>{c.name}</b></span>{mine && p.status ? <span className="boxed dim">{STATUS[p.status].name}</span> : <span className="boxed dim">{['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][c.division]}</span>}</span></button>
+          <button className="pband-block linkish" onClick={() => openClub(c.id)}><Badge club={c} size={40} /><span className="col" style={{ gap: 4 }}><span className="boxed"><b>{c.name}</b></span>{mine && p.status ? <span className="boxed dim">{STATUS[p.status].name}</span> : <span className="boxed dim">{divName(c)}</span>}</span></button>
           <div className="pband-sep" />
           <div className="pband-block col" style={{ gap: 4, alignItems: 'flex-start' }}><span className="boxed"><b>{money(p.value)}</b></span><span className="boxed">{money(p.wage)}/mes · dic {p.contractEnd}</span></div>
           <div className="pband-sep" />
@@ -112,7 +112,7 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
         <div className="pcards">
           <div className="card pc"><h3>Felicidad</h3>{mine ? <><b className="pc-v">{moodTxt(p.happy ?? 70)}</b><Cond v={p.happy ?? 70} /></> : <><b className="pc-v">{moodTxt(p.morale)}</b><span className="dim sm">Moral {Math.round(p.morale)}</span></>}</div>
           <div className="card pc"><h3>Físico</h3>{p.injury ? <><b className="pc-v bad">Lesionado</b><span className="dim sm">{p.injury.days} días</span></> : <><b className="pc-v">{condTxt(p.cond)}</b><Cond v={p.cond} /></>}</div>
-          <div className="card pc"><h3>Forma</h3><div className="formbars" aria-label="Últimos puntajes">{p.form.slice(-5).map((r, i) => <i key={i} className={ratClass(r)} style={{ height: `${Math.max(12, (r - 4) * 16)}%` }} title={r.toFixed(1)} />)}</div><span className="dim sm">{p.form.length ? `Promedio de los últimos ${Math.min(5, p.form.length)}: ${(p.form.slice(-5).reduce((a2, b2) => a2 + b2, 0) / Math.min(5, p.form.length)).toFixed(2)}` : 'Sin partidos todavía'}</span></div>
+          <div className="card pc"><h3>Forma</h3><div className="formbars" aria-label="Últimos puntajes">{p.form.slice(-5).map((r, i) => <i key={i} className={ratClass(r)} style={{ height: `${Math.max(12, (r - 4) * 16)}%` }} title={dec(r, 1)} />)}</div><span className="dim sm">{p.form.length ? `Promedio de los últimos ${Math.min(5, p.form.length)}: ${dec(p.form.slice(-5).reduce((a2, b2) => a2 + b2, 0) / Math.min(5, p.form.length), 2)}` : 'Sin partidos todavía'}</span></div>
           <div className="card pc"><h3>Disciplina</h3><b className="pc-v">{p.susp ? `Suspendido (${p.susp})` : p.stats.rc ? 'Expulsado esta temporada' : p.stats.yc >= 4 ? 'Al límite de amarillas' : 'Sin problemas'}</b><span className="dim sm">{p.stats.yc} amarillas · {p.stats.rc} rojas</span></div>
           <div className="card pc"><h3>Entrenamiento</h3>{mine ? <><b className="pc-v">{(p.ups ?? 0) >= 3 ? 'Progresa bien' : (p.ups ?? 0) >= 1 ? 'Progresa' : 'Sin mejoras todavía'}</b><span className="dim sm">{p.ups ?? 0} atributos ganados esta temporada</span></> : <span className="dim sm">Solo se conoce el de tus jugadores.</span>}</div>
           <div className="card pc pc-wide"><h3>Temporada {g.season}</h3>
@@ -130,9 +130,9 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
           {p.loanFrom != null && <div className="row between"><span className="dim">A préstamo de</span><b>{g.clubs[p.loanFrom]?.name}</b></div>}
           {mine && <div className="row wrap">
             <button className="btn sm" disabled={!!p.negBlock && g.date < p.negBlock} title={p.negBlock && g.date < p.negBlock ? `No quiere negociar hasta el ${fmtDate(p.negBlock)}` : ''} onClick={() => setNeg({ mode: 'renew', fee: 0 })}>Negociar renovación</button>
-            <button className={`btn sm ${p.listed ? 'on' : ''}`} onClick={() => { p.listed = !p.listed; done() }}>{p.listed ? 'Quitar de transferibles' : 'Declarar transferible'}</button></div>}</div>
+            {(canSell(p) || p.listed) && <button className={`btn sm ${p.listed ? 'on' : ''}`} onClick={() => { p.listed = !p.listed; done() }}>{p.listed ? 'Quitar de transferibles' : 'Declarar transferible'}</button>}</div>}</div>
         <div className="card s6 col"><h3>{mine ? 'Mercado' : 'Negociar'}</h3>
-          {mine ? <div className="dim sm" style={{ lineHeight: 1.5 }}>Pedido estimado: <b style={{ color: 'var(--text)' }}>{money(askingPrice(g, p))}</b>. Si lo declarás transferible van a llegar más ofertas, por menos plata.</div> : (<>
+          {mine && !canSell(p) ? <div className="dim sm" style={{ lineHeight: 1.5 }}>Está a préstamo de {g.clubs[p.loanFrom!]?.name ?? 'otro club'}: no se puede vender ni declarar transferible.</div> : mine ? <div className="dim sm" style={{ lineHeight: 1.5 }}>Pedido estimado: <b style={{ color: 'var(--text)' }}>{money(askingPrice(g, p))}</b>. Si lo declarás transferible van a llegar más ofertas, por menos plata.</div> : (<>
             <div className="dim sm">Cobraría alrededor de {money(wageDemand(g, p, me))}/mes · Tu presupuesto: <b style={{ color: 'var(--text)' }}>{money(me.budget)}</b>{p.clause ? <> · Cláusula: <b style={{ color: 'var(--text)' }}>{money(p.clause)}</b></> : null}</div>
             <label className="f">Oferta (US$)<input id="bid-fee" type="number" step={10000} min={0} value={fee} onChange={e => setFee(Number(e.target.value))} /></label>
             <div className="row wrap"><button className="btn primary sm" disabled={!open} onClick={() => bid(false)}>Ofertar compra</button><button className="btn sm" disabled={!open} onClick={() => bid(true)}>Pedir préstamo</button></div>
@@ -151,7 +151,7 @@ export function PlayerPage({ id, tab = 'resumen' }: { id: number; tab?: string }
           {games.length ? <table><thead><tr><th>Fecha</th><th>Rival</th><th>Torneo</th><th className="r">Min</th><th className="r">G</th><th className="r">A</th><th className="r">Puntaje</th></tr></thead>
             <tbody>{games.map(f => { const l = f.lines!.find(x => x.pid === p.id)!, o = g.clubs[f.home === me.id ? f.away : f.home]; return (
               <tr key={f.id}><td className="dim">{fmtDate(f.date)}</td><td><span className="row"><Badge club={o} size={20} />{o.short}</span></td><td className="dim sm">{g.comps[f.comp]?.name}</td>
-                <td className="r num">{l.mins}</td><td className="r num">{l.goals || ''}</td><td className="r num">{l.ast || ''}</td><td className={`r num ${ratClass(l.rating)}`}><b>{l.rating.toFixed(1)}</b></td></tr>) })}</tbody></table>
+                <td className="r num">{l.mins}</td><td className="r num">{l.goals || ''}</td><td className="r num">{l.ast || ''}</td><td className={`r num ${ratClass(l.rating)}`}><b>{dec(l.rating, 1)}</b></td></tr>) })}</tbody></table>
             : <div className="dim sm">Todavía no jugó con tu equipo.</div>}</div>}
       </div>}
 

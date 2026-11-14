@@ -57,7 +57,7 @@ Después de cada partido del club del DT, el juego compara los minutos que jugó
 11. Con menos de 3 partidos en `recent` no pasa nada más.
 12. Si el déficit es positivo, baja la conformidad (fórmula F2); si no, sube 2 (4 si estaba debajo de 60).
 13. Con conformidad < 35, baja la moral (F3).
-14. Pide irse (`wantsOut = true`) si todavía no lo pidió, conformidad < 18, lealtad < 15, rol distinto de Promesa y un azar determinístico `h(id, len(recent) + temporada) < 0,5`. Genera la noticia `act: 'out'` (ver UI Requirements).
+14. Pide irse (`wantsOut = true`) si todavía no lo pidió, conformidad < 18, lealtad < 15, rol distinto de Promesa y un azar determinístico que se sortea de nuevo cada semana (`hash01(id, semana) < 0,5`). Genera la noticia `act: 'out'` (ver UI Requirements).
 
 **Promesas** (`talk 'promise'` y `dailySquad`, `squad.ts:89-106`)
 15. Prometer minutos crea `{ until: hoy + 35 días, share: min(0,9, share del rol + 0,22), mins: [] }`, suma 18 de conformidad y 5 de moral y anula el pedido de salida.
@@ -191,20 +191,21 @@ Ejemplo: club rep 80, DT con 15 y coordinador 12 → boost 3,3; target medio 58.
 | Promesa sin partidos al vencer | Se corre 14 días, sin límite de veces | No juzgar sin datos |
 | Promesa con rol cambiado después | El objetivo queda el del momento de prometer | Implementado así; `INTENT UNKNOWN` |
 | Promesa (rol `young`) | Nunca pide irse; solo pierde conformidad si amb ≥ 15 y tiene 20+ | `tol` 0 y `lvl ≥ 1` en regla 14 |
-| Pedido de salida y azar | Con `recent` lleno (6) el azar del pedido es fijo por temporada: si sale ≥ 0,5, no lo pide en toda la temporada aunque esté en 0 | `h(id, 6 + temporada)`; ⚠️ `INTENT UNKNOWN` |
+| Pedido de salida y azar | El azar se sortea cada semana (fijo dentro de la semana): un disconforme termina pidiéndolo | ✅ Resuelto (2026-11-14): `hash01(id, weekNo)` |
 | Jugador transferible que quiere irse | Desaparece de pendientes pero sigue como disconforme | Pendiente filtra `!listed` (`Inbox.tsx:27`) |
-| Reserva con menos de 7 | No se juega, sin aviso | ⚠️ Falta feedback (Open Questions) |
-| Partido del DT un martes | El paso al miércoles lo hace `finishUserMatch`, que no llama a `weeklyReserve` (`game.ts:597`): esa semana no hay reserva | ⚠️ No buscado; `INTENT UNKNOWN` |
-| Reserva y potencial | El `tx` de la reserva no mira `ca < pa`, y `dailyTraining` sube `pa` hasta `ca`: la reserva puede superar el potencial (también a veteranos, a 0,072 por semana) | ⚠️ Probable error |
-| "Exigirle más" semanal a un profesional | +0,25 `tx` por semana, sin tope de potencial: ≈ un atributo cada 4 semanas | ⚠️ Estrategia dominante |
-| Charla desde la ficha | `PlayerPage` abre `TalkModal` sin mirar `canTalk`: se puede hablar todos los días | ⚠️ El límite semanal solo existe en el Vestuario |
+| Reserva con menos de 7 | No se juega; si el DT marcó a alguien, llega "Reserva: no hubo partido" con cuántos había y cuántos lesionados | ✅ Resuelto (2026-11-14) |
+| Partido del DT un martes | `finishUserMatch` pasa por `nightSquad`, que corre la reserva los miércoles | ✅ Resuelto (2026-11-14) |
+| Reserva y potencial | La reserva suma con `addProgress`: en su potencial no progresa, y un punto que lo pasaría de `pa` se deshace | ✅ Resuelto (2026-11-14): nadie crece más allá de su potencial |
+| "Exigirle más" semanal a un profesional | +0,25 `tx` con `addProgress`: solo hasta su potencial, y una charla por semana | ✅ Resuelto (2026-11-14): deja de ser dominante (no pasa el potencial) |
+| Charla desde la ficha | El límite está en el motor (`talk` no hace nada si ya hablaron) y la ficha deshabilita "Hablar" con el motivo y la fecha | ✅ Resuelto (2026-11-14): una charla por semana en todos lados |
 | Cambiar de rol al mismo rol | La interfaz deshabilita el botón; el motor devolvería texto vacío pero registraría la charla | Defensa en la interfaz |
 | Cambio de temporada | Rol, conformidad, `recent`, pedido y promesa se conservan; moral vuelve a 70; no se recalcula el rol natural | `initSquad` solo completa faltantes |
 | Fichaje propio | Conformidad 72, sin minutos, sin promesa ni pedido; rol el pactado (o ninguno hasta el primer partido) | `career.ts:220-221` |
 | DT cambia de club | `initSquad` del nuevo club; los datos del anterior quedan en sus jugadores sin uso | `career.ts:103` |
-| Personalidad de rivales | Solo existe si algo la pidió (ficha con conocimiento ≥ 60, negociación): hasta entonces sus efectos de presión y temperamento en el partido no se aplican | ⚠️ Mirar una ficha cambia cómo juega el rival |
+| Personalidad de rivales | `ensurePersonalities` la fija para todos al empezar la partida y, cada día, para los que se sumaron | ✅ Resuelto (2026-11-14): personalidades fijas |
 | Presión de juveniles futuros | `pres` usa 2026 fijo: un juvenil generado en 2030 se calcula como si tuviera 4 años menos (−0,8) | ⚠️ Menor |
-| Chip "Inferiores" | Se muestra con `p.gen`, que también tienen los refuerzos generados del exterior y los planteles generados de tercera y del exterior | Ver `base-de-datos` |
+| Chip "Inferiores" | Se muestra si el jugador salió de las inferiores del club (`p.youth`) y nunca se transfirió (un pase definitivo pone `youth = false`) | ✅ Resuelto (2026-11-14) |
+| "Decirle que puede buscar club" a un jugador a préstamo | La opción aparece deshabilitada con el motivo; el motor tampoco lo declara transferible (`canSell`) ni gasta la charla | ✅ (2026-11-14) |
 | Arquero extra de la camada | Se crea pero no aparece en la noticia | Menor |
 | Planteles rivales | No tienen conformidad, pedidos ni armonía | Pendiente en `CLAUDE.md` |
 
@@ -290,7 +291,7 @@ Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo q
 
 **Decisión pendiente** (`pendingOf`, `Inbox.tsx:27`): `{ k: 'out', key: 'out<pid>', pid }` para cada jugador propio con `wantsOut && !listed`. Se calcula del estado; frena "Ir al partido" cuando aparece (`decisionKeys`). Fila: "X quiere irse · Hablale o declaralo transferible". Detalle: conformidad, Hablar con él, Declararlo transferible (`Inbox.tsx:181-185`). La UX de `design/ux/bandeja.md` pide además rol y minutos esperados contra jugados y la promesa vigente: el motor ya los tiene (`p.status`, `minutesShare`, `STATUS[].share`, `p.promise`).
 
-**Accesibilidad**: las barras de Conformidad y Moral del Vestuario (`Bar`, `Locker.tsx:11`) no muestran número, contra la regla D6 de `design/ux/interaction-patterns.md`; la de Minutos sí.
+**Accesibilidad**: las barras de Conformidad y Moral del Vestuario muestran su número al lado (`BarN`, regla D6 de `design/ux/interaction-patterns.md`), igual que la de Minutos. Resuelto el 2026-11-14.
 
 ## Cross-References
 
@@ -341,14 +342,14 @@ Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo q
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| ¿El pedido de salida debe depender de un azar fijo por temporada (`h(id, len + temporada)`)? Hoy, con 6 partidos, o lo pide enseguida o nunca en esa temporada. `INTENT UNKNOWN` | Usuario | Antes de la temporada completa de prueba | — |
-| ¿La reserva y "Exigirle más" deben poder superar el potencial? Opción A: aplicar el factor 0,15 de `dailyTraining` cuando `ca ≥ pa`. Opción B: dejarlo como premio a la gestión | Usuario | Idem | — |
-| ¿Hablar desde la ficha debe respetar el límite semanal? (hoy no) | Usuario | Idem | — |
+| ¿El pedido de salida debe depender de un azar fijo por temporada (`h(id, len + temporada)`)? Hoy, con 6 partidos, o lo pide enseguida o nunca en esa temporada. `INTENT UNKNOWN` | Usuario | Antes de la temporada completa de prueba | Resuelta (2026-11-14): se sortea cada semana |
+| ¿La reserva y "Exigirle más" deben poder superar el potencial? Opción A: aplicar el factor 0,15 de `dailyTraining` cuando `ca ≥ pa`. Opción B: dejarlo como premio a la gestión | Usuario | Idem | Resuelta (2026-11-14): no; todo el progreso pasa por `addProgress` |
+| ¿Hablar desde la ficha debe respetar el límite semanal? (hoy no) | Usuario | Idem | Resuelta (2026-11-14): sí, el límite está en el motor |
 | ¿Se recalcula el rol natural al empezar la temporada o solo se completa? `INTENT UNKNOWN` | Usuario | — | — |
 | ¿La promesa debe seguir al rol si cambia después? | Usuario | — | — |
-| ¿La personalidad de todos los jugadores debe calcularse al crear la partida, para que el partido no dependa de qué fichas miró el DT? | Usuario | — | Recomendado: sí |
+| ¿La personalidad de todos los jugadores debe calcularse al crear la partida, para que el partido no dependa de qué fichas miró el DT? | Usuario | — | Resuelta (2026-11-14): sí (`ensurePersonalities`) |
 | ¿Los planteles rivales tienen conflictos? ¿Préstamos de juveniles? (pendientes 2 de `CLAUDE.md`) | Usuario | — | No implementado |
-| ¿El partido de reserva debe correr también cuando el paso al miércoles lo hace `finishUserMatch`? | Usuario | — | — |
+| ¿El partido de reserva debe correr también cuando el paso al miércoles lo hace `finishUserMatch`? | Usuario | — | Resuelta (2026-11-14): sí (`nightSquad`) |
 | ¿"Hablar con él" desde la bandeja debe abrir la charla directamente en vez de la pestaña Vestuario? Ver `design/ux/bandeja.md` | Usuario + UX | — | — |
 | `pres` usa 2026 fijo: ¿usar la temporada actual? | Usuario | — | — |
 | ¿El efecto de la armonía (±2,4 %) es intencional o debería notarse más? `INTENT UNKNOWN` | Usuario | — | — |
@@ -358,3 +359,4 @@ Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo q
 | Date | Author | Changes |
 |------|--------|---------|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/squad.ts` y `src/engine/career.ts` en `d9b251a` |
+| 2026-11-14 | Claude | Resueltos: azar semanal del pedido de salida, aviso de reserva sin partido, reserva del martes, tope de potencial en la reserva y en "Exigirle más", una charla por semana, personalidades fijas, chip "Inferiores" y números en las barras del Vestuario |

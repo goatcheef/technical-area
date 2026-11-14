@@ -106,6 +106,7 @@ td.r, th.r { text-align: right; } td.c, th.c { text-align: center; }
 .steps { display: flex; gap: 8px; } .steps span { flex: 1; height: 4px; border-radius: 2px; background: var(--panel3); } .steps span.on { background: var(--accent); }
 .opt { border: 1px solid var(--line2); background: var(--panel); border-radius: 12px; padding: 12px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 5px; }
 .opt:hover { border-color: var(--faint); } .opt.on { border-color: var(--accent); background: var(--accent-soft); }
+.opt:disabled { cursor: not-allowed; border-style: dashed; color: inherit; } .opt:disabled:hover { border-color: var(--line2); }
 .sw { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; } .sw.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--bg); }
 .searchbox { position: relative; flex: 1; max-width: 360px; } .searchbox input { width: 100%; }
 .results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 6px; z-index: 15; box-shadow: 0 20px 50px -10px #000; max-height: 380px; overflow: auto; }
@@ -784,7 +785,7 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
 .ib-confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 8px; max-width: 100%; }
 .ib-confirm .btn { white-space: normal; text-align: left; max-width: 100%; }
 .ib-help { font-size: .86rem; font-weight: 500; color: var(--dim); } .ib-help b { color: var(--text); font-weight: 700; }
-.ib-status:empty { display: none; }
+.ib-status:empty { display: none; } .ib-saveerr { margin-top: 8px; }
 .ib-result { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line2); border-left: 3px solid var(--good); border-radius: 12px; padding: 10px 14px; font-size: 1rem; font-weight: 600; color: var(--text); line-height: 1.45; }
 .ib-result:focus { outline: none; } .ib-result:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
 .ib-result-ico { display: flex; color: var(--good); flex: none; } .ib-result-ico svg { width: 16px; height: 16px; }

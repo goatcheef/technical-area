@@ -1,5 +1,5 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
-import { sab, staffWage } from './week'
+import { makeStaff, sab } from './week'
 import { initSquad } from './squad'
 import { addDays, autoPick, clubsIn, fmtDate, leagueFx, news, squadOf, tableOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
@@ -156,21 +156,20 @@ function moveStaff(g: Game, from: Club, to: Club) {
   const rng = new Rng(g.rngState)
   for (const role of CLUB_STAFF) if (!g.staff.some(s => s.clubId === to.id && s.role === role)) {
     // misma calidad que el cuerpo técnico inicial: según la reputación del club
-    const ab = clamp(Math.round(4 + to.rep * 0.12 + rng.gauss() * 2.2), 3, 20)
-    g.staff.push({ id: g.nextId++, name: `${rng.pick(NOMBRES)} ${rng.pick(APELLIDOS)}`, role, ability: ab, wage: staffWage(ab), contractEnd: g.season + rng.int(1, 2), clubId: to.id, age: rng.int(31, 66) })
+    g.staff.push(makeStaff(g, role, 4 + to.rep * 0.12 + rng.gauss() * 2.2, to.id, rng))
   }
   g.rngState = rng.s
   return came
 }
 /** Lo que pasa al aceptar un trabajo: se pierden las ofertas por jugadores, las otras ofertas de trabajo y la conferencia abierta; el ayudante y el preparador físico vienen con el DT (`follow`) y el resto del cuerpo técnico queda en el club (`staff`). */
-export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number; follow: number } {
+export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number; follow: number; staffRoles: StaffRole[]; followRoles: StaffRole[] } {
   const mine = g.staff.filter(s => s.clubId === g.userClubId)
+  const followRoles = COACH_STAFF.filter(r => mine.some(s => s.role === r)), staffRoles = CLUB_STAFF.filter(r => mine.some(s => s.role === r))
   return {
     offers: g.offers.filter(o => g.players[o.pid]).length,
     jobs: (g.jobOffers ?? []).filter(j => j.clubId !== clubId && j.until >= g.date).length,
     press: !!g.press,
-    staff: mine.filter(s => CLUB_STAFF.includes(s.role)).length,
-    follow: mine.filter(s => COACH_STAFF.includes(s.role)).length,
+    staff: staffRoles.length, follow: followRoles.length, staffRoles, followRoles,
   }
 }
 /** De mitad de temporada (6 días) o de fin de temporada (hasta comenzar la próxima). Las partidas viejas no guardan el tipo. */
@@ -303,7 +302,7 @@ export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan =
   to.balance -= fee; to.budget -= fee; to.ledger.buys += fee
   if (!loan) from.budget += Math.round(fee * 0.6)
   p.num = freeNumber(g, toId, p)
-  if (loan) { p.loanFrom = from.id; p.loan = true } else { p.wage = terms?.wage ?? wageDemand(g, p, to); p.contractEnd = g.season + (terms?.years ?? 2); p.loan = false; p.loanFrom = undefined; p.clause = terms?.clause || undefined }
+  if (loan) { p.loanFrom = from.id; p.loan = true } else { p.wage = terms?.wage ?? wageDemand(g, p, to); p.contractEnd = g.season + (terms?.years ?? 2); p.loan = false; p.loanFrom = undefined; p.clause = terms?.clause || undefined; p.youth = false }
   if (terms) { to.balance -= terms.bonus; to.ledger.buys += terms.bonus }
   p.status = toId === g.userClubId ? (terms?.status ?? undefined) : undefined
   p.recent = []; p.promise = null; p.wantsOut = false; p.reserve = false; p.happy = 72; p.tfocus = undefined

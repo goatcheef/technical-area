@@ -1,12 +1,12 @@
 // Bandeja de entrada (design/ux/bandeja.md): arriba lo que hay que decidir, abajo la correspondencia por día; cada mensaje trae sus botones.
 // La pantalla no escribe en `g`: llama al motor (markRead, acceptOffer, haggle, rejectJob, setListed…), guarda y refresca.
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as RKey, type ReactNode } from 'react'
-import { acceptJob, acceptOffer, haggle, jobConsequences, offerDeadline, rejectJob, rejectOffer, windowOpen } from '../engine/career'
+import { acceptJob, acceptOffer, divName, haggle, jobConsequences, offerDeadline, rejectJob, rejectOffer, windowOpen } from '../engine/career'
 import { clubsIn, fmtDate, injuryOutlook, isMine, leagueFx, markRead, nextUserFixture, squadOf, tableOf } from '../engine/game'
 import { pendingKeyOf, pendingOf, type Pending } from '../engine/inbox'
 import { POS_NAME, ageOn } from '../engine/positions'
 import { STATUS, demand, minutesShare, naturalStatusFor, persLabels, setListed, toggleShortlist } from '../engine/squad'
-import { ATTRS, ATTR_LABEL, type Club, type Fixture, type Game, type News, type Offer } from '../engine/types'
+import { ATTRS, ATTR_LABEL, type Club, type Fixture, type Game, type News, type Offer, type StaffRole } from '../engine/types'
 import { delegatePress, scoutReport } from '../engine/week'
 import { useGame, useSticky, type Route } from '../store'
 import { Badge, Face, MatchReport, PosPill, Status, Val, attrClass, money } from './common'
@@ -39,7 +39,7 @@ const EMPTY: Record<string, string> = {
   torneos: 'Las noticias de tus torneos y los premios aparecen acá.',
   dirigencia: 'Acá llegan los mensajes de la dirigencia y las ofertas de otros clubes.',
 }
-const DIV = ['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A']
+const STAFF_PHRASE: Record<StaffRole, string> = { asst: 'el ayudante de campo', fit: 'el preparador físico', doc: 'el médico', scout: 'el scouting', youth: 'las inferiores' }
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 /** Resalta el término buscado en negrita (no solo color). */
 function hl(text: string, q: string): ReactNode {
@@ -61,7 +61,7 @@ type DueT = { text: string; short?: boolean; none?: boolean }
 type RowDesc = { kind: string; who?: string; title: string; due: DueT }
 type Item = { key: string; p?: Pending; n?: News; ghost?: boolean }
 type Tone = 'ok' | 'warn' | 'err'
-type Flash = { key: string; text: string; tone: Tone; resolved: boolean }
+type Flash = { key: string; text: string; tone: Tone; resolved: boolean; saveErr?: boolean }
 
 function dueOf(deadline: string, today: string, row: boolean): DueT {
   const n = daysUntil(deadline, today), d = shortDay(deadline, today).replace(/^\S+ /, '')
@@ -161,7 +161,8 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
   /** Una acción del motor sobre una decisión: guarda, deja la nota de resultado y, si quedó resuelta, el estado "Resuelto". */
   const run = (key: string, fn: () => { text: string; tone?: Tone; resolved?: boolean }) => {
     const r = fn()
-    save() // saveGame no informa si falla IndexedDB: el estado "Error al guardar" queda sin implementar
+    // si el guardado falla, la nota de la decisión suma el aviso (la decisión ya quedó hecha en memoria)
+    save().then(ok => { if (!ok) setFlash(f => (f && f.key === key ? { ...f, saveErr: true } : f)) })
     const resolved = r.resolved !== false, left = pendingOf(g).filter(p => p.key !== key).length
     setFlash({ key, text: r.text + (resolved && !left ? ' Nada para decidir. Podés seguir con Continuar.' : ''), tone: r.tone ?? 'ok', resolved })
     pin()
@@ -420,7 +421,7 @@ function ClubCard({ cid, name }: { cid?: number; name?: string }) {
   const pos = leaguePos(g, c)
   return <button className="ib-who" data-cid={c.id} onClick={() => openClub(c.id)}>
     <Badge club={c} size={40} />
-    <span className="grow" style={{ minWidth: 0 }}><span className="ib-who-n"><b>{c.name}</b></span><span className="ib-who-m">{[DIV[c.division], pos ? `${pos}.º` : '', `reputación ${c.rep}`].filter(Boolean).join(' · ')}</span></span>
+    <span className="grow" style={{ minWidth: 0 }}><span className="ib-who-n"><b>{c.name}</b></span><span className="ib-who-m">{[divName(c), pos ? `${pos}.º` : '', `reputación ${c.rep}`].filter(Boolean).join(' · ')}</span></span>
     <span className="ib-chev">{IC.next}</span>
   </button>
 }
@@ -457,11 +458,11 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       facts = <><Due d={dueOf(offerDeadline(o), g.date, false)} /><Fact>Libro de pases {open ? 'abierto' : 'cerrado'}.</Fact><Fact>Si lo vendés, te quedan {left} en su puesto ({POS_NAME[p.positions[0]].toLowerCase()}).</Fact></>
       acts = [
         { label: 'Aceptar', kind: 'primary', disabled: !open, confirm: { label: `Confirmar: vender a ${p.name} por ${money(o.fee)}`, run: () => run(dk!, () => { acceptOffer(g, o); return { text: `Vendiste a ${p.name} a ${o.fromName} por ${money(o.fee)}.` } }) } },
-        { label: 'Pedir más', dec: true, run: () => run(dk!, () => (haggle(g, o) ? { text: `${o.fromName} mejoró su oferta: ahora ${money(o.fee)}.`, resolved: false } : { text: `${o.fromName} se retiró de la negociación.`, tone: 'warn' })) },
+        { label: 'Pedir más', dec: true, disabled: !open, run: () => run(dk!, () => (haggle(g, o) ? { text: `${o.fromName} mejoró su oferta: ahora ${money(o.fee)}.`, resolved: false } : { text: `${o.fromName} se retiró de la negociación.`, tone: 'warn' })) },
         { label: 'Ver la ficha', nav: true, run: () => openPlayer(p.id) },
         { label: 'Rechazar', kind: 'danger', confirm: { label: 'Confirmar rechazo', danger: true, run: () => run(dk!, () => { rejectOffer(g, o); return { text: `Rechazaste la oferta de ${o.fromName}.` } }) } },
       ]
-      help = [!open && 'El libro de pases está cerrado: podés pedir más o rechazar.', <><b>Pedir más:</b> {o.fromName} puede mejorar la oferta o retirarse.</>]
+      help = [!open && 'El libro de pases está cerrado: no podés aceptar ni pedir más, solo rechazar.', <><b>Pedir más:</b> {o.fromName} puede mejorar la oferta o retirarse.</>]
     } else { const ex = expired(oid, 'mercado'); goneMsg(ex ? `Esta oferta venció el ${fmtDate(ex.date)}.` : 'Esta oferta ya fue respondida o venció.') }
   } else if (kind === 'job') {
     const cid = it.p?.k === 'job' ? it.p.clubId : n!.ref!, c = g.clubs[cid], mine = g.clubs[g.userClubId]
@@ -470,7 +471,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     if (lp && c) {
       const pc = leaguePos(g, c), pm = leaguePos(g, mine)
       extra = <table className="ib-cmp"><thead><tr><td /><th><Badge club={c} size={20} /> Ese club</th><th><Badge club={mine} size={20} /> El tuyo</th></tr></thead><tbody>
-        {([['Categoría', DIV[c.division], DIV[mine.division]], ['Posición', pc ? `${pc}.º` : '—', pm ? `${pm}.º` : '—'], ['Reputación', c.rep, mine.rep], ['Presupuesto', money(c.budget), money(mine.budget)]] as [string, ReactNode, ReactNode][]).map(([l, a, b]) => <tr key={l}><th scope="row">{l}</th><td>{a}</td><td>{b}</td></tr>)}
+        {([['Categoría', divName(c), divName(mine)], ['Posición', pc ? `${pc}.º` : '—', pm ? `${pm}.º` : '—'], ['Reputación', c.rep, mine.rep], ['Presupuesto', money(c.budget), money(mine.budget)]] as [string, ReactNode, ReactNode][]).map(([l, a, b]) => <tr key={l}><th scope="row">{l}</th><td>{a}</td><td>{b}</td></tr>)}
       </tbody></table>
       const d = dueOf(lp.until, g.date, false)
       facts = lp.kind === 'season'
@@ -483,7 +484,10 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       if (jc.jobs) cancel.push(jc.jobs === 1 ? (jc.offers ? 'la de otro club' : 'la oferta de otro club') : jc.offers ? `las ${jc.jobs} de otros clubes` : `las ${jc.jobs} ofertas de otros clubes`)
       if (cancel.length) parts.push(`${jc.offers + jc.jobs === 1 ? 'se cancela' : 'se cancelan'} ${cancel.join(' y ')}`)
       if (jc.press) parts.push('se descarta la conferencia pendiente')
-      if (jc.staff) parts.push(`tu cuerpo técnico queda en ${mine.name}`)
+      // "el ayudante de campo y el preparador físico se van con vos", "el médico, el scouting y las inferiores quedan en {club}"
+      const list = (rs: StaffRole[]) => { const w = rs.map(r => STAFF_PHRASE[r]); return w.length > 1 ? `${w.slice(0, -1).join(', ')} y ${w[w.length - 1]}` : w[0] }
+      if (jc.follow) parts.push(`${list(jc.followRoles)} ${jc.follow > 1 ? 'se van' : 'se va'} con vos`)
+      if (jc.staff) parts.push(`${list(jc.staffRoles)} ${jc.staff > 1 || jc.staffRoles[0] === 'youth' ? 'quedan' : 'queda'} en ${mine.name}`)
       if (parts.length) conseq = <div className={`ib-conseq ${narrow ? 'out' : ''}`}>Si aceptás, {parts.length > 1 ? `${parts.slice(0, -1).join('; ')} y ${parts[parts.length - 1]}` : parts[0]}.</div>
       const nm = (x: Club) => (x.name.length > 26 ? x.short : x.name)
       acts = [
@@ -596,7 +600,8 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       {!resolved && !narrow && conseq}
       {showActs && <Actions acts={acts} help={help} busy={busy} />}
       {!fl && gone}
-      <div role="status" className="ib-status">{fl && <div className={`ib-result ${fl.tone === 'ok' ? '' : fl.tone}`} tabIndex={-1}><span className="ib-result-ico">{fl.tone === 'ok' ? IC.check : IC.bang}</span><span>{fl.text}</span></div>}</div>
+      <div role="status" className="ib-status">{fl && <div className={`ib-result ${fl.tone === 'ok' ? '' : fl.tone}`} tabIndex={-1}><span className="ib-result-ico">{fl.tone === 'ok' ? IC.check : IC.bang}</span><span>{fl.text}</span></div>}
+        {fl?.saveErr && <div className="ib-result err ib-saveerr"><span className="ib-result-ico">{IC.bang}</span><span>No se pudo guardar la partida. Tu decisión quedó hecha en esta sesión; probá exportar la partida desde Ajustes.</span></div>}</div>
       {resolved && nextPend && <button className="btn primary ib-next" data-next onClick={goNext}>Siguiente pendiente{IC.next}</button>}
     </div>}
     {rep && <MatchReport g={g} f={rep} onClose={() => setRep(null)} />}

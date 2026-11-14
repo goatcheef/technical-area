@@ -42,7 +42,7 @@ Cada jugador ajeno tiene un conocimiento de 0 a 100 %. Arranca en un valor base 
 **Conocimiento** (`knowOf`, `squad.ts:190-195`)
 1. Jugador del club del DT: 100, siempre.
 2. Si hay un valor guardado en `g.know[pid]`: ese valor.
-3. Si no, valor base: 35 si su club juega en la categoría del DT, 20 si no; +25 si su `ca` es ≥ 78, +10 si es ≥ 72.
+3. Si no, valor base: 35 si su club juega en la categoría del DT, 20 si no; más la fama, con tope 25: +15 si su valor de mercado es ≥ 4 M (+8 si es ≥ 1,5 M) y `0,6 × (reputación del club − 72)` si es positiva. Nunca mira el `ca`: el ancho del rango lo delataría.
 4. El conocimiento es por jugador (no por atributo), no decae y se guarda en la partida. Sigue al jugador si cambia de club entre rivales.
 
 **Rango que se muestra** (`shown`, `squad.ts:197-202`; F1)
@@ -91,7 +91,7 @@ Umbrales visibles: 60 (personalidad), 70 (potencial), 91 (atributos exactos), 95
 |---------|-------|------|-------------|
 | `entrenamiento-y-cuerpo-tecnico` | `sab(g, 'scout')` (4 si no hay jefe de scouting) y `sab(g, 'youth')`, `sab(g, 'asst')` para el potencial propio | — | `week.ts:32` |
 | `motor-de-partido` | `res.lines` del partido del DT | — | `game.ts:378` |
-| `mercado-de-pases` | Fichajes y ventas (cambian qué es propio); `doTransfer` saca al jugador del seguimiento | Rangos en búsqueda, seguimiento y ofertas | `career.ts:226` |
+| `mercado-de-pases` | Fichajes y ventas (cambian qué es propio); `doTransfer` saca al jugador del seguimiento solo si llega a tu club | Rangos en búsqueda, seguimiento y ofertas | `doTransfer` |
 | `prensa-e-informes` | — | — (el informe del rival usa su propio rango, `week.ts:148-150`) | `week.ts` |
 | `plantel` | Rasgos de personalidad | Umbral 60 para mostrarlos | `squad.ts` |
 | `comunicacion-y-bandeja` | — | Noticia `act: 'scout'` | `news()` |
@@ -102,7 +102,7 @@ Umbrales visibles: 60 (personalidad), 70 (potencial), 91 (atributos exactos), 95
 ```
 w  = round((100 − k) / 100 × maxW)
 si w = 0: [v, v]
-s  = round((h(pid, salt) − 0,5) × w)          // corrimiento fijo, |s| ≤ w/2
+s  = round((hash01(pid·131 + salt, w) × 2 − 1) × 0,8 × w)   // corrimiento fijo por dato y ancho, |s| ≤ 0,8·w
 rango = [clamp(v − w + s, lo, hi), clamp(v + w + s, lo, hi)]
 ```
 | Variable | Tipo | Rango | Fuente | Descripción |
@@ -112,7 +112,7 @@ rango = [clamp(v − w + s, lo, hi), clamp(v + w + s, lo, hi)]
 | salt | int | 0-99 | constante por uso | Separa los corrimientos de cada dato |
 | lo, hi | int | 1-20 / 1-99 | por uso | Escala del dato |
 
-Ancho total = 2w. Como |s| ≤ w/2, el valor real queda en la mitad central del rango y el punto medio se aparta a lo sumo w/2 del real; al subir `k` el corrimiento se achica con `w`, así que el rango converge al valor sin saltar.
+Ancho total = 2w. Como |s| ≤ 0,8·w, el valor real puede quedar cerca de un borde y el punto medio no lo delata; el corrimiento se vuelve a sortear cuando cambia `w` (al conocerlo mejor) y el rango siempre contiene el valor (`rangeAround`, que usa también el informe del rival).
 
 | k | `w` atributo (maxW 5) | `w` valoración (maxW 9) |
 |---|---|---|
@@ -145,15 +145,15 @@ Ejemplos: de 35 sin jefe, ≈ 15 días; con jefe de 10, ≈ 10 días; con 20, �
 | `w` exacto en 0,5 | `Math.round(0,5) = 1`: con k = 90 el atributo todavía muestra rango | Detalle de redondeo |
 | Undécimo jugador a ojear | Se descarta el más viejo de la lista sin aviso desde la ficha; la acción masiva avisa "(tope de 10…)" | `slice(-10)` |
 | Jugador ojeado que se vende al exterior o se retira | Sale de la lista al día siguiente, sin noticia | `dailySquad` filtra `!p` |
-| Jugador seguido que cambia de club entre rivales | `doTransfer` lo saca del seguimiento (`career.ts:226`) aunque no tenga que ver con el DT; el conocimiento se conserva | ⚠️ Probable error: perdés el seguimiento justo cuando se mueve |
+| Jugador seguido que cambia de club entre rivales | Sigue en el seguimiento (solo sale si llega a tu club); el conocimiento se conserva | ✅ Resuelto (2026-11-14) |
 | Jugador que vendiste | Su conocimiento vuelve al valor base (35 o 20): lo "desconocés" | ⚠️ `INTENT UNKNOWN` |
 | DT cambia de club | Su plantel anterior pasa a base | Igual que arriba |
 | Ojeo de un jugador propio | `scout` lo ignora | Regla 8 |
-| El conocimiento base delata el `ca` | Un ajeno de tu categoría que aparece con 60 % tiene `ca ≥ 78`; con 45 %, `≥ 72`. La columna "Conoc." lo muestra | ⚠️ Fuga |
-| Búsqueda del mercado | El filtro "Valoración mínima" y el recorte a 400 usan `ca` real (`Market.tsx:28-30`) | ⚠️ Fuga |
-| Buscador global | Ordena los resultados por `ca` real (`App.tsx:164`) | ⚠️ Fuga |
-| Ficha de club ("Figuras") y próximo rival en el Inicio ("Figura") | Eligen por `ca` real (`Nav.tsx:32`, `Home.tsx:29`) aunque muestran el rango | ⚠️ Fuga |
-| Informe del rival | Rango centrado en el valor real según `sab(scout)·0,6 + sab(asst)·0,4` (`week.ts:148-150`): el punto medio es el valor exacto | ⚠️ Dos modelos distintos; ver `prensa-e-informes` |
+| El conocimiento base delata el `ca` | La base sale del valor de mercado (público) y de la reputación del club, no del `ca` (regla 3) | ✅ Resuelto (2026-11-14): sin fuga |
+| Búsqueda del mercado | El filtro "Valoración mínima" y el recorte a 400 usan la valoración conocida (`knownRating`: exacta o punto medio del rango) | ✅ Resuelto (2026-11-14) |
+| Buscador global | Ordena por la valoración conocida (`knownRating`), en la búsqueda y en la barra de comandos | ✅ Resuelto (2026-11-14) |
+| Ficha de club ("Figuras") y próximo rival en el Inicio ("Figura") | Eligen por la valoración conocida (`knownRating`; `seenRating` de `common.tsx` es el mismo) | ✅ Resuelto (2026-11-14) |
+| Informe del rival | Usa `rangeAround` con el menor entre su ancho y lo que ya se sabe (`knowWidth`): nunca empeora lo conocido ni se centra en el valor real | ✅ Resuelto (2026-11-14): un solo modelo de rango |
 | Potencial propio | La ficha lo oculta sin buen cuerpo técnico, pero la columna `pot` lo muestra siempre | ⚠️ Incoherencia |
 | Potencial ajeno exacto | Desde el 70 % las estrellas usan `pa` exacto, no un rango | Implementado así; `INTENT UNKNOWN` |
 | Ayuda del jefe de scouting | El texto dice "más exacto"; en el código el jefe solo acelera el ojeo (y el informe del rival) | Texto en `types.ts:256` |
@@ -230,7 +230,7 @@ Sin componente de tiempo real. El ojeo se siente en dos ritmos: el **día** (el 
 |---|---|---|---|---|---|---|---|---|
 | "Informe completo: X" | `squad.ts:116` | `mercado` | club **del jugador** (no del DT) | jugador | `scout` | — | Mercado; `me` verdadero porque tiene `act` | Ver la ficha; Ofertar (va a ficha › Contrato y mercado) si no es propio (`Inbox.tsx:199`) |
 
-No genera decisiones pendientes. Cuando llega el informe el jugador ya está al 100 %, así que la bandeja puede mostrar datos exactos (la plantilla "Informe de ojeo" de `design/ux/bandeja.md` pide los 4 mejores atributos, el más flojo, personalidad, valor, pedido de sueldo y un "Seguir" alternable; hoy solo hay los dos botones). Si el jugador ya no existe, las acciones desaparecen (`g.players[n.pid]` falso).
+No genera decisiones pendientes. Cuando llega el informe el jugador ya está al 100 %, así que la bandeja puede mostrar datos exactos (la plantilla "Informe de ojeo" de `design/ux/bandeja.md` pide los 4 mejores atributos, el más flojo, personalidad, valor, pedido de sueldo y un "Seguir" alternable; "Seguir" / "✓ En seguimiento" está desde el 2026-11-14). Si el jugador ya no existe, las acciones desaparecen (`g.players[n.pid]` falso).
 
 **Regla para pantallas nuevas**: todo dato ajeno de atributo, valoración o potencial pasa por `shown` y se ordena por punto medio (D4). Las fugas listadas en Edge Cases violan esta regla.
 
@@ -277,11 +277,11 @@ No genera decisiones pendientes. Cuando llega el informe el jugador ya está al 
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| ¿El bono base por `ca ≥ 72/78` es intencional ("a las figuras se las conoce") aunque delate el `ca`? Opción A: sacar el bono. Opción B: usar la reputación del club o los partidos de selección. `INTENT UNKNOWN` | Usuario | Antes de la temporada completa de prueba | — |
-| ¿El mercado debe filtrar por punto medio del rango en vez de `ca`? | Usuario | Idem | Recomendado: sí (regla D4) |
-| ¿El informe del rival debe usar `shown` (o el conocimiento) en vez de su rango centrado? | Usuario + `prensa-e-informes` | — | — |
+| ¿El bono base por `ca ≥ 72/78` es intencional ("a las figuras se las conoce") aunque delate el `ca`? Opción A: sacar el bono. Opción B: usar la reputación del club o los partidos de selección. `INTENT UNKNOWN` | Usuario | Antes de la temporada completa de prueba | Resuelta (2026-11-14): opción B (valor de mercado y reputación del club, regla 3) |
+| ¿El mercado debe filtrar por punto medio del rango en vez de `ca`? | Usuario | Idem | Resuelta (2026-11-14): sí (`knownRating`) |
+| ¿El informe del rival debe usar `shown` (o el conocimiento) en vez de su rango centrado? | Usuario + `prensa-e-informes` | — | Resuelta (2026-11-14): usa `rangeAround` y `knowWidth` |
 | ¿Un jugador que vendiste debe seguir conociéndose (guardar 100 en `g.know` al venderlo)? | Usuario | — | — |
-| ¿El seguimiento debe conservar a un jugador que cambia de club entre rivales? | Usuario + `mercado-de-pases` | — | Probable error |
+| ¿El seguimiento debe conservar a un jugador que cambia de club entre rivales? | Usuario + `mercado-de-pases` | — | Resuelta (2026-11-14): sí |
 | ¿El conocimiento debe decaer con el tiempo? Hoy no | Usuario | — | — |
 | ¿El potencial propio se oculta en tablas igual que en la ficha? | Usuario | — | — |
 | ¿El jefe de scouting debería también mejorar la base o lo aprendido en partidos (como dice su ayuda)? | Usuario | — | — |
@@ -292,3 +292,4 @@ No genera decisiones pendientes. Cuando llega el informe el jugador ya está al 
 | Date | Author | Changes |
 |------|--------|---------|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/squad.ts` y la interfaz en `d9b251a` |
+| 2026-11-14 | Claude | Resueltos: conocimiento base sin fuga del `ca`, rango no centrado (F1), búsqueda, buscador, figuras e informe del rival por la valoración conocida, seguimiento que se conserva y "Seguir" en el informe de ojeo |

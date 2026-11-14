@@ -47,7 +47,7 @@ Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español 
 5. `python3 tools/prospects.py` → `data/prospects.json` cruzando planteles (nacidos desde 2003) con las listas de las selecciones juveniles guardadas en `data/raw/sel/` (sin red).
 6. `python3 tools/import_extra.py` → `data/clubs_extra.json` y escudos agregados a `crests.json`: los 10 clubes de mayor capacidad de la Primera B 2026 (zona A) y del Federal A 2026 (zona B) como división 3, y 23 clubes sudamericanos fijos (`FOREIGN`, `import_extra.py:17-41`) como división 0.
 7. `data/overrides.json`: correcciones a mano, clave `Nombre corto del club|Nombre del jugador`, campos `ca` (30 a 93), `pos` (puesto natural) y `prospect` (1 a 6).
-8. `npm run db` (`tools/build-db.ts`) → `src/data/db.json` con `{ start: '2026-01-10', dbVersion: Date.now(), clubs, players }`.
+8. `npm run db` (`tools/build-db.ts`) → `src/data/db.json` con `{ start: '2026-01-10', dbVersion, clubs, players }`. `dbVersion` es un hash FNV-1a del contenido (el mismo que `dbHash` en `game.ts`): reconstruir sin cambios no cambia el archivo. El azar es por jugador (`Stream` con clave `Club corto|Nombre`, o `gen|título wiki` en los planteles generados): primero consume sus tiradas guardadas en `data/rolls.json` (las de la base anterior) y después un azar propio sembrado con la clave; los atributos usan otro azar por jugador (`atributos|clave`).
 
 **Clubes** (`build-db.ts:183-196`)
 9. Cada club de `clubs_raw.json` necesita una entrada en `META` (`build-db.ts:10-78`: nombre, corto, código, reputación base, dos colores); si falta, el script se corta con error.
@@ -76,7 +76,7 @@ Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español 
 26. Proyección del jugador `pr` = máximo entre `override.prospect`, el puntaje de `prospects.json` y 2,5 si tiene partidos en juveniles y 22 años o menos. Sube la habilidad objetivo y el piso del potencial (F2, F4).
 
 **Clubes sin plantel conocido** (`build-db.ts:257-293`; decisión confirmada en `CLAUDE.md`)
-27. Tercera categoría: 26 jugadores; exterior: 23. Puestos de `GEN_POS` (siempre 3 arqueros), nombres ficticios en castellano o portugués (Brasil), 18 a 34 años, nacionalidad del país con 85 %, `ca` alrededor de `31 + rep × 0,5`, `gen: true`. Los colores de la tercera salen de una paleta fija (`T3_COLORS`), no de los colores reales.
+27. Tercera categoría: 26 jugadores; exterior: 23. Puestos de `GEN_POS` (siempre 3 arqueros), nombres ficticios en castellano o portugués (Brasil), 18 a 34 años, nacionalidad del país con 85 %, `ca` alrededor de `31 + rep × 0,5`, `gen: true`. Los colores de la tercera son los reales (`T3` en `import_extra.py`); la paleta `T3_COLORS` queda solo para un club nuevo que todavía no figure ahí.
 
 **Escudos y caras**
 28. Escudo: `Badge` (`common.tsx:31-36`) usa `crests.json[club.id]`; si no hay, un círculo con los colores del club y las tres primeras letras del código. Faltan 7: Aldosivi, Ciudad de Bolívar, Gimnasia y Tiro, Deportivo Armenio, Real Pilar, Corinthians y Colo-Colo.
@@ -91,7 +91,7 @@ Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español 
 
 **En la partida** (`game.ts:236-303`)
 30. `newGame` copia clubes y jugadores de `db.json`, completa el estado de juego (moral 70, físico 100, valor y sueldo por `valuation`), arma tácticas y fixture y guarda `dbVersion`.
-31. `refreshDb` corre al cargar una partida desde la pantalla de inicio (`App.tsx:102`). Si `dbVersion` cambió y la partida sigue en la primera temporada (2026), para cada jugador con el **mismo id y el mismo nombre** pisa atributos, `ca`, `pa`, puestos, línea, valor y sueldo; rearma los onces de los clubes de la IA y avisa con una noticia. En cualquier caso guarda la nueva versión. En temporadas siguientes no cambia nada, "para no pisar la evolución de una carrera avanzada".
+31. `refreshDb` corre al cargar una partida desde la pantalla de inicio (`App.tsx:102`). Si la versión (`dbHash`) cambió: en cualquier temporada actualiza `code` y `colors` de los clubes cuyo nombre coincide (las partidas viejas tenían códigos repetidos y colores anteriores); si la partida sigue en la primera temporada (2026), para cada jugador con el **mismo id y el mismo nombre** que de verdad cambió pisa atributos, `ca`, `pa`, puestos, línea y valor, y el sueldo salvo que lo hayas negociado vos; rearma los onces de los clubes de la IA y avisa con una noticia "para vos". En cualquier caso guarda la nueva versión. En temporadas siguientes no cambia nada, "para no pisar la evolución de una carrera avanzada".
 
 ### States and Transitions
 
@@ -99,7 +99,7 @@ Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español 
 |-------|----------------|----------------|----------|
 | Caché local (`data/raw/`) | Primera descarga de una página | Borrar el archivo | Los scripts no vuelven a pedirla (archivo > 500 bytes) |
 | Datos intermedios (`data/*.json`) | Cada script | Volver a correrlo | `players_meta` y `players_stats` se completan sin repetir lo ya bajado |
-| `db.json` construido | `npm run db` | Nuevo `npm run db` | Nuevo `dbVersion` en cada construcción |
+| `db.json` construido | `npm run db` | Nuevo `npm run db` | `dbVersion` nuevo solo si cambió el contenido |
 | Partida al día (`g.dbVersion` igual) | `newGame` o `refreshDb` | Nueva construcción | Sin cambios |
 | Partida desactualizada, temporada 2026 | `dbVersion` distinto al cargar | `refreshDb` | Se actualizan atributos y puestos; noticia |
 | Partida desactualizada, temporada ≥ 2027 | Idem | `refreshDb` | Solo se guarda la versión |
@@ -189,16 +189,16 @@ Ejemplo: un lateral derecho de 70 como lateral izquierdo rinde 63; como extremo 
 | Jugador sin artículo | Mérito −3 (−5 desde los 24) | Sin artículo suele ser poco conocido |
 | Unos 20 jugadores con ficha sin estadísticas (rechazos de Wikipedia) | `presente = 0`; se completan corriendo `fetch_stats.py` | `CLAUDE.md`, pendiente 1 |
 | Override de `ca` | Se usa tal cual (con tope 30-93), sin normalizar por club | El usuario manda |
-| **Cascada del azar**: el generador tiene semilla fija y se consume en orden | Cambiar un dato (un override, un jugador más) cambia los atributos de todos los jugadores que se procesan después | ⚠️ Una corrección puntual mueve a cientos de jugadores; `refreshDb` los pisa en la partida |
-| **Códigos de club repetidos** (`code` = 3 primeras letras) | Hoy repiten ARG, BOC, HUR, LAN, SAR, TAL, BOL, DEP y OLI (p. ej. Boca Juniors y Boca Unidos, Lanús y Los Andes). El mapa de clásicos por código se queda con el último: Boca Unidos pasa a ser "el rival" de River y Boca no queda alineado para el interzonal; `isDerby` marca como clásico cruces como River-Boca Unidos | ⚠️ Error de datos con efecto en `temporada-y-ligas` y `prensa-e-informes` |
-| Nacionalidades sin traducir | Quedan códigos crudos junto a nombres: "ARM" y "Armenia", "SUI" y "Suiza", "SYR" y "Siria", "JPN", "PUR", "SVN" | ⚠️ Falta en `NAT` (`import_wiki.py:135-137`) |
+| **Cascada del azar** | Cada jugador tiene su propio azar (regla 8, `data/rolls.json`): cambiar un dato solo cambia a ese jugador | ✅ Resuelto (2026-11-14): una semilla por jugador |
+| **Códigos de club repetidos** | Código explícito de 3 letras en `META` y en `import_extra.py`; `build-db.ts` corta si hay uno repetido o de otro largo. `refreshDb` corrige los códigos de las partidas viejas | ✅ Resuelto (2026-11-14): los clásicos vuelven a alinearse |
+| Nacionalidades sin traducir | `NAT` (`import_wiki.py`) traduce todos los códigos | ✅ Resuelto (2026-11-14): nacionalidades unificadas |
 | Plantel con más de 44 en la página | Se toman los primeros 44 | Tope |
 | `refreshDb` con un jugador cuyo id cambió | Se saltea (id y nombre no coinciden); el jugador viejo queda con los datos anteriores; los jugadores nuevos de la base no entran | Seguro, pero incompleto |
-| `refreshDb` y contratos renegociados en 2026 | Pisa el sueldo con `valuation` | ⚠️ Pierde lo negociado |
+| `refreshDb` y contratos renegociados en 2026 | Conserva el sueldo si no es el de origen (`valuation` con la fecha de inicio) | ✅ Resuelto (2026-11-14) |
 | `refreshDb` y el once del DT | No lo toca; la noticia pide revisarlo en Tácticas | El DT decide |
-| Reconstrucción sin cambios reales | `dbVersion` = `Date.now()` cambia igual y la noticia sale con todos los jugadores | ⚠️ Ruido |
-| Chip "Inferiores" | Lo muestran todos los `gen`, incluidos los generados de tercera y del exterior | Ver `plantel` |
-| Escudo faltante | Círculo con colores y código (que puede estar repetido) | Fallback |
+| Reconstrucción sin cambios reales | `dbVersion` es un hash del contenido: no cambia; y la noticia cuenta solo a los jugadores que cambiaron | ✅ Resuelto (2026-11-14) |
+| Chip "Inferiores" | Sale de `p.youth` (inferiores del club) y se pierde con un pase definitivo | ✅ Resuelto (2026-11-14) (ver `plantel`) |
+| Escudo faltante | Círculo con colores y código (único desde el 2026-11-14) | Fallback |
 | Wikipedia rechaza o limita | Reintentos con espera; las páginas fallidas quedan como `{ ok: false }` y la segunda pasada prueba "(futbolista)" | Respeto de límites (User-Agent genérico de proyecto personal, pausas de 1,2 a 5 s) |
 | Zona faltante en un club de Primera o Nacional | Quedaría sin zona y fuera del fixture por zonas | Hoy todos tienen A o B |
 | `LINE_POS` (`build-db.ts:85-90`) | Declarado y sin uso | Código muerto |
@@ -246,7 +246,7 @@ En `tools/build-db.ts` salvo indicación. Cambiar cualquiera exige `npm run db` 
 |-------|----------------|---------------|----------|
 | Club con escudo | Miniatura PNG/JPEG en `Badge`, en todo el juego | Ninguno (no hay sonido) | Alta |
 | Club sin escudo | Círculo con colores del club y sigla | — | Media |
-| Tema del club | `clubTheme` toma los colores del club para el acento (`common.tsx:22-28`) | — | Media |
+| Tema del club | `clubTheme` toma los colores del club para el acento (`common.tsx`); un color oscuro se aclara en OKLab conservando su matiz y su croma (desde el 2026-11-14: el acento de Gimnasia sigue siendo azul, no gris) | — | Media |
 | Jugador | Silueta genérica para todos | — | Alta (decisión del usuario) |
 
 ## Game Feel
@@ -271,9 +271,9 @@ No aplica en tiempo real. El "feel" de la base es de **reconocimiento**: nombres
 
 | Mensaje | Origen | `tag` | `clubId` | `pid` | `act` | `ref` | `me` | Dónde aparece hoy | Acciones |
 |---|---|---|---|---|---|---|---|---|---|
-| "Base de jugadores actualizada" ("Se actualizaron las valoraciones y los puestos de N jugadores… Revisá tu once titular en Tácticas.") | `game.ts:300` | `club` | — | — | — | — | falso | Solo en "Todo el fútbol" (no entra en "Para vos" ni en Plantel, que exige `isMine`) | Ninguna |
+| "Base de jugadores actualizada" ("Se actualizaron las valoraciones y los puestos de N jugadores… Revisá tu once titular en Tácticas. Los contratos que firmaste se mantienen.") | `refreshDb` | `club` | — | — | — | — | verdadero | "Para vos" | Ninguna |
 
-⚠️ La noticia le habla al DT ("Revisá tu once") pero no le llega a "Para vos": debería llevar `clubId` del DT o `me: true`, y una acción "Ir a Tácticas". Ver Open Questions. No genera decisiones pendientes.
+La noticia lleva `me: true` y llega a "Para vos" (resuelto el 2026-11-14); falta una acción "Ir a Tácticas". Ver Open Questions. No genera decisiones pendientes.
 
 ## Cross-References
 
@@ -299,13 +299,13 @@ No aplica en tiempo real. El "feel" de la base es de **reconocimiento**: nombres
 - [x] Un delantero sin puesto específico con 10 partidos y 3 goles en 2026 tiene `ST` primero.
 - [x] Antes de topes y overrides, el promedio del `t` normalizado de los 14 mejores de cada club es `35,5 + rep × 0,5` (±0,5).
 - [x] Con `dbVersion` distinto y temporada 2026, `refreshDb` actualiza a los jugadores con mismo id y nombre y crea una noticia; en 2027 no cambia ningún jugador.
-- [x] `npm run db` corrido dos veces sin cambiar entradas produce los mismos jugadores (salvo `dbVersion`).
+- [x] `npm run db` corrido dos veces sin cambiar entradas produce el mismo archivo (también `dbVersion`).
 - [x] Un club sin escudo se dibuja con colores y sigla.
 
 **What's missing**
 - [ ] Códigos de club únicos (y validación en `build-db.ts`).
 - [ ] Nacionalidades normalizadas.
-- [ ] Un override no cambia los atributos de otros jugadores (semilla por jugador).
+- [x] Un override no cambia los atributos de otros jugadores (semilla por jugador).
 - [ ] La noticia de actualización llega a "Para vos" con acción.
 - [ ] Escudos de los 7 clubes faltantes (pendiente 4 de `CLAUDE.md`).
 
@@ -315,17 +315,18 @@ No aplica en tiempo real. El "feel" de la base es de **reconocimiento**: nombres
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| ¿Cómo desambiguar los códigos repetidos? Opción A: código explícito en `META` y en `import_extra.py` con chequeo de unicidad. Opción B: clásicos por id | Usuario | Antes de la temporada completa de prueba | Recomendado: A |
-| ¿El azar de `build-db.ts` debe sembrarse por jugador (nombre + club) para que una corrección no mueva al resto? | Usuario | Idem | — |
-| ¿`refreshDb` debe conservar los sueldos renegociados y sumar los jugadores nuevos de la base? | Usuario | — | — |
-| ¿La noticia "Base de jugadores actualizada" va a "Para vos" con "Ir a Tácticas"? | Usuario + `comunicacion-y-bandeja` | — | — |
-| ¿Colores reales para la tercera categoría? Hoy son de una paleta | Usuario | — | — |
-| ¿Se distingue `gen` (generado) de "salido de inferiores" para el chip? | Usuario + `plantel` | — | — |
+| ¿Cómo desambiguar los códigos repetidos? Opción A: código explícito en `META` y en `import_extra.py` con chequeo de unicidad. Opción B: clásicos por id | Usuario | Antes de la temporada completa de prueba | Resuelta (2026-11-14): opción A, con chequeo de unicidad en `build-db.ts` |
+| ¿El azar de `build-db.ts` debe sembrarse por jugador (nombre + club) para que una corrección no mueva al resto? | Usuario | Idem | Resuelta (2026-11-14): sí, con `data/rolls.json` para conservar los valores actuales |
+| ¿`refreshDb` debe conservar los sueldos renegociados y sumar los jugadores nuevos de la base? | Usuario | — | Sueldos: resuelto (2026-11-14). Jugadores nuevos de la base: pendiente |
+| ¿La noticia "Base de jugadores actualizada" va a "Para vos" con "Ir a Tácticas"? | Usuario + `comunicacion-y-bandeja` | — | Resuelta (2026-11-14) en parte: va a "Para vos" (`me`); falta la acción "Ir a Tácticas" |
+| ¿Colores reales para la tercera categoría? Hoy son de una paleta | Usuario | — | Resuelta (2026-11-14): sí |
+| ¿Se distingue `gen` (generado) de "salido de inferiores" para el chip? | Usuario + `plantel` | — | Resuelta (2026-11-14): el chip usa `p.youth` |
 | ¿Descensos desde la tercera (no hay cuarta)? | Usuario + `temporada-y-ligas` | — | Pendiente de `CLAUDE.md` |
-| ¿Se versiona `db.json` por contenido (hash) en vez de `Date.now()`? | Usuario | — | — |
+| ¿Se versiona `db.json` por contenido (hash) en vez de `Date.now()`? | Usuario | — | Resuelta (2026-11-14): sí (hash FNV-1a, igual a `dbHash`) |
 
 ## Version History
 
 | Date | Author | Changes |
 |------|--------|---------|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `tools/`, `data/` y `game.ts` en `d9b251a` |
+| 2026-11-14 | Claude | Resueltos: códigos de club únicos (y corregidos en partidas viejas por `refreshDb`), semilla por jugador con `data/rolls.json`, nacionalidades, colores reales de la tercera, `dbVersion` por contenido, sueldos negociados en `refreshDb` y chip "Inferiores" |

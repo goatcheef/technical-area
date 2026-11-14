@@ -1,5 +1,6 @@
 // El plantel como grupo: personalidades, rol de cada jugador, minutos, promesas, charlas,
 // armonía del vestuario, reserva, ojeo con incertidumbre y negociación de contratos.
+import { canSell } from './career'
 import { addDays, news, squadOf, valuation } from './game'
 import { bestRating, ageOn } from './positions'
 import { Rng, clamp } from './rng'
@@ -182,6 +183,8 @@ export function talk(g: Game, p: Player, kind: TalkKind, newStatus?: SquadStatus
   if (p.clubId !== g.userClubId) return ''
   if (!canTalk(g, p)) return 'Ya hablaste con él esta semana. Dale unos días antes de volver a sentarte a charlar.'
   if (kind === 'status' && (!newStatus || newStatus === p.status)) return ''
+  // un préstamo no es del club: no se lo puede declarar transferible (la charla no se gasta)
+  if (kind === 'free' && !canSell(p)) return 'Está a préstamo: no se lo puede declarar transferible. Vuelve a su club cuando termine el préstamo.'
   const q = persOf(p), form = p.form.length ? p.form.reduce((a, b) => a + b, 0) / p.form.length : 6.5
   p.lastTalk = g.date
   const mh = (d: number) => { p.happy = clamp((p.happy ?? 60) + d, 0, 100) }, mm = (d: number) => { p.morale = clamp(p.morale + d, 5, 100) }

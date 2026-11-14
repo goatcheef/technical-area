@@ -1,7 +1,7 @@
 // Tabla de jugadores única para todo el juego: vistas, columnas a elección, orden por varias columnas,
 // filtros, selección múltiple con acciones y comparador. Se adapta al ancho sin desplazamiento horizontal.
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { askingPrice } from '../engine/career'
+import { askingPrice, canSell } from '../engine/career'
 import { ageOn } from '../engine/positions'
 import { STATUS, fmtRange, knowOf, knownRating, scout, shown, toggleShortlist } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Attr, type Game, type Player } from '../engine/types'
@@ -12,7 +12,7 @@ import { Badge, Cond, Face, Modal, PosPill, Status, Val, avgRat, money, ratClass
 interface Col { l: string; n?: string; t?: string; w: number; r?: boolean; v: (p: Player, g: Game) => number | string; c: (p: Player, g: Game) => ReactNode }
 const LINE_ORDER = { GK: 0, DF: 1, MF: 2, FW: 3 }
 /** Monto compacto para tablas (el encabezado ya dice que es en dólares). */
-const m$ = (v: number) => (v >= 1e6 ? `${(v / 1e6).toFixed(v >= 1e7 ? 1 : 2)} M` : `${Math.round(v / 1000)} mil`)
+const m$ = (v: number) => money(v).replace('US$ ', '')
 const pj = (p: Player) => p.stats.apps + p.stats.subs
 const rat = (p: Player) => (pj(p) ? p.stats.ratSum / pj(p) : 0)
 /** Valor visible (punto medio del rango que se conoce): ordenar no revela lo que el ojeo todavía no sabe. */
@@ -294,7 +294,7 @@ export function ownBulk(g: Game): Bulk[] {
     { label: 'Sacar del banco', show: ps => ps.some(p => t().bench.includes(p.id)), run: ps => { t().bench = t().bench.filter(id => !ps.some(p => p.id === id)) } },
     { label: 'A la reserva', show: ps => ps.some(p => !p.reserve), run: ps => { ps.forEach(p => (p.reserve = true)) } },
     { label: 'Sacar de la reserva', show: ps => ps.some(p => p.reserve), run: ps => { ps.forEach(p => (p.reserve = false)) } },
-    { label: 'Declarar transferibles', show: ps => ps.some(p => !p.listed), run: ps => { ps.forEach(p => (p.listed = true)) } },
+    { label: 'Declarar transferibles', show: ps => ps.some(p => !p.listed && canSell(p)), run: ps => { ps.forEach(p => { if (canSell(p)) p.listed = true }) } },
     { label: 'Quitar de transferibles', show: ps => ps.some(p => p.listed), run: ps => { ps.forEach(p => (p.listed = false)) } },
   ]
 }

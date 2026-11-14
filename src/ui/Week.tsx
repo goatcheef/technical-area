@@ -4,7 +4,7 @@ import { POS_LABEL, ageOn } from '../engine/positions'
 import { STAFF_ROLES, type Fixture, type StaffRole, type Tactic } from '../engine/types'
 import { FOCUS, IND_FOCUS, INTENSITY, answerPress, assistantPlan, daysTo, delegatePress, fireStaff, hireStaff, sab, scoutReport, staffBill, staffOf } from '../engine/week'
 import { useGame } from '../store'
-import { Badge, Cond, MatchReport, Modal, PosPill, Seg, Status, money, resultText } from './common'
+import { Badge, Cond, MatchReport, Modal, PosPill, Seg, Status, dec, money, resultText } from './common'
 import { PageTip } from './Guide'
 
 const AbBar = ({ v }: { v: number }) => (
@@ -198,7 +198,7 @@ export function ReportModal({ f, onClose, onApply }: { f: Fixture; onClose: () =
         <Badge club={r.opp} size={72} />
         <div className="grow"><h3>Informe del rival · {fmtDate(f.date)}</h3><h1 style={{ fontSize: '2.2rem', marginTop: 4 }}>{r.opp.name}</h1><div className="dim">DT {r.opp.manager} · {r.formation} · precisión {prec} ({staffOf(g, 'scout')?.name ?? 'sin jefe de scouting'})</div></div>
         {r.form.length ? <><div className="kpi"><h3>Forma</h3><span className="row" style={{ gap: 3 }}>{r.form.map((x, i) => <span key={i} className="chip" style={{ color: x === 'G' ? 'var(--good)' : x === 'P' ? 'var(--bad)' : 'var(--dim)' }}>{x}</span>)}</span></div>
-        <div className="kpi"><h3>Goles por partido</h3><b>{r.gf.toFixed(1)} / {r.gc.toFixed(1)}</b><span className="dim sm">a favor / en contra</span></div></>
+        <div className="kpi"><h3>Goles por partido</h3><b>{dec(r.gf, 1)} / {dec(r.gc, 1)}</b><span className="dim sm">a favor / en contra</span></div></>
           : <div className="kpi"><h3>Forma</h3><span className="dim">Todavía no jugó esta temporada</span></div>}
         <button className="btn sm" onClick={onClose}>Cerrar ✕</button>
       </div>

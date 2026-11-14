@@ -62,7 +62,7 @@ El sistema de la semana entre partidos: el DT elige cada día cuánto y qué ent
     1. Físico: se aplica F2 (cambio del día y tope por intensidad).
     2. Lesión: tirada con la probabilidad F4. Si se lesiona, toma una de cuatro lesiones de `TRAIN_INJ` (sobrecarga 3–7 días, contractura 5–11, esguince de tobillo 10–22, distensión del isquiotibial 12–26), la duración se multiplica por el factor del médico (F5), se anota en el parte semanal y sale una noticia `tag: 'lesion'`, `act: 'injury'`. Ese día no progresa.
     3. Progreso: `p.tx` suma F6. Si llega a 1, se resta 1 y el jugador sube un atributo (regla 12).
-12. **Qué atributo sube**: si el jugador tiene foco individual (`p.tfocus`), el atributo sale de esa lista sin filtrar por puesto; si no, de la lista del foco colectivo filtrada a los atributos que pesan en su puesto (`POS_WEIGHTS > 0`); si queda vacía (foco Equilibrado), de todos los que pesan en su puesto. La elección es aleatoria ponderada por `(21 − valor) × (1 + peso del puesto)`: los atributos bajos e importantes suben antes. Si el elegido ya está en 20, se pierde el punto (el `tx` ya se descontó). Si sube, se recalcula `ca` con `rawRating`, `pa = max(pa, ca)`, `p.ups` suma 1 y se anota en el parte semanal.
+12. **Qué atributo sube**: si el jugador tiene foco individual (`p.tfocus`), el atributo sale de esa lista sin filtrar por puesto; si no, de la lista del foco colectivo filtrada a los atributos que pesan en su puesto (`POS_WEIGHTS > 0`); si queda vacía (foco Equilibrado), de todos los que pesan en su puesto. La elección es aleatoria ponderada por `(21 − valor) × (1 + peso del puesto)`: los atributos bajos e importantes suben antes. Si el elegido ya está en 20, se pierde el punto (el `tx` ya se descontó). Si sube, se recalcula `ca` con `rawRating`; si el nuevo `ca` pasara de `pa`, el punto se deshace y `tx` vuelve a 0 (el potencial nunca sube entrenando); si no, `p.ups` suma 1 y se anota en el parte semanal. El progreso pasa por `addProgress`: el que ya está en su potencial no suma `tx`.
 13. **Intensidades** (`INTENSITY`, `week.ts:72-76`): 0 Suave, 1 Normal, 2 Intensa.
 14. **Focos colectivos** (`FOCUS`, `week.ts:54-61`):
 
@@ -86,7 +86,7 @@ El sistema de la semana entre partidos: el DT elige cada día cuánto y qué ent
 **Informe semanal y entrenamiento de la IA** (lunes, `week.ts:311-323`)
 
 19. Cada lunes (día UTC 1 de la fecha ya avanzada), si en la semana hubo mejoras o lesiones de práctica, sale una noticia `act: 'train'` con las mejoras agrupadas por jugador, los lesionados en la práctica y la intensidad y el foco **de ese día**. Después se vacía el parte, se refresca la bolsa (25 %), corre el mercado de entrenadores (`managerMarket`) y entrenan los planteles de la IA.
-20. **Entrenamiento de la IA** (`weeklyAiTraining`, `ai.ts:103-119`): una vez por semana, cada jugador sano de un club que no es el del DT, de 30 años o menos, suma F9 a `tx`; si llega a 1, sube como máximo **un** atributo de su puesto (ponderado igual que la regla 12). La IA no tiene físico de práctica, lesiones de práctica, foco ni cuerpo técnico.
+20. **Entrenamiento de la IA** (`weeklyAiTraining`, `ai.ts:103-119`): una vez por semana, cada jugador sano de un club que no es el del DT, de 30 años o menos, suma F9 a `tx` con `addProgress`; si llega a 1, sube como máximo **un** atributo de su puesto (ponderado igual que la regla 12), con el mismo tope de potencial que la regla 12. La IA no tiene físico de práctica, lesiones de práctica, foco ni cuerpo técnico.
 21. **Familiaridad de todos los clubes** tras cada partido: +4 si jugó con el dibujo entrenado; si no, cae 30 (mínimo 30) y toma el nuevo (`game.ts:344`). Es la única fuente de familiaridad de la IA.
 
 ### States and Transitions
@@ -179,14 +179,14 @@ doc 4 → 1,086; doc 10 → 0,99; doc 20 → 0,83. Se aplica a las lesiones de p
 **F6. Progreso diario** (`week.ts:118-119`)
 ```
 ageF = edad ≤ 19: 1,8 | ≤ 21: 1,5 | ≤ 23: 1,15 | ≤ 26: 0,6 | ≤ 29: 0,3 | resto: 0,1
-tx  += 0,007 × [0,55, 1, 1,4][k] × ageF × (0,55 + prof / 20) × (0,85 + asst × 0,015) × (ca < pa ? 1 : 0,15)
+tx  += ca < pa ? 0,007 × [0,55, 1, 1,4][k] × ageF × (0,55 + prof / 20) × (0,85 + asst × 0,015) : (tx = 0)   // addProgress
 ```
 | Variable | Tipo | Rango | Fuente | Descripción |
 |---|---|---|---|---|
 | prof | int | 1–20 | `p.prof` | Profesionalismo |
 | ca, pa | int | 1–99 | `p.ca`, `p.pa` | Nivel actual y potencial |
 
-Ejemplo: 18 años, prof 15, Normal, asst 10: 0,0164 por día → un atributo cada ~61 días de práctica. 30 años, prof 10: 0,00074 → uno cada ~3,7 años. Un jugador que llegó a su potencial progresa al 15 %. **Expected output**: 0 a ~0,033 por día (máximo: ≤ 19 años, prof 20, Intensa, asst 20).
+Ejemplo: 18 años, prof 15, Normal, asst 10: 0,0164 por día → un atributo cada ~61 días de práctica. 30 años, prof 10: 0,00074 → uno cada ~3,7 años. Un jugador que llegó a su potencial no progresa (antes del 2026-11-14 seguía al 15 % y su `pa` subía). **Expected output**: 0 a ~0,033 por día (máximo: ≤ 19 años, prof 20, Intensa, asst 20).
 
 **F7. Ventaja del foco en el partido** (`week.ts:136-139`, usado en `game.ts:327`)
 ```
@@ -206,7 +206,7 @@ descanso   = siempre
 **F9. Progreso semanal de la IA** (`ai.ts:108-109`)
 ```
 ageF = ≤ 19: 1,8 | ≤ 21: 1,5 | ≤ 23: 1,15 | ≤ 26: 0,6 | 27–30: 0,3 | > 30: no entrena
-tx  += 6 × 0,007 × ageF × (0,55 + prof / 20) × (ca < pa ? 1 : 0,15)
+tx  += ca < pa ? 6 × 0,007 × ageF × (0,55 + prof / 20) : (tx = 0)   // addProgress
 ```
 Equivale a seis días de práctica Normal con ayudante de capacidad 10, sin foco, sin lesiones y con tope de un atributo por semana.
 
@@ -401,7 +401,7 @@ El juego no tiene audio (`design/accessibility-requirements.md`). Columna de aud
 | ¿La ventaja del foco tiene que exigir días entrenados (por ejemplo, el foco de los últimos 3 días)? Hoy cuenta el del día del partido. | usuario | Ídem | Pendiente |
 | ¿Los contratos del cuerpo técnico tienen que vencer? Hoy se extienden solos (`game.ts:655`) y la edad no avanza. | usuario | Antes de la segunda temporada de prueba | `INTENT UNKNOWN` |
 | ¿El foco individual tiene que poder subir atributos que no pesan en el puesto? (`ca` no cambia) | usuario | — | `INTENT UNKNOWN` |
-| `CLAUDE.md` todavía lista "que los rivales entrenen" como pendiente (Plan de jugabilidad 2 y Pendiente 2), pero `weeklyAiTraining` ya existe. ¿Se da por hecho? | usuario | Próxima edición de `CLAUDE.md` | Pendiente (este documento no toca `CLAUDE.md`) |
+| `CLAUDE.md` todavía lista "que los rivales entrenen" como pendiente (Plan de jugabilidad 2 y Pendiente 2), pero `weeklyAiTraining` ya existe. ¿Se da por hecho? | usuario | Próxima edición de `CLAUDE.md` | Resuelta (2026-11-14): se da por hecho y se sacó de `CLAUDE.md` |
 | ¿El cuerpo técnico de los clubes de la IA tiene que existir? Hoy solo lo tiene el club del DT. | usuario | — | Pendiente |
 | ¿Hay que avisar al jugar con el plantel cargado o al dejar un puesto vacante? | usuario + ux-designer | — | Pendiente |
 | Mover las constantes a un archivo de datos (la norma del agente lo pide; el proyecto hoy las tiene en código). | usuario + lead-programmer | — | Pendiente |
@@ -413,3 +413,4 @@ El juego no tiene audio (`design/accessibility-requirements.md`). Columna de aud
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/week.ts`, `src/engine/ai.ts`, `src/ui/Week.tsx` |
 
 *Generado por `/reverse-document design src/engine/week.ts`.*
+| 2026-11-14 | Claude | Tope de potencial: `addProgress` en la práctica, la reserva, "Exigirle más" y el entrenamiento de la IA (reglas 12 y 20, F6 y F9); `makeStaff` es la única fórmula de un integrante nuevo del cuerpo técnico (también al cambiar de club) |

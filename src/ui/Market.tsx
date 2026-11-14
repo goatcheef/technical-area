@@ -53,12 +53,13 @@ export function Market() {
 
       {tab === 'offers' && <div className="col">
         {note && <div className="card acc">{note}</div>}
+        {!open && g.offers.some(o => g.players[o.pid]) && <div className="dim sm">El libro de pases está cerrado: no podés aceptar ni pedir más, solo rechazar.</div>}
         {g.offers.map(o => { const p = g.players[o.pid]; if (!p) return null; return (
           <div key={o.id} className="card row wrap" style={{ gap: 14 }}>
             <Face p={p} club={club} size={46} /><div className="grow" data-pid={p.id} style={{ cursor: 'pointer' }} onClick={() => openPlayer(p.id)}><b>{p.name}</b> <PosPill p={p} /> <Ovr v={p.ca} /><div className="dim sm">Valor {money(p.value)} · llegó el {fmtDate(o.date)}</div></div>
             <div className="row">{o.from ? <Badge club={g.clubs[o.from]} size={30} /> : <span className="chip">Exterior</span>}<div><b>{o.fromName}</b><div className="big" style={{ fontSize: '1.4rem' }}>{money(o.fee)}</div></div></div>
             <div className="row"><button className="btn primary" disabled={!open} onClick={() => { acceptOffer(g, o); setNote(`Vendiste a ${p.name} a ${o.fromName} por ${money(o.fee)}.`); done() }}>Aceptar</button>
-              <button className="btn" onClick={() => { const ok = haggle(g, o); setNote(ok ? `${o.fromName} mejoró su oferta por ${p.name}.` : `${o.fromName} se retiró de la negociación por ${p.name}.`); done() }}>Pedir más</button>
+              <button className="btn" disabled={!open} onClick={() => { const ok = haggle(g, o); setNote(ok ? `${o.fromName} mejoró su oferta por ${p.name}.` : `${o.fromName} se retiró de la negociación por ${p.name}.`); done() }}>Pedir más</button>
               <button className="btn danger" onClick={() => { rejectOffer(g, o); done() }}>Rechazar</button></div>
           </div>) })}
         {!g.offers.length && <div className="card dim">No hay ofertas pendientes. Durante el libro de pases los clubes del país y del exterior pueden ofertar por tus jugadores; si declarás transferible a alguno, llegan más.</div>}

@@ -386,6 +386,12 @@ export function refreshDb(g: Game): number {
   if (g.dbVersion === ver) return 0
   let n = 0
   const same = (a: unknown[], b: unknown[]) => a.length === b.length && a.every((x, i) => x === b[i])
+  // códigos y colores: las partidas viejas tienen códigos repetidos (los clásicos) y colores anteriores; valen en cualquier temporada
+  const byName = new Map(Object.values(g.clubs).map(c => [c.name, c]))
+  for (const d of db.clubs) {
+    const c = byName.get(d.name)
+    if (c) { c.code = d.code; c.colors = [...d.colors] as [string, string] }
+  }
   if (g.season === Number(db.start.slice(0, 4))) for (const d of db.players) {
     const p = g.players[d.id]
     if (!p || p.name !== d.name) continue
@@ -438,7 +444,7 @@ export function createMatch(g: Game, f: Fixture, live: boolean): MatchSim {
 export function applyResult(g: Game, f: Fixture, res: MatchResult) {
   const isUser = f.home === g.userClubId || f.away === g.userClubId
   f.played = true; f.hg = res.hg; f.ag = res.ag; f.pens = res.pens; f.et = res.et; f.stats = res.stats
-  f.events = isUser ? res.events : res.events.filter(e => ['goal', 'pen-goal', 'rc', 'yc2'].includes(e.type))
+  f.events = isUser ? res.events : res.events.filter(e => ['goal', 'pen-goal', 'own', 'rc', 'yc2'].includes(e.type))
   if (isUser) { f.lines = res.lines; f.shots = res.shots; f.analysis = res.analysis }
   const hc = g.clubs[f.home]
   f.att = Math.round(hc.capacity * clamp(0.35 + hc.rep / 160 + (g.rngState % 100) / 500, 0.2, 1))
@@ -498,7 +504,7 @@ function matchNews(g: Game, f: Fixture, res: MatchResult) {
   const body = `${f.stage} · ${g.comps[f.comp].name}. ${us === 0 ? 'De local' : 'De visitante'}, el equipo de ${me.manager} ${won ? 'se quedó con la victoria' : drew ? 'no pudo pasar del empate' : 'sufrió una derrota'}`
     + `${res.pens ? ` en la definición por penales (${res.pens[us]}-${res.pens[1 - us]})` : ''}. `
     + (scorers.length ? `Goles: ${scorers.join(', ')}. ` : '')
-    + `Remates ${res.stats.shots[us]}-${res.stats.shots[1 - us]}, posesión ${res.stats.poss[us]}%, xG ${res.stats.xg[us].toFixed(2)}-${res.stats.xg[1 - us].toFixed(2)}. `
+    + `Remates ${res.stats.shots[us]}-${res.stats.shots[1 - us]}, posesión ${res.stats.poss[us]}%, xG ${res.stats.xg[us].toFixed(2).replace('.', ',')}-${res.stats.xg[1 - us].toFixed(2).replace('.', ',')}. `
     + `La figura fue ${star.name} (${g.clubs[star.clubId].short}).`
   news(g, { tag: 'partido', clubId: me.id, act: 'result', ref: f.id, pid: star?.id, title, body })
 }
@@ -717,13 +723,20 @@ function develop(p: Player, age: number, rng: Rng, k = 1) {
   if (age <= 24 && p.ca < p.pa) {
     const play = 0.6 + Math.min(1, p.stats.mins / 1500) * 0.7
     const gain = Math.min(p.pa - p.ca, (age <= 20 ? 4.5 : age <= 22 ? 3 : 1.5) * play * k * (0.6 + p.prof / 20) * (0.5 + rng.next()))
-    for (let n = Math.round(gain * 2.6); n > 0; n--) { const i = rng.weighted(idx, k => w[k]); if (p.attrs[i] < 20) p.attrs[i]++ }
+    // punto por punto: el que lo pasaría de su potencial no se suma y ahí termina el crecimiento del año
+    for (let n = Math.round(gain * 2.6); n > 0; n--) {
+      const i = rng.weighted(idx, k => w[k])
+      if (p.attrs[i] >= 20) continue
+      p.attrs[i]++
+      if (Math.round(rawRating(p.attrs, pos)) > p.pa) { p.attrs[i]--; break }
+    }
+    p.ca = Math.round(rawRating(p.attrs, pos))
   } else if (age >= 31) {
     for (const i of [18, 19, 20, 22]) if (rng.chance(0.3 + (age - 31) * 0.1)) p.attrs[i] = Math.max(1, p.attrs[i] - 1)
     if (age >= 34) for (let n = 2; n > 0; n--) { const i = rng.pick(idx); p.attrs[i] = Math.max(1, p.attrs[i] - 1) }
-  }
-  p.ca = Math.round(rawRating(p.attrs, pos))
-  p.pa = Math.max(p.pa, p.ca)
+    p.ca = Math.round(rawRating(p.attrs, pos))
+    p.pa = Math.max(p.pa, p.ca)
+  } else p.ca = Math.round(rawRating(p.attrs, pos))
 }
 
 // ---------- reputación de los clubes ----------

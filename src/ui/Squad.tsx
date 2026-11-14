@@ -1,8 +1,9 @@
 import { squadOf } from '../engine/game'
+import { DIV_NAMES } from '../engine/career'
 import { ageOn } from '../engine/positions'
 import { useGame, useSticky } from '../store'
 import { PlayerTable, ownBulk, scoutBulk } from './PlayerTable'
-import { Badge, money } from './common'
+import { Badge, dec, money } from './common'
 import { PageTip } from './Guide'
 
 
@@ -16,9 +17,9 @@ export function Squad() {
       <PageTip id="squad" />
       <div className="row wrap">
         <Badge club={club} size={40} />
-        <div className="grow"><h2>{club.name}</h2><div className="dim">{list.length} jugadores · edad promedio {avgAge.toFixed(1)} · valor del plantel {money(list.reduce((s, p) => s + p.value, 0))} · masa salarial {money(list.reduce((s, p) => s + p.wage, 0))}/mes</div></div>
+        <div className="grow"><h2>{club.name}</h2><div className="dim">{list.length} jugadores · edad promedio {dec(avgAge, 1)} · valor del plantel {money(list.reduce((s, p) => s + p.value, 0))} · masa salarial {money(list.reduce((s, p) => s + p.wage, 0))}/mes</div></div>
         <select value={clubId} onChange={e => setClubId(Number(e.target.value))}>
-          {[1, 2, 3, 0].map(d => <optgroup key={d} label={['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}>{Object.values(g.clubs).filter(c => c.division === d).sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</optgroup>)}
+          {[1, 2, 3, 0].map(d => <optgroup key={d} label={DIV_NAMES[d]}>{Object.values(g.clubs).filter(c => c.division === d).sort((a, b) => a.name.localeCompare(b.name)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</optgroup>)}
         </select>
       </div>
       <SquadTable clubId={clubId} />

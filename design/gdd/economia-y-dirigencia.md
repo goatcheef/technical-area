@@ -94,9 +94,9 @@ Administrar un club argentino real: plata justa, sueldos que aprietan, una dirig
 1. Inicial: `clamp(48 + rep del DT / 5, 40, 70)` (`game.ts:242`). Al cambiar de club: 55 (`career.ts:102`).
 2. Después de cada partido oficial de tu club, si no estás despedido (`game.ts:381`): sube o baja según los puntos contra lo esperable (ver Formulas). Cuentan todas las competencias; en un cruce definido por penales, ganar vale 3 y perder 0. También suma el partido a la campaña del DT (`m.cur`).
 3. Conferencias de prensa: algunas respuestas suman o restan confianza (`week.ts:282`, ver `prensa-e-informes`).
-4. Balance de la temporada (`seasonReview`, `game.ts:528-540`): se cumple el objetivo si terminaste en `target` o mejor, si saliste campeón de algo o si ascendiste por la Primera Nacional. Cumplir suma 15; no cumplir resta `min(25, (puesto − target) × 1,5)`; cada título suma 20; descender resta 30. Llega la noticia de la dirigencia.
+4. Balance de la temporada (`seasonReview`, `game.ts:528-540`): se cumple el objetivo si terminaste en `target` o mejor, si saliste campeón de algo o si ascendiste (a Primera o desde la tercera a la Primera Nacional). Cumplir suma 15; no cumplir resta `min(25, (puesto − target) × 1,5)`; cada título suma 20; descender resta 30. Llega la noticia de la dirigencia.
 5. Arranque de la temporada nueva: `confianza = confianza × 0,6 + 24` (`game.ts:665`).
-6. **Despido**: si después de un partido la confianza queda en 6 o menos y llevás 10 partidos o más en la campaña, te echan (`career.ts:78-83`). Se arma una lista de tres clubes interesados y llega la noticia. Lo que sigue (pantalla de despido, elegir club) es de `carrera-del-dt`.
+6. **Despido**: si después de un partido la confianza queda en 6 o menos y llevás 5 partidos o más en la campaña, te echan (`boardAfterMatch`). La caída depende del club (`boardDemand`: los grandes tienen menos paciencia), de las rachas de derrotas (desde la tercera seguida, cada una cuesta más) y, desde la mitad del torneo, de lo lejos que estés del objetivo (ver Formulas). Los clubes de la IA echan a su DT con el mismo criterio (`carrera-del-dt`). Solo se ofrecen clubes argentinos. Se arma una lista de tres clubes interesados y llega la noticia. Lo que sigue (pantalla de despido, elegir club) es de `carrera-del-dt`.
 
 ### States and Transitions
 
@@ -105,7 +105,7 @@ Administrar un club argentino real: plata justa, sueldos que aprietan, una dirig
 | Conforme | confianza ≥ 60 | Baja de 60 | Texto "La comisión directiva está conforme" (`Club.tsx:30`); habilita ofertas de fin de temporada (`carrera-del-dt`) |
 | Con dudas | 30 ≤ confianza < 60 | Sube o baja de esos límites | "Hay dudas en la comisión directiva" |
 | En peligro | confianza < 30 | Sube de 30 o despido | "Tu puesto corre peligro: necesitás ganar ya." Sin otro aviso |
-| Despedido | confianza ≤ 6, `m.cur.pj ≥ 10`, tras un partido | Elegir un club en la pantalla de despido | `g.board.fired`: el tiempo no avanza (`game.ts:558`), no hay más partidos ni movimientos |
+| Despedido | confianza ≤ 6, `m.cur.pj ≥ 5`, tras un partido | Elegir un club en la pantalla de despido | `g.board.fired`: el tiempo no avanza (`game.ts:558`), no hay más partidos ni movimientos |
 
 Los tres primeros solo cambian el texto; el motor no tiene estados de la dirigencia más allá de `fired`.
 
@@ -174,12 +174,17 @@ piso = 50000 (vos) · 80000 (IA);  k = 0.3 (vos) · 0.45 (IA)
 **Output range**: presupuesto ≥ piso, sin techo; tope ≥ 1,1 × masa.
 **Worked example**: rep 70, caja 2.000.000. Vos: 546.000 + 600.000 = 1.150.000. Un club de la IA igual: 546.000 + 900.000 = 1.450.000. Tope: masa × 1,1 + 8.000.
 
-### Confianza después de un partido — `career.ts:74-77`
+### Confianza después de un partido — `boardAfterMatch` (`career.ts`)
 
 ```
-esperado = clamp(1.35 + (repPropio - repRival) / 40 + (local ? 0.2 : -0.2), 0.6, 2.15)
-Δconfianza = (puntos - esperado) * 2.2 * (1 - repDT / 400)
-confianza = clamp(confianza + Δconfianza, 0, 100)
+esperado   = clamp(1.35 + (repPropio - repRival) / 40 + (local ? 0.2 : -0.2), 0.6, 2.15)
+exigencia  = boardDemand = clamp(1 + (repPropio - 60) / 40, 0.7, 1.6)
+k          = exigencia * (1 - repDT / 400)
+Δ          = (puntos - esperado) * 2.2 * k
+racha      = derrotas seguidas (si perdió hoy, todas las competencias, hasta los partidos de la campaña)
+si racha ≥ 3:            Δ -= (racha - 2) * 4.5 * k
+si jugó ≥ 50 % de la liga: gap = puesto - target - (Primera ? 4 : 3);  si gap > 0: Δ -= min(4, gap * 0.5) * k
+confianza  = clamp(confianza + Δ, 0, 100);  despido si confianza ≤ 6 y partidos de la campaña ≥ 5
 ```
 
 | Variable | Type | Range | Description |
@@ -188,9 +193,11 @@ confianza = clamp(confianza + Δconfianza, 0, 100)
 | repPropio − repRival | int | −50 a 50 | Diferencia de reputación de los clubes |
 | local | bool | — | Local y no neutral (neutral cuenta como visitante) |
 | repDT | int | 5–99 | Prestigio del DT |
+| exigencia | float | 0,7–1,6 | Paciencia de la dirigencia según la reputación del club (rep 60 → 1; rep 90 → 1,6) |
+| racha | int | 0–campaña | Derrotas seguidas contando la de hoy |
 
-**Output range**: Δ entre −4,67 (derrota con esperado 2,15 y DT de rep 5) y +5,21 (victoria con esperado 0,6 y DT de rep 5). Un DT de más prestigio se mueve menos (factor 0,75 a 0,99).
-**Worked example**: local contra un club 10 puntos menor, DT rep 60 → esperado 1,8; ganar +2,24; empatar −1,50; perder −3,37.
+**Output range**: sin racha ni distancia al objetivo, Δ entre −7,5 (derrota con esperado 2,15, club exigente y DT de rep 5) y +8,3 (victoria con esperado 0,6, club exigente y DT de rep 5). Un DT de más prestigio se mueve menos (factor 0,75 a 0,99); un club grande, más.
+**Worked example**: club de reputación 60, local contra uno de 50, DT rep 60 → esperado 1,8, k 0,85; ganar +2,24; empatar −1,50; perder −3,37. La cuarta derrota seguida resta además `2 × 4,5 × 0,85 = 7,65`. Un club de reputación 80 (exigencia 1,5) con el mismo DT y el mismo partido: perder −5,05.
 
 ### Balance de la temporada y arranque — `game.ts:533`, `:665`
 
@@ -210,11 +217,11 @@ confianzaArranque = confianza * 0.6 + 24
 | Masa salarial por encima del tope | Solo se marca en rojo; nada se bloquea salvo compras y renovaciones nuevas | — |
 | Club de la IA: tope calculado antes de recalcular sueldos | `seasonTurnover` fija el tope con los sueldos viejos y después `game.ts:653` revalúa los sueldos de la IA | ⚠️ El tope de la IA puede quedar desfasado de su masa real |
 | Clubes del exterior | Reciben economía inicial, recaudación y premios, pero no pagan nada (`division === 0` se saltea) | Sin efecto visible |
-| Despido con menos de 10 partidos | No hay despido aunque la confianza sea 0 | Protección del arranque |
+| Despido con menos de 5 partidos | No hay despido aunque la confianza sea 0 | Protección del arranque (era 10 hasta el 2026-11-14) |
 | Confianza 0 al final de la temporada | No hay despido en el balance; arranca la temporada siguiente en 24 | ⚠️ Un DT pésimo sobrevive el cambio de temporada |
-| Racha negra a mitad de temporada | Con esperado 1,35 y DT de rep 28, cada derrota resta 2,76: desde 53,6 hacen falta unas 17 derrotas seguidas para llegar a 6 | ⚠️ Despido muy tolerante. `INTENT UNKNOWN` |
+| Racha negra a mitad de temporada | Desde la tercera derrota seguida cada una resta además `(racha − 2) × 4,5 × k`: con esperado 1,35, DT de rep 28 y club de reputación 60, desde 53,6 alcanzan unas 6 derrotas seguidas | ✅ Resuelto (2026-11-14): despidos según el club y el objetivo |
 | El ingreso por ventas al exterior | Los clubes grandes de la IA crecen unos 10 millones de caja por año (`CLAUDE.md`, pendiente 3) | ⚠️ Balance pendiente |
-| Objetivo en la pantalla de inicio de partida | `Start.tsx:9` repite las reglas de `setObjective` sin la tercera categoría: para un club de división 3 muestra un objetivo distinto del real | ⚠️ Defecto de interfaz |
+| Objetivo en la pantalla de inicio de partida | `Start.tsx` usa `boardObjective`, la misma función pura que `setObjective` | ✅ Resuelto (2026-11-14) |
 | Ingresos y gastos agrupados | Funcionamiento, cuerpo técnico, indemnizaciones y primas de renovación se ven como "Sueldos"; primas de fichaje como "Compras" | El jugador no ve el costo de funcionamiento por separado |
 | Cambio de club a mitad de temporada | La caja y el libro del club nuevo son los de la IA (no se reinician) | — |
 
@@ -243,9 +250,12 @@ confianzaArranque = confianza * 0.6 + 24
 | Precio de entrada | 5,5 / 3,5 / 2,5 (`:57`) | ±50 % | Localía vale más | — |
 | Parte de una venta al presupuesto | 60 % (`:216`) | 30–100 % | Vender para comprar | — |
 | Reinversión | 0,6 × base + 30 % (vos) / 45 % (IA) de la caja; tope + 0,4 % (`:423-424`) | 0,1–0,6 de la caja | IA más agresiva | Caja ociosa |
-| Sensibilidad de la confianza | 2,2 × (1 − repDT/400) (`:77`) | 1–4 | Dirigencia impaciente | — |
+| Sensibilidad de la confianza | 2,2 × `boardDemand` × (1 − repDT/400) | 1–4 | Dirigencia impaciente | — |
+| Exigencia del club (`boardDemand`) | 1 + (rep − 60)/40, clamp 0,7–1,6 | — | Los grandes echan antes | Todos iguales |
+| Racha de derrotas | −4,5 × k por derrota desde la tercera | 2–6 | Despidos por rachas | Rachas sin costo |
+| Distancia al objetivo | −0,5 × k por puesto de más (tope 4) desde la mitad del torneo, con margen 4 (Primera) o 3 | — | — | — |
 | Esperado por partido | 1,35 + Δrep/40 ± 0,2, clamp 0,6–2,15 (`:74`) | — | Más exigencia | — |
-| Umbral de despido | ≤ 6 con ≥ 10 partidos (`:78`) | 5–25; 6–15 partidos | Despidos más frecuentes | — |
+| Umbral de despido | ≤ 6 con ≥ 5 partidos | 5–25; 3–15 partidos | Despidos más frecuentes | — |
 | Balance de temporada | +15 / −min(25, Δ×1,5) / +20 por título / −30 descenso (`game.ts:533`) | — | — | — |
 | Arranque de temporada | × 0,6 + 24 (`game.ts:665`) | — | — | Arrastra más la temporada anterior |
 
@@ -307,8 +317,8 @@ La bandeja no recibe avisos de caja negativa, tope superado ni confianza baja.
 - [ ] Ningún club de división 0 cambia su caja en `dailyFinances`.
 - [ ] Un partido en cancha neutral no genera recaudación.
 - [ ] Después de `seasonTurnover`, el libro mayor de cada club está en cero y el presupuesto de tu club es ≥ 50.000; el de la IA, ≥ 80.000.
-- [ ] Con confianza 40, DT rep 60, local contra un club 10 puntos menor: una victoria deja la confianza en 42,24 (±0,01).
-- [ ] Con confianza 7 y 9 partidos en la campaña, una derrota no despide; con 10 partidos, sí, y `g.board.offers` tiene 3 clubes.
+- [ ] Con confianza 40, DT rep 60, club de reputación 60, local contra un club de 50: una victoria deja la confianza en 42,24 (±0,01).
+- [ ] Con confianza 7 y 4 partidos en la campaña, una derrota no despide; con 5 partidos, sí, y `g.board.offers` tiene 3 clubes argentinos (división ≥ 1).
 - [ ] Cumplir el objetivo suma 15 en el balance; descender resta 30 además de lo que corresponda por el puesto.
 - [ ] Al empezar una temporada, la confianza queda en `confianza × 0,6 + 24`.
 - [ ] El objetivo que muestra la nueva partida coincide con el que fija `setObjective` para cualquier club de las tres categorías (hoy falla en la tercera).
@@ -319,7 +329,7 @@ La bandeja no recibe avisos de caja negativa, tope superado ni confianza baja.
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
 | ¿La caja negativa tiene que tener consecuencias (dirigencia, venta forzada, bloqueo del mercado)? `INTENT UNKNOWN — inferred from implementation, not confirmed` | usuario | — | — |
-| ¿El despido a mitad de temporada es tan tolerante a propósito? | usuario | — | — |
+| ¿El despido a mitad de temporada es tan tolerante a propósito? | usuario | — | Resuelta (2026-11-14): no; exigencia del club, rachas y distancia al objetivo (Formulas) |
 | ¿La dirigencia tiene que avisar en la bandeja cuando la confianza baja de 30 (ultimátum)? | usuario | Antes de la UX de bandeja | No implementado |
 | ¿Mostrar el puesto objetivo (`target`) junto al objetivo en texto? | usuario | — | No implementado |
 | ¿Separar "funcionamiento" y "cuerpo técnico" de "Sueldos" en Mercado › Finanzas? | usuario | — | — |
@@ -334,3 +344,4 @@ La bandeja no recibe avisos de caja negativa, tope superado ni confianza baja.
 | 2026-11-14 | Claude (reverse-doc, systems-designer) | Documentación inicial desde `src/engine/career.ts` y `src/engine/game.ts` en `d9b251a` |
 
 *This document was generated by `/reverse-document design src/engine/career.ts`*
+| 2026-11-14 | Claude | Despido actualizado: exigencia del club (`boardDemand`), rachas de derrotas, distancia al objetivo y 5 partidos mínimos (Formulas, Tuning Knobs, Acceptance Criteria); objetivo de la pantalla de inicio con `boardObjective`; ascenso desde la tercera en el balance |

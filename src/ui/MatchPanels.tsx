@@ -4,7 +4,7 @@ import { clubsIn, fmtDate, leagueFx, tableOf } from '../engine/game'
 import type { MatchSim } from '../engine/match'
 import type { Fixture, Game } from '../engine/types'
 import { useGame, type Settings } from '../store'
-import { Analysis, Badge, Momentum, ShotMap, duoColors, ratClass, resultText } from './common'
+import { Analysis, Badge, Momentum, ShotMap, dec, duoColors, ratClass, resultText } from './common'
 import { PressPanel } from './Week'
 
 export interface Live { f: Fixture; sim: MatchSim }
@@ -122,14 +122,14 @@ export function PostMatch({ fixtureId, onDone }: { fixtureId: number; onDone: ()
               <div className="score">{resultText(f)}</div>
               <div className="row grow"><Badge club={a} size={72} /><b style={{ fontSize: '1.15rem' }}>{a.name}</b></div>
             </div>
-            <div className={won ? 'good' : gf === gc && !f.pens ? 'dim' : 'bad'} style={{ fontWeight: 650 }}>{won ? 'Victoria' : gf === gc && !f.pens ? 'Empate' : 'Derrota'}{motm && g.players[motm.pid] ? <span className="dim"> · Figura: {g.players[motm.pid].name} ({motm.rating.toFixed(1)})</span> : null}</div>
+            <div className={won ? 'good' : gf === gc && !f.pens ? 'dim' : 'bad'} style={{ fontWeight: 650 }}>{won ? 'Victoria' : gf === gc && !f.pens ? 'Empate' : 'Derrota'}{motm && g.players[motm.pid] ? <span className="dim"> · Figura: {g.players[motm.pid].name} ({dec(motm.rating, 1)})</span> : null}</div>
           </div>
           <div className="dash">
             <div className="card s4 col"><h3>Goles e incidencias</h3>
               <div className="col" style={{ gap: 5 }}>{(f.events ?? []).filter(e => ['goal', 'pen-goal', 'own', 'rc', 'yc2', 'inj', 'pen-miss'].includes(e.type)).map((e, i) => <div key={i} className={`ev ${e.type.includes('goal') ? 'goal' : e.type}`}><span className="num dim">{e.min}'</span><span>{e.text}</span></div>)}
                 {!(f.events ?? []).some(e => e.type.includes('goal')) && <span className="dim sm">Sin goles.</span>}</div></div>
             <div className="card s4 col"><h3>Puntajes de tu equipo</h3>
-              <div>{lines.map(l => <div key={l.pid} className="row between sm" style={{ padding: '2px 0' }}><span data-pid={l.pid} className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{l.rating.toFixed(1)}</b></div>)}</div></div>
+              <div>{lines.map(l => <div key={l.pid} className="row between sm" style={{ padding: '2px 0' }}><span data-pid={l.pid} className={`ell ${l.started ? '' : 'dim'}`}>{g.players[l.pid]?.name}{l.goals ? ` ⚽${l.goals > 1 ? l.goals : ''}` : ''}</span><b className={`num ${ratClass(l.rating)}`}>{dec(l.rating, 1)}</b></div>)}</div></div>
             <div className="card s4 col"><h3>Resto de la fecha</h3>
               {others.length ? others.map(x => <div key={x.id} className="live-row"><span className="row ell" style={{ gap: 6, justifyContent: 'flex-end' }}>{g.clubs[x.home].short}<Badge club={g.clubs[x.home]} size={18} /></span><b className="num live-score">{resultText(x)}</b><span className="row ell" style={{ gap: 6 }}><Badge club={g.clubs[x.away]} size={18} />{g.clubs[x.away].short}</span><span /></div>) : <span className="dim sm">No hubo otros partidos de este torneo.</span>}</div>
           </div>
@@ -146,7 +146,7 @@ export function PostMatch({ fixtureId, onDone }: { fixtureId: number; onDone: ()
 }
 function Stats({ f }: { f: Fixture }): ReactNode {
   const s = f.stats!
-  const rows: [string, (i: 0 | 1) => string | number][] = [['Posesión', i => `${s.poss[i]}%`], ['Remates', i => s.shots[i]], ['Al arco', i => s.sot[i]], ['xG', i => s.xg[i].toFixed(2)], ['Córners', i => s.corners[i]], ['Faltas', i => s.fouls[i]], ['Amarillas', i => s.yc[i]], ['Rojas', i => s.rc[i]]]
+  const rows: [string, (i: 0 | 1) => string | number][] = [['Posesión', i => `${s.poss[i]}%`], ['Remates', i => s.shots[i]], ['Al arco', i => s.sot[i]], ['xG', i => dec(s.xg[i], 2)], ['Córners', i => s.corners[i]], ['Faltas', i => s.fouls[i]], ['Amarillas', i => s.yc[i]], ['Rojas', i => s.rc[i]]]
   return <div>{rows.map(([l, fn]) => <div key={l} className="statrow"><b className="num">{fn(0)}</b><span className="lbl">{l}</span><b className="num right">{fn(1)}</b></div>)}</div>
 }
 export type { Game }

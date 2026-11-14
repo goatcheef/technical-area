@@ -1,5 +1,6 @@
 // Navegación de la etapa 1: ficha de club, ficha breve al pasar el mouse, barra de comandos, atajos y ajustes.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { divName } from '../engine/career'
 import { clubsIn, fmtDate, leagueFx, squadOf, tableOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
 import { knowOf } from '../engine/squad'
@@ -9,9 +10,6 @@ import { Badge, Cond, Face, Modal, PosPill, Seg, Status, Val, avgRat, dec, money
 import { FavButton } from './PlayerPage'
 import { SquadTable } from './Squad'
 
-export const DIV_NAME = ['Exterior', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A']
-/** La categoría de un club por su nombre real: en la tercera, la zona A es la Primera B y la B, el Federal A. */
-export const divName = (c: { division: number; zone?: string }) => (c.division === 3 ? (c.zone === 'A' ? 'Primera B' : 'Federal A') : DIV_NAME[c.division])
 const leagueComp = (g: Game, c: Club) => (c.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : c.division === 2 ? 'PN' : c.division === 3 ? 'T3' : '')
 function standing(g: Game, c: Club): string {
   const comp = leagueComp(g, c)

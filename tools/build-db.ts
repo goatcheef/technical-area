@@ -342,7 +342,14 @@ for (const c of clubs) {
 }
 
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true })
-writeFileSync(new URL('../src/data/db.json', import.meta.url), JSON.stringify({ start: START, dbVersion: Date.now(), clubs, players }))
+// la versión es un hash del contenido (el mismo que `dbHash` en src/engine/game.ts): reconstruir sin cambios no cambia el archivo
+const dbVersion = (() => {
+  const txt = START + JSON.stringify(clubs) + JSON.stringify(players)
+  let h = 0x811c9dc5 // FNV-1a de 32 bits
+  for (let i = 0; i < txt.length; i++) h = Math.imul(h ^ txt.charCodeAt(i), 0x01000193)
+  return h >>> 0
+})()
+writeFileSync(new URL('../src/data/db.json', import.meta.url), JSON.stringify({ start: START, dbVersion, clubs, players }))
 const cl = new Map(clubs.map(c => [c.id, c]))
 const by = (d: number) => players.filter(p => cl.get(p.clubId).division === d)
 const avg = (a: any[]) => (a.reduce((s, p) => s + p.ca, 0) / a.length).toFixed(1)

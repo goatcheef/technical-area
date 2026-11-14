@@ -54,7 +54,7 @@ Las competencias que no son la liga de Primera ni la Primera Nacional: la tercer
 3. Fase de grupos: 4 grupos de 4, ida y vuelta (6 fechas cada 14 días desde la semana del 2 de marzo). Premio por participar: 1.500.000 (LIB) o 500.000 (SUD) a los 16.
 4. Cuartos (los dos primeros de cada grupo): `1A–2B`, `1B–2A`, `1C–2D`, `1D–2C`. Ida en la cancha del segundo (semana del 10 de agosto), vuelta en la del primero (semana del 17 de agosto). Premio de cuartos a los 8.
 5. Semifinales: ganador de la llave 1 contra el de la 2 y el de la 3 contra el de la 4; ida en la cancha del segundo de cada par (semanas del 21 y 28 de septiembre). Premio de semifinal a los 4.
-6. Final a partido único en cancha neutral en la semana del 16 de noviembre (alargue y penales). Premios al campeón y al finalista; título; +3 de reputación al campeón de la Libertadores y +1 al de la Sudamericana (techo 97); noticia.
+6. Final a partido único en cancha neutral en la semana del 16 de noviembre (alargue y penales). Premios al campeón y al finalista; título; noticia. La reputación del campeón sube al empezar la temporada siguiente con la regla única de `temporada-y-ligas` (F11): +4 la Libertadores, +2 la Sudamericana, +1 un título local, sin pasar el techo de la categoría en la que juega.
 7. **Vuelta de una serie**: el motor recibe `agg` con los goles de la ida; si el global queda igual a los 90, penales directos, sin alargue ni gol de visitante (`motor-de-partido.md`).
 8. El club del usuario recibe una noticia al terminar la fase de grupos (pasó a cuartos o quedó eliminado).
 
@@ -196,7 +196,7 @@ comparador(a, b) = (rep_b + 4·U) − (rep_a + 4·U')      U, U' nuevos en cada 
 | Espaciado de la fase de grupos | 14 días | 7–21 | — | — |
 | Espaciado de la tercera | 14 días | 7–14 | — | — |
 | Premios | tabla F4 | — | Más caja para los grandes (ver pendiente 3 de `CLAUDE.md`) | — |
-| Reputación por título internacional | +3 LIB / +1 SUD, techo 97 | 0–5 | — | — |
+| Reputación por título internacional | +4 LIB / +2 SUD (`REP_STEP`), techo de la categoría (`REP_RANGE`) | 0–5 | — | — |
 | Ascensos desde la tercera | 2 por zona | 1–3 | — | — |
 
 ## Visual/Audio Requirements
@@ -283,3 +283,4 @@ Este sistema no genera decisiones pendientes.
 | Fecha | Autor | Cambios |
 |---|---|---|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/cups.ts` (`d9b251a`) |
+| 2026-11-14 | Claude | Reputación de los campeones con la regla única de `temporada-y-ligas` (F11); colores reales de la tercera categoría (ver `base-de-datos`) |

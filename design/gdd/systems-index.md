@@ -224,4 +224,4 @@ Para la revisión de UX: cada sistema con "Sí" en la enumeración tiene que est
 - [ ] Revisar primero los GDD de nivel MVP (Base de datos, Motor de partido, Temporada y ligas, Comunicación y bandeja).
 - [ ] Pasar cada GDD terminado por revisión de diseño.
 - [ ] Alinear los GDD de Temporada y ligas y Copas sobre la tercera categoría y el intercambio con la Primera Nacional.
-- [ ] Actualizar `CLAUDE.md` para sacar "que los rivales entrenen" de lo pendiente (ya está hecho).
+- [x] Actualizar `CLAUDE.md` para sacar "que los rivales entrenen" de lo pendiente (hecho, 2026-11-14).

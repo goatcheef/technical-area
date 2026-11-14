@@ -9,7 +9,8 @@ import { A, ATTR_LABEL, type Attr, type Club, type Fixture, type Game, type Play
 
 // ---------- cuerpo técnico ----------
 export const staffWage = (ab: number) => Math.round((900 * 1.22 ** (ab - 8)) / 100) * 100
-function makeStaff(g: Game, role: StaffRole, ability: number, clubId: number, rng: Rng): Staff {
+/** Un integrante nuevo del cuerpo técnico: capacidad entre 3 y 20 y el sueldo que le corresponde. */
+export function makeStaff(g: Game, role: StaffRole, ability: number, clubId: number, rng: Rng): Staff {
   const ab = clamp(Math.round(ability), 3, 20)
   return { id: g.nextId++, name: `${rng.pick(NOMBRES)} ${rng.pick(APELLIDOS)}`, role, ability: ab, wage: staffWage(ab), contractEnd: g.season + rng.int(1, 2), clubId, age: rng.int(31, 66) }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { doTransfer } from '../engine/career'
+import { canSell, doTransfer } from '../engine/career'
 import { addDays, fmtDate, news, squadOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
 import { STATUS, STATUS_KEYS, applyRenewal, canTalk, demand, evalOffer, harmony, minutesShare, naturalStatusFor, nextTalk, persLabels, talk, type NegMode, type TalkKind } from '../engine/squad'
@@ -60,13 +60,14 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: () => void }) {
   // una charla por semana: el límite lo pone el motor (`talk`); acá solo se explica
   const [allowed] = useState(() => canTalk(g, p))
   const happy = p.happy ?? 70
-  const opts: [TalkKind, string, string, boolean][] = [
+  const loan = !canSell(p)
+  const opts: [TalkKind, string, string, boolean, string?][] = [
     ['praise', 'Felicitarlo por su momento', 'Funciona si viene jugando bien; si no, suena falso.', true],
     ['demand', 'Exigirle más', 'Los profesionales lo toman bien. Los temperamentales, no.', true],
     ['promise', 'Prometerle más minutos', 'Lo deja conforme ya, pero si en cinco semanas no cumplís se siente engañado.', (happy < 60 || !!p.wantsOut) && !p.promise],
     ['patience', 'Pedirle paciencia', 'Convence a los leales y a los poco ambiciosos.', happy < 60],
     ['stay', 'Decirle que no se va', 'Rechazás su pedido de salir.', !!p.wantsOut],
-    ['free', 'Decirle que puede buscar club', 'Queda transferible.', !p.listed],
+    ['free', 'Decirle que puede buscar club', 'Queda transferible.', !p.listed, loan ? 'Está a préstamo: no se lo puede declarar transferible.' : undefined],
   ]
   const act = (k: TalkKind) => { setReply(talk(g, p, k, ns)); save() }
   return (
@@ -75,7 +76,7 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: () => void }) {
       {reply ? <div className="card col"><div style={{ lineHeight: 1.55 }}>{reply}</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div> : !allowed ? (
         <div className="card col"><div style={{ lineHeight: 1.55 }}>Ya hablaste con él esta semana. Podés volver a hablarle desde el {fmtDate(nextTalk(p))}.</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div>) : (
         <div className="col" style={{ gap: 8 }}>
-          {opts.filter(o => o[3]).map(([k, t, d]) => <button key={k} className="opt" onClick={() => act(k)}><b>{t}</b><span className="dim sm">{d}</span></button>)}
+          {opts.filter(o => o[3]).map(([k, t, d, no]) => <button key={k} className="opt" disabled={!!no} onClick={() => act(k)}><b>{t}</b><span className="dim sm">{no ?? d}</span></button>)}
           <div className="opt" style={{ cursor: 'default' }}><b>Cambiarle el rol en el plantel</b>
             <div className="row wrap"><Seg value={STATUS_KEYS.indexOf(ns)} options={STATUS_KEYS.map(k => STATUS[k].name)} onChange={v => setNs(STATUS_KEYS[v])} />
               <button className="btn sm primary" disabled={ns === p.status} onClick={() => act('status')}>Confirmar</button></div>

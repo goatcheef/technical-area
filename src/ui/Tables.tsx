@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { DIV_NAMES } from '../engine/career'
 import { groupTable } from '../engine/cups'
 import { annualTable, clubsIn, fmtDate, leagueFx, promedios, relegationZone, tableOf, zoneRule, type Mark, type Row } from '../engine/game'
 import type { Fixture, Game, Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
-import { Badge, MatchReport, PosPill, avgRat, resultText } from './common'
+import { Badge, MatchReport, PosPill, avgRat, dec, resultText } from './common'
 import { PlayerTable, scoutBulk } from './PlayerTable'
 
 export const MARK_CLASS: Record<Mark, string> = { q: 'zone-q', p: 'zone-p', r: 'zone-r', '': '' }
@@ -82,7 +83,7 @@ export function Tables() {
           <div className="dim" style={{ fontSize: '.84rem' }}>Suma las fases de zonas del Apertura y el Clausura. {g.seasonOver ? 'Clasificados' : 'Si terminara hoy'}: a la Libertadores van los campeones del Apertura, del Clausura y de la Copa Argentina y el primero de la anual, y se completan cinco con la anual; los cinco siguientes, a la Sudamericana. El último desciende (y el peor promedio). Con igualdad de puntos: diferencia de gol, goles a favor, fair play y sorteo.</div></div></div>}
       {tab === 'PR' && <div className="card scroll-x"><h3 style={{ marginBottom: 6 }}>Promedios</h3>
         <table><thead><tr><th>#</th><th>Equipo</th><th className="r">Pts</th><th className="r">PJ</th><th className="r">Promedio</th></tr></thead>
-          <tbody>{promedios(g).map((r, i) => <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${r.clubId === rel[1] ? 'zone-r' : ''}`}><td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td><td className="r num">{r.pts}</td><td className="r num">{r.pj}</td><td className="r num"><b>{r.avg.toFixed(3)}</b></td></tr>)}</tbody></table>
+          <tbody>{promedios(g).map((r, i) => <tr key={r.clubId} className={`${r.clubId === g.userClubId ? 'me' : ''} ${r.clubId === rel[1] ? 'zone-r' : ''}`}><td className="num dim">{i + 1}</td><td><span className="row" data-cid={r.clubId}><Badge club={g.clubs[r.clubId]} size={20} />{g.clubs[r.clubId].name}</span></td><td className="r num">{r.pts}</td><td className="r num">{r.pj}</td><td className="r num"><b>{dec(r.avg, 3)}</b></td></tr>)}</tbody></table>
         <div className="dim" style={{ fontSize: '.84rem', marginTop: 8 }}>Puntos por partido de las últimas tres temporadas en Primera. El peor promedio desciende (además del último de la tabla anual).</div></div>}
       {rep && <MatchReport g={g} f={rep} onClose={() => setRep(null)} />}
     </div>
@@ -136,7 +137,7 @@ export function Stats() {
   ]
   return (
     <div className="page">
-      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{['', 'Liga Profesional', 'Primera Nacional', 'Primera B y Federal A'][d]}</button>)}</div></div>
+      <div className="row wrap"><h2 className="grow">Estadísticas {g.season}</h2><div className="seg" role="group" aria-label="Categoría">{[1, 2, 3].map(d => <button key={d} className={div === d ? 'on' : ''} aria-pressed={div === d} onClick={() => setDiv(d)}>{DIV_NAMES[d]}</button>)}</div></div>
       <div className="grid2">{boards.map(([title, val, show, filter]) => (
         <div key={title} className="card"><h3 style={{ marginBottom: 6 }}>{title}</h3>
           <table><tbody>{ps.filter(p => pj(p) > 0 && (!filter || filter(p))).sort((a, b) => val(b) - val(a)).slice(0, 10).map((p, i) => (

@@ -2,6 +2,7 @@
 import { autoPick, available, squadOf } from './game'
 import { FORMATIONS, FORMATION_NAMES, POS_LINE, POS_WEIGHTS, ageOn, bestRole, fixRoles, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
+import { addProgress } from './week'
 import { A, type Club, type Fixture, type Game, type Player, type Tactic } from './types'
 
 type Style = Pick<Tactic, 'pressing' | 'tempo' | 'width' | 'line' | 'passing' | 'tackling' | 'finalThird' | 'onLoss' | 'onWin'>
@@ -181,15 +182,17 @@ export function weeklyAiTraining(g: Game, rng: Rng) {
     const age = ageOn(p.birth, g.date)
     if (age > 30) continue
     const ageF = age <= 19 ? 1.8 : age <= 21 ? 1.5 : age <= 23 ? 1.15 : age <= 26 ? 0.6 : 0.3
-    p.tx = (p.tx ?? 0) + 6 * 0.007 * ageF * (0.55 + p.prof / 20) * (p.ca < p.pa ? 1 : 0.15)
-    if (p.tx < 1) continue
-    p.tx -= 1
+    // la misma regla que la práctica del usuario: nadie crece más allá de su potencial
+    if (!addProgress(p, 6 * 0.007 * ageF * (0.55 + p.prof / 20)) || (p.tx ?? 0) < 1) continue
+    p.tx = (p.tx ?? 0) - 1
     const pos = p.positions[0], w = POS_WEIGHTS[pos]
     const idx = w.map((_, i) => i).filter(i => w[i] > 0 && p.attrs[i] < 20)
     if (!idx.length) continue
     const i = rng.weighted(idx, j => (21 - p.attrs[j]) * (1 + w[j]))
     p.attrs[i]++
-    p.ca = Math.round(rawRating(p.attrs, pos)); p.pa = Math.max(p.pa, p.ca)
+    const ca = Math.round(rawRating(p.attrs, pos))
+    if (ca > p.pa) { p.attrs[i]--; p.tx = 0; continue } // ese punto lo pasaría de su techo
+    p.ca = ca
   }
 }
 export { FORMATION_NAMES }
