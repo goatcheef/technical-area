@@ -77,7 +77,7 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: () => void }) {
       {reply ? <div className="card col"><div style={{ lineHeight: 1.55 }}>{reply}</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div> : !allowed ? (
         <div className="card col"><div style={{ lineHeight: 1.55 }}>Ya hablaste con él esta semana. Podés volver a hablarle desde el {fmtDate(nextTalk(p))}.</div><div><button className="btn primary" onClick={onClose}>Listo</button></div></div>) : (
         <div className="col" style={{ gap: 8 }}>
-          {opts.filter(o => o[3]).map(([k, t, d, no]) => <button key={k} className="opt" disabled={!!no} onClick={() => act(k)}><b>{t}</b><span className="dim sm">{no ?? d}</span></button>)}
+          {opts.filter(o => o[3]).map(([k, t, d, , no]) => <button key={k} className="opt" disabled={!!no} onClick={() => act(k)}><b>{t}</b><span className="dim sm">{no ?? d}</span></button>)}
           <div className="opt" style={{ cursor: 'default' }}><b>Cambiarle el rol en el plantel</b>
             <div className="row wrap"><Seg value={STATUS_KEYS.indexOf(ns)} options={STATUS_KEYS.map(k => STATUS[k].name)} onChange={v => setNs(STATUS_KEYS[v])} />
               <button className="btn sm primary" disabled={ns === p.status} onClick={() => act('status')}>Confirmar</button></div>
