@@ -281,10 +281,14 @@ const bidThreshold = (g: Game, p: Player, cool = 1) => Math.round((askingPrice(g
 export function squadRank(g: Game, p: Player): number {
   return squadOf(g, p.clubId).filter(x => x.line === p.line || true).sort((a, b) => b.ca - a.ca).findIndex(x => x.id === p.id)
 }
+/** Precio de un transferible para los clubes que lo buscan para reforzar un puesto (`askingPrice`; el interés por los transferibles no lo usa). */
+export const LISTED_PRICE = 0.75
+/** Chance diaria de una oferta por un jugador propio, con el libro abierto: transferible o que quiere irse (`marketTick`). */
+export const OFFER_CHANCE = { listed: 0.12, out: 0.05 }
 export function askingPrice(g: Game, p: Player): number {
   const rank = squadRank(g, p)
   let v = p.value * (rank < 11 ? 1.4 : rank < 18 ? 1.15 : 0.95)
-  if (p.listed) v *= 0.75
+  if (p.listed) v *= LISTED_PRICE
   if (p.contractEnd <= g.season) v *= 0.7
   return Math.max(20000, Math.round(v / 10000) * 10000)
 }
@@ -320,6 +324,9 @@ export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan =
   if (terms) { to.balance -= terms.bonus; to.ledger.buys += terms.bonus }
   p.status = toId === g.userClubId ? (terms?.status ?? undefined) : undefined
   p.recent = []; p.promise = null; p.wantsOut = false; p.reserve = false; p.happy = 72; p.tfocus = undefined
+  if (p.outDate) p.outDate = undefined
+  if (p.moodNote) p.moodNote = undefined
+  if (p.promiseLog) p.promiseLog = undefined
   p.clubId = toId; p.listed = false; p.morale = clamp(p.morale + 8, 0, 100)
   const mine = from.id === g.userClubId || to.id === g.userClubId
   g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: to.name, fee, loan, ...(mine ? { mine } : {}) })
@@ -360,6 +367,8 @@ export function acceptOffer(g: Game, o: Offer): boolean {
   if (!p || !windowOpen(g.date) || !canSell(p)) return false
   g.offers = g.offers.filter(x => x.id !== o.id)
   recordOffer(g, o, 'sold'); readDecisionNews(g, `offer${o.id}`)
+  // venderlo es la decisión del DT sobre su pedido de salida: acá y no en `doTransfer`, así vale también para la venta al exterior
+  readDecisionNews(g, `out${o.pid}`)
   // la confirmación nombró las otras ofertas por él: se registran como canceladas y sus mensajes quedan leídos; la noticia de la venta, también
   if (o.from === 0) sellAbroad(g, p, o.fromName, o.fee, 'sold', true); else doTransfer(g, p, o.from, o.fee, false, false, undefined, 'sold', true)
   return true
@@ -458,7 +467,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
       }
     }
     // interés por jugadores transferibles del usuario
-    for (const p of squadOf(g, g.userClubId)) if ((p.listed || p.wantsOut) && canSell(p) && rng.chance(p.listed ? 0.12 : 0.05) && !g.offers.some(o => o.pid === p.id)) {
+    for (const p of squadOf(g, g.userClubId)) if ((p.listed || p.wantsOut) && canSell(p) && rng.chance(p.listed ? OFFER_CHANCE.listed : OFFER_CHANCE.out) && !g.offers.some(o => o.pid === p.id)) {
       const buyers = clubs.filter(c => c.id !== g.userClubId && c.budget >= p.value * 0.7 && c.rep >= g.clubs[g.userClubId].rep - 14 && squadOf(g, c.id).length < 40)
       if (buyers.length) { const b = rng.pick(buyers); pushOffer(g, p, b.id, b.name, Math.round((Math.min(b.budget, p.value * (0.7 + rng.next() * 0.4))) / 10000) * 10000) }
     }

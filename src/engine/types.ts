@@ -75,13 +75,31 @@ export interface Player {
   status?: SquadStatus // rol acordado en el plantel
   happy?: number // 0-100 conformidad con los minutos
   recent?: number[] // minutos en los últimos partidos del club (solo plantel del usuario)
-  promise?: { until: string; share: number; mins: number[] } | null
+  /** Promesa de minutos vigente. `ext`: día en que el plazo se corrió 14 días por haber jugado menos de 2 partidos (opcional). */
+  promise?: { until: string; share: number; mins: number[]; ext?: string } | null
   wantsOut?: boolean
   reserve?: boolean
   clause?: number // cláusula de rescisión (0 o ausente = sin cláusula)
   lastTalk?: string
   negBlock?: string // no acepta volver a negociar hasta esta fecha
+  // registros del vestuario (opcionales: las partidas viejas cargan sin ellos, `Game.version` sigue en 6)
+  /** Últimas 5 charlas con el DT. */
+  talks?: TalkLog[]
+  /** Promesas de la temporada en curso (se vacía al cambiar de temporada, salvo la vigente). */
+  promiseLog?: PromiseLog[]
+  /** Última causa del humor que no son los minutos (promesa rota, rol bajado, charla mal recibida, "puede buscar club" sin pedirlo). */
+  moodNote?: { date: string; kind: MoodNoteKind }
+  /** Día en que pidió irse (o en que se le dijo que podía buscar club sin pedirlo). */
+  outDate?: string
 }
+
+export type TalkKind = 'praise' | 'demand' | 'promise' | 'patience' | 'status' | 'free' | 'stay'
+/** Respuesta corta de una charla, para el registro. */
+export type TalkReply = 'Le convenció' | 'No le convenció' | 'Lo tomó mal'
+export interface TalkLog { date: string; kind: TalkKind; reply: TalkReply }
+/** Una promesa en el registro: sin `result` es la vigente; `extended` es la línea de una prórroga (con el `until` nuevo). `got`: lo que jugó. */
+export interface PromiseLog { made: string; until: string; target: number; got?: number; result?: 'kept' | 'broken' | 'extended' }
+export type MoodNoteKind = 'broken' | 'demoted' | 'talk' | 'freed'
 
 export interface Personality { amb: number; temp: number; loy: number; pres: number }
 export type SquadStatus = 'key' | 'reg' | 'rot' | 'sub' | 'young'
@@ -277,8 +295,8 @@ export interface News {
   read?: boolean
   /** Jugador del que habla la noticia. */
   pid?: number
-  /** Qué se puede hacer desde la bandeja: responder una oferta, aceptar un trabajo, hablar con un jugador, ver un informe. */
-  act?: 'offer' | 'job' | 'out' | 'scout' | 'rival' | 'train' | 'result' | 'injury' | 'deal'
+  /** Qué se puede hacer desde la bandeja: responder una oferta, aceptar un trabajo, hablar con un jugador, ver un informe, armar la reserva. */
+  act?: 'offer' | 'job' | 'out' | 'scout' | 'rival' | 'train' | 'result' | 'injury' | 'deal' | 'reserve'
   /** Referencia de la acción: id de la oferta, del trato (`Deal.id`), del club o del partido. */
   ref?: number
   /** Es para el DT (su club, sus jugadores, sus decisiones) y no una noticia del resto del fútbol. */

@@ -12,13 +12,14 @@ verified-by: pending review
 > Esto registra lo que el código **hace**; lo marcado `INTENT UNKNOWN` se infirió y el autor no lo confirmó.
 > Donde este documento y el código no coincidan, no supongas que el documento es el requisito.
 > Actualizado el 2026-11-15 con las decisiones de los tratos del mercado (`8fe1dcb`; `design/ux/bandeja.md` pregunta 22, `design/ux/mercado.md` preguntas 20 y 24): pendiente `deal`, regla del mensaje más nuevo (`newestOf`), regla de leído al resolver (`readDecisionNews`), conteo y freno.
+> Actualizado el 2026-11-15 con el motor del Vestuario (`11816f4`; `design/ux/vestuario.md` R1 y pregunta 19, `design/ux/bandeja.md` preguntas 24 y 25): el pedido de salida `out<pid>` como decisión completa (clave en `decisionKeyOf`, chequeo de abierto en `pendingKeyOf`, todos los caminos que lo resuelven, cierres sin el DT, reapertura y el mensaje de la nueva temporada), `act: 'reserve'` y el texto nuevo de "Informe completo".
 
 > Authoring guidance: .claude/docs/templates/guidance/game-design-document-guide.md
 
 > **Status**: Implemented
 > **Author**: usuario + game-designer (reverse-doc)
 > **Last Updated**: 2026-11-15
-> **Last Verified**: 2026-11-15 (secciones A, C, D, E, F, H, I, J y F3 contra `8fe1dcb`; el resto, contra `d9b251a`)
+> **Last Verified**: 2026-11-15 (reglas del pedido de salida, `act: 'reserve'` y las filas de `squad.ts` del catálogo contra `11816f4`; secciones A, C, D, E, F, H, I, J y F3 contra `8fe1dcb`; el resto, contra `d9b251a`)
 > **Implements Pillar**: Principio 4 de `docs/plan-ui-ux.md`, "La información viene a vos" (bandeja única con acciones directas; el botón de continuar muestra qué está pendiente), y etapa 2 del plan de UI/UX ("bandeja de entrada y ritmo"). Sostiene el bucle de "La semana" del plan de jugabilidad.
 > **Related UX spec**: `design/ux/bandeja.md` (se revisa contra este documento; las diferencias están en UI Requirements y Open Questions).
 
@@ -58,7 +59,7 @@ El sistema de mensajes del juego: todo lo que pasa en el mundo y le importa al D
 | `tag` | `partido` · `torneo` · `lesion` · `club` · `mercado` · `premio` · `directiva` | Tema. La interfaz lo muestra como Partido, Torneo, Parte médico, Club, Mercado, Premio, Dirigencia (`Inbox.tsx:55`). |
 | `clubId?` | int | Club del que habla (escudo en la fila y tarjeta del club). |
 | `pid?` | int | Jugador del que habla (cara en la fila y tarjeta del jugador). |
-| `act?` | `offer` · `job` · `out` · `scout` · `rival` · `train` · `result` · `injury` · `deal` | Qué se puede hacer desde la bandeja. `deal`: respuesta de un club, caída o vencimiento de un trato del DT (`types.ts:281`). |
+| `act?` | `offer` · `job` · `out` · `scout` · `rival` · `train` · `result` · `injury` · `deal` · `reserve` | Qué se puede hacer desde la bandeja. `deal`: respuesta de un club, caída o vencimiento de un trato del DT. `out`: pedido de salida (su clave es `out<pid>`, sin `ref`). `reserve`: "Reserva: no hubo partido", que ofrece armar la reserva (`types.ts:299`). |
 | `ref?` | int | Referencia de la acción: id de la oferta (`offer`), del trato (`deal`, `Deal.id`), del club (`job`) o del partido (`rival`, `result`). |
 | `me?` | `true` o ausente | Es para el DT. Solo se escribe cuando es verdadero. |
 | `read?` | `true` o ausente | Ausente = sin leer. El emisor puede crearlo leído (`news(g, { …, read: true })`) cuando es la consecuencia directa de algo que el DT acaba de hacer y ver (regla F.3). |
@@ -75,7 +76,7 @@ La interfaz decide el alcance con `isMine(g, n) = n.me ?? n.clubId === g.userClu
 
 #### C. Catálogo de emisores
 
-Todas las llamadas a `news()` del código (52 en `src/engine/`, una de ellas `dealNews`, que emite todos los mensajes de un trato; 1 en `src/ui/`). Las líneas de `career.ts` y `squad.ts` son de `8fe1dcb`; las de `game.ts`, `week.ts` y `cups.ts`, de `d9b251a`. "Para el DT" aplica F1 al momento de emitir.
+Todas las llamadas a `news()` del código (54 en `src/engine/`, una de ellas `dealNews`, que emite todos los mensajes de un trato; 1 en `src/ui/`). Las líneas de `squad.ts` y la de "sigue queriendo irse" de `game.ts` son de `11816f4`; las de `career.ts`, de `8fe1dcb`; las demás de `game.ts`, `week.ts` y `cups.ts`, de `d9b251a`. "Para el DT" aplica F1 al momento de emitir.
 
 | Origen (archivo:línea) | Cuándo | `tag` | `clubId` | `pid` | `act` / `ref` | ¿Para el DT? |
 |---|---|---|---|---|---|---|
@@ -97,12 +98,15 @@ Todas las llamadas a `news()` del código (52 en `src/engine/`, una de ellas `de
 | `week.ts:286` | Conferencia respondida (por el DT o el ayudante) | club | DT | — | — | Sí |
 | `week.ts:303` | Informe del rival (3 días antes) | club | rival | — | `rival` / partido | Sí (por `act`) |
 | `week.ts:317` | Parte semanal del entrenamiento (lunes) | club | DT | — | `train` | Sí |
-| `squad.ts:99` | Un jugador quiere irse | club | DT | jugador | `out` | Sí |
-| `squad.ts:119`, `124` | Promesa cumplida o rota | club | DT | jugador | — | Sí |
-| `squad.ts:136` | Ojeo completo de un jugador ajeno | mercado | su club | jugador | `scout` | Sí (por `act`) |
-| `squad.ts:147`, `158` | Resultado de la reserva (miércoles) | partido | DT | — | — | Sí |
-| `squad.ts:365` | Renovación de un jugador del DT | club | DT | jugador | — | Sí |
-| `squad.ts:372` | Se cortó la renovación (`renewWalk`); nace leída | club | DT | jugador | — | Sí |
+| `squad.ts:192` | Un jugador quiere irse ("Podés responderle desde este mensaje.") | club | DT | jugador | `out` (clave `out<pid>`) | Sí |
+| `game.ts:817` (`11816f4`) | Nueva temporada: un jugador que estaba en la lista de transferibles sigue queriendo irse (después de `seasonTurnover`, solo si sigue en el plantel) | club | DT | jugador | `out` (clave `out<pid>`) | Sí |
+| `squad.ts:254` | Se corrió el plazo de una promesa (jugó menos de 2 partidos) | club | DT | jugador | — | Sí |
+| `squad.ts:265`, `271` | Promesa cumplida o rota, con la cifra ("Jugó el 74 %…") | club | DT | jugador | — | Sí |
+| `squad.ts:283` | Ojeo completo de un jugador ajeno ("… cómo es en cada rasgo de su personalidad y su ánimo.") | mercado | su club | jugador | `scout` | Sí (por `act`) |
+| `squad.ts:313` | Reserva: no hubo partido ("Podés anotar más desde este mensaje.") | partido | DT | — | `reserve` | Sí |
+| `squad.ts:324` | Resultado de la reserva (miércoles) | partido | DT | — | — | Sí |
+| `squad.ts:859` | Renovación de un jugador del DT | club | DT | jugador | — | Sí |
+| `squad.ts:866` | Se cortó la renovación (`renewWalk`); nace leída | club | DT | jugador | — | Sí |
 | `cups.ts:110` | Ascensos desde la tercera categoría | torneo | — | — | — | No |
 | `cups.ts:121`, `165` | Campeón de copa | torneo | campeón | — | — | Si es el DT |
 | `cups.ts:127` | El DT avanzó o quedó afuera en la Copa Argentina | torneo | DT | — | — | Sí |
@@ -137,8 +141,9 @@ Todas las llamadas a `news()` del código (52 en `src/engine/`, una de ellas `de
 | `offer` | "Para decidir" | Tarjetas Oferta, Valor, Sueldo, Contrato; Aceptar (F6; deshabilitado con el libro cerrado), Pedir más, Rechazar (F6) | Es el mensaje **más nuevo** de esa oferta (`newestOf`) **y** existe en `g.offers` una oferta con `id = ref` cuyo jugador existe (`pendingKeyOf(g, n)`, `inbox.ts:70`) | "Esta oferta ya fue respondida o venció." El mensaje de vencimiento (`act: 'offer'`) es el más nuevo y reemplaza al de la oferta |
 | `deal` | "Para decidir" si es el más nuevo de su trato y el trato está en `countered` o `agreed`; si no, "Trato" | Las de `DealDecision` según el estado del trato **ahora**: contraoferta (Aceptar US$ X, Mejorar, Retirar la oferta) o acuerdo (Negociar contrato / Seguir negociando o Confirmar el préstamo con F6, Cancelar el trato con F6 y el costo escrito), más Ver todos los tratos y Ver la ficha | Es el mensaje más nuevo de su trato (`newestOf`) **y** el trato existe, es del club actual del DT y está en `countered` o `agreed` | Mensaje viejo de un trato que siguió: "Ya respondiste esta contraoferta…" / "{club} respondió de nuevo el {fecha}." con "Ver la respuesta nueva"; trato terminal: el texto de su estado ("Este acuerdo venció el 18 ene.", "Se cayó: dejaste Banfield."); si el DT volvió a ofertar por ese jugador, "Ver el trato nuevo"; trato podado (su `ref` ya no está en `g.deals`): "Este trato ya no figura en el historial." con solo Ver la ficha. Siempre quedan Ver todos los tratos y Ver la ficha (`design/ux/mercado.md`, sección 8, tabla D) |
 | `job` | "oferta de trabajo" | Aceptar, Rechazar, Ver el club | Existe en `g.jobOffers` con `clubId = ref` y `until ≥ hoy` | "La oferta ya no está vigente." |
-| `out` | "quiere irse" | Hablar con él (ficha, pestaña Personal); Declararlo transferible (si no lo es) | El jugador existe y `wantsOut` | "Ya no pide irse." (sin texto si el jugador ya no existe) |
-| `scout` | "informe" | Ver la ficha; Ofertar (pestaña Contrato) si no es del DT | El jugador existe | Sin acción |
+| `out` | "Para decidir" si está vigente; si no, "quiere irse" | Las de `outActions(g, p)` (`squad.ts:600`): con la charla disponible, "Hablar con él" (primario, a la ficha › Vestuario; la charla no se abre en la bandeja, `vestuario.md` pregunta 4) y "Declararlo transferible" (`setListed`, sin F6); **con la charla usada, "Declararlo transferible" es el primario** con la nota de la próxima charla; a préstamo, sin acción y con el porqué. Siempre la comparación de los dos caminos con los números de `letGoInfo` y la conformidad con `MoodBar` (`design/ux/bandeja.md` pregunta 24) | Es el mensaje **más nuevo** del jugador (`newestOf` sobre `out<pid>`) **y** el pedido está abierto (`outOpen`, `inbox.ts:66`: jugador del DT, `wantsOut`, no transferible); `pendingKeyOf(g, n)`, `inbox.ts:82` | "Ya respondiste este pedido." (mensaje viejo o pedido resuelto), "Está declarado transferible." o "Ya no está en el plantel.", el único texto si el jugador se fue o no existe (sin la tarjeta "Ya no está en el fútbol argentino.", `bandeja.md` pregunta 25) |
+| `reserve` | "informe" | "Armar la reserva": abre `{ page: 'locker', tab: 'armar' }`, el modo "Armar la reserva" del Vestuario (`design/ux/vestuario.md` 7.2) | Siempre | — |
+| `scout` | "informe" | Ver la ficha; Ofertar (pestaña Contrato) si no es del DT. La tarjeta muestra la personalidad con `persTraits` (completa: el jugador llega al 100 %) | El jugador existe | Sin acción |
 | `rival` | "informe" | Ver el informe del rival (ventana con sugerencias aplicables) | `ref` es el próximo partido del DT | "Ese partido ya se jugó." |
 | `train` | "informe" | Ir a Entrenamiento | Siempre | — |
 | `result` | "ver informe" | Ver el informe del partido | El partido existe | Sin acción |
@@ -159,7 +164,7 @@ Todo mensaje muestra además: tema, fecha completa, título, una tarjeta del jug
 | `offer` | cada `g.offers` cuyo jugador existe | `offer{id}` | "{club} ofrece {monto} por {jugador}" · "Vence el {offerDeadline}" (fecha + 9) |
 | `deal` (`kind: 'countered'`) | cada trato del club actual en `countered` | `deal{id}` | "Contraoferta, {club}. Pide {monto} por {jugador}. Vence en N días." · plazo `deal.deadline` |
 | `deal` (`kind: 'agreed'`) | cada trato del club actual en `agreed` | `deal{id}` (la misma clave que tenía como contraoferta: es la misma decisión) | "Acuerdo, {club}. Aceptó {monto} por {jugador}. Falta el contrato." · plazo `deal.deadline` |
-| `out` | cada jugador del DT con `wantsOut` y no transferible | `out{pid}` | "{jugador} quiere irse" · "Hablale o declaralo transferible" |
+| `out` | cada jugador con `outOpen(g, pid)` (`inbox.ts:66`: del club del DT, `wantsOut` y no transferible) | `out{pid}` | "{jugador} quiere irse" · "Hablale o declaralo transferible" · no vence |
 
 6. `pendingText` arma la frase "Pendiente: la nueva temporada, una conferencia, 2 ofertas de trabajo, una oferta por un jugador, una contraoferta, 2 acuerdos para cerrar y un jugador que quiere irse" (singular o plural por tipo, comas y "y" final; `inbox.ts:36`).
 7. `decisionKeys(g)` = las claves de todos los pendientes **menos** `season` (`inbox.ts:50`). Una oferta del DT que **espera respuesta** (`waiting`) no es pendiente: no hay nada que decidir hasta que el club contesta.
@@ -168,21 +173,22 @@ Todo mensaje muestra además: tema, fecha completa, título, una tarjeta del jug
    - `press`: preguntas entre comillas; Responder (abre la ventana de prensa), Que hable el ayudante.
    - `offer`: tarjeta del jugador y del club comprador; las mismas acciones que el mensaje `offer`.
    - `job`: tarjeta del club; división, reputación, presupuesto, "Tenés tiempo hasta el {until}"; Aceptar, Rechazar, Ver el club.
-   - `out`: tarjeta del jugador; conformidad; Hablar con él, Declararlo transferible.
+   - `out`: tarjeta del jugador; conformidad (`MoodBar`), minutos (`minutesOf`) y la causa; acciones de `outActions` y comparación de `letGoInfo` (como el mensaje `out` de la tabla D).
    - `season`: "El resumen está en el inicio."; Ir al inicio.
    - `deal`: plantillas "Contraoferta" y "Acuerdo para cerrar" de `design/ux/bandeja.md` (componente `DealDecision` compartido con el Mercado).
 
 #### F. Leído y no leído
 
 9. **Abrir** un mensaje a propósito lo marca leído (`markRead`, `game.ts:265`): clic, ↑ ↓, Enter, ‹ › o un clic en el mosaico del Inicio. La selección automática al entrar **no** marca nada (`design/ux/bandeja.md`, pregunta 12). Elegir un trato en Mercado › Tratos o mirarlo en el `BidBox` tampoco: elegir no es leer el mensaje.
-9b. **Resolver una decisión a propósito, en cualquier pantalla, marca leídos todos los mensajes de esa clave** (`readDecisionNews(g, key)`, `game.ts:272`, sobre `decisionKeyOf`, `:270`). Lo hace el motor dentro de la función que resuelve, así ninguna pantalla escribe en `g`: del lado compra, `acceptCounter`, `placeBid` sobre una contraoferta (Mejorar), `withdrawBid`, `cancelDeal`, `openNegotiation` (abrir la mesa ya es actuar sobre el acuerdo), `signDeal`, `walkAway`; del lado venta, `acceptOffer`, `rejectOffer` y `haggle`. `acceptOffer` marca además los mensajes de las **otras** ofertas por el mismo jugador que la venta cancela (la confirmación las nombró); las que cancela una cláusula pagada por otro club, no. `switchClub` desde `acceptJob` marca los de las ofertas recibidas que se borran.
-9c. **Lo que el DT acaba de ver nace leído** (`read: true` al emitir): la ruptura de `walkAway` y la renovación cortada de `renewWalk` (la ventana ya lo mostró), el fichaje de `signDeal`, la venta de `acceptOffer`, la cancelación de `cancelDeal` (su confirmación dijo el bloqueo) y las caídas por cambio de club de `acceptJob` (la confirmación las nombró). Lo que pasa sin el DT nace sin leer: la respuesta de un club, un vencimiento, la caída por el cierre del libro o porque otro club compró al jugador, las caídas por `takeJob` tras un despido, la cláusula que paga otro club.
+9b. **Resolver una decisión a propósito, en cualquier pantalla, marca leídos todos los mensajes de esa clave** (`readDecisionNews(g, key)`, `game.ts:272`, sobre `decisionKeyOf`, `:270`). Lo hace el motor dentro de la función que resuelve, así ninguna pantalla escribe en `g`: del lado compra, `acceptCounter`, `placeBid` sobre una contraoferta (Mejorar), `withdrawBid`, `cancelDeal`, `openNegotiation` (abrir la mesa ya es actuar sobre el acuerdo), `signDeal`, `walkAway`; del lado venta, `acceptOffer`, `rejectOffer` y `haggle`; del **pedido de salida** (`out<pid>`, regla 13d), `talkResult` cuando la charla le saca el pedido o lo deja transferible (`stay`, `promise`, `status` con subida, `free`; `squad.ts:546`), `setListed(g, pid, true)` con pedido (`squad.ts:355`; también la acción masiva "Declarar transferibles"), `applyRenewal` (`squad.ts:852`) y `acceptOffer` (`career.ts:371`, antes de despachar la venta: vale para un club argentino y para el exterior, que va por `sellAbroad` y no pasa por `doTransfer`). `acceptOffer` marca además los mensajes de las **otras** ofertas por el mismo jugador que la venta cancela (la confirmación las nombró); las que cancela una cláusula pagada por otro club, no. `switchClub` desde `acceptJob` marca los de las ofertas recibidas que se borran.
+9c. **Lo que el DT acaba de ver nace leído** (`read: true` al emitir): la ruptura de `walkAway` y la renovación cortada de `renewWalk` (la ventana ya lo mostró), el fichaje de `signDeal`, la venta de `acceptOffer`, la cancelación de `cancelDeal` (su confirmación dijo el bloqueo) y las caídas por cambio de club de `acceptJob` (la confirmación las nombró). Una charla no emite mensaje: el DT ya vio la respuesta en la ventana. Lo que pasa sin el DT nace sin leer: la respuesta de un club, un vencimiento, la caída por el cierre del libro o porque otro club compró al jugador, las caídas por `takeJob` tras un despido, la cláusula que paga otro club, el pedido de salida, la promesa cumplida, rota o prorrogada, la reserva que no se jugó y "{nombre} sigue queriendo irse".
 9d. Criterio: resolver en el Mercado deja la insignia de la Bandeja igual o más baja, nunca más alta.
 10. "Marcar {N} como leídas" aparece si la vista tiene mensajes sin leer y marca todos los de la vista (máximo 120; `Inbox.tsx:99`).
 11. El Inicio nunca marca leído. No hay forma de volver un mensaje a "sin leer".
 12. Los pendientes no tienen estado leído: están mientras la decisión siga abierta.
 13. `unreadOf(g)` (`inbox.ts:88`) cuenta los mensajes sin leer **para el DT** (`isMine`). Los del resto del fútbol nunca cuentan, aunque en "Todo el fútbol" se dibujan en negrita si no tienen `read`.
-13b. **Una decisión, una vez** (UR-02): un mensaje ligado a un pendiente abierto (`pendingKeyOf(g, n)`) no cuenta como sin leer: cuenta como pendiente. **Por cada oferta o trato cuenta a lo sumo un mensaje, el más nuevo de su clave** (`newestOf`, `inbox.ts:60`): mientras la decisión está abierta, ese mensaje está ligado al pendiente; los más viejos de la misma clave no cuentan nunca, aunque sigan en negrita hasta abrirlos. Una contraoferta que se acepta y pasa a acuerdo sigue siendo la misma decisión (`deal<id>`): cuenta 1. Un rechazo, una caducidad o un vencimiento son solo mensajes: suman como sin leer, y como son el más nuevo de su clave, reemplazan en el conteo al mensaje de la decisión que no se abrió (el vencimiento suma 1, no 2). Los avisos de cierre del libro no tienen clave: cuentan como cualquier mensaje.
+13b. **Una decisión, una vez** (UR-02): un mensaje ligado a un pendiente abierto (`pendingKeyOf(g, n)`) no cuenta como sin leer: cuenta como pendiente. **Por cada oferta, trato o pedido de salida cuenta a lo sumo un mensaje, el más nuevo de su clave** (`newestOf`, `inbox.ts:60`): mientras la decisión está abierta, ese mensaje está ligado al pendiente; los más viejos de la misma clave no cuentan nunca, aunque sigan en negrita hasta abrirlos. Una contraoferta que se acepta y pasa a acuerdo sigue siendo la misma decisión (`deal<id>`): cuenta 1. Un rechazo, una caducidad o un vencimiento son solo mensajes: suman como sin leer, y como son el más nuevo de su clave, reemplazan en el conteo al mensaje de la decisión que no se abrió (el vencimiento suma 1, no 2). Los avisos de cierre del libro no tienen clave: cuentan como cualquier mensaje.
+13d. **El pedido de salida** (`out<pid>`; `design/ux/vestuario.md` R1, `bandeja.md` preguntas 24 y 25). (1) **Clave**: `decisionKeyOf` (`game.ts:273`) da `out<pid>` a todo mensaje con `act: 'out'` y `pid`, sin mirar `ref`; `newestOf` la cubre. (2) **Abierto**: `pendingKeyOf(g, n)` liga el mensaje al pendiente solo si es el más nuevo del jugador y `outOpen` (`inbox.ts:82`); así un pedido nuevo suma 1, no 2. (3) **Resolver a propósito** marca leídos sus mensajes (regla 9b). (4) **Lo que lo cierra sin el DT no se marca**: un rival que paga su cláusula, la vuelta de un préstamo, el pase libre, el retiro o el cambio de club del DT (`takeJob` o `acceptJob`; la confirmación del trabajo nombra los tratos que se caen, no los pedidos) dejan el mensaje sin leer y, como deja de estar abierto, cuenta una vez como mensaje común con "Ya no está en el plantel." (5) **Reaparecer**: "Quitar de transferibles" (`setListed(g, pid, false)`) reabre el pendiente con su mensaje ya leído (cuenta 1, no frena el avance: lo hizo el DT); al cambiar de temporada se vacía la lista de transferibles y, después de `seasonTurnover`, cada jugador del DT que estaba en ella y sigue queriendo irse recibe "{nombre} sigue queriendo irse" (`game.ts:803-818`), que nace sin leer, es el más nuevo de su clave y cuenta 1 como pendiente. Un pedido no vence (sin costo nuevo por ignorarlo, `vestuario.md` pregunta 13).
 13c. La regla del mensaje más nuevo no vale para las ofertas de trabajo: su clave (`job<clubId>`) se repite si el mismo club vuelve a ofertar (abierto, `bandeja.md` pregunta 22).
 
 #### G. Vistas de la bandeja (`CATS`, `Inbox.tsx:46-54`)
@@ -284,7 +290,7 @@ Todo mensaje muestra además: tema, fecha completa, título, una tarjeta del jug
 | Todos los emisores (tabla C) | Noticias por `news()` | — | Cada emisor completa `tag`, `clubId`, `pid`, `act`, `ref`. |
 | `mercado-de-pases` | `g.offers`, vencimiento a 8 días, `windowOpen` | Llamadas a `acceptOffer`, `haggle`, `rejectOffer` | Las reglas son de ellos; la bandeja solo llama. |
 | `carrera-del-dt` | `g.jobOffers` (`until`) | `acceptJob`; Rechazar borra la oferta **desde la interfaz** (`Inbox.tsx:179`, `197`) | Mixto: la interfaz escribe estado directamente. |
-| `plantel` | `wantsOut`, `listed`, `happy` | Declararlo transferible escribe `p.listed = true` **desde la interfaz** | Mixto. |
+| `plantel` | `wantsOut`, `listed`, `happy`, `outActions`, `letGoInfo`, `minutesOf` | Declararlo transferible llama a `setListed` (motor, con la regla de leído); "Hablar con él" navega a la ficha › Vestuario; "Armar la reserva" al Vestuario | Motor. |
 | `prensa-e-informes` | `g.press`, `DayResult 'press'`, noticia `rival` | `delegatePress`, apertura de la ventana de prensa y del informe | Ellos crean; la bandeja muestra y delega. |
 | `temporada-y-ligas` | `advanceDay`, `seasonOver`, fixture, `nextUserFixture` | — | Ellos avanzan; la interfaz decide cuándo frenar. |
 | `entrenamiento-y-cuerpo-tecnico` | Noticias `injury`, `train` | Ir a Entrenamiento | — |
@@ -324,7 +330,7 @@ unread = #{ n ∈ g.news : !n.read ∧ isMine(n)
             ∧ ¬(pendingKeyOf(g, n) ∈ pend) }
 badge  = |pend| + unread                                 // se muestra si > 0
 ```
-Una oferta por un jugador, una contraoferta o un acuerdo suman **1** (el pendiente; su mensaje más nuevo está ligado a él). Al vencer, suma 1 el mensaje de vencimiento. Una oferta de trabajo o un jugador que quiere irse también suman 1. La conferencia suma 1. La insignia de Mercado es `|{ p ∈ pend : p.k ∈ { offer, deal } }|`.
+Una oferta por un jugador, una contraoferta o un acuerdo suman **1** (el pendiente; su mensaje más nuevo está ligado a él). Al vencer, suma 1 el mensaje de vencimiento. Una oferta de trabajo o un jugador que quiere irse también suman 1 (el pedido, por la regla 13d, también con varios mensajes del mismo jugador o después de resolverlo en el Vestuario). La conferencia suma 1. La insignia de Mercado es `|{ p ∈ pend : p.k ∈ { offer, deal } }|`.
 
 **F4. Plazos mostrados** (una función del motor para cada uno, la misma que lo vence)
 ```
@@ -350,7 +356,10 @@ barra = min(100 %, días avanzados / total)
 | El elemento elegido desaparece (oferta respondida) | La selección pasa a la primera fila | `Inbox.tsx:70-72`. |
 | Oferta de un jugador que ya no existe | No figura en Pendientes; el mensaje dice "ya fue respondida o venció" | Chequeo `g.players[o.pid]`. |
 | Oferta de trabajo vencida | No figura en Pendientes desde `until + 1`; el mensaje dice "La oferta ya no está vigente." | `until ≥ hoy`. |
-| Jugador que quiere irse declarado transferible | Sale de Pendientes; el mensaje ofrece solo "Hablar con él" | `!p.listed`. |
+| Jugador que quiere irse declarado transferible | Sale de Pendientes; el mensaje dice "Está declarado transferible." | `outOpen` pide `!listed`. |
+| Pedido de salida resuelto en el Vestuario o la ficha (charla, transferible, renovación) | Sale de Pendientes y sus mensajes quedan leídos: la insignia baja 1 | Regla 9b, 13d. |
+| Pedido de salida de un jugador que se fue sin decisión del DT (cláusula, libre, retiro, préstamo que vuelve, cambio de club del DT) | El mensaje queda sin leer y cuenta 1 como mensaje común: "Ya no está en el plantel." sin acciones | Regla 13d (4). |
+| Dos pedidos del mismo jugador (lo pidió, se le dijo que no, lo volvió a pedir) | Solo el más nuevo cuenta y ofrece acciones; el viejo dice "Ya respondiste este pedido." | `newestOf`. |
 | Vista sin mensajes | "No hay mensajes en esta categoría." o "No tenés nada pendiente." | — |
 | Mosaico sin mensajes en el filtro | "No hay mensajes en esta vista." | — |
 | Avance larguísimo | Se corta a los 400 días | Protección. |
@@ -361,14 +370,14 @@ barra = min(100 %, días avanzados / total)
 | Scenario | Comportamiento actual | Severidad |
 |----------|----------------------|-----------|
 | **Pedir más con éxito** | `haggle` le da a la oferta un `id` nuevo (`career.ts:259`); el mensaje original (`ref` = id viejo) pasa a "Esta oferta ya fue respondida o venció." aunque la oferta mejorada sigue en Pendientes. La nota "mejoró su oferta" se pierde con el redibujo. | ✅ Resuelto (2026-11-14): la oferta conserva su id (`o.asks`) y la bandeja deja la nota a la vista. Con el libro cerrado Pedir más está deshabilitado. |
-| **Doble conteo** | Una oferta, un trabajo o un pedido de salida sumaban 2 | ✅ Resuelto: `unreadOf` no cuenta el mensaje ligado a un pendiente y, por oferta o trato, solo el más nuevo (regla 13b) |
+| **Doble conteo** | Una oferta, un trabajo o un pedido de salida sumaban 2 | ✅ Resuelto: `unreadOf` no cuenta el mensaje ligado a un pendiente y, por oferta, trato o pedido de salida, solo el más nuevo (regla 13b). El pedido, además, contaba 2 al resolverlo con una charla y 1 de más con dos mensajes: ✅ resuelto el 2026-11-15 (regla 13d) |
 | **Selección automática marca leído** | — | ✅ Resuelto (`design/ux/bandeja.md` pregunta 12): solo lo que el DT abre; resolver la decisión marca sus mensajes (regla 9b) |
 | **Clic en el mosaico del Inicio** | Abre la bandeja sin ese mensaje elegido; en general se ve otro | Media |
 | **Freno sin la decisión elegida** | El freno abre la bandeja con la decisión que vence hoy o la nueva elegida (`sel`) | ✅ Resuelto para ofertas y trabajos. Para una contraoferta o un acuerdo nuevos la interfaz tiene que buscar la decisión en `pendingAll` (en `8fe1dcb`, `App.tsx:185` usaba `pendingOf`, sin tratos; en implementación) |
 | **Vencimiento en silencio** | — | ✅ Resuelto: el avance frena el último día para responder (`expiringKeys`, también contraofertas y acuerdos) y lo que vence deja un mensaje |
 | **Orden de pendientes** | — | ✅ Resuelto: `pendingAll` ordena por urgencia y plazo |
 | **Plazos que no coinciden** | La oferta dice "vence en una semana" y dura 8 días (+ la mañana del noveno); el trabajo dice "Tenés una semana" y dura 6 días + hoy | Baja |
-| **Textos que mandan a otra pantalla** | La oferta dice "desde la pantalla de Mercado" (`career.ts:339`) y el pedido de salida "desde el Vestuario" (`squad.ts:83`), aunque la acción está en el mensaje | Baja |
+| **Textos que mandan a otra pantalla** | La oferta, el pedido de salida y la reserva sin partido dicen "desde este mensaje" (`career.ts:480`, `squad.ts:192`, `:313`) | ✅ Resuelto en el motor (2026-11-15) |
 | **Venta propia fuera de "Para vos"** | La venta de un jugador del DT a un club argentino (`career.ts:228`) no es `me` ni cuenta como sin leer | ✅ Resuelto (2026-11-14): `doTransfer` marca `me` si vende tu club |
 | **Aviso de base actualizada fuera de "Para vos"** | `game.ts:300` no lleva `clubId` del DT | ✅ Resuelto (2026-11-14): lleva `me` |
 | **Acciones sin confirmación** | Aceptar o Rechazar una oferta y Aceptar un trabajo (cambia de club en el acto, a mitad de temporada) son de un clic | Alta |
@@ -493,7 +502,7 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 15. **UR-15** Aceptar con el libro de pases cerrado está deshabilitado y dice por qué de forma visible (no solo al pasar el mouse). — Hoy: `title` del botón (`Inbox.tsx:158`). **Parcial.**
 16. **UR-16** Las acciones que no se pueden deshacer (aceptar o rechazar una oferta, aceptar o rechazar un trabajo) piden confirmación; aceptar un trabajo a mitad de temporada advierte que el cambio de club es inmediato. — Hoy: un clic. **Falta.**
 17. **UR-17** Al resolver, el panel muestra el resultado ("Vendiste a…", "Rechazaste la oferta.", "{club} se retiró") hasta que el DT elija otra cosa; no salta solo a otro elemento. — Hoy: la nota se pierde cuando el pendiente desaparece. **Falta.**
-18. **UR-18** Los textos del motor no mandan a otra pantalla cuando la acción está en el mensaje. — Hoy: "desde la pantalla de Mercado", "desde el Vestuario". **Falta.**
+18. **UR-18** Los textos del motor no mandan a otra pantalla cuando la acción está en el mensaje. — Hoy: la oferta, el pedido de salida y la reserva sin partido dicen "desde este mensaje" (`11816f4`). **Cumple** en el motor.
 19. **UR-19** Un mensaje sobre un jugador o club que ya no existe se muestra sin tarjeta ni acciones, sin errores, con un texto que lo explique. — Hoy: sin tarjeta ni acciones, sin texto. **Parcial.**
 20. **UR-20** Todo mensaje muestra tema, fecha, título, cuerpo y tarjetas del jugador y del club que abren su ficha. — Hoy: `Message`, `Who`. **Cumple.**
 
@@ -540,6 +549,14 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 44. **UR-44** Un mensaje de un trato que ya no es la decisión vigente lo dice (texto F2 y chip "Trato") y ofrece ir a la respuesta nueva, al trato nuevo o al historial; un trato podado no rompe nada. — Hoy: `pendingKeyOf(g, n)` y `newestOf` en el motor; texto por implementar. **Parcial.**
 45. **UR-45** Los avisos de cierre del libro (7 días antes y el último día) llegan como mensaje con lo abierto de los dos lados y no frenan el avance. — Hoy: `windowNotice` (`career.ts:735`). **Cumple.**
 
+**Pedido de salida y vestuario** (`design/ux/vestuario.md` R1 y pregunta 19; `design/ux/bandeja.md` preguntas 24 y 25)
+
+46. **UR-46** Un pedido de salida cuenta una vez en cualquier número: al llegar, con varios mensajes del mismo jugador, al resolverlo en cualquier pantalla y por cualquier camino (charla, transferible, renovación, venta a un club argentino o al exterior), al cerrarse sin el DT (cuenta 1 como mensaje común) y al reaparecer ("Quitar de transferibles", nueva temporada). — Hoy: regla 13d, con una prueba por camino en `tests/engine/vestuario.ts`. **Cumple** en el motor.
+47. **UR-47** La decisión "quiere irse" nunca ofrece como principal una acción que no se puede usar: con la charla de la semana usada, el primario es "Declararlo transferible", con la fecha de la próxima charla; a préstamo, ninguna acción y el porqué. — Hoy: `outActions` en el motor; la plantilla, en implementación. **Parcial.**
+48. **UR-48** Donde aparecen "Declararlo transferible" y "Decirle que puede buscar club", la diferencia se lee con números (humor, charla, chance de oferta, libro y precio), sin prometer nada que el mercado no cumpla. — Hoy: `letGoInfo` en el motor; el texto `vt-letgo`, en implementación. **Parcial.**
+49. **UR-49** "Reserva: no hubo partido" ofrece "Armar la reserva", que abre el Vestuario en ese modo. — Hoy: `act: 'reserve'` y el texto en el motor; el botón, en implementación. **Parcial.**
+50. **UR-50** El mensaje "Informe completo" dice lo que se gana al 100 % (atributos, potencial, cada rasgo de la personalidad y el ánimo) y su tarjeta muestra la personalidad con `persTraits`. — Hoy: texto en el motor (`squad.ts:283`); la tarjeta, en implementación. **Parcial.**
+
 ## Cross-References
 
 | This Document References | Target GDD | Specific Element Referenced | Nature |
@@ -579,10 +596,12 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 - [x] Mejorar, retirar, aceptar el pedido, abrir la mesa, cancelar y firmar marcan leídos los mensajes del trato; la ruptura, la cancelación y el fichaje nacen leídos.
 - [x] Con un rechazo, el mensaje viejo no hereda las acciones del trato nuevo (`pendingKeyOf(g, n) === null`).
 - [x] El aviso de cierre del libro no tiene `act` y no es una decisión.
+- [x] Pedido de salida (`tests/engine/vestuario.ts`, R1): con un pedido nuevo la insignia sube 1; baja 1 al resolverlo con `talkResult`, `setListed`, `applyRenewal` y `acceptOffer` (a un club argentino y al exterior); el cambio de club del DT y una cláusula pagada dejan el mensaje como uno común sin leer (cuenta 1, no 2); con dos mensajes del mismo jugador solo cuenta el más nuevo; "Quitar de transferibles" reabre con 1; la nueva temporada deja 1 con "sigue queriendo irse", que no recibe quien se retira o se va libre en el mismo cambio.
+- [x] "Reserva: no hubo partido" lleva `act: 'reserve'`; "Informe completo" lleva el texto nuevo.
 - [ ] Resolver una decisión desde Tratos deja la insignia de la Bandeja en N − 1 al firmar, cancelar, retirar, mejorar, aceptar o rechazar una oferta; en N al aceptar el pedido de una contraoferta o pedir más con éxito; nunca N + 1.
 
 **Falta (de UI Requirements)**
-- [ ] UR-04, UR-13, UR-14, UR-16, UR-17, UR-18, UR-38, UR-40, UR-42, UR-44.
+- [ ] UR-04, UR-13, UR-14, UR-16, UR-17, UR-38, UR-40, UR-42, UR-44, UR-47 a UR-50 (las cuatro últimas, con la pantalla del Vestuario y `node tests/ui/vestuario.cjs`).
 - [ ] Rendimiento: con 400 mensajes y 60 tratos, `pendingAll`, `newestOf` y `unreadOf` corren en menos de 2 ms por dibujo (recorren `g.players` y `g.news` en cada `refresh`; a medir).
 - [ ] Las constantes de poda y plazos viven en un archivo de datos.
 
@@ -600,10 +619,10 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 | ¿Una decisión cuenta una vez (pendiente) o dos (pendiente + mensaje sin leer)? | usuario + ux-designer | — | Resuelta: una vez; por oferta o trato, solo el mensaje más nuevo (regla 13b) |
 | ¿La regla del mensaje más nuevo vale para las ofertas de trabajo? | gameplay-programmer | — | Abierta: haría falta un id por oferta de trabajo (`bandeja.md` pregunta 22) |
 | Rechazar un trabajo deja al club con DT interino para siempre: ¿el motor tiene que nombrar uno al rechazar? | gameplay-programmer | — | Resuelta (2026-11-14): `rejectJob` nombra uno |
-| ¿Las decisiones tienen que tener costo por omisión (por ejemplo, ignorar un pedido de salida empeora la armonía)? | usuario | — | `INTENT UNKNOWN` |
+| ¿Las decisiones tienen que tener costo por omisión (por ejemplo, ignorar un pedido de salida empeora la armonía)? | usuario | — | Para el pedido de salida, resuelta (2026-11-15, `vestuario.md` pregunta 13): sin costo nuevo; la pantalla muestra el que ya hay (resta armonía y, con el libro abierto, siguen llegando ofertas). Para el resto, `INTENT UNKNOWN` |
 | ¿La venta de un jugador propio tiene que ser `me` (emitir con el `clubId` del vendedor o calcular `me` antes del traspaso)? | gameplay-programmer | — | Resuelta (2026-11-14): sí |
-| ¿El pedido de salida tiene que vencer o escalar con el tiempo? | usuario | — | `INTENT UNKNOWN` |
-| Mover `pendingOf`, `isMine` y las escrituras de la interfaz (`n.read`, `g.jobOffers`, `p.listed`) al motor (`design/ux/bandeja.md`, pregunta 5). | ui-programmer + lead-programmer | — | Resuelta: `src/engine/inbox.ts`, `markRead`, `rejectJob`, `setListed`. La interfaz pasa de `pendingOf` a `pendingAll` con la implementación del Mercado (en `8fe1dcb`: `App.tsx:185`, `:188`, `Inbox.tsx:120`) |
+| ¿El pedido de salida tiene que vencer o escalar con el tiempo? | usuario | — | Resuelta (2026-11-15, `vestuario.md` pregunta 13): no vence ni escala |
+| Mover `pendingOf`, `isMine` y las escrituras de la interfaz (`n.read`, `g.jobOffers`, `p.listed`, `p.reserve`) al motor (`design/ux/bandeja.md`, pregunta 5). | ui-programmer + lead-programmer | — | Resuelta: `src/engine/inbox.ts`, `markRead`, `rejectJob`, `setListed`, `setReserve` (la acción masiva de `PlayerTable` pasa a `setListed` y `setReserve` con la pantalla del Vestuario). La interfaz pasa de `pendingOf` a `pendingAll` con la implementación del Mercado (en `8fe1dcb`: `App.tsx:185`, `:188`, `Inbox.tsx:120`) |
 | ¿Hace falta un tema Dirigencia en la bandeja? (`design/ux/bandeja.md` lo propone) | usuario | — | Pendiente |
 
 ## Version History
@@ -615,3 +634,4 @@ Requisitos desde la necesidad del jugador. Cada uno dice dónde se cumple hoy y 
 *Generado por `/reverse-document design src/ui/Inbox.tsx`.*
 | 2026-11-14 | Claude | Resueltos: id de la oferta al pedir más, venta propia y base actualizada en "Para vos", rechazar un trabajo; la nota "Error al guardar" (F7 en `--bad`) aparece tras una decisión si falla el guardado (`design/ux/bandeja.md`); la línea de consecuencias de un trabajo nombra al cuerpo técnico que se va con el DT y al que queda |
 | 2026-11-15 | Claude | Tratos del mercado (`8fe1dcb`, `design/ux/bandeja.md` pregunta 22): `act: 'deal'` y sus emisores, pendiente `deal` (contraoferta y acuerdo) en `pendingAll` con plazo, fila `deal` de la tabla D, regla del mensaje más nuevo (`newestOf`), regla de leído al resolver (`readDecisionNews`) y mensajes que nacen leídos, conteo de una decisión una vez (F3), freno por la respuesta de un club y por el último día (UR-33 unificado a "el último día"), avisos de cierre del libro que no frenan, vencimientos con mensaje; UR-02, UR-08, UR-09, UR-33 y UR-36 cumplidos; UR-42 a UR-45 nuevos; líneas de `career.ts` y `squad.ts` del catálogo actualizadas |
+| 2026-11-15 | Claude (game-designer) | Motor del Vestuario (`11816f4`; `design/ux/vestuario.md` R1 y pregunta 19, `design/ux/bandeja.md` preguntas 24 y 25): regla 13d del pedido de salida (clave `out<pid>` en `decisionKeyOf`, chequeo de abierto `outOpen` en `pendingKeyOf`, el pedido contado una vez, todos los caminos que lo resuelven en la regla 9b, cierres sin el DT, reapertura y "sigue queriendo irse" después de `seasonTurnover`), fila `out` de la tabla D con `outActions` y `letGoInfo`, `act: 'reserve'` ("Armar la reserva" → `{ page: 'locker', tab: 'armar' }`), texto nuevo de "Informe completo", emisores de `squad.ts` actualizados y nuevos (prórroga de promesa, "sigue queriendo irse"); UR-18 cumplido; UR-46 a UR-50 nuevos |

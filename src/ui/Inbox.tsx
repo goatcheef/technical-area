@@ -5,7 +5,7 @@ import { acceptJob, acceptOffer, askingPrice, committed, divName, haggle, jobCon
 import { clubsIn, decisionKeyOf, fmtDate, injuryOutlook, isMine, leagueFx, markRead, nextUserFixture, squadOf, tableOf } from '../engine/game'
 import { newestOf, pendingAll, pendingKeyOf, type AnyPending as Pending } from '../engine/inbox'
 import { POS_NAME, ageOn } from '../engine/positions'
-import { STATUS, demandWage, knowOf, minutesShare, persLabels, setListed, toggleShortlist, wageShown } from '../engine/squad'
+import { STATUS, demandWage, knowOf, letGoInfo, minutesOf, outActions, persTraits, promiseStatus, setListed, talkState, toggleShortlist, wageShown } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Club, type Fixture, type Game, type News, type Offer, type StaffRole } from '../engine/types'
 import { delegatePress, scoutReport } from '../engine/week'
 import { useGame, useSticky, type Route } from '../store'
@@ -15,6 +15,7 @@ import { DayHead, IC, MsgBody, TAG_ICON, TAG_NAME, daysUntil, shortDay } from '.
 import { ReportModal } from './Week'
 import { DealView, dealModel, dealStateText, offerModel, wr } from './deal'
 import { NegotiationModal } from './Locker'
+import { LetGo, MinsBar, MoodBar, TalkSt, listedNote } from './mood'
 
 // ---------- vistas: alcance y tema ----------
 const TOPICS: [string, string][] = [['todo', 'Todo'], ['plantel', 'Plantel'], ['mercado', 'Mercado'], ['partidos', 'Partidos'], ['torneos', 'Torneos'], ['dirigencia', 'Dirigencia']]
@@ -192,7 +193,7 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
     else if (r.to === 'scope') el = document.querySelector<HTMLElement>('.ib-filters button[aria-pressed=true]')
     else if (r.to === 'next') el = read?.querySelector<HTMLElement>('[data-next]') ?? read?.querySelector<HTMLElement>('.ib-result')
     else if (r.to === 'title') el = read?.querySelector<HTMLElement>('.ib-h')
-    else el = read?.querySelector<HTMLElement>('[data-primary]:not(:disabled)') ?? read?.querySelector<HTMLElement>('.ib-acts button:not(:disabled)') ?? read?.querySelector<HTMLElement>('.ib-h')
+    else { const pr = read?.querySelector<HTMLElement>('[data-primary]:not(:disabled)'); el = pr?.hasAttribute('data-nofocus') ? read?.querySelector<HTMLElement>('.ib-h') : pr ?? read?.querySelector<HTMLElement>('.ib-acts button:not(:disabled)') ?? read?.querySelector<HTMLElement>('.ib-h') }
     if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }) }
   })
   // al entrar: foco en la fila elegida (o en el alcance si no hay nada); al volver del detalle, en la fila que se leía
@@ -381,7 +382,8 @@ function Toggles({ label, items, value, onPick, className, btnClass = '' }: { la
 
 // ---------- lectura ----------
 /** `nav`: solo lleva a otra pantalla (lectura); sigue habilitada durante el avance y en pantallas angostas puede salir de la barra. `dec`: decide sin confirmación. */
-type Act = { label: ReactNode; kind?: 'primary' | 'danger'; run?: () => void; confirm?: { label: string; danger?: boolean; run: () => void }; disabled?: boolean; nav?: boolean; dec?: boolean; on?: boolean }
+type Act = { label: ReactNode; kind?: 'primary' | 'danger'; run?: () => void; confirm?: { label: string; danger?: boolean; run: () => void }; disabled?: boolean; nav?: boolean; dec?: boolean; on?: boolean
+  /** primario que decide sin confirmación: abrir el mensaje lleva el foco al título, no a él (dos Enter seguidos nunca deciden) */ nofocus?: boolean; describedBy?: string }
 
 /** Fila de acciones con confirmación en el lugar (F6): el botón se reemplaza por "Confirmar…" y "No"; Esc o "No" vuelven. */
 function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: boolean }) {
@@ -394,7 +396,7 @@ function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: b
     <div className="ib-acts" onKeyDown={e => { if (e.key === 'Escape' && open != null) { e.preventDefault(); cancel() } }}>
       {acts.map((a, i) => open === i && a.confirm
         ? <div key={i} className={`ib-confirm ${a.confirm.danger ? 'danger' : ''}`}><button ref={conf} className={a.confirm.danger ? 'btn danger strong' : 'btn primary'} onClick={a.confirm.run}>{a.confirm.label}</button><button className="btn" onClick={cancel}>No</button></div>
-        : <button key={i} ref={el => { btns.current[i] = el }} className={`btn ${a.kind ?? ''} ${a.on ? 'on' : ''}`} aria-pressed={a.on ?? undefined} data-primary={a.kind === 'primary' || undefined} disabled={a.disabled || (busy && !a.nav && (!!a.confirm || !!a.dec))} onClick={() => (a.confirm ? setOpen(i) : a.run?.())}>{a.label}</button>)}
+        : <button key={i} ref={el => { btns.current[i] = el }} className={`btn ${a.kind ?? ''} ${a.on ? 'on' : ''}`} aria-pressed={a.on ?? undefined} data-primary={a.kind === 'primary' || undefined} data-nofocus={a.nofocus || undefined} aria-describedby={a.describedBy} disabled={a.disabled || (busy && !a.nav && (!!a.confirm || !!a.dec))} onClick={() => (a.confirm ? setOpen(i) : a.run?.())}>{a.label}</button>)}
     </div>
     {busy && decision && <div className="ib-help">Frená el avance para decidir.</div>}
     {help.filter(Boolean).map((h, i) => <div key={i} className="ib-help">{h}</div>)}
@@ -449,7 +451,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
   const kind = it.p?.k ?? (n?.act === 'offer' || n?.act === 'job' || n?.act === 'out' || n?.act === 'deal' ? n.act : null)
 
   let cards: ReactNode = null, kpis: ReactNode = null, extra: ReactNode = null, facts: ReactNode = null, conseq: ReactNode = null, gone: ReactNode = null, after: ReactNode = null
-  let acts: Act[] = [], help: ReactNode[] = []
+  let acts: Act[] = [], help: ReactNode[] = [], titleDesc: string | undefined
   const goneMsg = (t: string) => (gone = <div className="ib-gone">{t}</div>)
   const expired = (ref: number, tag: string) => g.news.find(x => x.ref === ref && x.tag === tag && x.title.startsWith('Venció'))
 
@@ -523,17 +525,31 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       ]
     } else { const ex = expired(cid, 'directiva'); goneMsg(ex ? `Esta oferta venció el ${fmtDate(ex.date)}.` : 'La oferta ya no está vigente.') }
   } else if (kind === 'out') {
-    const pid = it.p?.k === 'out' ? it.p.pid : n!.pid!, p = g.players[pid]
-    cards = <PlayerCard pid={pid} />
+    // la misma decisión que el Vestuario (vestuario.md 5.3; bandeja.md pregunta 24): escalas, minutos, charla y comparación del motor
+    const pid = it.p?.k === 'out' ? it.p.pid : n!.pid!, p = g.players[pid], here = !!p && p.clubId === g.userClubId
+    if (p) cards = <PlayerCard pid={pid} />
     if (p && livePend) {
-      const exp = Math.round(STATUS[p.status ?? 'sub'].share * 100), got = Math.round(minutesShare(p) * 100), h = Math.round(p.happy ?? 50)
-      kpis = <><Kpi k l="Conformidad" v={<span className="row" style={{ gap: 8 }}>{h}<span className="bar" style={{ width: 60 }}><i style={{ width: `${h}%`, background: h >= 65 ? 'var(--good)' : h >= 35 ? 'var(--warn)' : 'var(--bad)' }} /></span></span>} /><Kpi l="Rol" v={p.status ? STATUS[p.status].name : '—'} /><Kpi l="Minutos" v={`${got} %`} s={`esperados ${exp} % · jugados ${got} %`} /></>
-      facts = <><Due d={{ text: 'No vence: sigue pendiente hasta que lo declares transferible o deje de pedir irse.', none: true }} />{p.promise && <Fact><span className="chip">Promesa hasta el {fmtDate(p.promise.until)}</span></Fact>}</>
-      acts = [
-        { label: 'Hablar con él', kind: 'primary', nav: true, run: () => nav({ page: 'player', id: pid, tab: 'personal' }) },
-        { label: 'Declararlo transferible', dec: true, run: () => run(dk!, () => { setListed(g, pid, true); return { text: `Declaraste transferible a ${p.name}. Las ofertas van a llegar a la bandeja.` } }) },
-      ]
-    } else goneMsg(!p ? 'Ya no está en el plantel.' : p.listed ? 'Ya está declarado transferible.' : 'Ya no pide irse.')
+      const m = minutesOf(g, p), h = p.happy ?? 70, ts = talkState(g, p), oa = outActions(g, p), ps = promiseStatus(g, p), lg = letGoInfo(g, p)
+      kpis = <><div className="ib-kpi key"><span className="ib-kpi-l">Conformidad</span><span className="ib-kpi-v">{Math.floor(h)}</span><MoodBar v={h} size="kpi" /></div>
+        <Kpi l="Rol" v={p.status ? STATUS[p.status].name : '—'} />
+        <div className="ib-kpi"><span className="ib-kpi-l">Minutos</span><MinsBar m={m} /></div></>
+      facts = <><Due d={{ text: 'No vence: sigue pendiente hasta que lo declares transferible o deje de pedir irse.', none: true }} />
+        {/* la charla usada se dice una vez: en la nota de `outActions` si la hay (fase 5, revisión M8 / m2) */}
+        {!ts.can && !oa.note && <Fact><TalkSt text={ts.long} big /></Fact>}
+        {ps && <Fact>{ps.played >= 2 && !ps.onTrack ? <span className="mk-st vt-why bang">{IC.dec}Promesa en riesgo</span> : <span className="mk-st vt-why ok">{IC.check}Minutos prometidos</span>}<span>hasta el {shortDay(ps.until, g.date)}</span></Fact>}</>
+      const doList = () => run(dk!, () => { setListed(g, pid, true); return { text: listedNote(p.name, lg, true) } })
+      acts = oa.talk.ok
+        ? [{ label: 'Hablar con él', kind: 'primary', nav: true, run: () => nav({ page: 'player', id: pid, tab: 'personal' }) }, ...(oa.list.ok ? [{ label: 'Declararlo transferible', dec: true, describedBy: 'ib-letgo', run: doList }] : [])]
+        : oa.list.ok ? [{ label: 'Declararlo transferible', kind: 'primary', dec: true, nofocus: true, describedBy: 'ib-letgo', run: doList }, { label: 'Ver la ficha', nav: true, run: () => openPlayer(pid) }]
+        : [{ label: 'Ver la ficha', nav: true, run: () => openPlayer(pid) }]
+      // la nota con el mismo tratamiento que en la fila del Vestuario: texto de 14 px en --dim, sin caja
+      if (oa.note) { titleDesc = 'ib-out-note'; conseq = <p className="vt-att-on vt-out-note" id="ib-out-note">{oa.note}</p> }
+      if (oa.list.ok) after = <LetGo info={lg} id="ib-letgo" />
+    } else {
+      // un mensaje viejo o un pedido ya resuelto: un solo texto por caso (pregunta 25)
+      goneMsg(!here ? 'Ya no está en el plantel.' : p!.wantsOut && p!.listed ? 'Está declarado transferible.' : 'Ya respondiste este pedido.')
+      if (p) acts = [{ label: 'Ver la ficha', nav: true, run: () => openPlayer(pid) }]
+    }
   } else if (kind === 'press') {
     if (livePend && g.press) {
       const f = g.fixtures.find(x => x.id === g.press!.fixtureId), opp = f ? g.clubs[f.home === g.userClubId ? f.away : f.home] : undefined
@@ -580,7 +596,8 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
         const idx = ATTRS.map((_, i) => i).sort((x, y) => p.attrs[y] - p.attrs[x]), top = idx.slice(0, 4), low = idx[idx.length - 1]
         const mine = p.clubId === g.userClubId, ask = mine ? null : wageShown(g, p, demandWage(g, p), 402)
         extra = <div className="attr-cols ib-attrs">{[...top, low].map((i, j) => <div key={i} className="attr"><span className="attr-l">{j === 4 ? 'Más flojo: ' : ''}{ATTR_LABEL[ATTRS[i]]}</span><span className={`v ${attrClass(p.attrs[i])}`}>{p.attrs[i]}</span></div>)}</div>
-        kpis = <><Kpi t l="Personalidad" v={persLabels(p).join(', ') || '—'} /><Kpi l="Valor" v={money(p.value)} />{ask != null && <Kpi l="Pedido de sueldo" v={wr(ask)} s={ask[0] === ask[1] ? 'por mes' : 'por mes (estimado)'} />}</>
+        const pt = persTraits(g, p)
+        kpis = <><Kpi t l="Personalidad" v={pt.traits.map(t => t.text).join(', ') || (pt.level === 'none' ? '—' : 'Ningún rasgo marcado a la vista')} /><Kpi l="Valor" v={money(p.value)} />{ask != null && <Kpi l="Pedido de sueldo" v={wr(ask)} s={ask[0] === ask[1] ? 'por mes' : 'por mes (estimado)'} />}</>
         const followed = g.shortlist.includes(p.id)
         acts = [{ label: 'Ver la ficha', kind: 'primary', run: () => openPlayer(p.id) }, ...(!mine ? [
           { label: followed ? '✓ En seguimiento' : 'Seguir', on: followed, run: () => { toggleShortlist(g, p.id); save(); refresh() } },
@@ -596,6 +613,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
         acts = [{ label: 'Ver el informe del rival', kind: 'primary', run: () => setScout(nx) }]
       } else { cards = <ClubCard cid={n.clubId !== g.userClubId ? n.clubId : undefined} />; goneMsg('Ese partido ya se jugó.') }
     } else if (n.act === 'train') acts = [{ label: 'Ir a Entrenamiento', run: () => go('training') }]
+    else if (n.act === 'reserve') acts = [{ label: 'Armar la reserva', kind: 'primary', nav: true, run: () => nav({ page: 'locker', tab: 'armar' }) }]
     else {
       cards = p ? <PlayerCard pid={n.pid} /> : n.pid != null ? <PlayerCard pid={n.pid} /> : <ClubCard cid={n.clubId} />
       if (n.tag === 'torneo' || n.tag === 'premio') acts = [{ label: 'Ver posiciones', run: () => go('tables') }]
@@ -614,7 +632,8 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
   const showActs = !resolved && !gone && acts.length > 0
   return <div className="ib-panel">
     <div className="ib-rhead"><p className="ib-topic">{topic}</p>{stateChip}<span className="grow" /><span className="ib-date">{date}</span>{n && own(n) && <button className="btn sm" onClick={toggleRead}>{n.read ? 'Marcar como no leído' : 'Marcar como leído'}</button>}</div>
-    <h2 className="ib-h" tabIndex={-1}>{n?.title ?? desc?.title}</h2>
+    {/* con un primario que decide sin confirmación, el foco llega al título; Tab sigue el orden visual (la tarjeta, después el primario; bandeja.md, pregunta 25) */}
+    <h2 className="ib-h" tabIndex={-1} aria-describedby={titleDesc}>{n?.title ?? desc?.title}</h2>
     {cards && <div className="ib-ents">{cards}</div>}
     {!resolved && kpis && <div className="ib-kpis">{kpis}</div>}
     {!resolved && extra}

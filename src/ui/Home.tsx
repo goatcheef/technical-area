@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { wageBill, windowOpen } from '../engine/career'
 import { FOCUS, INTENSITY } from '../engine/week'
-import { harmony, knownRating } from '../engine/squad'
+import { attentionOf, harmony, harmonyWord, knownRating } from '../engine/squad'
 import { ReportModal } from './Week'
 import { annualTable, clubsIn, fmtDate, leagueFx, markRead, nextUserFixture, promedios, relegationZone, squadOf, startNewSeason, tableOf, zoneRule } from '../engine/game'
 import { Legend, MARK_CLASS } from './Tables'
@@ -133,7 +133,12 @@ export function Home() {
     todo: { name: 'Para atender', render: () => <>
       <h3>Para atender</h3>
       {pend.length > 0 && <div className="row between"><span className="warn">Pendiente: {pendingText(pend)}</span><button className="btn sm primary" onClick={() => nav({ page: 'inbox', tab: 'pend' })}>Ver</button></div>}
-      {(() => { const hm = harmony(g), out = squadOf(g, club.id).filter(p => p.wantsOut).length; return <div className="row between"><span className={hm.unhappy.length ? 'warn' : 'dim'}>Vestuario: armonía {hm.value}{hm.unhappy.length ? ` · ${hm.unhappy.length} disconforme(s)` : ''}{out ? ` · ${out} quiere(n) irse` : ''}</span><button className="btn sm" onClick={() => go('locker')}>Vestuario</button></div> })()}
+      {(() => {
+        // N es el mismo de "Para atender · N" del Vestuario; los pedidos de salida ya los nombra la línea de pendientes (no se repiten)
+        const hm = harmony(g), att = attentionOf(g), n = att.length
+        return <div className="row between"><span><b>Vestuario:</b> {harmonyWord(hm.value).toLowerCase()} ({hm.value}) · {n ? <b>{n} {n === 1 ? 'caso' : 'casos'}</b> : <span className="dim">nada para atender</span>}</span>
+          <button className="btn sm" onClick={() => nav(att[0] ? { page: 'locker', sel: `p${att[0].pid}` } : { page: 'locker' })}>Vestuario</button></div>
+      })()}
       <div className="row between"><span className="dim">Entrenamiento: {INTENSITY[g.training.intensity].name.toLowerCase()}, foco {FOCUS.find(f => f.k === g.training.focus)!.name.toLowerCase()}{g.delegate.training ? ' (ayudante)' : ''}</span><button className="btn sm" onClick={() => go('training')}>Ajustar</button></div>
       {windowOpen(g.date) && <div className="row between"><span>Libro de pases abierto</span><button className="btn sm" onClick={() => go('market')}>Ir al mercado</button></div>}
       <div className="row between"><span className={inj.length ? 'bad' : 'dim'}>{inj.length} lesionado(s)</span><span className="dim sm ell" style={{ maxWidth: '60%' }}>{inj.map(p => p.name.split(' ').slice(-1)[0]).join(', ')}</span></div>

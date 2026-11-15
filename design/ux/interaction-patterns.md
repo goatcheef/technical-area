@@ -3,15 +3,16 @@
 > **Estado**: Estable (documenta lo implementado; las propuestas están marcadas como tales)
 > **Autor**: usuario + ux-designer
 > **Última actualización**: 2026-11-15
-> **Versión**: 1.1 (patrones del Mercado: `design/ux/mercado.md`, sección 15, pregunta 15)
+> **Versión**: 1.3 (fase 5 del Vestuario: Esc con `defaultPrevented` en N9, anchos por vista y tabla angosta en D1; `design/ux/vestuario.md`, preguntas 60 a 63). Antes, 1.2: patrones del Vestuario (`design/ux/vestuario.md`, sección 15, pregunta 20). Antes, 1.1: patrones del Mercado (`design/ux/mercado.md`, pregunta 15)
 > **Motor**: aplicación web, sin motor de juego (React 18 + TypeScript + Vite)
 > **Marco de interfaz**: componentes React propios (`src/ui/`) y una hoja de estilos única (`src/styles.css`)
 > **Documentos relacionados**:
 > - `CLAUDE.md`: arquitectura y decisiones de interfaz
 > - `docs/plan-ui-ux.md`: principios y las seis etapas de UI (todas hechas)
 > - `design/art/art-bible.md`: no existe; las decisiones visuales viven en `src/styles.css`
-> - `design/accessibility-requirements.md`: no existe todavía
+> - `design/accessibility-requirements.md`: nivel Estándar (WCAG 2.1 AA, más 2.5.8 y 2.4.11)
 > - `design/ux/bandeja.md` y `design/ux/mercado.md`: especificaciones que usan y amplían F1, F2, F3, F4, F6 y D1, y de donde salen F9, F10, F11 e I3
+> - `design/ux/vestuario.md`: usa y amplía D1, D6, C5, F5, F6 y F7, y de donde salen D8, D9, D10, F12, F13, F14, F15 y C6
 >
 > **Plantilla**: Interaction Pattern Library
 
@@ -76,29 +77,37 @@ Los ocho principios de `docs/plan-ui-ux.md`, en su forma operativa:
 | I1 | Ficha breve al pasar el mouse | Información | Tarjeta flotante para cualquier `data-pid` o `data-cid`. | Todas las pantallas | Estable |
 | I2 | Explicación en `title` | Información | Texto de ayuda nativo sobre controles y encabezados. | Todas las pantallas | Estable |
 | I3 | Franja de estado | Información | Una tarjeta baja y fija arriba de las pestañas con el estado que condiciona toda la pantalla (el libro) y los límites (presupuesto, caja, tope). | Mercado | Especificado |
-| D1 | Tabla de jugadores | Datos | Tabla única con vistas, columnas, orden, filtros y selección; modo `onPick` con fila elegida (una) distinta de las marcadas (casillas) y foco itinerante. | Plantel, ficha de club, mercado, seguimiento, estadísticas | Estable (`onPick`: Especificado) |
+| D1 | Tabla de jugadores | Datos | Tabla única con vistas, columnas, orden, filtros y selección; modo `onPick` con fila elegida (una) distinta de las marcadas (casillas) y foco itinerante; prioridades de columna por vista. Variante del Vestuario: Enter elige y deja el foco en la fila. | Plantel, ficha de club, mercado, seguimiento, estadísticas, Vestuario | Estable (`onPick`, variante del Vestuario y prioridades por vista: Especificado) |
 | D2 | Selección múltiple y acciones masivas | Datos / Entrada | Casillas, rangos con Mayús y barra de acciones. | Tabla de jugadores | Estable |
 | D3 | Comparador | Datos | Dos o tres jugadores lado a lado. | Tabla de jugadores | Estable |
 | D4 | Dato con incertidumbre | Datos / Juego | Valores ajenos como rango según el ojeo. | Valoración, atributos, comparador, ficha | Estable |
 | D5 | Gráfico con tooltip y tabla | Datos | Gráfico SVG con tooltip y vista alternativa en tabla. | Centro de datos | Estable |
-| D6 | Escalas y chips de estado | Datos | Valoración, físico, estado, puesto y forma con color y texto. | Todas las pantallas con jugadores | Estable |
+| D6 | Escalas y chips de estado | Datos | Valoración, físico, estado, puesto y forma con color y texto (la conformidad y la moral pasan a D8). | Todas las pantallas con jugadores | Estable |
 | D7 | Fila clickeable | Datos / Entrada | Fila de tabla que abre algo; alcanzable con Tab y Enter. | Tablas en general | Estable |
+| D8 | Escala en palabras | Datos | Un dato que el juego nombra con palabras tiene una sola función de palabras en el motor y un solo componente (barra, número y palabra por banda); los rasgos, solo palabras. | Conformidad (`MoodBar`), moral (`MoraleBar`), armonía, personalidad: Vestuario, ficha, tabla, ficha breve, bandeja | Especificado |
+| D9 | Barra con marca de umbral | Datos | Valor contra lo esperado con una marca en el punto desde el que tiene consecuencia, y la frase que lo dice. | Minutos jugados contra esperados: tabla, `LockerCard`, charla | Especificado |
+| D10 | Desglose que suma el total | Datos / Información | Términos enteros con signo que suman exactamente un número compuesto. | "Qué la mueve" de la armonía (Vestuario) | Especificado |
 | F1 | Lista y lectura lado a lado | Decisión | Bandeja: `listbox` con foco itinerante, bloque "Para decidir" arriba, mensajes por día; lectura al lado (o detalle aparte en ≤ 900 px con barra de acciones fija que nunca se mueve por el foco). | Bandeja | Estable |
 | F2 | Acción en el mensaje | Decisión | Los botones para decidir viven en el mismo mensaje; solo el más nuevo de una decisión la ofrece; los viejos dicen por qué no (chip "Trato"). | Bandeja, Pendientes, Mercado | Estable (`deal`: Especificado) |
 | F3 | Indicador de pendientes | Información | Insignias y botón que resumen lo que falta decidir; una decisión suma 1. Mercado cuenta ofertas por tus jugadores, contraofertas y acuerdos. | Navegación, barra de pantallas, Inicio | Estable |
 | F4 | Avance progresivo con freno | Juego / Información | Continuar un día o avanzar hasta el partido con progreso y Esc; frena por una decisión nueva y el último día para responder. | Barra superior | Estable |
-| F5 | Ventana modal | Modal | Decisión corta con foco atrapado y Esc. | Negociación, charla, prensa, informes, ajustes, atajos, comparador | Estable |
-| F6 | Confirmación en dos pasos en el lugar | Entrada | El botón se transforma en "Confirmar / No" para lo irreversible o con costo; Confirmar primario para aceptar, en peligro para rechazar. | Cuerpo técnico, Bandeja (ofertas, trabajos), Mercado (vender, fichar, préstamo, cancelar un trato) | Estable |
-| F7 | Nota de resultado en el lugar | Información | Texto que confirma lo que hizo una acción, junto a ella. | Acciones masivas, ofertas, ficha de jugador, cuerpo técnico | Estable |
+| F5 | Ventana modal | Modal | Decisión corta con foco atrapado y Esc; nombre accesible del primer título. | Negociación, charla (F13), prensa, informes, ajustes, atajos, comparador | Estable |
+| F6 | Confirmación en dos pasos en el lugar | Entrada | El botón se transforma en "Confirmar / No" para lo irreversible o con costo; Confirmar primario para aceptar, en peligro para rechazar; dentro de una ventana, Esc cancela primero la confirmación. | Cuerpo técnico, Bandeja (ofertas, trabajos), Mercado (vender, fichar, préstamo, cancelar un trato), charla (prometer, cambiar el rol, dejarlo buscar club) | Estable (en la ventana: Especificado) |
+| F7 | Nota de resultado en el lugar | Información | Texto que confirma lo que hizo una acción, junto a ella; con `role="status"` y destino del foco cuando la acción desaparece. | Acciones masivas, ofertas, ficha de jugador, cuerpo técnico, Vestuario (fila, panel, banda) | Estable |
 | F8 | Estado vacío | Información | Texto tenue que explica por qué no hay nada y cuándo habrá. | Listas, tablas, mosaicos, paneles | Estable |
 | F9 | Panel de lectura al costado de una tabla | Decisión | Variante de F1 para una tabla: la fila elegida se lee y se decide en un panel fijo a la derecha. | Mercado › Buscar | Especificado |
 | F10 | Tarjeta de trato | Decisión | Una operación con estado, plazo, cifras, impacto y acciones; la misma anatomía en Tratos, `BidBox` y bandeja. | Mercado › Tratos, panel del jugador, ficha, Bandeja | Especificado |
 | F11 | Vista previa de impacto | Información | Antes → después de lo que cambia una operación (plata libre, caja, sueldos con el tope, plantel), con el veredicto en palabras. | `BidBox`, tarjetas de trato, negociación, venta | Especificado |
-| C1 | Selector segmentado | Entrada | Elección exclusiva entre 2 y 6 opciones visibles. | Ajustes, tabla, partido, Inicio | Estable |
+| F12 | Lista de atención con acción hermana | Decisión | Una fila por entidad que pide algo, por urgencia, con causa en números, consecuencia de no hacer nada y la acción al lado (dos paradas de Tab por fila). | Vestuario › "Para atender" | Especificado |
+| F13 | Opciones con regla y rasgo | Decisión | Grupo de opciones donde cada una dice la regla que decide el resultado y el rasgo del destinatario, sin veredicto; deshabilitadas con motivo; resultado antes → después. | Charla individual (`TalkModal`) | Especificado |
+| F14 | Comparación de dos caminos | Información | Dos acciones parecidas con efectos distintos: un texto visible con los números de las dos, que solo promete lo que el motor cumple. | "Declararlo transferible" contra "Decirle que puede buscar club": `LockerCard`, charla, "Para atender", bandeja | Especificado |
+| F15 | Detalle único en panel y ficha | Decisión / Disposición | El mismo componente de detalle en el panel al costado de una lista (≥ 1180 px) y en una pestaña de la ficha. | `LockerCard`: Vestuario y ficha › Vestuario | Especificado |
+| C1 | Selector segmentado | Entrada | Elección exclusiva entre 2 y 6 opciones visibles. | Ajustes, tabla, partido, Inicio, rol en la charla | Estable |
 | C2 | Botones | Entrada | Primario, CTA, común, alternable, peligro, ícono, enlace. | Todas las pantallas | Estable |
 | C3 | Disposición personalizable | Entrada | Modo edición con botones de orden, ancho y ocultar. | Inicio, paneles del partido, columnas | Estable |
 | C4 | Estado de pantalla que se recuerda | Persistencia | Tres niveles: memoria de navegación, navegador y partida. | Filtros, pestañas, ajustes, partida | Estable |
-| C5 | Filtro con chips y contador | Entrada | Alcance segmentado más chips de tema con contador de sin leer; una parada de Tab por grupo. | Bandeja | Estable |
+| C5 | Filtro con chips y contador | Entrada | Alcance segmentado más chips de tema con contador de sin leer; una parada de Tab por grupo. Variante: chips solos que cuentan totales. | Bandeja; Vestuario (variante de totales) | Estable (variante: Especificado) |
+| C6 | Modo de tarea sobre una tabla | Entrada | Un botón pone la tabla en el estado de una tarea repetitiva (filtro, vista con su alternable por fila, orden y una línea con el objetivo). | Vestuario › "Armar la reserva" (encabezado, estado vacío, mensaje de la bandeja) | Especificado |
 | M1 | Paneles del día de partido | Juego / Disposición | Siete paneles al costado, abajo u ocultos; cancha grande. | Día de partido | Estable |
 | M2 | Control de ritmo del partido | Juego / Entrada | Velocidad, modo, ir al final y pausas automáticas. | Día de partido | Estable |
 | M3 | Selección en dos toques | Entrada | Primer toque marca, segundo ejecuta (cambio o intercambio). | Día de partido, Tácticas | Estable |
@@ -349,7 +358,7 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 **Guardas (en este orden)**
 1. Ctrl+K funciona siempre.
 2. Enter sobre una fila clickeable la activa.
-3. Esc, de más específico a más general: frena el avance de días; si no, cierra la superposición abierta (barra de comandos, atajos, ajustes); si no, vuelve desde una ficha. Una ventana modal (F5) y un menú (N2) atienden su propio Esc antes.
+3. Esc, de más específico a más general: frena el avance de días; si no, cierra la superposición abierta (barra de comandos, atajos, ajustes); si no, vuelve desde una ficha. Una ventana modal (F5) y un menú (N2) atienden su propio Esc antes, y un Esc que ya usó otro (`defaultPrevented`: la ventana que se cerró, la confirmación que volvió a elegir) no hace nada más: cerrar una charla o una negociación abierta en una ficha nunca vuelve además de página (fase 5 del Vestuario).
 4. Ninguna otra tecla global actúa si el foco está en un campo (`input`, `textarea`, `select`, editable), si hay una modal o superposición abierta, o si se está en el día de partido o en el flujo posterior.
 5. Durante el avance de días, Espacio y Esc frenan y las teclas 1 a 0 no navegan.
 
@@ -459,6 +468,8 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 **Ajuste al ancho**: sin desplazamiento horizontal. Si las columnas no entran, se ocultan por prioridad (`PRIO`; primero las de número más bajo; a igual prioridad, la de más a la derecha). Siempre quedan el nombre y al menos tres columnas. El botón Columnas dice cuántas se ocultaron.
 
+**Prioridades por vista** (Especificado, `design/ux/vestuario.md` R4 y pregunta 48): `VIEWS[v].prio` (opcional) pisa a `PRIO` solo en esa vista, con la misma convención (se oculta primero el número más bajo), y `VIEWS[v].keep` (opcional, por defecto 3) es el mínimo de columnas visibles contando el nombre. Sirve cuando una vista tiene una columna que nunca puede irse (el alternable `res` de la vista `reserva`) o cuando a 320 px solo entran el nombre y un dato (la conformidad en la vista `vestuario`, `keep` 2). Sin `prio` ni `keep`, toda vista se comporta como hoy.
+
 **Orden**: clic en un encabezado ordena por esa columna (texto y fechas ascendente, números descendente); otro clic invierte. Mayús + clic suma un criterio (hasta 3) o invierte el que ya estaba. El encabezado muestra ▴ o ▾ y el número de criterio. Sin orden elegido, se usa `defSort` o el puesto.
 
 **Estados**
@@ -482,7 +493,9 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 - **Estados de foco**: foco sin elegir, contorno de 2 px `--sel` a −2 px, sin fondo; elegida con foco, los dos.
 - **Columna "Trato"** en la vista Ojeo: chip con ícono y palabra (Esperando, Contraoferta, Acordado, Sin acuerdo, Bloqueado hasta {fecha}, "–"); solo los dos que son decisiones llevan el tinte de aviso.
 
-**Accesibilidad**: casillas con `aria-label` ("Seleccionar a …", "Seleccionar todos"); valores ajenos como rangos (D4). Los encabezados ordenables solo responden al mouse (ver G3). En modo `onPick`, la fila elegida lleva `aria-selected="true"` y el contador de jugadores de la barra es una región `aria-live="polite"` ("37 jugadores.", 500 ms después del último cambio de filtro).
+**Variante del Vestuario** (Especificado, `design/ux/vestuario.md` 7.1, pregunta 43; vistas `vestuario` y `reserva`, con el panel F15 a ≥ 1180 px): igual que `onPick` salvo que **Enter elige y deja el foco en la fila** (no lo lleva al panel), porque el uso de esta tabla es recorrer el plantel con ↑ ↓ y Enter comparando paneles, y el panel está a una parada de Tab. Por debajo de 1180 px, Enter abre la ficha › Vestuario. Espacio marca la fila (D2) y es el camino de teclado para anotar en la reserva (C6). Columnas nuevas: `mins` (D9), `happy` y `mor` con D8 (anchos propios de estas vistas en `VIEWS[v].w`; en las demás tablas, la escala compacta en 92 y 80 px, para no cambiar qué columnas se ocultan; por debajo de 270 px de tabla, `VIEWS[v].narrow`: escala compacta, sin cara, nombre corto y en dos renglones), `pers` (palabras de `persTraits`; ordena por banda y, a igual banda, por nombre, nunca por el valor; para un ajeno, solo lo que el ojeo deja ver y los "—" al final), `res` (alternable `aria-pressed` con `tabindex="-1"` dentro de la grilla, ≥ 44 × 44 px en el celular) y `talk` ("Disponible" o el texto corto de `talkState`). La tabla no lleva un botón "Hablar" por fila (sería otra parada por jugador): "Hablar" está en F12 y F15.
+
+**Accesibilidad**: casillas con `aria-label` ("Seleccionar a …", "Seleccionar todos"; en el Vestuario angosto, "Seleccionar todos" es una `label` de 44 × 44); valores ajenos como rangos (D4). Una acción masiva que deja de dibujarse manda el foco a su nota (`role="status"`, `tabindex="-1"`); con menos de 500 px de alto la barra no es fija. En el Vestuario el nombre de la fila suma conformidad, minutos, moral y reserva, y los cambios del alternable `res` se anuncian en una región `role="status"` de la tabla. Los encabezados ordenables solo responden al mouse (ver G3). En modo `onPick`, la fila elegida lleva `aria-selected="true"` y el contador de jugadores de la barra es una región `aria-live="polite"` ("37 jugadores.", 500 ms después del último cambio de filtro).
 
 **Persistencia**: vista y columnas en `localStorage` (`ta-table-<id>`); orden y filtros con `useSticky` (`tbl.sort.<id>`, `tbl.q.<id>`, `tbl.line.<id>`); la selección no se recuerda.
 
@@ -573,10 +586,11 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 | Elemento | Componente | Lectura |
 |----------|-----------|---------|
 | Valoración | `Ovr` / `Val` | Número sobre caja de color en 5 tramos (`.ovr.t1` a `.t5`) |
-| Físico, moral, conformidad | `Cond` | Barra de 40 px (verde ≥ 85, amarillo ≥ 65, rojo) más el número |
+| Físico | `Cond` | Barra de 40 px (verde ≥ 85, amarillo ≥ 65, rojo) más el número |
+| Conformidad y moral | `MoodBar`, `MoraleBar` (D8) | Barra, número y palabra con las bandas del motor; nunca `Cond` |
 | Atributo | `attrClass` / `attrTone` | Tono por tramo (≥ 16, ≥ 13, ≥ 9) más el número |
 | Puesto | `PosPill` | Sigla con color por línea (`.pill.GK/DF/MF/FW`) |
-| Estado | `Status` | Chips: lesión con días, suspensión, transferible, préstamo, quiere irse, molesto, promesa |
+| Estado | `Status` | Chips: lesión con días, suspensión, transferible, préstamo, quiere irse, molesto o muy molesto (la palabra de `moodOf`, < 35), minutos prometidos (antes "Promesa", que chocaba con el rol) |
 | Forma | `FormChips`, `rdot` | G/E/P en texto con color, o punto con `aria-label` |
 | Resultado del ayudante y avisos | `.chip.acc/.warn/.bad` | Chip con fondo suave del color |
 
@@ -601,6 +615,85 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 **Dónde está**: CSS `tr.click`; teclado en `src/ui/App.tsx`.
 
 **No hagas**: dos destinos distintos en la misma fila sin que uno sea un control explícito.
+
+---
+
+#### D8. Escala en palabras
+
+**Categoría**: Datos · **Estado**: Especificado (`design/ux/vestuario.md` 5.3, sección 8, R7, R8 y preguntas 1, 34 y 35; las funciones del motor están implementadas)
+
+**Cuándo usarlo**: para todo dato que el juego también nombra con palabras: conformidad, moral, armonía y personalidad. **Un dato, una función de palabras en el motor y un componente**, el mismo en todas las pantallas (Vestuario, ficha, tabla, ficha breve, bandeja, ventana de charla).
+**Cuándo no**: físico y valoración (D6); un dato de un ajeno que el ojeo no deja ver (la tabla de conocimiento de `design/gdd/ojeo.md`, regla 14, y D4).
+
+**Anatomía**
+
+| Dato | Función (motor) | Componente | Bandas |
+|------|-----------------|------------|--------|
+| Conformidad | `moodOf(happy)` | `MoodBar`: barra, número y palabra, color por banda | Muy contento ≥ 80 · Contento ≥ 60 · Conforme ≥ 35 · Molesto ≥ 18 · Muy molesto < 18 |
+| Moral (ánimo) | `moraleOf(m)`, `moraleWord` | `MoraleBar`: igual, otras palabras | Muy alto ≥ 80 · Bueno ≥ 60 · Normal ≥ 35 · Bajo < 35 |
+| Armonía | `harmonyWord(v)` | Medidor `Gauge` con el número dentro y la palabra al lado | Grupo unido ≥ 70 · Clima normal ≥ 45 · Hay ruido ≥ 25 · Vestuario partido |
+| Personalidad | `persTraits(g, p)` | Solo palabras, una por rasgo, nunca números ni barra | Bandas cortadas en los umbrales del motor (`design/gdd/plantel.md`, F9) |
+
+**Reglas**
+- La palabra y los cortes salen del motor; ninguna pantalla repite un corte (antes había cinco escalas para la conformidad y "Molesto" quería decir dos cosas).
+- Los cortes son los umbrales del motor (35: pierde moral y resta armonía; 18: puede pedir irse; moral 35: no quiere renovar), así la palabra dice de qué lado de cada regla está.
+- El número que se muestra es el que da el motor (`n`, con `Math.floor`): en un corte, número y palabra nunca se contradicen.
+- Dos datos distintos no comparten palabras: la moral no es "Contento".
+- Los rasgos se ordenan por banda (índice `band`) y, a igual banda, por nombre; nunca por el valor.
+
+**Estados**: una por banda (color + palabra); dato no visible para un ajeno: el texto de la tabla de conocimiento ("Su ánimo lo dice el informe completo."), o "—" en la tabla.
+
+**Accesibilidad**: número y palabra siempre visibles (la escala no depende del color; en modo daltonismo cambian los colores de las bandas como en D6); nombre accesible con las dos cosas ("Conformidad 14: muy molesto"); el medidor de la armonía lleva `role="img"` y `aria-label="Armonía 62 de 100: clima normal"`.
+
+**Dónde está**: motor, `src/engine/squad.ts` (`moodOf`, `moraleOf`, `moraleWord`, `harmonyWord`, `moraleShown`, `persTraits`, `traitOf`). Interfaz: `MoodBar` y `MoraleBar` (`src/ui/mood.tsx`, en implementación) y `Gauge` con `aria` (`src/ui/common.tsx`).
+
+**Hacé**: un componente por escala y la palabra del motor. **No hagas**: dibujar la conformidad o la moral con `Cond` o con una `Bar` y cortes propios; mostrar un rasgo como número.
+
+---
+
+#### D9. Barra con marca de umbral
+
+**Categoría**: Datos · **Estado**: Especificado (`design/ux/vestuario.md` 5.3, `LockerCard` punto 2 y columna `mins`)
+
+**Cuándo usarlo**: para comparar un valor con lo esperado cuando hay un punto, por debajo de lo esperado, desde el que pasa algo: minutos jugados contra los que espera su rol, con la marca en el 85 % (desde ahí se molesta).
+**Cuándo no**: para una escala sin umbral propio (D8) ni para una serie en el tiempo (D5).
+
+**Anatomía**: barra con el relleno del valor, una marca vertical en el umbral (`vt-mins-mark`) y el texto que lo dice todo: "20 % de 62 %" y "se molesta por debajo de 53 %". En la tabla, "20/62 %" con la barra; en la charla, una frase.
+
+**Estados**
+
+| Estado | Respuesta |
+|--------|-----------|
+| Normal | Relleno, marca y texto |
+| Sin consecuencia (`tol` 0) | Sin marca; "Con su rol no se molesta por los minutos." (tabla: "20 % · no le pesa") |
+| Media consecuencia (`tol` 0,5) | "… pero la mitad de rápido que un titular" |
+| Sin datos todavía (0 o 1 partido) | "Todavía no cuenta: sus minutos empiezan a mover la conformidad en su tercer partido (jugó 1)"; con 2, "Desde el próximo partido, sus minutos cuentan" |
+| En pausa (lesionado o suspendido para el próximo partido) | La tendencia dice "en pausa" y por qué |
+
+**Accesibilidad**: el texto lleva toda la información; la marca y el color no son la única señal (la barra puede ir `aria-hidden`).
+
+**Dónde está**: `minutesOf` y `moodOutlook` (`src/engine/squad.ts`); la barra, en implementación (`src/ui/Locker.tsx`).
+
+**No hagas**: calcular el umbral o la tendencia en la pantalla: `minutesOf` ya trae `threshold`, `tol`, `counts`, `idle` y el signo de `nextDelta`.
+
+---
+
+#### D10. Desglose que suma el total
+
+**Categoría**: Datos / Información · **Estado**: Especificado (`design/ux/vestuario.md` 5.3 "Qué la mueve", R5, pregunta 33)
+
+**Cuándo usarlo**: cuando un número compuesto se muestra y el jugador necesita saber qué lo mueve: una línea por término, en palabras y con signo, que suman **exactamente** el total que se ve.
+**Cuándo no**: si los términos no son aditivos o no se pueden dar en enteros sin que la suma se corra.
+
+**Anatomía**: lista de 3 a 5 líneas: nombre del término ("Conformidad promedio", "Referentes", "2 disconformes", "1 temperamental") y el número con signo ("+66", "+5", "−6", "−3"). El término nulo no se muestra; lo que recorta la escala aparece como "Tope de la escala" solo si no es 0.
+
+**Reglas**: el motor da los términos ya enteros y con el resto del redondeo en el término base, así la suma da siempre el total (`harmony(g).parts`: `base + lead + unhappy + temper + clip === value`). La pantalla no redondea ni recalcula.
+
+**Celular**: por debajo de 560 px de contenedor, la lista va en un `<details>` cerrado ("Qué la mueve ▾").
+
+**Accesibilidad**: lista (`ul`); el signo es texto (− y +), no color.
+
+**Dónde está**: `harmony(g).parts` (`src/engine/squad.ts`); encabezado del Vestuario (`vt-head`, en implementación).
 
 ---
 
@@ -752,7 +845,7 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 | Cerrando (Esc, clic afuera, botón) | Se devuelve el foco al elemento anterior | Inmediato |
 | Apilada | Solo la de más arriba atiende el teclado | — |
 
-**Accesibilidad**: `role="dialog"`, `aria-modal="true"`, foco atrapado y devuelto al cerrar. Falta asociar el título (ver G3).
+**Accesibilidad**: `role="dialog"`, `aria-modal="true"`, foco atrapado y devuelto al cerrar; `aria-labelledby` apunta al primer título de la caja (`Modal`, `common.tsx:185-190`). Hoy Esc cierra siempre: una ventana con una confirmación adentro (F6 en la charla, F13) necesita que el contenido pueda interceptar Esc para cancelar primero la confirmación (`design/ux/vestuario.md` pregunta 21, pendiente).
 
 **Dónde está**: `Modal` en `src/ui/common.tsx`. Usos: `Locker.tsx` (`TalkModal`, `NegotiationModal`), `Week.tsx` (`PressModal`, `ReportModal`), `common.tsx` (`MatchReport`), `PlayerTable.tsx` (`Compare`), `Nav.tsx` (`SettingsModal`, `ShortcutsHelp`).
 
@@ -775,6 +868,8 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 **Estados**: botón; confirmación abierta (el foco pasa a Confirmar); confirmado (nota F7 con el resultado); cancelado con No o Esc (el foco vuelve al botón). Elegir otra tarjeta u otro mensaje cancela una confirmación abierta. En la barra fija de ≤ 900 px, la confirmación ocupa el lugar del primario (F1).
 
+**Dentro de una ventana** (Especificado, la charla de `design/ux/vestuario.md`): "Hablar" se reemplaza por la consecuencia en una línea y "Confirmar: prometerle minutos" / "No". Esc o No vuelven a elegir y **no cierran la ventana**; cambiar de opción cancela la confirmación; el foco vuelve a la opción marcada. Solo para lo que deja una obligación (prometer, cambiar el rol, dejarlo buscar club); "Decirle que no se va" no la lleva.
+
 **Accesibilidad**: la etiqueta de Confirmar es el nombre accesible completo (la consecuencia escrita, no "Sí"); Esc cancela; el foco nunca se pierde al abrir o cerrar.
 
 **Dónde está**: cuerpo técnico en `src/ui/Week.tsx` (estado `sure`); bandeja en `src/ui/Inbox.tsx` (fila de acciones con `confirm`, `danger` para rechazar); Mercado en `DealDecision` y la ventana de negociación (en implementación).
@@ -792,7 +887,7 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 **Anatomía**: texto `.acc.sm` (o `.card.acc` en el cuerpo técnico; en la ficha de jugador, en verde o rojo según el resultado) junto a los botones. Queda hasta la próxima acción o hasta limpiar.
 
-**Accesibilidad**: hoy no se anuncia a los lectores de pantalla (ver G3).
+**Accesibilidad**: en las pantallas nuevas el contenedor lleva `role="status"`. Cuando la acción que se tocó desaparece ("Declararlo transferible" en el Vestuario), la nota tiene `tabindex="-1"` y recibe el foco: hay una por origen (`vt-att-note` en la fila de F12, `vt-card-note` en F15, `vt-band-note` en la banda de la ficha). En las anteriores, todavía no se anuncia (ver G3).
 
 **Dónde está**: `note` en `PlayerTable` y en `OfferActions`; `msg` en `PlayerPage` y `StaffPage`.
 
@@ -883,6 +978,106 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 **Dónde está**: `dealImpact(g, kind, pid, fee, terms?)` (`src/engine/career.ts`, pura) y su componente en `src/ui/deal.tsx` (en implementación).
 
 **No hagas**: calcular el impacto en la pantalla con números propios, ni mostrar el sueldo real de un ajeno que el DT no conoce.
+
+---
+
+#### F12. Lista de atención con acción hermana
+
+**Categoría**: Decisión · **Estado**: Especificado (`design/ux/vestuario.md` 5.1, 5.3 "Fila de Para atender" y "Motivos", 6, 12)
+
+**Cuándo usarlo**: para responder "¿a quién tengo que atender y por qué?" sin recorrer una tabla: una lista corta, ordenada por urgencia, con una fila por entidad que pide algo, su causa con números, la consecuencia de no hacer nada y la acción más probable al lado.
+**Cuándo no**: para mensajes (F1, que es un `listbox` con foco itinerante y lectura al costado), para listas largas o de filas iguales (D1) o si la fila no tiene una acción propia.
+
+**Anatomía**: título `h2` con el número ("Para atender · 4", `tabindex="-1"`); `ul` con `aria-labelledby` al título; cada `li` tiene:
+1. **Botón de fila** (`vt-att-row`): cara, nombre, rol, chip del motivo principal (texto; "Para decidir" si es una decisión que vive en la bandeja), chips de los motivos secundarios, la causa con números ("Quiere irse: juega 20 % y espera 62 %.") y la consecuencia ("Si no le respondés, resta armonía…"). Elige (con panel F15) o abre la ficha.
+2. **Acción hermana**: un botón al lado ("Hablar"; con la charla usada y un pedido de salida, "Declararlo transferible" con F14 a la vista). Si la acción no está disponible, en su lugar va el texto que dice por qué y desde cuándo (`talkState`: "Hablaron el 12 nov · de nuevo desde el 19 nov", `tabindex="-1"`), nunca un botón deshabilitado.
+3. **Lugar de la nota F7** (`vt-att-note`, `role="status"`, `tabindex="-1"`).
+
+**Reglas**
+- **Una sola fuente** (`attentionOf(g)`) para la lista, su número y cualquier resumen en otra pantalla (la línea "Vestuario" del Inicio).
+- Una fila por entidad, nunca dos; el motivo principal es el de rango más alto; orden por rango y, dentro, por el dato que agrava (conformidad de menor a mayor).
+- Una decisión que se cuenta en otra pantalla (el pedido de salida, en la bandeja) se muestra con su chip pero **no se cuenta de nuevo**: la lista no tiene insignia.
+- Elegir una fila no ejecuta nada ni marca nada leído.
+
+**Estados**
+
+| Estado | Respuesta |
+|--------|-----------|
+| Vacía | Una línea F8: "Nadie para atender: todos juegan lo que esperan y no hay promesas en curso." |
+| Elegida (con panel) | `aria-current="true"`, fondo suave y riel de 3 px `--sel` |
+| Acción hecha | La nota F7 de la fila recibe el foco; la fila cambia de motivo o desaparece en el próximo dibujo |
+| La fila desaparece | El foco va al título `h2` con la nota de la pantalla |
+| Avance en curso (F4) | Acciones deshabilitadas con el motivo visible ("Frená el avance para hablar con el plantel"); elegir sigue |
+
+**Teclado**: **no es un `listbox`**: son botones en una lista, dos paradas de Tab por fila (fila y acción), para que la acción sea alcanzable sin entrar a la fila. Enter y Espacio son clic. Sin atajos propios.
+
+**Dónde está**: `attentionOf` y `reasonsOf` (`src/engine/squad.ts`); la lista, en implementación (`src/ui/Locker.tsx`).
+
+**No hagas**: calcular los motivos o el número en la pantalla; poner un botón deshabilitado como acción principal de una decisión.
+
+---
+
+#### F13. Opciones con regla y rasgo
+
+**Categoría**: Decisión · **Estado**: Especificado (`design/ux/vestuario.md` 5.3 "Anatomía de TalkModal", "Disponibilidad de las charlas" y "Orden de las opciones", preguntas 3, 6, 14 y 28)
+
+**Cuándo usarlo**: para elegir una respuesta entre varias cuando el resultado depende de un rasgo del destinatario y el juego quiere que el jugador lo pueda prever: cada opción dice la regla y el rasgo que la decide, **sin veredicto**. Hoy: la charla individual.
+**Cuándo no**: si el resultado no depende de nada que el jugador pueda ver (una elección pura, C1) o si hay que negociar cifras (F10, F11).
+
+**Anatomía**
+1. Encabezado de la ventana (F5) con el estado del destinatario (rol, conformidad D8, moral, pedido) y una caja "Cómo está" (minutos D9, rasgos, forma, promesa).
+2. `radiogroup` nombrado ("Qué le decís"). Cada opción: título; la regla en palabras que nombra la banda que decide ("Acepta de buena gana si es leal o muy leal"); el rasgo del destinatario con **la misma palabra** de D8 ("Él: lealtad normal") o el dato que decide ("Viene con promedio 6,4"); los datos de la opción (objetivo y umbral de una promesa; lo que esperaría con el rol nuevo, con el selector C1 adentro).
+3. **Ocultas** las que no tienen sentido para su situación; **deshabilitadas** las que tienen sentido pero una regla bloquea, con el motivo visible debajo y repetido en una línea bajo el grupo ("No disponibles ahora: …"), porque una opción deshabilitada de un `radiogroup` no recibe foco.
+4. Orden de las opciones según el motivo principal (F12); las deshabilitadas mantienen su lugar.
+5. Pie: "Hablar" (primario, deshabilitado con "Elegí qué decirle" visible hasta marcar una).
+6. Para lo que deja una obligación, F6 dentro de la ventana.
+7. **Respuesta**: la frase entre comillas, antes → después con números ("Conformidad 14 → 32 · Moral 41 → 46"), los cambios de estado y "Listo".
+
+**Estados**: elegir; confirmación (F6); respuesta (las opciones desaparecen; cerrar no devuelve la charla); "ya hablaron" (el texto de `talkState` y "Listo", y si hace falta la alternativa disponible).
+
+**Teclado**: ↑ ↓ mueven la opción marcada; Tab sale del grupo a "Hablar"; Esc en la confirmación la cancela y, si no, cierra sin gastar nada. El foco al abrir va a la primera opción habilitada; en "Respuesta", al contenedor de la respuesta (`tabindex="-1"`).
+
+**Accesibilidad**: la regla y el rasgo de cada opción son su `aria-describedby` (se leen al marcarla); los motivos de lo deshabilitado son texto visible; nada vive solo en `title`.
+
+**Dónde está**: `talkOptions(g, p)` da las opciones ya ordenadas con `rule`, `trait`, `traits`, `shown`, `disabled`, `cost` y `extra`; `talkResult(g, p, kind, rol)` las valida con la misma función y devuelve `{ text, before, after, changes, reply, resolved? }` (`src/engine/squad.ts`). La ventana, `TalkModal` (en implementación).
+
+**Hacé**: que la palabra del rasgo alcance para prever la respuesta (las bandas están cortadas en los umbrales de la regla). **No hagas**: decir "va a salir bien" o "mal"; decidir en la pantalla qué opciones se muestran.
+
+---
+
+#### F14. Comparación de dos caminos
+
+**Categoría**: Información · **Estado**: Especificado (`design/ux/vestuario.md` 5.3 `vt-letgo`, preguntas 5, 27, 38, 49 y 50; `design/ux/bandeja.md` pregunta 24)
+
+**Cuándo usarlo**: cuando dos acciones llegan a algo parecido con efectos distintos y aparecen juntas, para que el jugador elija sabiendo: "Declararlo transferible" (botón) contra "Decirle que puede buscar club" (charla).
+**Cuándo no**: para una sola acción (la consecuencia va en su etiqueta o en F6) o para efectos que dependen de un azar que no se muestra.
+
+**Anatomía**: dos o tres frases siempre visibles (no en `title` ni en un disclosure), con números: lo que hace cada camino con el humor y con la charla de la semana, y lo que tienen en común (más ofertas mientras el libro está abierto: la chance de cada día pasa del 5 % al 12 %; un precio un 25 % más bajo solo para los clubes que lo buscan para reforzar un puesto). Variantes según el estado: lo pidió o no (+15 / +6 contra −20 / −12 y "pasa a querer irse"); charla ya usada ("(charla, desde el 19 nov)" en lugar de "gasta la charla de esta semana"); libro cerrado hasta el 25 jun, o hasta la temporada siguiente, que además vacía la lista.
+
+**Reglas**: una sola fuente de números y fechas (`letGoInfo(g, p)`), el mismo componente en todas las vistas; el texto solo promete lo que el motor cumple, y si cambian las constantes o los caminos del mercado, el texto los sigue.
+
+**Accesibilidad**: es el `aria-describedby` del botón y de la opción de la charla.
+
+**Dónde está**: `letGoInfo` (con `FREE_FX`, `OFFER_CHANCE`, `LISTED_PRICE` y `windowState`, `src/engine/squad.ts` y `career.ts`); el texto `vt-letgo`, en implementación.
+
+**No hagas**: prometer ofertas con el libro cerrado ni un descuento que no se aplica a todas.
+
+---
+
+#### F15. Detalle único en panel y ficha
+
+**Categoría**: Decisión / Disposición · **Estado**: Especificado (`design/ux/vestuario.md` 3, 5.3 "Anatomía de LockerCard", 12)
+
+**Cuándo usarlo**: cuando el detalle de una entidad se lee en dos lugares, el panel al costado de una lista (F9, ≥ 1180 px) y una pestaña de su ficha (N5): **un componente**, no dos armados. Hoy: `LockerCard` (el vestuario de un jugador).
+**Cuándo no**: si los dos lugares necesitan datos o acciones distintas en su mayoría.
+
+**Anatomía**: secciones en orden fijo (encabezado, por qué está así, personalidad, promesa, pedido de salida, charla, reserva, registro). En la ficha se omite el encabezado (ya está en la banda) y se suma el registro; en el panel, "Ver la ficha ▸". Dos columnas desde 720 px de contenedor (`@container`). Las acciones van dentro del contenido, nunca en una barra fija, con su propio lugar de nota F7 (`vt-card-note`).
+
+**Reglas**: los datos y las acciones salen del motor (en el Vestuario: `minutesOf`, `moodOutlook`, `moodCause`, `persTraits`, `promiseStatus`, `outActions`, `talkState`, `letGoInfo`); cambiar de entidad reemplaza la entrada del historial (la elección va en `sel`).
+
+**Foco**: al llegar desde otra pantalla, nunca a un botón que decide sin F6: si la acción principal es una charla, a "Hablar con él" (abre la ventana, no decide); si la principal decide en el acto ("Declararlo transferible"), al título de su sección (`h3`, `tabindex="-1"`), con el botón como siguiente parada de Tab (la regla "Foco al llegar a una lista de decisiones" de los agregados del Mercado). Al cerrar la ventana abierta desde la tarjeta, el foco vuelve a ese título.
+
+**Dónde está**: `LockerCard`, en implementación (`src/ui/Locker.tsx`, también en `PlayerPage.tsx`, pestaña `personal`).
 
 ---
 
@@ -990,6 +1185,28 @@ Más el scroll por entrada del historial (N4).
 **Dónde está**: `Toggles` en `src/ui/Inbox.tsx`. CSS: `.ib-filters`, `.ibchips`, `.ibchip`, `.ibchip .cnt`.
 
 **Hacé**: contar solo lo que el jugador tiene que leer (en la bandeja, los sin leer del DT sin decisión abierta). **No hagas**: contadores en un alcance que no tiene "sin leer" (en "Todo el fútbol" los chips no cuentan).
+
+**Variante: chips solos que cuentan totales** (Especificado, `design/ux/vestuario.md` 5.3 y 7.1, pregunta 43): sin segmentado de alcance, un solo grupo de chips ("Todo el plantel", "En la reserva", "Juveniles") donde el contador es el **total** de la categoría, no los sin leer; el contador se lee como ", 8 jugadores" y el resultado del filtro se anuncia en la región `aria-live` del contador de la tabla ("Plantel: 8 jugadores en la reserva."). El estado activo, el teclado y la regla de reemplazar la entrada son los mismos. Sirve como filtro de una tabla (D1), no de mensajes.
+
+---
+
+#### C6. Modo de tarea sobre una tabla
+
+**Categoría**: Entrada · **Estado**: Especificado (`design/ux/vestuario.md` 4, 6 y 7.2 "Armar la reserva", preguntas 29 y 48)
+
+**Cuándo usarlo**: para una tarea repetitiva sobre muchas filas de una tabla (anotar al menos 7 jugadores en la reserva) que el jugador empieza desde un botón: el botón pone la tabla en el estado de la tarea, sin pantalla ni ventana nueva.
+**Cuándo no**: para una acción sobre una fila (botón de fila o F15) o sobre una selección (D2).
+
+**Anatomía**: el botón de entrada ("Armar la reserva", en el encabezado, en el estado vacío de su filtro y en el mensaje de la bandeja, que llega por ruta con `tab: 'armar'`) pone a la vez: el filtro que muestra a todos, una **vista dedicada** de la tabla (`reserva`) con el alternable por fila que nunca se oculta (prioridades por vista de D1: `res` la más alta y `keep` 2), el orden por esa columna (anotados primero) y una línea arriba de la tabla con el objetivo y el camino de teclado ("Anotá al menos 7 sanos: juega el mié 18 nov. Con el teclado, Espacio marca la fila y 'A la reserva' anota a los marcados."). El estado del objetivo (anotados y sanos, mínimo, próximo día) se actualiza con cada cambio.
+
+**Reglas**
+- El valor de llegada (`armar`) no es un filtro: la pantalla lo traduce y reemplaza la entrada por el filtro normal, como la bandeja traduce sus valores viejos.
+- Se sale cambiando de vista o de filtro.
+- Cada cambio es reversible: sin F6. Escribe por el motor (`setReserve(g, ids, on)`), nunca en `g` desde la pantalla.
+
+**Teclado y táctil**: el alternable es `tabindex="-1"` dentro de la grilla (D1 es una parada); con teclado, Espacio marca y la acción masiva de D2 anota. Con mouse o toque, el alternable de cada fila (`aria-pressed`, ≥ 44 × 44 px en el celular). Entra en 320 px.
+
+**Dónde está**: `setReserve`, `reserveOf` y `nextReserveDay` (`src/engine/squad.ts`); la vista `reserva` en `VIEWS` de `PlayerTable` (en implementación).
 
 ---
 

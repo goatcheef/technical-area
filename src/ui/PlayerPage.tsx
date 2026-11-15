@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { askingPrice, canSell, divName } from '../engine/career'
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, POS_NAME, ageOn, bestRating, posRating } from '../engine/positions'
-import { STATUS, canTalk, fmtRange, knowOf, minutesShare, nextTalk, persLabels, potentialText, scout, setListed, shown, toggleShortlist, wageShown } from '../engine/squad'
+import { STATUS, fmtRange, knowOf, minutesShare, moodOf, moraleShown, persTraits, potentialText, scout, setListed, shown, talkState, toggleShortlist, wageShown, type Trait } from '../engine/squad'
 import { ATTR_GROUPS, ATTR_LABEL, A, type SeasonStats } from '../engine/types'
 import { useGame } from '../store'
 import { Badge, Cond, Face, Radar, Status, attrClass, avgRat, clubTheme, dec, money, radarOf, ratClass } from './common'
-import { NegotiationModal, TalkModal } from './Locker'
+import { F7, LockerCard, NegotiationModal, TalkModal, focusLater, type LRes } from './Locker'
+import { MoodBar, TalkSt, Traits } from './mood'
 import { BidBox, wm, wr } from './deal'
 
 function StatLine({ s, label }: { s: SeasonStats; label: string }) {
@@ -26,7 +27,12 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
   const p = g.players[id]
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null)
   const [neg, setNeg] = useState(false)
-  const [talkOpen, setTalkOpen] = useState(false)
+  const [talkOpen, setTalkOpen] = useState<null | 'band' | 'card'>(null)
+  const [bandNote, setBandNote] = useState<LRes | null>(null)
+  const [cardNote, setCardNote] = useState<LRes | null>(null)
+  // al llegar a la ficha › Vestuario (desde la bandeja o el Vestuario angosto): con la charla disponible, "Hablar con él" (abre la ventana,
+  // no decide); con la charla usada, el título de la sección Charla. Nunca un botón que decide sin confirmación.
+  useEffect(() => { if (tab === 'personal' && p && p.clubId === g.userClubId) focusLater('.vt-scope .vt-card-talk', '.vt-scope #vt-card-h-talk') }, [])
   if (!p) return <div className="page"><div className="card">Este jugador ya no está en el juego (se retiró o se fue al exterior).</div><div><button className="btn" onClick={back}>◂ Atrás</button></div></div>
   const c = g.clubs[p.clubId], mine = p.clubId === g.userClubId, me = g.clubs[g.userClubId]
   const k = knowOf(g, p), known = k >= 100
@@ -37,7 +43,8 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
   const potTxt = potentialText(g, p), potKnown = potTxt != null
   const ws = mine ? null : wageShown(g, p, p.wage, 401), wageTxt = !ws ? wm(p.wage) : wr(ws), wageEst = !!ws && ws[0] !== ws[1]
   const starred = g.shortlist.includes(p.id)
-  const talkOk = mine && canTalk(g, p), talkWhy = talkOk ? undefined : `Ya hablaron esta semana: podés volver a hablarle desde el ${fmtDate(nextTalk(p))}.`
+  const ts = mine ? talkState(g, p) : null
+  const pt = persTraits(g, p)
   // salió de las inferiores del club (cantera real o camada del juego) y sigue ahí: no a préstamo ni transferido desde entonces
   const homegrown = p.youth && p.loanFrom == null && !g.transfers.some(t => t.pid === p.id && !t.loan)
   const done = () => { save(); refresh() }
@@ -71,9 +78,11 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
           <FavButton k="p" id={p.id} />
           {!mine && <button className={`btn sm ${starred ? 'on' : ''}`} aria-pressed={starred} onClick={() => { toggleShortlist(g, p.id); done() }}>{starred ? '✓ En seguimiento' : 'Seguir'}</button>}
           {!mine && !known && <button className={`btn sm ${g.scouting.includes(p.id) ? 'on' : ''}`} disabled={g.scouting.includes(p.id)} title="El scouting lo sigue unos días hasta conocerlo por completo" onClick={() => { scout(g, p); done() }}>{g.scouting.includes(p.id) ? 'Ojeándolo…' : 'Mandar a ojear'}</button>}
-          {mine && <button className="btn sm" disabled={!talkOk} title={talkWhy} onClick={() => setTalkOpen(true)}>Hablar</button>}
+          {ts && (ts.can ? <button className="btn sm vt-band-hablar" disabled={busy} aria-describedby={busy ? 'vt-band-busy' : undefined} onClick={() => setTalkOpen('band')}>Hablar</button> : <span className="vt-band-talk"><TalkSt text={ts.long} /></span>)}
+          {ts?.can && busy && <span className="ib-help vt-band-busy" id="vt-band-busy">Frená el avance para hablar con él.</span>}
           <button className="btn sm" onClick={() => setTab('contrato')}>{mine ? 'Contrato' : 'Ofertar'} ▸</button>
         </div>
+        {mine && <F7 r={bandNote} cls="vt-band-note" />}
       </div>
 
       {tab === 'resumen' && <>
@@ -95,7 +104,7 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
           </div>
           <div className="card col pcol-info">
             <h3>Información</h3>
-            <div><div className="dim sm">Personalidad</div>{mine || k >= 60 ? <div className="row wrap" style={{ gap: 5, marginTop: 4 }}>{persLabels(p).map(l => <span key={l} className="boxed">{l}</span>)}</div> : <b>Desconocida</b>}</div>
+            <div className="vt-scope"><div className="dim sm">Personalidad</div><PersView level={pt.level} traits={pt.traits} /></div>
             <div><div className="dim sm">Pie hábil</div><b>{p.foot === 'D' ? 'Derecho' : p.foot === 'I' ? 'Izquierdo' : 'Ambos'}</b></div>
             {mine && p.status && <div><div className="dim sm">Rol en el plantel</div><b>{STATUS[p.status].name}</b> <span className="dim sm">· juega el {Math.round(minutesShare(p) * 100)} % (espera {Math.round(STATUS[p.status].share * 100)} %)</span></div>}
             {!mine && <div><div className="dim sm">Conocimiento</div><b>{Math.round(k)} %</b>{g.scouting.includes(p.id) && <span className="acc sm"> · lo están ojeando</span>}</div>}
@@ -104,7 +113,8 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
           </div>
         </div>
         <div className="pcards">
-          <div className="card pc"><h3>Felicidad</h3>{mine ? <><b className="pc-v">{moodTxt(p.happy ?? 70)}</b><Cond v={p.happy ?? 70} /></> : <><b className="pc-v">{moodTxt(p.morale)}</b><span className="dim sm">Moral {Math.round(p.morale)}</span></>}</div>
+          {mine ? <div className="card pc vt-scope"><h3>Conformidad</h3><b className="pc-v">{moodOf(p.happy).word}</b><MoodBar v={p.happy ?? 70} /></div>
+            : <div className="card pc vt-scope"><h3>Ánimo</h3>{(() => { const ms = moraleShown(g, p); return ms ? <b className="pc-v">{ms.word}</b> : <span className="dim sm">Su ánimo lo dice el informe completo.</span> })()}</div>}
           <div className="card pc"><h3>Físico</h3>{p.injury ? <><b className="pc-v bad">Lesionado</b><span className="dim sm">{p.injury.days} días</span></> : <><b className="pc-v">{condTxt(p.cond)}</b><Cond v={p.cond} /></>}</div>
           <div className="card pc"><h3>Forma</h3><div className="formbars" aria-label="Últimos puntajes">{p.form.slice(-5).map((r, i) => <i key={i} className={ratClass(r)} style={{ height: `${Math.max(12, (r - 4) * 16)}%` }} title={dec(r, 1)} />)}</div><span className="dim sm">{p.form.length ? `Promedio de los últimos ${Math.min(5, p.form.length)}: ${dec(p.form.slice(-5).reduce((a2, b2) => a2 + b2, 0) / Math.min(5, p.form.length), 2)}` : 'Sin partidos todavía'}</span></div>
           <div className="card pc"><h3>Disciplina</h3><b className="pc-v">{p.susp ? `Suspendido (${p.susp})` : p.stats.rc ? 'Expulsado esta temporada' : p.stats.yc >= 4 ? 'Al límite de amarillas' : 'Sin problemas'}</b><span className="dim sm">{p.stats.yc} amarillas · {p.stats.rc} rojas</span></div>
@@ -146,25 +156,32 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
             : <div className="dim sm">Todavía no jugó con tu equipo.</div>}</div>}
       </div>}
 
-      {tab === 'personal' && <div className="dash">
-        <div className="card s6 col"><h3>Personalidad</h3>
-          {mine || k >= 60 ? <div className="row wrap">{persLabels(p).map(l => <span key={l} className="chip">{l}</span>)}</div> : <div className="dim">Todavía no la conocés. Mandalo a ojear para saber cómo es.</div>}
+      {tab === 'personal' && mine && <div className="card vt-scope"><LockerCard p={p} where="page" busy={busy} onTalk={() => setTalkOpen('card')} note={cardNote} setNote={setCardNote} /></div>}
+      {tab === 'personal' && !mine && <div className="dash">
+        <div className="card s6 col vt-scope"><h3>Personalidad</h3>
+          <PersView level={pt.level} traits={pt.traits} />
           <div className="row between"><span className="dim">Potencial</span><b>{potKnown ? potTxt : 'Desconocido'}</b></div></div>
-        {mine ? <div className="card s6 col"><h3>En el plantel</h3>
-          {p.status && <><div className="row between"><span className="dim">Rol</span><b>{STATUS[p.status].name}</b></div>
-            <div className="row between"><span className="dim">Minutos</span><span>{Math.round(minutesShare(p) * 100)} % (espera {Math.round(STATUS[p.status].share * 100)} %)</span></div>
-            <div className="row between"><span className="dim">Conformidad</span><Cond v={p.happy ?? 70} /></div></>}
-          {p.promise && <div className="acc sm">Le prometiste más minutos hasta el {fmtDate(p.promise.until)}.</div>}
-          <button className="btn sm" style={{ alignSelf: 'flex-start' }} disabled={!talkOk} onClick={() => setTalkOpen(true)}>Hablar con él</button>
-          {!talkOk && <div className="dim sm">{talkWhy}</div>}</div>
-          : <div className="card s6 col"><h3>Ojeo</h3>
+        <div className="card s6 col"><h3>Ojeo</h3>
             <div className="row between"><span className="dim">Conocimiento</span><div className="row" style={{ gap: 6 }}><div className="bar" style={{ width: 100 }}><i style={{ width: `${k}%`, background: 'var(--accent)' }} /></div><b className="num">{Math.round(k)}%</b></div></div>
             <div className="dim sm" style={{ lineHeight: 1.5 }}>{known ? 'Lo conocés por completo.' : g.scouting.includes(p.id) ? 'El scouting lo está siguiendo.' : 'Mandarlo a ojear revela sus atributos exactos, su potencial y su personalidad. Enfrentarlo también ayuda.'}</div>
-            {!known && !g.scouting.includes(p.id) && <button className="btn sm primary" style={{ alignSelf: 'flex-start' }} onClick={() => { scout(g, p); done() }}>Mandar a ojear</button>}</div>}
+            {!known && !g.scouting.includes(p.id) && <button className="btn sm primary" style={{ alignSelf: 'flex-start' }} onClick={() => { scout(g, p); done() }}>Mandar a ojear</button>}</div>
       </div>}
 
       {neg && mine && <NegotiationModal p={p} mode="renew" onClose={m => { setNeg(false); if (m) setMsg({ t: m.text, ok: m.tone === 'ok' }); done() }} />}
-      {talkOpen && mine && <TalkModal p={p} onClose={() => { setTalkOpen(false); done() }} />}
+      {talkOpen && mine && <TalkModal p={p} onClose={r => {
+        // el foco vuelve a un control habilitado y a la vista, en la misma pestaña (sección 12, "Devolución del foco")
+        const from = talkOpen
+        setTalkOpen(null); refresh()
+        if (from === 'band') {
+          if (!r) focusLater('.vt-band-hablar', '.pband-tabs button.on')
+          else if (r.kind === 'talked') focusLater('.vt-band-talk .vt-talkst', '.pband-tabs button.on')
+          else { setBandNote(r.note!); focusLater('.vt-band-note .ib-result', '.vt-band-talk .vt-talkst'); r.saved?.then(ok => { if (!ok) setBandNote(n => (n ? { ...n, saveErr: true } : n)) }) }
+        } else {
+          if (!r) focusLater('.vt-scope .vt-card-talk', '.vt-scope #vt-card-h-talk')
+          else if (r.kind === 'talked') focusLater('.vt-scope #vt-card-h-talk')
+          else { setCardNote(r.note!); focusLater('.vt-scope .vt-card-note .ib-result', '.vt-scope #vt-card-h-talk'); r.saved?.then(ok => { if (!ok) setCardNote(n => (n ? { ...n, saveErr: true } : n)) }) }
+        }
+      }} />}
     </div>
   )
 }
@@ -186,5 +203,12 @@ function MiniPitch({ on }: { on: string[] }) {
     </svg>
   )
 }
-const moodTxt = (v: number) => (v >= 80 ? 'Muy contento' : v >= 60 ? 'Contento' : v >= 40 ? 'Conforme' : v >= 25 ? 'Molesto' : 'Muy molesto')
+/** Personalidad según lo que se conoce (`persTraits`, 5.5): una palabra por rasgo; de un ajeno al 60-99 %, solo los extremos. */
+function PersView({ level, traits }: { level: 'full' | 'extremes' | 'none'; traits: Trait[] }) {
+  if (level === 'none') return <div className="dim">Todavía no la conocés. Mandalo a ojear para saber cómo es.</div>
+  return <div className="col" style={{ gap: 6 }}>
+    {traits.length ? <Traits traits={traits} /> : <div className="dim">Ningún rasgo marcado a la vista.</div>}
+    {level === 'extremes' && <div className="mk-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 11v6M12 7v.5M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18" /></svg><span>Lo que se ve hasta ahora: el informe completo dice cómo es en cada rasgo.</span></div>}
+  </div>
+}
 const condTxt = (v: number) => (v >= 95 ? 'Óptimo' : v >= 85 ? 'Bien' : v >= 70 ? 'Cansado' : 'Agotado')

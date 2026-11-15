@@ -126,6 +126,8 @@ export function App() {
     const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOverlay('palette'); return }
     if (e.key === 'Enter' && !typing && t?.matches?.('tr.click, [data-click]')) { e.preventDefault(); t.click(); return }
+    // un Esc que ya usó otro (una ventana que se cerró, una confirmación que volvió atrás) no vuelve además de página (2.4.3, 3.2.2)
+    if (e.key === 'Escape' && e.defaultPrevented) return
     if (e.key === 'Escape' && busy) { stopRef.current = true; return }
     if (e.key === 'Escape') { if (overlay) setOverlay(null); else if (!typing && (page === 'player' || page === 'clubv') && !document.querySelector('.modal')) back(); return }
     if (typing || match || post != null || overlay || document.querySelector('.modal')) return
@@ -272,7 +274,7 @@ export function App() {
               </>} />
             <main className="main" id="main" tabIndex={-1} ref={mainRef}><div key={`${page}:${route.id ?? ''}`} className="page-in">
               {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} busy={!!busy} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market busy={!!busy} />}
-              {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}
+              {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage busy={!!busy} />}
               {page === 'player' && route.id != null && <PlayerPage key={route.id} id={route.id} tab={route.tab} busy={!!busy} />}{page === 'clubv' && route.id != null && <ClubPage key={route.id} id={route.id} tab={route.tab} />}
             </div></main>
           </div>
