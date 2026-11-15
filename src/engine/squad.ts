@@ -253,7 +253,18 @@ export function knownRating(g: Game, p: Player): number {
   const r = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99)
   return (r[0] + r[1]) / 2
 }
-export const fmtRange = (r: [number, number]) => (r[0] === r[1] ? String(r[0]) : `${r[0]}-${r[1]}`)
+export const fmtRange = (r: [number, number]) => (r[0] === r[1] ? String(r[0]) : `${r[0]}–${r[1]}`)
+
+/**
+ * Potencial en palabras, como lo sabe el DT (ficha y panel del Mercado: el mismo texto en los dos lados). `null` si no lo sabe:
+ * de un ajeno, hasta conocerlo al 70 %; de uno propio, con buen cuerpo técnico de inferiores y ayudante, o si ya pasó los 23.
+ */
+export function potentialText(g: Game, p: Player): string | null {
+  const age = ageOn(p.birth, g.date), mine = p.clubId === g.userClubId
+  const known = mine ? sab(g, 'youth') + sab(g, 'asst') >= 18 || age > 23 : knowOf(g, p) >= 70
+  if (!known) return null
+  return age > 26 ? 'Ya alcanzó su techo' : p.pa >= 85 ? 'Futura figura' : p.pa >= 78 ? 'Muy buen potencial' : p.pa - p.ca >= 8 ? 'Buen potencial' : 'Potencial limitado'
+}
 
 // ---------- sueldos de los ajenos como rango ----------
 /** Escalones del medio ancho del rango de sueldo: 2 % cada 5 puntos de conocimiento (20 % → ±32 %, 35 % → ±26 %, 94 % → ±2 %), exacto desde 95 %. */

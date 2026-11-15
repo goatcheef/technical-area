@@ -3,12 +3,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { divName } from '../engine/career'
 import { clubsIn, fmtDate, leagueFx, squadOf, tableOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
-import { knowOf } from '../engine/squad'
+import { knowOf, wageShown } from '../engine/squad'
 import type { Club, Game } from '../engine/types'
 import { useGame, type Settings } from '../store'
 import { Badge, Cond, Face, Modal, PosPill, Seg, Status, Val, avgRat, dec, money, resultText, seenRating } from './common'
 import { FavButton } from './PlayerPage'
 import { SquadTable } from './Squad'
+import { wr } from './deal'
 
 const leagueComp = (g: Game, c: Club) => (c.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : c.division === 2 ? 'PN' : c.division === 3 ? 'T3' : '')
 function standing(g: Game, c: Club): string {
@@ -122,7 +123,7 @@ export function HoverCard() {
       <div className="row wrap" style={{ gap: 5 }}><PosPill p={p} /><Status p={p} /></div>
       <div className="hc-grid">
         <span className="dim">Temporada</span><span>{p.stats.apps + p.stats.subs} PJ · {p.stats.goals} G · {p.stats.ast} A · {avgRat(p.stats)}</span>
-        <span className="dim">Contrato</span><span>{money(p.wage)}/mes · dic {p.contractEnd}</span>
+        <span className="dim">Contrato</span><span>{mine ? money(p.wage) : wr(wageShown(g, p, p.wage, 401))}/mes · dic {p.contractEnd}</span>
         <span className="dim">Valor</span><span>{money(p.value)}</span>
         {mine ? <><span className="dim">Físico</span><Cond v={p.cond} /><span className="dim">Moral</span><Cond v={p.morale} /></> : <><span className="dim">Conocimiento</span><span>{Math.round(k)} %</span></>}
       </div>
@@ -187,7 +188,7 @@ export function CommandPalette({ pages, actions, onClose }: { pages: [string, st
 /** Atajos: tecla, qué hace y si es de una sola tecla (los que apaga el ajuste "Atajos de una tecla"). Los del partido viven en MatchView y no se apagan. */
 export const SHORTCUTS: [string, string, boolean?][] = [
   ['Espacio', 'Continuar un día (o jugar, si hay partido)', true], ['Mayús + Espacio', 'Ir al partido', true], ['Ctrl + K', 'Barra de comandos: buscar y saltar a cualquier lado'], ['/', 'Barra de comandos', true],
-  ['1 a 9, 0', 'Pantallas, en orden', true], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda', true],
+  ['1 a 9, 0', 'Pantallas, en orden', true], ['Alt + ←  /  Alt + →', 'Atrás y adelante (también los botones laterales del mouse)'], ['Esc', 'Cerrar o volver de una ficha'], ['?', 'Esta ayuda', true], ['En la tabla del Mercado: Espacio', 'Marca la casilla del jugador (no avanza el día); Enter lo elige'],
   ['En el partido: Espacio', 'Pausar o reanudar'], ['En el partido: 1 a 4', 'Velocidad (pausa, normal, rápido, muy rápido)'], ['En el partido: M', 'Partido completo o jugadas clave'],
   ['En el partido: C, T, R', 'Mi equipo (cambios), táctica, rival'], ['En el partido: P', 'Elegir los paneles'], ['En el partido: Esc', 'Cancelar el cambio o la orden en curso'],
 ]

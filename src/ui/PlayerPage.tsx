@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { askingPrice, canSell, divName } from '../engine/career'
 import { fmtDate } from '../engine/game'
 import { POS_LABEL, POS_NAME, ageOn, bestRating, posRating } from '../engine/positions'
-import { STATUS, canTalk, fmtRange, knowOf, minutesShare, nextTalk, persLabels, scout, setListed, shown, toggleShortlist } from '../engine/squad'
+import { STATUS, canTalk, fmtRange, knowOf, minutesShare, nextTalk, persLabels, potentialText, scout, setListed, shown, toggleShortlist, wageShown } from '../engine/squad'
 import { ATTR_GROUPS, ATTR_LABEL, A, type SeasonStats } from '../engine/types'
-import { sab } from '../engine/week'
 import { useGame } from '../store'
 import { Badge, Cond, Face, Radar, Status, attrClass, avgRat, clubTheme, dec, money, radarOf, ratClass } from './common'
 import { NegotiationModal, TalkModal } from './Locker'
-import { BidBox } from './deal'
+import { BidBox, wm, wr } from './deal'
 
 function StatLine({ s, label }: { s: SeasonStats; label: string }) {
   return (
@@ -34,8 +33,9 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
   const est = p.attrs.map((v, i) => shown(g, p, v, 5, i))
   const est0 = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99)
   const rd = radarOf(known ? p : { ...p, attrs: est.map(r => (r[0] + r[1]) / 2) }), age = ageOn(p.birth, g.date)
-  const gap = p.pa - p.ca, potKnown = mine ? sab(g, 'youth') + sab(g, 'asst') >= 18 || age > 23 : k >= 70
-  const potTxt = age > 26 ? 'Ya alcanzó su techo' : p.pa >= 85 ? 'Futura figura' : p.pa >= 78 ? 'Muy buen potencial' : gap >= 8 ? 'Buen potencial' : 'Potencial limitado'
+  // el potencial en palabras y el sueldo de un ajeno salen del ojeo (los mismos textos que el panel del Mercado)
+  const potTxt = potentialText(g, p), potKnown = potTxt != null
+  const ws = mine ? null : wageShown(g, p, p.wage, 401), wageTxt = !ws ? wm(p.wage) : wr(ws), wageEst = !!ws && ws[0] !== ws[1]
   const starred = g.shortlist.includes(p.id)
   const talkOk = mine && canTalk(g, p), talkWhy = talkOk ? undefined : `Ya hablaron esta semana: podés volver a hablarle desde el ${fmtDate(nextTalk(p))}.`
   // salió de las inferiores del club (cantera real o camada del juego) y sigue ahí: no a préstamo ni transferido desde entonces
@@ -58,7 +58,7 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
           <div className="pband-sep" />
           <button className="pband-block linkish" onClick={() => openClub(c.id)}><Badge club={c} size={40} /><span className="col" style={{ gap: 4 }}><span className="boxed"><b>{c.name}</b></span>{mine && p.status ? <span className="boxed dim">{STATUS[p.status].name}</span> : <span className="boxed dim">{divName(c)}</span>}</span></button>
           <div className="pband-sep" />
-          <div className="pband-block col" style={{ gap: 4, alignItems: 'flex-start' }}><span className="boxed"><b>{money(p.value)}</b></span><span className="boxed">{money(p.wage)}/mes · dic {p.contractEnd}</span></div>
+          <div className="pband-block col" style={{ gap: 4, alignItems: 'flex-start' }}><span className="boxed"><b>{money(p.value)}</b></span><span className="boxed">{wageTxt}/mes{wageEst ? ' (estimado)' : ''} · dic {p.contractEnd}</span></div>
           <div className="pband-sep" />
           <div className="pband-block" style={{ gap: 18 }}>
             <div className="col" style={{ gap: 4 }}><span className="dim sm">Valoración</span><Stars v={(est0[0] + est0[1]) / 2} />{!known && <span className="dim sm">{fmtRange(est0)} · conocés el {Math.round(k)} %</span>}{known && <span className="dim sm">{Math.round(bestRating(p))}</span>}</div>
@@ -66,13 +66,13 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
           </div>
         </div>
         <div className="pband-tabs tabs">
-          {TABS.map(([k2, l]) => <button key={k2} className={tab === k2 ? 'on' : ''} onClick={() => setTab(k2)}>{l}</button>)}
+          {TABS.map(([k2, l]) => <button key={k2} className={tab === k2 ? 'on' : ''} aria-pressed={tab === k2} onClick={() => setTab(k2)}>{l}</button>)}
           <span className="grow" />
           <FavButton k="p" id={p.id} />
           {!mine && <button className={`btn sm ${starred ? 'on' : ''}`} aria-pressed={starred} onClick={() => { toggleShortlist(g, p.id); done() }}>{starred ? '✓ En seguimiento' : 'Seguir'}</button>}
           {!mine && !known && <button className={`btn sm ${g.scouting.includes(p.id) ? 'on' : ''}`} disabled={g.scouting.includes(p.id)} title="El scouting lo sigue unos días hasta conocerlo por completo" onClick={() => { scout(g, p); done() }}>{g.scouting.includes(p.id) ? 'Ojeándolo…' : 'Mandar a ojear'}</button>}
           {mine && <button className="btn sm" disabled={!talkOk} title={talkWhy} onClick={() => setTalkOpen(true)}>Hablar</button>}
-          <button className="btn sm primary" onClick={() => setTab('contrato')}>{mine ? 'Contrato' : 'Ofertar'} ▸</button>
+          <button className="btn sm" onClick={() => setTab('contrato')}>{mine ? 'Contrato' : 'Ofertar'} ▸</button>
         </div>
       </div>
 
@@ -118,7 +118,7 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
 
       {tab === 'contrato' && <div className="dash">
         <div className="card s6 col"><h3>Contrato</h3>
-          <div className="row between"><span className="dim">Valor de mercado</span><b>{money(p.value)}</b></div><div className="row between"><span className="dim">Sueldo mensual</span><b>{money(p.wage)}</b></div>
+          <div className="row between"><span className="dim">Valor de mercado</span><b>{money(p.value)}</b></div><div className="row between"><span className="dim">Sueldo mensual</span>{wageEst ? <span className="rng">{wageTxt} <small>(estimado)</small></span> : <b>{wageTxt}</b>}</div>
           <div className="row between"><span className="dim">Vence</span><b className={p.contractEnd <= g.season ? 'warn' : ''}>dic {p.contractEnd}</b></div>
           {p.clause ? <div className="row between"><span className="dim">Cláusula de rescisión</span><b>{money(p.clause)}</b></div> : null}
           {p.loanFrom != null && <div className="row between"><span className="dim">A préstamo de</span><b>{g.clubs[p.loanFrom]?.name}</b></div>}
@@ -172,7 +172,7 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
 /** Valoración en estrellas (media estrella de paso). */
 function Stars({ v }: { v: number }) {
   const n = Math.max(0.5, Math.min(5, Math.round(((v - 42) / 9) * 2) / 2))
-  return <span className="stars" aria-label={`${n} estrellas de 5`} title={`${n} de 5`}>{[0, 1, 2, 3, 4].map(i => <i key={i} className={n >= i + 1 ? 'on' : n >= i + 0.5 ? 'half' : ''} />)}</span>
+  return <span className="stars" role="img" aria-label={`${n} estrellas de 5`} title={`${n} de 5`}>{[0, 1, 2, 3, 4].map(i => <i key={i} className={n >= i + 1 ? 'on' : n >= i + 0.5 ? 'half' : ''} />)}</span>
 }
 /** Cancha chica con los puestos del jugador (ataca hacia la derecha). */
 const XY: Record<string, [number, number]> = { GK: [7, 50], DC: [24, 50], DR: [27, 84], DL: [27, 16], DM: [40, 50], MC: [53, 50], MR: [56, 86], ML: [56, 14], AMC: [68, 50], AMR: [72, 82], AML: [72, 18], ST: [86, 50] }

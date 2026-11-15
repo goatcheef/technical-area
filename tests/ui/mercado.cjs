@@ -1,6 +1,11 @@
 // Prueba de aceptación del Mercado (design/ux/mercado.md, sección 14, lo que se puede automatizar).
 // Uso: con `npm run dev` corriendo en el puerto 5173, `node tests/ui/mercado.cjs [ancho×alto …]`.
-// Sin argumentos corre en 1440×900, 1024×768, 820×1000, 390×844 y 320×568 y saca capturas en production/ui/mercado/shots/.
+// Sin argumentos corre en 1440×900, 1024×768, 820×1000, 390×844 y 320×568, más una pasada con el texto al 120 % y otra con Defensa y Justicia
+// (club amarillo: el principal y la selección con su segundo color), y saca un juego chico de capturas en production/ui/mercado/shots/final/
+// (JPEG; SHOTS=0 no saca ninguna). Comprueba también lo que encontraron las revisiones de la fase 4: la raíz del documento no se desplaza,
+// la vista de un trato es la misma en la bandeja y en Tratos, el impacto no se parte en contenedores angostos, la ficha de un ajeno no muestra
+// su sueldo exacto, el foco no sale de la negociación al firmar, los encabezados se ordenan con el teclado, la insignia anda con el teclado,
+// 44 px en el celular y nada por debajo de 12 px en ninguna pestaña.
 // Los tratos se inyectan con las funciones del motor (placeBid, dailyDeals, acceptCounter…) importadas en la página desde el servidor de
 // desarrollo; cada botón y cada foco se comprueban VISIBLES con elementFromPoint (helpers.cjs), no solo "clickeables".
 const fs = require('fs')
@@ -9,9 +14,15 @@ const H = require('./helpers.cjs')
 const { sleep } = H
 
 const ROOT = path.resolve(__dirname, '../..')
-const SHOTS = path.join(ROOT, 'production/ui/mercado/shots')
+const SHOTS = path.join(ROOT, 'production/ui/mercado/shots/final')
 const takeShots = process.env.SHOTS !== '0'
-const SIZES = process.argv.slice(2).length ? process.argv.slice(2).map(s => s.split(/[x×]/).map(Number)) : [[1440, 900], [1024, 768], [820, 1000], [390, 844], [320, 568]]
+const ARGS = process.argv.slice(2).filter(a => /\d[x×]\d/.test(a))
+const SIZES = ARGS.length ? ARGS.map(s => s.split(/[x×]/).map(Number)) : [[1440, 900], [1024, 768], [820, 1000], [390, 844], [320, 568]]
+const EXTRA = !ARGS.length || process.argv.includes('--extra')
+/** Capturas que quedan (≤ 25 en total): nombre → anchos. */
+const KEEP = { buscar: [1440], 'buscar-panel': [1440], tratos: [1440, 1024], 'tratos-2': [1440], seguimiento: [1440], movimientos: [1440], presupuesto: [1440],
+  negociacion: [1440], 'negociacion-acuerdo': [390], 'ficha-bidbox': [390], 'bidbox-contraoferta': [1440], 'celular-buscar': [390], 'celular-tratos': [390],
+  'par-contraoferta': [1440, 390], 'par-acuerdo': [1440], 'par-oferta': [1440] }
 
 async function seen(page, sel) {
   await page.evaluate(s => document.querySelectorAll(s).forEach(e => e.scrollIntoView({ block: 'nearest' })), sel)
@@ -51,6 +62,32 @@ async function tabWalk(page, scope, max = 40) {
   }
   return { bad, n: names.length }
 }
+/** La raíz del documento no se desplaza nunca: el área desplazable es #main (revisión visual, B1). */
+const rootOf = page => page.evaluate(() => { const r = document.scrollingElement; return { sh: r.scrollHeight, ih: innerHeight, st: r.scrollTop } })
+const rootOk = r => r.sh <= r.ih + 1 && r.st === 0
+/** Textos de la vista del trato (cabecera, cifras, hechos e impacto) dentro de `scope`: tienen que ser los mismos en la bandeja y en Tratos. */
+const dvText = (page, scope) => page.evaluate(s => { const r = document.querySelector(s); if (!r) return null; return [...r.querySelectorAll('.mk-dv-h, .mk-dv-kpis, .mk-dv-facts, .mk-impact-w')].map(e => e.textContent.replace(/\s+/g, ' ').trim()).join(' | ') }, scope)
+/** Filas del impacto que se parten (el "después" baja de renglón) o que repiten el mismo monto a los dos lados de la flecha. */
+const impBad = (page, scope) => page.evaluate(s => [...document.querySelectorAll(`${s} .mk-impact td:nth-child(2)`)].flatMap(td => {
+  const a = td.querySelector('.b4'), b = td.querySelector('b, .rng'); if (!a || !b || !a.getBoundingClientRect().width) return []
+  const out = []
+  if (Math.abs(a.getBoundingClientRect().top - b.getBoundingClientRect().top) > 6) out.push(`partido: ${td.textContent.trim()}`)
+  if (td.querySelector('.mk-arr') && a.textContent.trim() === b.textContent.trim()) out.push(`igual: ${td.textContent.trim()}`)
+  return out }), scope)
+/** Controles de menos de 44 px de alto dentro de `scope` (celular). Las casillas cuentan por su celda. */
+const under44 = (page, scope) => page.evaluate(s => [...document.querySelectorAll(`${s} button, ${s} input:not([type=checkbox]), ${s} select, ${s} .ptable td:first-child`)].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('.vh') && getComputedStyle(e).visibility !== 'hidden' && (r.height < 43.5 || (e.tagName === 'TD' && r.width < 43.5)) })
+  .map(e => `${(e.textContent || e.getAttribute('aria-label') || e.id || e.tagName).trim().replace(/\s+/g, ' ').slice(0, 28)}:${Math.round(e.getBoundingClientRect().width)}×${Math.round(e.getBoundingClientRect().height)}`).slice(0, 8), scope)
+/** Dos capturas lado a lado en una sola imagen (la bandeja y Tratos con el mismo trato). */
+async function pair(browser, name, a, b, w) {
+  if (!takeShots || !(KEEP[name] ?? []).includes(w)) return
+  const p = await browser.newPage({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1 })
+  await p.setContent(`<body style="margin:0;background:#0a0c1b;color:#f1f2fa;font:14px sans-serif;display:flex;gap:16px;padding:12px;align-items:flex-start">${[['Bandeja', a], ['Tratos', b]].map(([t, x]) => `<figure style="margin:0;flex:1"><figcaption style="margin-bottom:6px">${t}</figcaption><img style="max-width:100%" src="data:image/png;base64,${x.toString('base64')}"></figure>`).join('')}</body>`)
+  await sleep(100)
+  fs.mkdirSync(SHOTS, { recursive: true })
+  await p.screenshot({ path: path.join(SHOTS, `${name}-${w}.jpg`), type: 'jpeg', quality: 80, fullPage: true })
+  await p.close()
+}
+
 /** Cuántas decisiones del mercado y cuánto marca la bandeja, leído del motor (lo que dibujan las insignias). */
 const counts = page => page.evaluate(async () => {
   const I = await import('/src/engine/inbox.ts'), g = window.__ctx().g
@@ -100,12 +137,12 @@ async function setupDeals(page, { offer = true } = {}) {
   return r
 }
 
-async function run(browser, w, h) {
+async function run(browser, w, h, br = browser) {
   const tag = `${w}×${h} · `
   const { ok, res } = H.reporter(tag)
   const wide = w > 1180, phone = w <= 760
   const { page, errs } = await H.newGame(browser, { w, h, touch: phone })
-  const shot = async name => { if (takeShots) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: path.join(SHOTS, `${name}-${w}.png`) }) } }
+  const shot = async name => { if (takeShots && (KEEP[name] ?? []).includes(w)) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: path.join(SHOTS, `${name}-${w}.jpg`), type: 'jpeg', quality: 80 }) } }
 
   // ---------- revisión de código (una vez) ----------
   if (w === SIZES[0][0]) {
@@ -130,12 +167,34 @@ async function run(browser, w, h) {
   await page.evaluate(() => window.__ctx().back()); await sleep(200)
   ok('Tres cambios de pestaña y Atrás vuelve a la pantalla anterior', (await route(page)).page === 'home', JSON.stringify(await route(page)))
 
+  // ---------- la misma vista del trato en la bandeja y en Tratos (revisión visual, B2) ----------
+  for (const [k, key] of [['contraoferta', `deal${ids.counter}`], ['acuerdo', `deal${ids.agreed}`], ['oferta', ids.offer]]) {
+    await go(page, { page: 'market', tab: 'tratos', sel: key })
+    const inT = await dvText(page, `[data-k="${key}"]`), shotT = takeShots ? await page.locator(`[data-k="${key}"]`).screenshot().catch(() => null) : null
+    const bT = await impBad(page, `[data-k="${key}"]`)
+    await H.openInbox(page, key)
+    const inB = await dvText(page, '.ib-panel'), shotB = takeShots ? await page.locator('.ib-panel').screenshot().catch(() => null) : null
+    const bB = await impBad(page, '.ib-panel')
+    ok(`Vista del trato (${k}): el mismo texto en la bandeja y en Tratos`, !!inT && inT === inB, `Tratos: ${(inT ?? '').slice(0, 120)} ≠ bandeja: ${(inB ?? '').slice(0, 120)}`)
+    ok(`Impacto (${k}): sin renglones partidos ni montos iguales a los dos lados, en Tratos y en la bandeja`, !bT.length && !bB.length, [...bT, ...bB].slice(0, 3).join(' | '))
+    if (shotT && shotB) await pair(br, `par-${k}`, shotB, shotT, w)
+  }
+
+
 
   await go(page, { page: 'market', tab: 'buscar' })
   for (const t of ['buscar', 'tratos', 'seguimiento', 'movimientos', 'presupuesto']) {
     await go(page, { page: 'market', tab: t })
     const st = await page.evaluate(() => { const s = document.querySelector('.mk-strip'); const r = s?.getBoundingClientRect(); return { txt: s?.textContent ?? '', top: r?.top ?? -1, bottom: r?.bottom ?? 9999 } })
     ok(`Franja con el libro en palabras en ${t}`, /Abierto/.test(st.txt) && /cierra/.test(st.txt) && st.bottom <= h, `${st.txt.slice(0, 80)}`)
+    const small = await H.smallText(page, '.mk')
+    ok(`${t}: ningún texto por debajo de 12 px`, !small.length, small.join(', '))
+    // la rueda pasado el final (y el arrastre en el celular) no desplaza la raíz del documento
+    await page.mouse.move(w / 2, h * 0.6); for (let i = 0; i < 4; i++) { await page.mouse.wheel(0, 4000); await sleep(60) }
+    const r0 = await rootOf(page)
+    ok(`${t}: la raíz del documento no se desplaza (alto ${r0.sh} ≤ ${r0.ih}, arriba ${r0.st}) aun con la rueda pasado el final`, rootOk(r0), JSON.stringify(r0))
+    if (phone && t !== 'buscar') { const u = await under44(page, '.mk'); ok(`${t} (celular): todo control de 44 px o más`, !u.length, u.join(', ')) }
+    await page.evaluate(() => { document.getElementById('main').scrollTop = 0 }); await shot(t === 'buscar' ? 'buscar-tab' : t)
   }
   const old = await page.evaluate(async () => { window.__ctx().nav({ page: 'market', tab: 'offers' }); await new Promise(r => setTimeout(r, 200)); return document.querySelector('.mk-tabs button[aria-pressed=true]')?.textContent })
   ok('tab: "offers" abre Tratos', /Tratos/.test(old ?? ''), old)
@@ -143,12 +202,31 @@ async function run(browser, w, h) {
   const c0 = await counts(page)
   ok('Insignia de Mercado = ofertas por tus jugadores + contraofertas + acuerdos (no las que esperan)', c0.market === 4 && (phone || c0.badgeMk === `!${c0.market}`), JSON.stringify(c0))
 
+  // ---------- la insignia y el cambio de pestaña con el teclado (revisión UX, menor 1 y desvío b) ----------
+  if (!phone) {
+    await go(page, { page: 'home' })
+    await page.focus('.sections [data-group="market"]'); await page.keyboard.press('Enter'); await sleep(300)
+    const rk = await route(page), first = await page.evaluate(async () => (await import('/src/engine/inbox.ts')).pendingAll(window.__ctx().g).find(p => p.k === 'offer' || p.k === 'deal')?.key)
+    const fk = await page.evaluate(() => document.activeElement?.closest('[data-k]')?.getAttribute('data-k') ?? document.activeElement?.tagName)
+    ok('Enter en "Mercado" de la barra (con decisiones) abre Tratos con la primera, con el foco en su título', rk.tab === 'tratos' && rk.sel === first && fk === first && await page.evaluate(() => !document.activeElement?.matches('button')), `${JSON.stringify(rk)} · foco ${fk}`)
+    ok('La insignia del Mercado no tiene un clic propio (un solo objetivo: el botón)', await page.evaluate(() => { const d = document.querySelector('.sections [data-group="market"] .dot'); return !!d && !d.onclick && !Object.keys(d).some(k => k.startsWith('__reactProps') && d[k].onClick) }))
+  }
+  await go(page, { page: 'market', tab: 'buscar' })
+  await page.focus('.mk-tabs button[aria-pressed=true]'); await page.keyboard.press('ArrowRight'); await page.keyboard.press('Enter'); await sleep(250)
+  ok('Cambiar a Tratos con el teclado deja el foco en la pestaña (no salta a "Aceptar")', await page.evaluate(() => document.activeElement?.closest('.mk-tabs') != null && /Tratos/.test(document.activeElement.textContent)), await page.evaluate(() => document.activeElement?.textContent?.slice(0, 40)))
+  ok('Las pestañas con foco itinerante son una barra de herramientas con nombre', await page.evaluate(() => document.querySelector('.mk-tabs')?.getAttribute('role') === 'toolbar' && !!document.querySelector('.mk-tabs')?.getAttribute('aria-label')))
+
   // ---------- Tratos: cada botón y cada foco visibles ----------
   await go(page, { page: 'market', tab: 'tratos' })
   const groups = await page.evaluate(() => [...document.querySelectorAll('.mk-gh h3')].map(x => x.textContent))
-  ok('Tratos en orden: Para responder, Esperando respuesta, Para cerrar, Para renovar, Historial', groups.map(x => x.split(' ·')[0]).join('|') === 'Para responder|Esperando respuesta|Para cerrar|Para renovar|Historial', groups.join(' | '))
+  ok('Tratos en orden: Para responder, Esperando respuesta, Para cerrar, Para renovar, Historial', groups.map(x => x.split(/ ·|:/)[0].replace(/\d+$/, '').trim()).join('|') === 'Para responder|Esperando respuesta|Para cerrar|Para renovar|Historial', groups.join(' | '))
   const btns = await seen(page, '.mk-deals .mk-card .btn, .mk-deals .mk-improve input')
   ok('Tratos: cada botón y campo se ve (elementFromPoint)', allOk(btns), why(btns))
+  const rt = await rootOf(page)
+  ok('Tratos: después de llevar cada botón a la vista, la raíz sigue arriba y sin alto de más', rootOk(rt), JSON.stringify(rt))
+  const ib = await impBad(page, '.mk-deals')
+  ok('Tratos: ninguna fila del impacto se parte', !ib.length, ib.slice(0, 3).join(' | '))
+  ok('Tratos: un solo riel por tarjeta (la vista no lleva el suyo)', await page.evaluate(() => [...document.querySelectorAll('.mk-card .mk-dv')].every(e => parseFloat(getComputedStyle(e).borderLeftWidth) === 0)))
   await page.evaluate(() => { document.getElementById('main').scrollTop = 0 }); await sleep(100); await shot('tratos')
   await page.evaluate(() => { const m = document.getElementById('main'); m.scrollTop = m.clientHeight * 0.9 }); await sleep(100); await shot('tratos-2')
   await page.evaluate(() => document.querySelector('.mk-tabs button[aria-pressed=true]')?.focus())
@@ -177,6 +255,8 @@ async function run(browser, w, h) {
   await go(page, { page: 'market', tab: 'tratos', sel: `deal${ids.agreed}` })
   await page.click(`[data-k="deal${ids.agreed}"] [data-primary]`); await sleep(300)
   ok('Negociar contrato abre la ventana con la paciencia en palabra', /Paciencia del representante: (mucha|media|poca)/.test(await page.evaluate(() => document.querySelector('.modal')?.textContent ?? '')))
+  ok('La negociación abre con el foco en "Sueldo mensual"', await page.evaluate(() => document.activeElement?.id === 'neg-wage'))
+  if (phone) { const u = await under44(page, '.modal'); ok('Negociación (celular): todo control de 44 px o más', !u.length, u.join(', ')) }
   const nb = await seen(page, '.modal .btn, .modal input')
   ok('Negociación: cada botón y campo se ve', allOk(nb), why(nb))
   await shot('negociacion')
@@ -192,6 +272,19 @@ async function run(browser, w, h) {
   if (agreeTxt) { const cb = await seen(page, '.mk-agree .btn'); ok('Confirmar y Seguir negociando se ven', allOk(cb), why(cb)); await shot('negociacion-acuerdo') }
   await page.keyboard.press('Escape'); await sleep(200)
   ok('Esc cierra la negociación y el acuerdo sigue en Para cerrar', await page.$('.modal') == null && await page.evaluate(id => window.__ctx().g.deals.find(d => d.id === id)?.state, ids.agreed) === 'agreed')
+  // "Seguir negociando" retoma el acuerdo; firmar deja el foco en el resultado, dentro de la ventana, y Tab no sale de ella
+  await page.click(`[data-k="deal${ids.agreed}"] [data-primary]`); await sleep(300)
+  if (await page.$('.mk-agree [data-primary]')) {
+    await page.focus('.mk-agree [data-primary]'); await page.keyboard.press('Enter'); await sleep(250)
+    const fin = await page.evaluate(() => ({ inside: !!document.activeElement?.closest('.modal'), what: document.activeElement?.className ?? document.activeElement?.tagName }))
+    await page.keyboard.press('Tab'); await sleep(60)
+    const tab1 = await page.evaluate(() => !!document.activeElement?.closest('.modal'))
+    await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Shift+Tab'); await sleep(60)
+    const tab2 = await page.evaluate(() => !!document.activeElement?.closest('.modal'))
+    ok('Después de "Confirmar: fichar…" el foco queda en la ventana (en el resultado) y Tab no sale', fin.inside && /ib-result/.test(fin.what) && tab1 && tab2, `${JSON.stringify(fin)} · ${tab1} · ${tab2}`)
+    ok('Firmó: el trato quedó firmado', await page.evaluate(id => window.__ctx().g.deals.find(d => d.id === id)?.state, ids.agreed) === 'signed')
+    await page.keyboard.press('Escape'); await sleep(200)
+  } else ok('"Seguir negociando" retoma el acuerdo', false, 'sin .mk-agree')
 
   // retirar la espera: libera lo comprometido, sin confirmación
   const w0 = await page.evaluate(async () => (await import('/src/engine/career.ts')).committed(window.__ctx().g))
@@ -204,6 +297,8 @@ async function run(browser, w, h) {
   await page.evaluate(() => { const c = window.__ctx(); try { localStorage.removeItem('ta-sticky') } catch {} ; c.refresh() })
   if (wide) {
     ok('Al entrar no hay fila elegida', await page.$('.mk .ptable tr[aria-selected=true]') == null && await page.$('.mk-side.none') != null)
+    const grid = await page.evaluate(() => { const t = document.querySelector('.mk .ptable table'), r = t?.querySelector('tbody tr'); return { role: t?.getAttribute('role'), name: t?.getAttribute('aria-label'), row: r?.getAttribute('aria-label') ?? '' } })
+    ok('La tabla del Mercado es un grid con nombre y cada fila se nombra (jugador, puesto, club, edad, valoración, pedido)', grid.role === 'grid' && !!grid.name && /años, valoración .+, pedido US\$/.test(grid.row), JSON.stringify(grid))
     await shot('buscar')
     // ↓ hasta la fila, Enter (foco al monto), Enter (ofertar)
     await page.focus('.mk .ptable tbody tr[tabindex="0"]'); await page.keyboard.press('ArrowDown'); await sleep(80)
@@ -219,18 +314,41 @@ async function run(browser, w, h) {
     ok('Panel: cada botón y campo se ve', allOk(pb), why(pb))
     const before = await counts(page)
     await page.keyboard.press('Enter'); await sleep(300)
-    const waitTxt = await page.evaluate(() => document.querySelector('.mk-side .mk-deal')?.textContent ?? '')
+    const waitTxt = await page.evaluate(() => document.querySelector('.mk-side .mk-dv')?.textContent ?? '')
     const after = await counts(page)
     ok('Enter, Enter: queda "Esperando respuesta" y no suma insignias', /Esperando respuesta/.test(waitTxt) && after.market === before.market && after.inbox === before.inbox, `${waitTxt.slice(0, 50)} · ${JSON.stringify(before)} → ${JSON.stringify(after)}`)
-    await shot('bidbox-esperando')
     await page.keyboard.press('Escape'); await sleep(100)
     ok('Esc desde el panel vuelve el foco a la fila elegida', await page.evaluate(() => document.activeElement?.matches('tr[aria-selected=true]')))
+    // Comparar desde el panel: sin casillas, deshabilitado con el motivo; con una marcada, abre el comparador con "Ofertar" y "Seguir" por columna
+    const cmp0 = await page.evaluate(() => { const b = [...document.querySelectorAll('.mk-side .btn')].find(x => x.textContent === 'Comparar'); return { dis: b?.disabled, why: document.getElementById('mk-cmp-why')?.textContent ?? '' } })
+    ok('Comparar del panel sin casillas marcadas: deshabilitado con el motivo escrito', cmp0.dis === true && /Marcá/.test(cmp0.why), JSON.stringify(cmp0))
+    await page.click('.mk .ptable tbody tr:nth-child(4) td:first-child'); await sleep(150)
+    await page.click('.mk-side .btn:has-text("Comparar")'); await sleep(300)
+    const cm = await page.evaluate(() => ({ open: !!document.querySelector('.modal .cmp'), offer: document.querySelectorAll('.modal .cmp .btn:not(.on)').length, txt: document.querySelector('.modal')?.textContent ?? '' }))
+    ok('Comparar del panel abre el comparador con el elegido y el marcado, con "Cabe en tu presupuesto", el tope y Ofertar/Seguir', cm.open && /Cabe en tu presupuesto/.test(cm.txt) && /Tope de sueldos/.test(cm.txt) && /Ofertar/.test(cm.txt) && /Seguir|En seguimiento/.test(cm.txt), cm.txt.slice(0, 80))
+    await shot('comparar')
+    await page.keyboard.press('Escape'); await sleep(150)
+    await page.click('.mk .ptable tbody tr:nth-child(4) td:first-child'); await sleep(100)
+    // ordenar con el teclado: Enter en el encabezado ordena y lo dice con aria-sort
+    const head = '.mk .ptable thead th:nth-child(3)'
+    await page.focus(`${head} .th-sort`); await page.keyboard.press('Enter'); await sleep(150)
+    const s1 = await page.evaluate(h => document.querySelector(h)?.getAttribute('aria-sort'), head)
+    await page.keyboard.press('Enter'); await sleep(150)
+    const s2 = await page.evaluate(h => document.querySelector(h)?.getAttribute('aria-sort'), head)
+    ok('Encabezados ordenables con el teclado: Enter ordena y aria-sort cambia de sentido', !!s1 && !!s2 && s1 !== s2, `${s1} → ${s2}`)
+    const sx = await page.evaluate(() => document.querySelector('.ptable thead th:nth-child(3)')?.getAttribute('aria-sort'))
+    await page.evaluate(() => { try { localStorage.removeItem('ta-sticky') } catch {} })
+    void sx
   } else {
+    const sb = await under44(page, '.mk')
+    if (phone) ok('Buscar (celular): todo control de 44 px o más, también las casillas', !sb.length, sb.join(', '))
+    await page.focus('.mk .ptable thead th:nth-child(3) .th-sort'); await page.keyboard.press('Enter'); await sleep(150)
+    ok('Encabezados ordenables con el teclado (sin panel)', !!await page.evaluate(() => document.querySelector('.mk .ptable thead th:nth-child(3)')?.getAttribute('aria-sort')))
     await page.click('.mk .ptable tbody tr td:nth-child(2)'); await sleep(400)
-    ok('≤ 1180 px: tocar una fila abre la ficha', await page.$('.pband') != null)
-    await page.click('.pband-tabs button:has-text("Contrato y mercado")'); await sleep(300)
+    ok('≤ 1180 px: tocar una fila abre la ficha en Contrato y mercado', await page.$('.pband') != null && (await route(page)).tab === 'contrato', JSON.stringify(await route(page)))
     const fb = await seen(page, '.mk-scope .btn, .mk-scope input')
     ok('Ficha › Contrato y mercado: el BidBox y sus botones se ven', allOk(fb), why(fb))
+    if (phone) { const u = await under44(page, '.mk-scope'); ok('Ficha › Contrato y mercado (celular): todo control de 44 px o más', !u.length, u.join(', ')) }
     await shot('ficha-bidbox')
   }
 
@@ -243,6 +361,25 @@ async function run(browser, w, h) {
     ok(`BidBox ${k}: cada botón se ve`, allOk(v), why(v))
     await shot(`bidbox-${k}`)
   }
+
+  // ---------- la ficha de un ajeno que no conocés del todo no muestra su sueldo exacto (revisión visual, B5) ----------
+  const ex = await page.evaluate(async () => {
+    const S = await import('/src/engine/squad.ts'), D = await import('/src/ui/deal.tsx'), Cm = await import('/src/ui/common.tsx'), g = window.__ctx().g
+    const p = Object.values(g.players).find(p => g.clubs[p.clubId]?.division === 1 && p.clubId !== g.userClubId && S.knowOf(g, p) < 90 && p.wage >= 3000)
+    const w = S.wageShown(g, p, p.wage, 401)
+    return { id: p.id, exact: [D.wm(p.wage), Cm.money(p.wage)], range: w[0] !== w[1] }
+  })
+  for (const t of ['resumen', 'contrato']) {
+    await go(page, { page: 'player', id: ex.id, tab: t })
+    const txt = await page.evaluate(() => document.querySelector('.page')?.textContent ?? '')
+    const hit = ex.exact.filter(x => new RegExp(`(^|[^–\\d,])${x.replace(/[.$]/g, m => '\\' + m)}`).test(txt))
+    ok(`Ficha (${t}) de un ajeno conocido a medias: ningún sueldo exacto (${ex.exact.join(' / ')})`, ex.range && !hit.length, hit.join(', '))
+    const sm = await H.smallText(page, t === 'contrato' ? '.mk-scope' : '.pband')
+    ok(`Ficha (${t}): nada por debajo de 12 px en ${t === 'contrato' ? 'la caja de oferta' : 'la banda'}`, !sm.length, sm.join(', '))
+    if (t === 'contrato') { const b = await impBad(page, '.mk-scope'); ok('Ficha: el impacto no se parte', !b.length, b.join(' | ')) }
+  }
+  ok('Ficha: "Ofertar ▸" de la banda no es un segundo primario relleno', await page.evaluate(() => { const b = [...document.querySelectorAll('.pband-tabs .btn')].find(x => /Ofertar/.test(x.textContent)); return !!b && !b.classList.contains('primary') }))
+  ok('Ficha: las estrellas tienen rol de imagen y las pestañas exponen su estado', await page.evaluate(() => [...document.querySelectorAll('.stars')].every(s => s.getAttribute('role') === 'img') && [...document.querySelectorAll('.pband-tabs > button:not(.btn)')].every(b => b.hasAttribute('aria-pressed'))))
 
   // ---------- el avance frena cuando llega una respuesta ----------
   await page.evaluate(async () => { const C = await import('/src/engine/career.ts'), c = window.__ctx(), g = c.g
@@ -262,7 +399,7 @@ async function run(browser, w, h) {
   if (ra.page === 'inbox' && ra.sel === `deal${wid}`) {
     const ib = await seen(page, '.ib-read .btn, .ib-read input, .ib-detail .btn, .ib-detail input')
     ok('Bandeja: el acuerdo y sus botones se ven', allOk(ib), why(ib))
-    await shot('bandeja-acuerdo')
+    const sib = await H.smallText(page, '.ib-panel'); ok('Bandeja: nada por debajo de 12 px en el trato', !sib.length, sib.join(', '))
     // el último día del acuerdo frena una vez
     await page.evaluate(id => { const c = window.__ctx(), d = c.g.deals.find(x => x.id === id); d.deadline = c.g.date; c.save(); c.refresh() }, wid)
     await go(page, { page: 'home' })
@@ -285,7 +422,7 @@ async function run(browser, w, h) {
   await shot('bidbox-cerrado')
 
   // ---------- Presupuesto, Movimientos, celular ----------
-  await go(page, { page: 'market', tab: 'presupuesto' }); await shot('presupuesto')
+  await go(page, { page: 'market', tab: 'presupuesto' })
   const ov = await H.hOverflow(page)
   ok('Sin desplazamiento horizontal de la página', !ov.over, ov.wide.join(', '))
   const small = await H.smallText(page, '.mk')
@@ -296,10 +433,74 @@ async function run(browser, w, h) {
   return res
 }
 
+/** Texto del juego al 120 % (1440 y 1024): nada se parte ni se corta, la franja en dos filas, las tarjetas en una columna. */
+async function runBig(browser, w, h) {
+  const { ok, res } = H.reporter(`${w}×${h} · 120 % · `)
+  const { page, errs } = await H.newGame(browser, { w, h, settings: { text: 120 } })
+  const shot = async name => { if (takeShots && w === 1440) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: path.join(SHOTS, `${name}-t120-${w}.jpg`), type: 'jpeg', quality: 80 }) } }
+  const ids = await setupDeals(page)
+  for (const t of ['buscar', 'tratos', 'seguimiento', 'movimientos', 'presupuesto']) {
+    await go(page, { page: 'market', tab: t })
+    const sm = await H.smallText(page, '.mk'), ov = await H.hOverflow(page), r = await rootOf(page)
+    ok(`${t}: sin texto bajo 12 px, sin desborde lateral y con la raíz quieta`, !sm.length && !ov.over && rootOk(r), `${sm.join(', ')} ${ov.wide.join(', ')} ${JSON.stringify(r)}`)
+  }
+  ok('La franja pasa a dos filas', await page.evaluate(() => getComputedStyle(document.querySelector('.mk-strip')).gridTemplateColumns.split(' ').length === 2))
+  await go(page, { page: 'market', tab: 'tratos', sel: `deal${ids.counter}` })
+  ok('Las tarjetas de Tratos quedan en una columna (la espera es una línea)', await page.evaluate(() => [...document.querySelectorAll('.mk-card:not(.wait) .mk-dv-b')].every(e => getComputedStyle(e).gridTemplateColumns.split(' ').length === 1)))
+  const ib = await impBad(page, '.mk-deals'); ok('Tratos: el impacto no se parte', !ib.length, ib.slice(0, 3).join(' | '))
+  const hd = await page.evaluate(() => [...document.querySelectorAll('.mk .ptable th')].filter(t => t.scrollWidth > t.clientWidth + 1).length)
+  await shot('tratos')
+  if (w > 1180) {
+    await go(page, { page: 'market', tab: 'buscar' })
+    await page.focus('.mk .ptable tbody tr[tabindex="0"]'); await page.keyboard.press('Enter'); await sleep(300)
+    const pv = await page.evaluate(() => { const one = e => !e || e.getClientRects().length === 1 && e.getBoundingClientRect().height < parseFloat(getComputedStyle(e).fontSize) * 2.2
+      return { val: [...document.querySelectorAll('.mk-side .ovr, .mk .ptable .ovr')].every(one), know: one(document.querySelector('.mk-know .nw')) } })
+    ok('Panel: la valoración en rango y "Conocés el N %" no se parten', pv.val && pv.know, JSON.stringify(pv))
+    const bp = await impBad(page, '.mk-side'); ok('Panel: el impacto no se parte', !bp.length, bp.join(' | '))
+    const cut = await page.evaluate(() => [...document.querySelectorAll('.mk .ptable th')].filter(t => t.scrollWidth > t.clientWidth + 1).map(t => t.textContent))
+    ok('Encabezados de la tabla sin cortar con "…"', !cut.length, cut.join(', '))
+    await shot('buscar-panel')
+  }
+  void hd
+  ok('Sin errores en la consola', !errs.length, errs.slice(0, 3).join(' | '))
+  await page.close()
+  return res
+}
+
+/** Defensa y Justicia (amarillo): el principal y la selección con su segundo color (verde); el ámbar queda para lo que pide decisión; la banda de la ficha y el escudo, amarillos. */
+async function runDyj(browser) {
+  const w = 1440, h = 900
+  const { ok, res } = H.reporter(`Defensa y Justicia · `)
+  const { page, errs } = await H.newGame(browser, { club: 'Defensa y Justicia', w, h })
+  const shot = async name => { if (takeShots) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: path.join(SHOTS, `${name}-dyj-${w}.jpg`), type: 'jpeg', quality: 80 }) } }
+  const ids = await setupDeals(page)
+  await go(page, { page: 'market', tab: 'tratos', sel: `deal${ids.agreed}` })
+  const hue = c => { const [r, g, b] = c.match(/\d+/g).slice(0, 3).map(Number).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; if (!d) return -1; const x = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return (x * 60 + 360) % 360 }
+  const col = await page.evaluate(id => { const card = document.querySelector(`[data-k="deal${id}"]`), btn = card?.querySelector('[data-primary]'), cs = getComputedStyle(document.querySelector('.shell') ?? document.body)
+    return { btn: btn ? getComputedStyle(btn).backgroundColor : '', sel: card ? getComputedStyle(card).borderLeftColor : '', accent: cs.getPropertyValue('--accent').trim(), warn: getComputedStyle(document.querySelector('.mk-gh.dec') ?? document.body).borderLeftColor } }, ids.agreed)
+  const gap = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d) }
+  ok('El principal relleno usa el segundo color del club (verde), lejos del ámbar', hue(col.btn) >= 0 && gap(hue(col.btn), 36) >= 25 && gap(hue(col.btn), 49) >= 25 && hue(col.btn) > 90 && hue(col.btn) < 170, JSON.stringify(col))
+  ok('La tarjeta elegida no es ámbar (riel --sel verde)', gap(hue(col.sel), 36) >= 25 && gap(hue(col.sel), 49) >= 25, JSON.stringify(col))
+  await shot('tratos')
+  await go(page, { page: 'market', tab: 'buscar' })
+  await page.focus('.mk .ptable tbody tr[tabindex="0"]'); await page.keyboard.press('Enter'); await sleep(300)
+  await shot('buscar-panel')
+  const mine = await page.evaluate(() => { const g = window.__ctx().g; return Object.values(g.players).find(p => p.clubId === g.userClubId).id })
+  await go(page, { page: 'player', id: mine })
+  const band = await page.evaluate(() => getComputedStyle(document.querySelector('.pband')).getPropertyValue('--band').trim())
+  ok('La banda de la ficha y el escudo conservan el amarillo', /^#ff/i.test(band) && gap(hue(`rgb(${parseInt(band.slice(1, 3), 16)},${parseInt(band.slice(3, 5), 16)},${parseInt(band.slice(5, 7), 16)})`), 50) < 15, band)
+  await shot('ficha')
+  ok('Sin errores en la consola', !errs.length, errs.slice(0, 3).join(' | '))
+  await page.close()
+  return res
+}
+
 ;(async () => {
   const browser = await H.chromium.launch()
   const all = []
+  if (takeShots && !ARGS.length) { fs.rmSync(SHOTS, { recursive: true, force: true }) }
   for (const [w, h] of SIZES) all.push(...await run(browser, w, h))
+  if (EXTRA) { all.push(...await runBig(browser, 1440, 900), ...await runBig(browser, 1024, 768), ...await runDyj(browser)) }
   await browser.close()
   const bad = all.filter(r => r.status === 'FALLA')
   console.log(`\n${all.length} comprobaciones, ${bad.length} fallas, ${all.filter(r => r.status === 'N/A').length} sin aplicar`)

@@ -76,7 +76,8 @@ export function App() {
   }) }
   const back = () => { remember(); setHist(h => ({ ...h, i: Math.max(0, h.i - 1) })) }
   const fwd = () => { remember(); setHist(h => ({ ...h, i: Math.min(h.stack.length - 1, h.i + 1) })) }
-  const setPage = (p: string) => nav({ page: p })
+  // con decisiones del mercado, entrar al Mercado desde la barra (clic, Enter, toque o tecla) abre Tratos con la primera; sin decisiones, la pestaña recordada
+  const setPage = (p: string) => { const mk = p === 'market' && g ? pendingAll(g).find(x => x.k === 'offer' || x.k === 'deal') : undefined; nav(mk ? { page: p, tab: 'tratos', sel: mk.key } : { page: p }) }
   const api = useRef<{ key: (e: KeyboardEvent) => void }>({ key: () => {} })
   useEffect(() => { document.documentElement.style.fontSize = `${(14 * settings.text) / 100}px`; document.documentElement.classList.toggle('text-big', settings.text >= 110) }, [settings.text])
   useEffect(() => {
@@ -197,8 +198,7 @@ export function App() {
   const unread = count - pend.length, inboxSays = [unread ? `${unread} sin leer` : '', pend.length ? `${pend.length} para decidir` : ''].filter(Boolean).join(' y ')
   const badge = (id: string, inGroup = false): ReactNode => (id === 'inbox' && count > 0
     ? <span className={`dot ${pend.length ? 'warn' : ''}`} title={pend.length ? `Pendiente: ${pendingText(pend)}${unread ? ` y ${unread} sin leer` : ''}` : `${count} sin leer`}><span aria-hidden="true">{pend.length > 0 && <i className="dot-bang">!</i>}{count}</span><span className="vh">{inGroup ? `, bandeja: ${inboxSays}` : `, ${inboxSays}`}</span></span>
-    : id === 'market' && mkDec.length > 0 ? <span className="dot warn" title={`Para decidir en el mercado: ${pendingText(mkDec)}. Clic para verlo en Tratos.`}
-      onClick={e => { e.stopPropagation(); e.preventDefault(); nav({ page: 'market', tab: 'tratos', sel: mkDec[0].key }) }}><span aria-hidden="true"><i className="dot-bang">!</i>{mkDec.length}</span><span className="vh">{`${inGroup ? ', mercado' : ''}, ${mkDec.length} ${mkDec.length === 1 ? 'decisión' : 'decisiones'} del mercado`}</span></span> : null)
+    : id === 'market' && mkDec.length > 0 ? <span className="dot warn" title={`Para decidir en el mercado: ${pendingText(mkDec)}. Entrar al Mercado lo abre en Tratos.`}><span aria-hidden="true"><i className="dot-bang">!</i>{mkDec.length}</span><span className="vh">{`${inGroup ? ', mercado' : ''}, ${mkDec.length} ${mkDec.length === 1 ? 'decisión' : 'decisiones'} del mercado`}</span></span> : null)
   const ql = q.trim().toLowerCase()
   const found = ql.length >= 2 ? Object.values(g.players).filter(p => p.name.toLowerCase().includes(ql)).map(p => [p, seenRating(g, p)] as const).sort((a, b) => b[1] - a[1]).map(([p]) => p).slice(0, 8) : []
   const theme = clubTheme(club) as object

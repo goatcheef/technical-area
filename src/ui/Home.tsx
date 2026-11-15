@@ -8,7 +8,7 @@ import { Legend, MARK_CLASS } from './Tables'
 import type { Fixture } from '../engine/types'
 import { exportGame, useGame } from '../store'
 import { Badge, Face, Gauge, MatchReport, Val, avgRat, dec, money, resultText } from './common'
-import { pendingOf, pendingText, unreadOf } from '../engine/inbox'
+import { pendingAll, pendingText, unreadOf } from '../engine/inbox'
 import { DayHead, MsgBody, TAG_ICON, TAG_NAME } from './msg'
 
 
@@ -37,7 +37,8 @@ export function Home() {
   const [edit, setEdit] = useState(false)
   const setLay = (l: Tile[]) => setSettings({ ...settings, home: l, homeV: 2 })
   const move = (i: number, d: number) => { const l = [...lay], j = i + d; if (j < 0 || j >= l.length) return; [l[i], l[j]] = [l[j], l[i]]; setLay(l) }
-  const pend = pendingOf(g)
+  // lo pendiente con los tratos del mercado (contraofertas y acuerdos): el mismo número que la bandeja y la insignia de Mercado
+  const pend = pendingAll(g)
   // ofertas de trabajo que se pierden al comenzar la temporada: se avisa antes, en la misma tarjeta
   const jobs = pend.filter(p => p.k === 'job')
   const [confirmStart, setConfirmStart] = useState(false)

@@ -13,7 +13,7 @@ import { Badge, Face, MatchReport, PosPill, Status, Val, attrClass, money } from
 import { PageTip } from './Guide'
 import { DayHead, IC, MsgBody, TAG_ICON, TAG_NAME, daysUntil, shortDay } from './msg'
 import { ReportModal } from './Week'
-import { ImproveBlock, between, dealModel, dealStateText, wm, wr } from './deal'
+import { DealView, dealModel, dealStateText, offerModel, wr } from './deal'
 import { NegotiationModal } from './Locker'
 
 // ---------- vistas: alcance y tema ----------
@@ -405,7 +405,7 @@ function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: b
 const Kpi = ({ l, v, s, k, t }: { l: string; v: ReactNode; s?: string; k?: boolean; t?: boolean }) => <div className={`ib-kpi ${k ? 'key' : ''}`}><span className="ib-kpi-l">{l}</span><span className={`ib-kpi-v ${t ? 'txt' : ''}`}>{v}</span>{s && <span className="ib-kpi-s">{s}</span>}</div>
 const Fact = ({ children }: { children: ReactNode }) => <div className="ib-fact">{children}</div>
 
-function PlayerCard({ pid }: { pid?: number }) {
+export function PlayerCard({ pid }: { pid?: number }) {
   const { g, openPlayer } = useGame()
   if (pid == null) return null
   const p = g.players[pid]
@@ -418,7 +418,7 @@ function PlayerCard({ pid }: { pid?: number }) {
     <span className="ib-chev">{IC.next}</span>
   </button>
 }
-function ClubCard({ cid, name }: { cid?: number; name?: string }) {
+export function ClubCard({ cid, name }: { cid?: number; name?: string }) {
   const { g, openClub } = useGame()
   const c = cid != null ? g.clubs[cid] : undefined
   if (!c) return name ? <div className="ib-who static"><span className="msg-ico">{TAG_ICON.club}</span><span className="grow"><b>{name}</b><span className="ib-who-m">Club del exterior</span></span></div> : null
@@ -448,7 +448,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
   const desc = it.p ? pendDesc(g, it.p) : null
   const kind = it.p?.k ?? (n?.act === 'offer' || n?.act === 'job' || n?.act === 'out' || n?.act === 'deal' ? n.act : null)
 
-  let cards: ReactNode = null, kpis: ReactNode = null, extra: ReactNode = null, facts: ReactNode = null, conseq: ReactNode = null, gone: ReactNode = null
+  let cards: ReactNode = null, kpis: ReactNode = null, extra: ReactNode = null, facts: ReactNode = null, conseq: ReactNode = null, gone: ReactNode = null, after: ReactNode = null
   let acts: Act[] = [], help: ReactNode[] = []
   const goneMsg = (t: string) => (gone = <div className="ib-gone">{t}</div>)
   const expired = (ref: number, tag: string) => g.news.find(x => x.ref === ref && x.tag === tag && x.title.startsWith('Venció'))
@@ -459,20 +459,14 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     const pid = o?.pid ?? (it.p?.k === 'offer' ? it.p.o.pid : n?.pid), p = pid != null ? g.players[pid] : undefined
     const fromName = o?.fromName ?? (it.p?.k === 'offer' ? it.p.o.fromName : undefined)
     cards = <><PlayerCard pid={pid} /><ClubCard cid={(o?.from ?? (it.p?.k === 'offer' ? it.p.o.from : 0)) || undefined} name={fromName} /></>
-    if (o && p && livePend) {
-      const diff = p.value ? Math.round((o.fee / p.value - 1) * 100) : 0, open = windowOpen(g.date)
-      const left = squadOf(g, g.userClubId).filter(x => x.id !== p.id && x.positions[0] === p.positions[0]).length
-      const others = g.offers.filter(x => x.pid === o.pid && x.id !== o.id)
-      kpis = <><Kpi k l="Oferta" v={money(o.fee)} /><Kpi l="Valor" v={money(p.value)} /><Kpi l="Diferencia" v={`${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} %`} s={diff > 0 ? 'sobre su valor' : diff < 0 ? 'bajo su valor' : 'igual a su valor'} /><Kpi l="Sueldo" v={money(p.wage)} s="por mes" /><Kpi l="Contrato" v={`dic ${p.contractEnd}`} /></>
-      facts = <><Due d={dueOf(offerDeadline(o), g.date, false)} /><Fact>Libro de pases {open ? 'abierto' : 'cerrado'}.</Fact><Fact>Si lo vendés, te quedan {left} en su puesto ({POS_NAME[p.positions[0]].toLowerCase()}).</Fact></>
-      acts = [
-        { label: 'Aceptar', kind: 'primary', disabled: !open, confirm: { label: `Confirmar: vender a ${p.name} a ${o.fromName} por ${money(o.fee)}${others.length ? `; se cancela la de ${others.map(x => x.fromName).join(' y la de ')}` : ''}${!o.from ? '. Se va al exterior' : ''}`, run: () => run(dk!, () => { acceptOffer(g, o); return { text: `Vendiste a ${p.name} a ${o.fromName} por ${money(o.fee)}.` } }) } },
-        { label: 'Pedir más', dec: true, disabled: !open, run: () => run(dk!, () => (haggle(g, o) ? { text: `${o.fromName} mejoró su oferta: ahora ${money(o.fee)}.`, resolved: false } : { text: `${o.fromName} se retiró de la negociación.`, tone: 'warn' })) },
-        { label: 'Ver la ficha', nav: true, run: () => openPlayer(p.id) },
-        { label: 'Rechazar', kind: 'danger', confirm: { label: 'Confirmar rechazo', danger: true, run: () => run(dk!, () => { rejectOffer(g, o); return { text: `Rechazaste la oferta de ${o.fromName}.` } }) } },
-      ]
-      extra = <div className="ib-links"><button className="btn" onClick={() => nav({ page: 'market', tab: 'tratos', sel: dk! })}>Ver todos los tratos</button></div>
-      help = [!open && 'El libro de pases está cerrado: no podés aceptar ni pedir más, solo rechazar.', <><b>Pedir más:</b> {o.fromName} puede mejorar 15 % o retirarse.</>, others.length > 0 && `También ofertó ${others.map(x => `${x.fromName} (${money(x.fee)})`).join(' y ')}. Si aceptás una, la otra se cancela.`]
+    const om = o && p && livePend ? offerModel(g, o, fn => run(dk!, fn)) : null
+    if (om && p) {
+      // la misma vista que Tratos (deal.tsx, `offerModel`): cabecera, cifras, hechos e impacto; los botones van en la barra de la bandeja
+      extra = <DealView m={om} busy={busy} run={fn => run(dk!, fn)} actions={false} />
+      // primario → comunes → enlaces → peligro, como en Tratos
+      acts = [...om.acts.filter(a => a.kind !== 'danger'), { label: 'Ver la ficha', nav: true, run: () => openPlayer(p.id) }, ...om.acts.filter(a => a.kind === 'danger')]
+      help = [...new Set(om.acts.filter(a => a.disabled && a.why).map(a => a.why!))].concat(om.help as string[])
+      after = <div className="ib-links"><button className="btn" onClick={() => nav({ page: 'market', tab: 'tratos', sel: dk! })}>Ver todos los tratos</button></div>
     } else if (hasNewer) { goneMsg('Esta oferta tiene un mensaje más nuevo.'); acts = [{ label: 'Ver la respuesta nueva', kind: 'primary', nav: true, run: () => pick(newer!, 'primary') }] }
     else {
       const rec = (g.deals ?? []).find(d => d.side === 'sell' && d.offerId === oid), ex = expired(oid, 'mercado')
@@ -484,14 +478,12 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     cards = <><PlayerCard pid={pid} />{d && <ClubCard cid={d.clubId || undefined} name={d.clubName} />}</>
     const links: ReactNode = <div className="ib-links">{d && <button className="btn" onClick={() => nav({ page: 'market', tab: 'tratos', sel: `deal${d.id}` })}>Ver todos los tratos</button>}{p && <button className="btn" onClick={() => openPlayer(p.id)}>Ver la ficha</button>}</div>
     if (d && livePend && livePend.k === 'deal') {
+      // la misma vista que Tratos y la caja de oferta (deal.tsx, `dealModel`); los botones van en la barra de la bandeja, los enlaces después
       const m = dealModel(g, d, fn => run(dk!, fn), () => { pin(); setNegD(d.id) })
-      const free = g.clubs[g.userClubId].budget - committed(g) + d.fee
-      kpis = d.state === 'countered'
-        ? <><Kpi k l="Pide" v={money(d.counter ?? d.fee)} s={`tu oferta: ${money(d.fee)}`} />{p && <Kpi l="Pedido público" v={money(askingPrice(g, p))} />}<Kpi l="Libre para ofertar" v={money(free)} /></>
-        : <><Kpi k l={d.side === 'loan' ? 'Cargo' : 'Acordado'} v={money(d.fee)} />{p && d.side === 'buy' && <Kpi l="Pedido original" v={money(askingPrice(g, p))} />}{p && <Kpi l={d.side === 'loan' ? 'Cobra' : d.neg ? 'Pide el representante' : 'Pediría'} v={d.side === 'loan' ? wr(wageShown(g, p, p.wage, 401)) : d.neg ? wm(d.neg.terms.wage) : wr(wageShown(g, p, demandWage(g, p), 402))} s="por mes" />}</>
-      extra = <><div className="ib-facts">{m.due && <Due d={{ text: m.due.text, short: m.due.short }} />}{m.facts.map((f, i) => <Fact key={i}>{f}</Fact>)}</div>{m.impact}{m.notes}{m.improve && <ImproveBlock key={`${d.id}.${d.round}`} d={d} busy={busy} run={fn => run(dk!, fn)} />}{links}</>
+      extra = <DealView m={m} busy={busy} run={fn => run(dk!, fn)} actions={false} />
+      after = links
       acts = m.acts.map(a => ({ ...a }))
-      help = [...m.acts.filter(a => a.disabled && a.why).map(a => a.why!), ...m.help]
+      help = [...new Set(m.acts.filter(a => a.disabled && a.why).map(a => a.why!))].concat(m.help as string[])
     } else if (d) {
       extra = links
       if (hasNewer) { goneMsg(`${d.state === 'waiting' ? 'Ya respondiste esta contraoferta: tu mejora espera respuesta.' : 'Ya respondiste esta contraoferta.'} Hay una respuesta nueva.`); acts = [{ label: 'Ver la respuesta nueva', kind: 'primary', nav: true, run: () => pick(newer!, 'primary') }] }
@@ -525,7 +517,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       if (parts.length) conseq = <div className={`ib-conseq ${narrow ? 'out' : ''}`}>Si aceptás, {parts.length > 1 ? `${parts.slice(0, -1).join('; ')} y ${parts[parts.length - 1]}` : parts[0]}.</div>
       const nm = (x: Club) => (x.name.length > 26 ? x.short : x.name)
       acts = [
-        { label: 'Aceptar', kind: 'primary', confirm: { label: `Confirmar: dejar ${nm(mine)} y dirigir ${nm(c)}`, run: () => run(dk!, () => { const old = mine.name; acceptJob(g, cid); return { text: `Dejaste ${old}: ahora dirigís ${c.name}.` } }) } },
+        { label: 'Aceptar', kind: 'primary', confirm: { label: `Confirmar: dejar ${nm(mine)} y dirigir ${nm(c)}${jc.deals.length ? `; se ${jc.deals.length === 1 ? 'cae tu trato' : `caen tus ${jc.deals.length} tratos`} de mercado` : ''}`, run: () => run(dk!, () => { const old = mine.name; acceptJob(g, cid); return { text: `Dejaste ${old}: ahora dirigís ${c.name}.` } }) } },
         { label: 'Ver el club', nav: true, run: () => openClub(cid) },
         { label: 'Rechazar', kind: 'danger', confirm: { label: 'Confirmar rechazo', danger: true, run: () => run(dk!, () => { rejectJob(g, cid); return { text: `Rechazaste la oferta de ${c.name}.` } }) } },
       ]
@@ -628,7 +620,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     {!resolved && extra}
     {!resolved && facts && <div className="ib-facts">{facts}</div>}
     {!resolved && links.length > 0 && showActs && <div className="ib-links">{links.map((a, i) => <button key={i} className="btn" onClick={a.run}>{a.label}</button>)}</div>}
-    {src?.body && <p className="ib-body">{src.body}</p>}
+    {!after && src?.body && <p className="ib-body">{src.body}</p>}
     {!resolved && narrow && conseq}
     {(showActs || gone || fl) && <div className={`ib-actwrap ${showActs || fl ? 'ib-actbar' : ''}`}>
       {!resolved && !narrow && conseq}
@@ -638,6 +630,8 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
         {fl?.saveErr && <div className="ib-result err ib-saveerr"><span className="ib-result-ico">{IC.bang}</span><span>No se pudo guardar la partida. Tu decisión quedó hecha en esta sesión; probá exportar la partida desde Ajustes.</span></div>}</div>
       {resolved && nextPend && <button className="btn primary ib-next" data-next onClick={goNext}>Siguiente pendiente{IC.next}</button>}
     </div>}
+    {after && !resolved && after}
+    {after && src?.body && <p className="ib-body">{src.body}</p>}
     {rep && <MatchReport g={g} f={rep} onClose={() => setRep(null)} />}
     {negD != null && (() => { const d = (g.deals ?? []).find(x => x.id === negD), p = d && g.players[d.pid]; return p ? <NegotiationModal p={p} mode="buy" dealId={negD} onClose={m => { setNegD(null); if (m) run(`deal${negD}`, () => ({ text: m.text, tone: m.tone, resolved: m.tone !== 'warn' })); else refresh() }} /> : null })()}
     {scout && <ReportModal f={scout} onClose={() => setScout(null)} onApply={pp => { Object.assign(g.clubs[g.userClubId].tactic, pp); save(); refresh() }} />}

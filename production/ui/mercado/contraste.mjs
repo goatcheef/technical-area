@@ -3,6 +3,7 @@
 // (src/ui/common.tsx) y tools/check-contrast.mjs: aclarado en OKLab si es oscuro, tinta por contraste y corrimiento mínimo.
 // Uso: node production/ui/mercado/contraste.mjs [-v]   (sale con código 1 si algún par no llega a su mínimo)
 import fs from 'node:fs'
+import { accentOf as clubAccent } from '../../../tools/club-accent.mjs'
 const db = JSON.parse(fs.readFileSync(new URL('../../../src/data/db.json', import.meta.url), 'utf8'))
 const clubs = (Array.isArray(db.clubs) ? db.clubs : Object.values(db.clubs)).filter(c => c && c.colors && c.division > 0)
 const rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255] }
@@ -21,7 +22,8 @@ const L = c => .2126 * lin(c[0]) + .7152 * lin(c[1]) + .0722 * lin(c[2])
 const cr = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) }
 const crH = (a, b) => cr(rgb(a), rgb(b))
 const inked = h => { if (Math.max(crH(h, '#ffffff'), crH(h, '#0b0f14')) >= 4.5) return h; for (let i = 1; i <= 100; i++) { const d = toward(h, 0, i / 100), l = toward(h, 255, i / 100); if (crH(d, '#ffffff') >= 4.5) return d; if (crH(l, '#0b0f14') >= 4.5) return l } return h }
-const accentOf = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = lift(a, lum(a) < 60 ? .45 : .28); return inked(a) }
+// acento efectivo: tools/club-accent.mjs (la regla de clubTheme, con el segundo color o el índigo en los clubes amarillos y naranjas)
+const accentOf = c => inked(clubAccent(c.colors).a)
 const over = (fg, a, bg) => fg.map((v, i) => v * a + bg[i] * (1 - a)) // fg al a sobre bg (también color-mix(fg a%, bg))
 const wmix = (c, t) => c.map(v => v * t + 255 * (1 - t)) // c al t, resto blanco
 const hs = c => { const [r, g, b] = c.map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2; if (!d) return [0, 0]; const x = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [(x * 60 + 360) % 360, d / (1 - Math.abs(2 * l - 1))] }
@@ -131,5 +133,9 @@ for (const [k, need, fn] of per) {
   console.log(`${k}: mín ${Math.min(...xs).toFixed(2)} (${A[minI].name}) · máx ${Math.max(...xs).toFixed(2)} · fallan ${n}/${xs.length}${n ? ' (' + A.filter((c, i) => xs[i] < need).map(c => c.name).join(', ') + ')' : ''}`)
   if (v) console.log('   ' + A.map((c, i) => `${c.name} ${xs[i].toFixed(2)}`).join(' · '))
 }
+// el acento efectivo (botón principal, selección) y su versión clara, a ≥ 25° del ámbar de --warn y del amarillo de .cvd en cada club
+{ const wh = [hs(warn)[0], hs(warnC)[0]], rows = clubs.map(c => { const a = rgb(accentOf(c)), ds = [a, wmix(a, .70).map(Math.round)].map(x => { const [h, sa] = hs(x); return sa >= .35 ? Math.min(...wh.map(w => gap(h, w))) : 360 }); return { name: c.short, d: Math.min(...ds) } })
+  const bad = rows.filter(r => r.d < 25); fails += bad.length
+  console.log(`acento efectivo / --warn: distancia de matiz mín ${Math.min(...rows.map(r => r.d)).toFixed(1)}° · fallan ${bad.length}${bad.length ? ' (' + bad.map(r => r.name).join(', ') + ')' : ''}`) }
 console.log('\nFALLAS', fails)
 process.exit(fails ? 1 : 0)

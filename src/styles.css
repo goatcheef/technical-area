@@ -46,7 +46,7 @@ input[type=range] { accent-color: var(--accent); }
 .nav .dot { margin-left: auto; background: var(--accent); color: var(--accent-ink); border-radius: 99px; font-size: .86rem; line-height: 1.4; font-weight: 800; padding: 0 7px; min-width: 22px; text-align: center; font-variant-numeric: tabular-nums; }
 .dot .dot-bang { font-style: normal; font-weight: 900; margin-right: 2px; }
 .top { position: relative; z-index: 30; background: rgba(8, 11, 17, .85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line2); display: flex; align-items: center; gap: 14px; padding: 0 20px; min-width: 0; }
-.main { overflow: auto; padding: 20px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.main { position: relative; overscroll-behavior: contain; overflow: auto; padding: 20px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 .page { max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 .card { background: var(--panel); border: 1px solid var(--line2); border-radius: var(--radius); padding: 16px; min-width: 0; }
 .card.flat { background: transparent; } .card.glow { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft), 0 12px 40px -18px var(--accent); }
@@ -169,6 +169,12 @@ td.r, th.r { text-align: right; } td.c, th.c { text-align: center; }
 .ptable { padding: 4px 8px 8px; }
 .ptable table { table-layout: fixed; width: 100%; }
 .ptable td, .ptable th { overflow: hidden; text-overflow: ellipsis; padding-left: 6px; padding-right: 6px; }
+/* encabezados: botón para ordenar con el teclado (aria-sort en el th); el rótulo se parte en dos líneas antes que cortarse con "…" (1.4.12) */
+.ptable th { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; vertical-align: bottom; }
+.th-sort { all: unset; box-sizing: border-box; cursor: pointer; display: inline-block; max-width: 100%; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; text-align: inherit; border-radius: 4px; }
+.th-sort:hover { color: var(--text); }
+.th-sort:focus-visible { outline: 2px solid var(--sel); outline-offset: 1px; }
+th.r .th-sort { text-align: right; }
 .ptable th:first-child, .ptable td:first-child { padding-right: 0; }
 .ptable input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
 .ptable tr.selrow td { background: var(--accent-soft); }
@@ -542,7 +548,7 @@ tbody tr.me > td { background: color-mix(in srgb, var(--accent) 14%, transparent
 /* ficha de jugador: banda de encabezado, atributos en filas y tarjetas de estado */
 .crumbs { display: flex; align-items: center; gap: 8px; font-size: .86rem; color: var(--dim); }
 .crumbs .linkish { color: var(--dim); padding: 2px 4px; } .crumbs .linkish:hover { color: var(--text); background: none; } .crumbs b { color: var(--text); font-weight: 650; }
-.pband { border-radius: 16px; overflow: hidden; border: 1px solid var(--line2); background: linear-gradient(100deg, color-mix(in srgb, var(--accent) 34%, #1b1e36) 0%, color-mix(in srgb, var(--accent) 14%, #1d2140) 45%, #1c2040 100%); box-shadow: 0 22px 50px -30px #000; }
+.pband { border-radius: 16px; overflow: hidden; border: 1px solid var(--line2); background: linear-gradient(100deg, color-mix(in srgb, var(--band, var(--accent)) 34%, #1b1e36) 0%, color-mix(in srgb, var(--band, var(--accent)) 14%, #1d2140) 45%, #1c2040 100%); box-shadow: 0 22px 50px -30px #000; }
 .pband-top { display: flex; align-items: center; gap: 18px; padding: 18px 22px 10px; flex-wrap: wrap; }
 .pband-face { align-self: flex-end; margin-bottom: -10px; }
 .pband-id { display: flex; flex-direction: column; gap: 7px; min-width: 260px; }
@@ -574,6 +580,7 @@ tbody tr.me > td { background: color-mix(in srgb, var(--accent) 14%, transparent
 .ratbox { display: inline-block; padding: 1px 7px; border-radius: 7px; background: rgba(76, 208, 125, .16); color: #7be7a4; font-weight: 800; } .ratbox.bad { background: rgba(255, 107, 107, .14); color: #ff8f8f; } .ratbox:not(.good):not(.bad) { background: var(--panel2); color: var(--text); }
 @media (max-width: 1300px) { .pgrid { grid-template-columns: minmax(220px, 260px) 1fr; } .pcol-info { grid-column: 1 / -1; } .pcards { grid-template-columns: repeat(3, 1fr); } .pc-wide { grid-column: span 3; } }
 @media (max-width: 760px) { .pgrid { grid-template-columns: 1fr; } .pband-sep { display: none; } .pband-face { display: none; } .pcards { grid-template-columns: 1fr 1fr; } .pc-wide { grid-column: span 2; } }
+.pband .boxed, .pband .sm, .pband-tabs > .btn.sm { font-size: max(.86rem, 12px); }
 .pband-tabs > .btn { background: rgba(10, 12, 27, .45); border: 1px solid rgba(255, 255, 255, .16); border-radius: 9px; padding: 5px 11px; color: var(--text); font-weight: 650; margin: 0 !important; }
 .pband-tabs > .btn:hover:not(:disabled) { background: rgba(255, 255, 255, .1); }
 .pband-tabs > .btn.primary { background-color: var(--accent); border-color: rgba(255, 255, 255, .28); }
@@ -930,24 +937,37 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
 .mk-side-sep { border-top: 1px solid var(--line2); }
 /* oferta */
 .mk-bid { display: flex; flex-direction: column; gap: 12px; }
-.mk-bid > h3 { margin: 0; }
-.mk-off { opacity: .55; }
-.mk-off, .mk-bid > div:not(.mk-deal):not(.mk-status) { display: flex; flex-direction: column; gap: 10px; }
+.mk-bid > h3 { margin: 0; font-size: 1.08rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: color-mix(in srgb, var(--accent) 62%, #fff); }
+.mk-form { display: flex; flex-direction: column; gap: 10px; }
 .mk-amt { display: flex; flex-direction: column; gap: 4px; }
 .mk-amt input { min-height: 40px; background: var(--mk-in); border: 1px solid var(--line); border-radius: 10px; font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; padding: 6px 12px; color: var(--text); width: 100%; }
 .mk-amt.big input { min-height: 44px; font-size: 1.2rem; }
 .mk-hint { font-size: 1rem; color: var(--text); line-height: 1.45; } .mk-hint.sm { font-size: .86rem; color: var(--dim); }
-.mk-go.panel { width: 100%; min-height: 40px; } .mk-go.page { align-self: flex-start; min-height: 40px; }
+.mk-go.panel { width: 100%; min-height: 40px; } .mk-go.page { width: auto; min-height: 40px; }
 .mk-loan { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line2); padding-top: 12px; }
 .mk-loan .mk-amt input { min-height: 36px; font-size: 1rem; }
 .mk-count { font-size: .86rem; color: var(--dim); font-weight: 500; }
+.nw { white-space: nowrap; }
 .mk-mine { display: flex; align-items: center; gap: 12px; font-size: 1rem; }
 .mk-note { display: flex; align-items: flex-start; gap: 8px; font-size: 1rem; line-height: 1.45; color: var(--dim); }
 .mk-note svg { width: 16px; height: 16px; flex: none; margin-top: 3px; }
 .mk-note.warn { color: var(--text); } .mk-note.warn svg { color: var(--warn); }
-.mk-deal { display: flex; flex-direction: column; gap: 10px; border-left: 3px solid var(--line); padding-left: 12px; }
-.mk-deal.dec { border-left-color: var(--warn); }
-.mk-deal-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 1rem; }
+/* vista del trato (DealView): una sola anatomía en la bandeja, Tratos y la caja de oferta */
+.mk-dv { container: mkdv / inline-size; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mk-dv-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 1rem; }
+.mk-dv-k { font-weight: 700; color: var(--text); }
+.mk-dv-k:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; border-radius: 4px; }
+.mk-dv-h .ib-due { font-size: max(.88rem, 14px); font-weight: 600; color: var(--text); }
+.mk-dv-h .ib-due.short { color: var(--warn); font-weight: 700; }
+.mk-dv-b { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.mk-dv-l, .mk-dv-r { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+@container mkdv (min-width: 760px) { .mk-dv-b { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .ib-ents.compact.mk-dv-ents { grid-template-columns: 1fr 1fr; } }
+.mk-dv-ents .ib-who .ib-chev { margin-left: auto; }
+.ib-kpi-v.rng { color: var(--dim); font-weight: 600; }
+/* el riel: uno solo. En la caja de oferta lo lleva la vista; en Tratos, la tarjeta */
+.mk-bid > .mk-dv { border-left: 3px solid var(--line); padding-left: 12px; }
+.mk-bid > .mk-dv.dec { border-left-color: var(--warn); }
+.mk-bid > .mk-dv.x { border-left-color: var(--danger); }
 .mk-deal-i { display: inline-flex; } .mk-deal-i svg { width: 16px; height: 16px; }
 .mk-deal-i.wait { color: var(--dim); } .mk-deal-i.dec { color: var(--warn); } .mk-deal-i.ok { color: var(--good); } .mk-deal-i.x { color: var(--danger); }
 .mk-facts { margin-top: 0; }
@@ -956,7 +976,7 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
 .mk-improve-row { display: flex; align-items: flex-end; gap: 8px; } .mk-improve-row .mk-amt { flex: 1; min-width: 0; }
 .mk-improve-row .mk-amt input { min-height: 36px; font-size: 1rem; } .mk-improve-row .btn { min-height: 38px; }
 .ib-detail .mk-improve { scroll-margin-bottom: calc(var(--ib-bar, 0px) + 12px); }
-.mk-impact-w { display: flex; flex-direction: column; gap: 4px; }
+.mk-impact-w { container: mkimp / inline-size; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
 .mk-impact-t { font-size: .86rem; font-weight: 600; color: var(--dim); }
 .mk-impact { width: 100%; border-collapse: collapse; background: var(--panel2); border: 1px solid var(--line2); border-radius: 10px; font-size: 1rem; }
 .mk-impact th, .mk-impact td { padding: 6px 12px; text-align: left; border-top: 1px solid var(--line2); vertical-align: top; }
@@ -966,30 +986,36 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
 .mk-impact td:last-child { text-align: right; white-space: nowrap; }
 .mk-impact .b4 { color: var(--dim); font-weight: 500; }
 .mk-impact b { font-weight: 800; color: var(--text); }
-.mk-arr { display: inline-flex; vertical-align: middle; margin: 0 4px; color: var(--dim); } .mk-arr svg { width: 14px; height: 14px; }
+.mk-arr { position: relative; display: inline-flex; vertical-align: middle; margin: 0 4px; color: var(--dim); } .mk-arr svg { width: 14px; height: 14px; }
 .mk-impact .mk-cap { display: block; font-size: .86rem; }
 .mk-verdict { display: inline-flex; align-items: center; gap: 4px; font-size: .86rem; font-weight: 700; color: var(--text); }
 .mk-verdict svg { width: 14px; height: 14px; }
+.mk-delta { font-weight: 800; color: var(--text); white-space: nowrap; }
 .mk-verdict.ok svg { color: var(--good); } .mk-verdict.maybe svg { color: var(--warn); } .mk-verdict.no svg { color: var(--danger); }
 .mk-status:empty { display: none; }
 /* tratos */
 .mk-deals { display: flex; flex-direction: column; gap: 20px; max-width: 960px; width: 100%; }
 .mk-group { display: flex; flex-direction: column; gap: 10px; }
-.mk-gh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; border-left: 3px solid var(--line); padding-left: 10px; }
-.mk-gh.dec { border-left-color: var(--warn); }
-.mk-gh h3 { margin: 0; font-size: 1.1rem; }
+.mk-gh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; border: 1px solid var(--line2); border-left: 3px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--panel); }
+.mk-gh.dec { border-color: color-mix(in srgb, var(--warn) 35%, var(--line2)); border-left-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, var(--panel)); }
+.mk-gh h3 { margin: 0; font-size: 1rem; font-weight: 800; color: var(--text); text-transform: none; letter-spacing: 0; display: inline-flex; align-items: center; gap: 8px; }
+.mk-gh-i { display: inline-flex; color: var(--warn); } .mk-gh-i svg { width: 16px; height: 16px; }
 .mk-gh-s { font-size: .86rem; color: var(--dim); }
-.mk-gh-s .linkish { color: var(--accent-hi); font-weight: 600; }
+.mk-gh-more { flex-basis: 100%; }
 .mk-card { background: var(--panel); border: 1px solid var(--line2); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 16px; scroll-margin-bottom: 90px; }
 .mk-card.dec { border-left: 3px solid var(--warn); }
-.mk-card.wait { border-left: 3px solid var(--line); }
-.mk-card[aria-current=true] { box-shadow: inset 3px 0 0 var(--sel), 0 0 0 1px var(--sel); background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--panel); }
+.mk-card.wait { border-left: 3px solid var(--line); padding: 10px 14px; gap: 6px; }
+.mk-card.wait .mk-dv { gap: 6px; }
+@container mkdv (min-width: 620px) { .mk-card.wait .mk-dv-b { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } }
+/* elegida: el riel pasa a 6 px de --sel (uno solo, nunca ámbar + --sel) */
+.mk-card[aria-current=true] { border-left: 6px solid var(--sel); padding-left: 13px; box-shadow: 0 0 0 1px var(--sel); background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--panel); }
 .mk-card.done { opacity: 1; } .mk-card.done .mk-card-t { color: var(--dim); }
 .mk-card-h { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .mk-card-b { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
 .mk-card-t { font-weight: 700; color: var(--text); }
 .mk-card-m { font-size: .86rem; color: var(--dim); margin-top: 2px; }
-.mk-renew { flex-direction: row; align-items: center; gap: 12px; }
+.mk-renew { flex-direction: row; align-items: center; gap: 12px; padding-top: 8px; padding-bottom: 8px; min-height: 56px; }
+.mk-renew .mk-card-m { margin: 0; }
 .mk-hist { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line2); border-radius: 14px; overflow: visible; }
 .mk-hist-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 14px; border-top: 1px solid var(--line2); font-size: 1rem; border-radius: 0; background: none; border-left: 0; border-right: 0; border-bottom: 0; }
 .mk-hist-row:first-child { border-top: 0; }
@@ -1006,31 +1032,41 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
 /* movimientos y presupuesto */
 .mk-moves { overflow: visible; }
 .mk-moves table { width: 100%; }
+.mk-moves th, .mk-moves td { font-size: max(12px, .86rem); }
+.mk-moves th { color: var(--dim); }
 .mk-budget { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .mk-meters, .mk-bal { display: flex; flex-direction: column; gap: 14px; }
 .mk-meter { display: flex; flex-direction: column; gap: 4px; }
 .mk-bar { position: relative; display: flex; height: 10px; border-radius: 99px; background: var(--panel3); overflow: hidden; }
 .mk-bar i { display: block; height: 100%; } .mk-bar .used { background: var(--accent-hi); }
+.mk-bar.over .used { background: var(--bad); }
+.mk-kpi-s.over { color: var(--text); } .mk-kpi-s .warn, .mk-meter .warn { color: var(--warn); }
+.mk .num.bad, .mk b.bad { color: var(--bad); }
 .mk-bar .com { background: repeating-linear-gradient(135deg, var(--accent-hi) 0 4px, transparent 4px 8px); }
 .mk-bal-h { font-size: .86rem; font-weight: 700; color: var(--dim); margin-top: 4px; }
 .mk-bal-row { display: flex; justify-content: space-between; gap: 12px; font-size: 1rem; padding: 4px 0; border-bottom: 1px solid var(--line2); }
 .mk-bal-row span { min-width: 0; }
 .mk-bal-res { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 1rem; padding-top: 6px; }
 .mk-bal-res b { font-size: 1.45rem; font-weight: 800; margin-left: auto; }
+.mk-st.ok svg { color: var(--good); } .mk-st.clock svg { color: var(--dim); }
 /* negociación */
+.modal:has(.mk-neg) { width: min(640px, 100%); }
 .mk-neg { display: flex; flex-direction: column; gap: 12px; }
 .mk-neg h2 { margin: 0; font-size: 1.3rem; }
-.mk-ask { font-size: 1rem; line-height: 1.5; }
+.mk-ask { font-size: 1rem; line-height: 1.5; margin: 0; padding: 10px 14px; border-left: 3px solid var(--line); background: var(--panel2); border-radius: 0 10px 10px 0; }
 .mk-pat { font-size: 1rem; line-height: 1.5; color: var(--text); }
 .mk-terms { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .mk-log { display: flex; flex-direction: column; gap: 6px; }
 .mk-log-r { display: flex; gap: 8px; font-size: 1rem; line-height: 1.45; color: var(--text); }
 .mk-log-i { display: inline-flex; color: var(--dim); } .mk-log-i svg { width: 16px; height: 16px; margin-top: 3px; }
 .mk-log-r.warn .mk-log-i { color: var(--warn); }
-.mk-agree { display: flex; flex-direction: column; gap: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.mk-agree { display: flex; flex-direction: column; gap: 8px; background: var(--panel2); border: 1px solid var(--line); border-left: 3px solid var(--good); border-radius: 12px; padding: 10px 12px; }
+.mk-agree > b { display: inline-flex; align-items: center; gap: 6px; } .mk-agree-i { display: inline-flex; color: var(--good); } .mk-agree-i svg { width: 16px; height: 16px; }
 .mk-agree .btn { white-space: normal; text-align: left; }
-@media (max-width: 1300px) { .text-big .mk-card-b { grid-template-columns: 1fr; } }
-@media (max-width: 1100px) { .mk-card-b { grid-template-columns: 1fr; } }
+.mk .ovr, .mk-scope .ovr, .mk .pill { white-space: nowrap; }
+.mk-kpi-v { white-space: nowrap; }
+.text-big .mk-strip { grid-template-columns: 1fr 1fr; row-gap: 12px; } .text-big .mk-kpi:nth-child(3) { border-left: 0; }
+.text-big .mk-dv-b { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 900px) {
   .mk-strip { grid-template-columns: 1fr 1fr; row-gap: 12px; }
   .mk-kpi:nth-child(3) { border-left: 0; }
@@ -1060,18 +1096,47 @@ mark { background: transparent; color: var(--text); font-weight: 800; text-decor
 .mk-card.mk-hist-row { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 14px; border-radius: 0; background: none; border: 0; border-top: 1px solid var(--line2); }
 .mk-card.mk-hist-row:first-child { border-top: 0; }
 .mk-card.mk-hist-row[aria-current=true] { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--sel); }
-@media (max-width: 760px) {
-  .mk-impact, .mk-impact tbody { display: block; }
-  .mk-impact tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; border-top: 1px solid var(--line2); }
-  .mk-impact tr:first-child { border-top: 0; }
-  .mk-impact th { grid-column: 1 / -1; border: 0; padding-bottom: 0; white-space: normal; }
-  .mk-impact td { border: 0; white-space: normal; min-width: 0; }
-}
-@media (min-width: 761px) {
-  .mk-impact { table-layout: fixed; }
-  .mk-impact th { width: 30%; white-space: normal; }
-  .mk-impact td:last-child { width: 118px; }
-}
+.mk-impact th { white-space: nowrap; }
 .mk-impact td { white-space: normal; }
 .mk-impact .b4, .mk-impact b, .mk-impact .rng { white-space: nowrap; }
-.mk-impact td:last-child { white-space: nowrap; overflow-wrap: normal; }
+.mk-impact .mk-est { white-space: nowrap; }
+.mk-impact td:last-child { white-space: nowrap; overflow-wrap: normal; width: 1%; }
+/* angosta (panel de 380 px, bandeja, celular, texto al 120 %): el rótulo arriba a todo el ancho; abajo, antes → después y el veredicto */
+@container mkimp (max-width: 560px) {
+  .mk-impact, .mk-impact tbody { display: block; }
+  .mk-impact tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; border-top: 1px solid var(--line2); }
+  .mk-impact tr:first-child { border-top: 0; }
+  .mk-impact th { grid-column: 1 / -1; border: 0; padding-bottom: 0; white-space: normal; }
+  .mk-impact td { border: 0; min-width: 0; }
+  .mk-impact td:last-child { width: auto; }
+}
+/* muy angosta (320 px): el veredicto baja a su propio renglón para que "antes → después" entre entero */
+@container mkimp (max-width: 340px) {
+  .mk-impact tr { grid-template-columns: minmax(0, 1fr); }
+  .mk-impact th, .mk-impact td { padding-left: 8px; padding-right: 8px; }
+  .mk-impact td:last-child { text-align: left; padding-top: 0; }
+  .mk-impact td:last-child:empty { display: none; }
+  .mk-arr { margin: 0 2px; }
+}
+/* el fondo del documento nunca se desplaza: el área desplazable es #main */
+html, body { overscroll-behavior: none; }
+#global-search:focus-visible, .searchbox input:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.bulkbar { min-height: 50px; }
+.bulkbar.idle { color: var(--dim); background: transparent; border: 1px dashed var(--line); box-shadow: none; position: static; }
+@media (max-width: 760px) { .bulkbar { min-height: 60px; } }
+.mk .bulkbar, .mk .bulkbar .dim { font-size: max(.86rem, 12px); }
+.mk .linkish.sm, .mk .dim.sm, .mk-scope .dim.sm { font-size: max(.86rem, 12px); }
+/* celular: objetivos de 44 px en todo el Mercado, la ficha › Contrato y mercado, la tabla y la negociación (AM-09, especificación 11) */
+@media (max-width: 760px) {
+  /* !important: gana a los altos de escritorio más específicos (.mk .btn.sm 32, .mk .ib-acts > .btn 40, campos de 36) */
+  .mk .btn, .mk-scope .btn, .mk .seg button, .ptable-bar .seg button, .ptable-bar .btn, .ptable-bar input[type=search], .mk input:not([type=checkbox]):not([type=range]), .mk-scope input,
+  .modal .seg button, .modal .btn, .mk-improve .btn, .cmp .btn { min-height: 44px !important; }
+  .modal .btn.icon { height: 44px; }
+  .mk .mk-card .linkish, .mk-hist .linkish { min-height: 44px; display: inline-flex; align-items: center; }
+  .ptable-bar input[type=search] { width: 100% !important; }
+  .mk .mk-range input[type=range] { min-height: 44px; }
+  .mk .ptable col:first-child { width: 44px !important; }
+  .mk .ptable th .th-sort { min-height: 44px; display: inline-flex; align-items: flex-end; }
+  .modal .btn.icon { min-width: 44px; }
+  .mk .ib-who { min-height: 52px; }
+}

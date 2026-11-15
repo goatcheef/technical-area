@@ -1164,6 +1164,20 @@ Más el scroll por entrada del historial (N4).
 
 ---
 
+### Agregados de la fase 5 del Mercado (2026-11-15, implementados)
+
+**Encabezado ordenable (D1).** Cada `th` de `PlayerTable` lleva un `button.th-sort` (Enter o clic ordena; Mayús suma un criterio, hasta tres) y el `th` del primer criterio dice `aria-sort="ascending" | "descending"`. El nombre largo de la columna va en un `.vh` dentro del botón (no solo en `title`). Los rótulos se parten en dos líneas antes que cortarse con "…".
+
+**Tabla con foco itinerante (D1 + `onPick`).** La tabla es `role="grid"` con `aria-label` ("Jugadores del mercado"); cada fila, `aria-label` con lo que se ve (jugador, puesto, club, edad, valoración como la da el ojeo, pedido, "marcado") y `aria-selected` en la elegida.
+
+**Vista del trato (F8).** Un solo componente (`DealView`, `deal.tsx`) para una decisión del mercado en la bandeja, en Tratos y en la caja de oferta: cabecera (ícono, tipo, plazo), entidades, cifras, hechos, impacto, Mejorar, acciones (primario → comunes → enlaces → peligro) y ayuda. Las cifras salen de `dealModel` / `offerModel`. En la bandeja los botones van en su barra, antes del cuerpo del mensaje.
+
+**Insignia sin clic propio (N3).** Una insignia dentro de un botón de navegación no tiene objetivo propio: el botón hace lo que la insignia anuncia (con decisiones del mercado, la sección Mercado abre Tratos con la primera), igual con clic, Enter, toque o tecla.
+
+**Foco al llegar a una lista de decisiones (F1).** Con una selección en la ruta, el foco va al **título** de la tarjeta elegida (`tabIndex=-1`), nunca a un botón que decide; un cambio de pestaña no mueve el foco.
+
+**Ventana con foco inicial y sin fugas (AM-07).** `Modal` enfoca `[data-autofocus]` si existe; si el foco queda fuera de la caja (desapareció el botón que lo tenía), el siguiente Tab vuelve adentro. Después de una acción final dentro de la ventana, el foco va al resultado.
+
 ## Tiempos de animación
 
 Valores vigentes en `src/styles.css` y en el código. Todos se apagan con movimiento reducido (ajuste propio o el del sistema).
