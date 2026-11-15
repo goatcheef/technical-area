@@ -2,7 +2,7 @@ import { useId, useRef, useEffect, useState, type KeyboardEvent as RKeyEvent, ty
 import crestsJson from '../data/crests.json'
 import { PLAYER_PHOTO } from '../data/playerPhoto'
 import { askingPrice, windowOpen } from '../engine/career'
-import { STATUS, fmtRange, knowOf, minutesShare, persLabels, scout, shown } from '../engine/squad'
+import { STATUS, fmtRange, knowOf, minutesShare, moodOf, scout, shown } from '../engine/squad'
 import { fmtDate } from '../engine/game'
 import { sab } from '../engine/week'
 import { POS_LABEL, POS_NAME, ageOn, bestRating, posRating } from '../engine/positions'
@@ -173,8 +173,8 @@ export function Status({ p }: { p: Player }) {
     {p.injury && <span className="chip bad" title={`${p.injury.desc} · ${p.injury.days} días`}>✚ {p.injury.days} d</span>}
     {p.susp > 0 && <span className="chip warn" title="Suspendido">Susp. {p.susp}</span>}
     {p.listed && <span className="chip">Transferible</span>}{p.loanFrom != null && <span className="chip">Préstamo</span>}
-    {p.wantsOut ? <span className="chip bad">Quiere irse</span> : p.status && (p.happy ?? 70) < 35 ? <span className="chip warn">Molesto</span> : null}
-    {p.promise && <span className="chip acc" title={`Promesa de minutos hasta el ${fmtDate(p.promise.until)}`}>Promesa</span>}
+    {p.wantsOut ? <span className="chip bad">Quiere irse</span> : p.status && (p.happy ?? 70) < 35 ? <span className="chip vt-chip-bang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3v11M12 19v.5" /></svg>{moodOf(p.happy).word}</span> : null}
+    {p.promise && <span className="chip">Minutos prometidos<span className="vh"> hasta el {fmtDate(p.promise.until)}</span></span>}
   </>)
 }
 export function Modal({ children, onClose, wide }: { children: ReactNode; onClose: () => void; wide?: boolean }) {
@@ -255,14 +255,33 @@ export function Spark({ values, w = 120, h = 34, min = 4, max = 10 }: { values: 
     </svg>
   )
 }
-export function Gauge({ v, label }: { v: number; label: string }) {
-  const col = v >= 60 ? 'var(--good)' : v >= 30 ? 'var(--warn)' : 'var(--bad)', L = Math.PI * 44
+/**
+ * Medidor semicircular con el número adentro. `cuts`: el arco se dibuja en tramos (el Vestuario: 25, 45 y 70) y el relleno toma el tono de
+ * `tone` (rojo, gris o blanco; sin semáforo). `aria`: nombre del medidor (`role="img"`). Sin `label` no dibuja el rótulo interno.
+ */
+export function Gauge({ v, label, cuts, tone, aria, size = [130, 80] }: { v: number; label?: string; cuts?: number[]; tone?: 'lo' | 'mid' | 'hi'; aria?: string; size?: [number, number] }) {
+  const col = tone ? (tone === 'lo' ? 'var(--bad)' : tone === 'mid' ? 'var(--dim)' : 'var(--text)') : v >= 60 ? 'var(--good)' : v >= 30 ? 'var(--warn)' : 'var(--bad)', L = Math.PI * 44
+  const a11y = aria ? { role: 'img', 'aria-label': aria } : { 'aria-hidden': true as const }
+  if (cuts) {
+    // tramos separados por 3° en los cortes; el relleno, del mismo largo que el valor
+    const pt = (t: number) => { const a = Math.PI * (1 - t / 100); return `${55 + 44 * Math.cos(a)} ${58 - 44 * Math.sin(a)}` }
+    const arc = (a: number, b: number) => `M${pt(a)}A44 44 0 0 1 ${pt(b)}`
+    const edges = [0, ...cuts, 100], gap = 100 * 3 / 180 / 2
+    const segs = edges.slice(1).map((hi, i) => [edges[i] + (i ? gap : 0), hi - (hi < 100 ? gap : 0)])
+    return (
+      <svg width={size[0]} height={size[1]} viewBox="0 0 110 66" {...a11y}>
+        {segs.map(([a, b], i) => <path key={i} d={arc(a, b)} fill="none" stroke="var(--panel3)" strokeWidth="9" strokeLinecap="butt" />)}
+        {segs.map(([a, b], i) => v > a && <path key={`f${i}`} d={arc(a, Math.min(b, v))} fill="none" stroke={col} strokeWidth="9" strokeLinecap="butt" />)}
+        <text x="55" y="52" textAnchor="middle" fill="var(--text)" fontFamily="var(--display)" fontWeight="800" fontSize="24" style={{ fontVariantNumeric: 'tabular-nums' }}>{Math.round(v)}</text>
+      </svg>
+    )
+  }
   return (
-    <svg width="130" height="80" viewBox="0 0 110 66">
+    <svg width={size[0]} height={size[1]} viewBox="0 0 110 66" {...a11y}>
       <path d="M11 58a44 44 0 0 1 88 0" fill="none" stroke="var(--panel3)" strokeWidth="9" strokeLinecap="round" />
       <path d="M11 58a44 44 0 0 1 88 0" fill="none" stroke={col} strokeWidth="9" strokeLinecap="round" strokeDasharray={`${(L * v) / 100} ${L}`} />
       <text x="55" y="50" textAnchor="middle" fill="var(--text)" fontFamily="var(--display)" fontWeight="700" fontSize="24">{Math.round(v)}</text>
-      <text x="55" y="64" textAnchor="middle" fill="var(--dim)" fontSize="8">{label}</text>
+      {label && <text x="55" y="64" textAnchor="middle" fill="var(--dim)" fontSize="8">{label}</text>}
     </svg>
   )
 }

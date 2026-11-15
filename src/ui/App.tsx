@@ -272,7 +272,7 @@ export function App() {
               </>} />
             <main className="main" id="main" tabIndex={-1} ref={mainRef}><div key={`${page}:${route.id ?? ''}`} className="page-in">
               {page === 'home' && <Home />}{page === 'inbox' && <Inbox tab={route.tab} busy={!!busy} />}{page === 'data' && <DataCenter tab={route.tab} />}{page === 'squad' && <Squad />}{page === 'tactics' && <Tactics />}{page === 'market' && <Market busy={!!busy} />}
-              {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage />}
+              {page === 'fixtures' && <Fixtures />}{page === 'tables' && <Tables />}{page === 'stats' && <Stats />}{page === 'club' && <Club />}{page === 'training' && <TrainingPage />}{page === 'calendar' && <CalendarPage />}{page === 'staff' && <StaffPage />}{page === 'locker' && <LockerPage busy={!!busy} />}
               {page === 'player' && route.id != null && <PlayerPage key={route.id} id={route.id} tab={route.tab} busy={!!busy} />}{page === 'clubv' && route.id != null && <ClubPage key={route.id} id={route.id} tab={route.tab} />}
             </div></main>
           </div>

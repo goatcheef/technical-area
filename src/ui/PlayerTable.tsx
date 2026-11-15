@@ -4,11 +4,12 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKe
 import { askingPrice, bidBlock, canSell, committed, dealImpact, openDealFor } from '../engine/career'
 import { fmtDay } from '../engine/game'
 import { POS_LABEL, ageOn, bestRating } from '../engine/positions'
-import { STATUS, demandWage, fmtRange, knowOf, knownRating, scout, shown, toggleShortlist, wageShown } from '../engine/squad'
+import { STATUS, demandWage, fmtRange, knowOf, knownRating, minutesOf, moraleShown, persTraits, scout, setListed, setReserve, shown, talkState, toggleShortlist, wageShown, TRAIT_KEYS } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Attr, type Game, type Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Cond, Face, Modal, PosPill, Status, Val, avgRat, money, ratClass } from './common'
 import { MI, StateChip, wr } from './deal'
+import { MinsBar, MoodBar, MoraleBar } from './mood'
 
 // ---------- columnas ----------
 interface Col { l: string; n?: string; t?: string; w: number; r?: boolean; v: (p: Player, g: Game) => number | string; c: (p: Player, g: Game) => ReactNode }
@@ -36,6 +37,25 @@ function dealCell(g: Game, p: Player): ReactNode {
 const potGap = (g: Game, p: Player) => (p.clubId === g.userClubId || (ageOn(p.birth, g.date) <= 23 && knowOf(g, p) >= 70) ? p.pa - p.ca : -1)
 const stars = (gap: number) => (gap < 0 ? <span className="dim">–</span> : <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span>)
 
+// ---------- vestuario ----------
+const MOR_BAND = { high: 90, good: 70, ok: 47, low: 20 }
+/** Moral para ordenar: la tuya exacta; la de un ajeno con el informe completo, por banda (no revela el número); sin informe, al final. */
+const morSort = (g: Game, p: Player) => { const m = moraleShown(g, p); if (!m) return -1; if (m.value != null) return m.value; const w = m.word; return w === 'Muy alto' ? MOR_BAND.high : w === 'Bueno' ? MOR_BAND.good : w === 'Normal' ? MOR_BAND.ok : MOR_BAND.low }
+/** Personalidad para ordenar: por banda en el orden fijo del motor y, a igual banda, por nombre; lo no visto va después de todas las bandas. */
+const persSort = (g: Game, p: Player) => { const t = persTraits(g, p); if (t.level === 'none') return `~|${p.name}`; return `${TRAIT_KEYS.map(k => t.traits.find(x => x.key === k)?.band ?? 9).join('')}|${p.name}` }
+function persCell(g: Game, p: Player): ReactNode {
+  const t = persTraits(g, p)
+  if (t.level === 'none') return <span className="dim">–</span>
+  const marked = t.traits.filter(x => x.word !== 'Normal' && x.word !== 'Tranquilo')
+  if (!marked.length) return <span className="vt-pers dim">{t.level === 'full' ? 'Sin rasgos marcados' : 'Ninguno a la vista'}</span>
+  return <span className="vt-pers">{marked.slice(0, 2).map(x => <span key={x.key}>{x.text}</span>)}{marked.length > 2 && <span className="mk-cnt">+{marked.length - 2}<span className="vh"> rasgos más</span></span>}</span>
+}
+function talkCell(g: Game, p: Player): ReactNode {
+  if (p.clubId !== g.userClubId) return <span className="dim">–</span>
+  const ts = talkState(g, p)
+  return ts.can ? <span className="vt-talkst">Disponible</span> : <span className="vt-talkst">{MI.clock}<span>desde el <b>{ts.short.replace('desde el ', '')}</b></span></span>
+}
+
 const BASE: Record<string, Col> = {
   num: { l: 'N°', n: 'Número', w: 40, r: true, v: p => p.num, c: p => <span className="num dim">{p.num}</span> },
   name: { l: 'Jugador', w: 190, v: p => p.name, c: (p, g) => <span className="row" style={{ gap: 8, minWidth: 0 }}><Face p={p} club={g.clubs[p.clubId]} size={26} /><span className="ell" style={{ fontWeight: 600 }}>{p.name}</span></span> },
@@ -46,8 +66,12 @@ const BASE: Record<string, Col> = {
   val: { l: 'Val', n: 'Valoración', t: 'Valoración en su mejor puesto (rango si no lo conocés bien)', w: 62, r: true, v: (p, g) => valSeen(g, p), c: p => <Val p={p} /> },
   pot: { l: 'Pot.', n: 'Potencial', t: 'Margen de mejora: lo sabés de tus jugadores y de los juveniles bien ojeados', w: 52, r: true, v: (p, g) => potGap(g, p), c: (p, g) => stars(potGap(g, p)) },
   cond: { l: 'Físico', w: 80, v: p => p.cond, c: p => <Cond v={p.cond} /> },
-  mor: { l: 'Moral', w: 80, v: p => p.morale, c: p => <Cond v={p.morale} /> },
-  happy: { l: 'Conform.', n: 'Conformidad', t: 'Conformidad con sus minutos (solo tu plantel)', w: 86, v: (p, g) => (p.clubId === g.userClubId ? p.happy ?? 60 : -1), c: (p, g) => (p.clubId === g.userClubId ? <Cond v={p.happy ?? 60} /> : <span className="dim">–</span>) },
+  mor: { l: 'Moral', w: 96, v: (p, g) => morSort(g, p), c: (p, g) => { const m = moraleShown(g, p); return !m ? <span className="dim">–</span> : m.value != null ? <MoraleBar v={m.value} size="sm" /> : <span className="vt-scale-w">{m.word}</span> } },
+  happy: { l: 'Conform.', n: 'Conformidad', t: 'Conformidad con sus minutos y su rol (solo tu plantel)', w: 124, v: (p, g) => (p.clubId === g.userClubId ? p.happy ?? 60 : -1), c: (p, g) => (p.clubId === g.userClubId ? <MoodBar v={p.happy ?? 60} size="sm" /> : <span className="dim">–</span>) },
+  mins: { l: 'Minutos', n: 'Minutos jugados y esperados', t: 'Minutos jugados contra los que espera su rol (solo tu plantel)', w: 96, v: (p, g) => (p.clubId === g.userClubId ? minutesOf(g, p).got : -1), c: (p, g) => (p.clubId === g.userClubId ? <MinsBar m={minutesOf(g, p)} size="sm" /> : <span className="dim">–</span>) },
+  pers: { l: 'Personalidad', w: 150, v: (p, g) => persSort(g, p), c: (p, g) => persCell(g, p) },
+  res: { l: 'Reserva', n: 'Reserva', t: 'Anotado para el partido de reserva del miércoles', w: 100, v: (p, g) => `${p.clubId === g.userClubId && p.reserve ? 0 : 1}|${LINE_ORDER[p.line]}|${p.name}`, c: () => null },
+  talk: { l: 'Charla', n: 'Charla', t: 'Cuándo se puede volver a hablar con él', w: 104, v: (p, g) => (p.clubId === g.userClubId ? (talkState(g, p).can ? '' : talkState(g, p).next ?? '') : '~'), c: (p, g) => talkCell(g, p) },
   role: { l: 'Rol', t: 'Rol acordado en el plantel', w: 92, v: p => (p.status ? Object.keys(STATUS).indexOf(p.status) : 9), c: p => <span className="dim ell">{p.status ? STATUS[p.status].name : '–'}</span> },
   pj: { l: 'PJ', n: 'Partidos', t: 'Partidos jugados (entre paréntesis, entrando)', w: 54, r: true, v: pj, c: p => <span className="num">{p.stats.apps}{p.stats.subs ? <span className="dim"> ({p.stats.subs})</span> : ''}</span> },
   min: { l: 'Min', n: 'Minutos', t: 'Minutos jugados', w: 54, r: true, v: p => p.stats.mins, c: p => <span className="num dim">{p.stats.mins}</span> },
@@ -77,16 +101,21 @@ const attrTone = (v: number) => (v >= 16 ? 'good' : v >= 13 ? '' : v >= 9 ? 'dim
 export const COLS: Record<string, Col> = { ...BASE, ...ATTR_COLS }
 
 /** Prioridad al faltar ancho: se ocultan primero las de número más bajo. Los atributos elegidos a mano pesan como los datos clave. */
-const PRIO: Record<string, number> = { deal: 6, num: 1, nat: 1, st: 6, min: 3, mor: 5, motm: 3, yc: 3, shots: 4, wage: 4, happy: 5, role: 5, clause: 5, know: 6, club: 6, value: 6, ask: 7, con: 7, cond: 7, pj: 8, gol: 8, ast: 8, rat: 8, pot: 8, age: 9, val: 10, pos: 10 }
+const PRIO: Record<string, number> = { mins: 5, res: 4, pers: 2, talk: 2, deal: 6, num: 1, nat: 1, st: 6, min: 3, mor: 5, motm: 3, yc: 3, shots: 4, wage: 4, happy: 5, role: 5, clause: 5, know: 6, club: 6, value: 6, ask: 7, con: 7, cond: 7, pj: 8, gol: 8, ast: 8, rat: 8, pot: 8, age: 9, val: 10, pos: 10 }
 const prio = (k: string) => PRIO[k] ?? 9
 
 // ---------- vistas ----------
-export const VIEWS: Record<string, { name: string; cols: string[] }> = {
+/** `prio` (opcional) pisa a `PRIO` solo en esa vista; `keep` (por defecto 3) es el mínimo de columnas visibles contando el nombre. */
+export const VIEWS: Record<string, { name: string; cols: string[]; prio?: Record<string, number>; keep?: number }> = {
   general: { name: 'General', cols: ['num', 'name', 'pos', 'age', 'val', 'cond', 'mor', 'pj', 'gol', 'ast', 'rat', 'value', 'wage', 'con', 'st'] },
   fisico: { name: 'Físico', cols: ['name', 'pos', 'age', 'cond', 'a_pac', 'a_acc', 'a_sta', 'a_str', 'a_jmp', 'min', 'st'] },
   contrato: { name: 'Contrato', cols: ['name', 'pos', 'age', 'val', 'role', 'happy', 'value', 'wage', 'con', 'clause', 'st'] },
   ojeo: { name: 'Ojeo', cols: ['name', 'pos', 'club', 'age', 'val', 'pot', 'know', 'value', 'ask', 'wage', 'con', 'deal'] },
   stats: { name: 'Estadísticas', cols: ['name', 'pos', 'club', 'pj', 'min', 'gol', 'ast', 'rat', 'motm', 'shots', 'yc'] },
+  // Vestuario (design/ux/vestuario.md, 5.3): se ocultan primero la personalidad y la charla; la conformidad, la última
+  vestuario: { name: 'Vestuario', cols: ['name', 'pos', 'role', 'mins', 'happy', 'mor', 'pers', 'st', 'res', 'talk'], prio: { pers: 2, talk: 3, st: 4, res: 5, mor: 6, pos: 7, role: 12, mins: 13, happy: 14 }, keep: 2 },
+  // la del modo "Armar la reserva": el alternable nunca se oculta
+  reserva: { name: 'Reserva', cols: ['name', 'res', 'pos', 'role', 'mins', 'st'], prio: { st: 3, mins: 4, role: 5, pos: 7, res: 14 }, keep: 2 },
 }
 const LINES: [string, string][] = [['', 'Todos'], ['GK', 'Arq'], ['DF', 'Def'], ['MF', 'Med'], ['FW', 'Del']]
 
@@ -104,13 +133,18 @@ type Sort = { k: string; d: number }[]
  * `onPick`: la fila elige en vez de abrir la ficha (Mercado, ≥ 1180 px). Foco itinerante: una parada de Tab, ↑ ↓ Inicio Fin Re Pág Av Pág
  * mueven el foco, Enter elige, Espacio marca la casilla (no avanza el día), Mayús + ↑ ↓ extiende la selección. `picked`: la fila elegida.
  */
-export function PlayerTable({ id, players, views = ['general', 'fisico', 'contrato', 'stats'], def = 'general', bulk = [], limit = 200, empty = 'No hay jugadores.', filters = true, defSort, onPick, picked, onSel, onOffer, openTab, gridLabel }: {
-  id: string; players: Player[]; views?: string[]; def?: string; bulk?: Bulk[]; limit?: number; empty?: string; filters?: boolean; defSort?: Sort
+export function PlayerTable({ id, players, views = ['general', 'fisico', 'contrato', 'stats'], def = 'general', bulk = [], limit = 200, empty = 'No hay jugadores.', filters = true, defSort, onPick, picked, onSel, onOffer, openTab, gridLabel, bar, head, mode, busy = false, onView }: {
+  id: string; players: Player[]; views?: string[]; def?: string; bulk?: Bulk[]; limit?: number; empty?: ReactNode; filters?: boolean; defSort?: Sort
   onPick?: (p: Player, how: 'click' | 'key') => void; picked?: number | null
   /** los marcados con la casilla (el panel del Mercado los compara con el elegido) */ onSel?: (ids: number[]) => void
   /** "Ofertar" en cada columna del comparador */ onOffer?: (p: Player) => void
   /** la fila abre la ficha en esta pestaña (el Mercado angosto: "contrato") */ openTab?: string
   /** nombre de la tabla con foco itinerante (`role="grid"`) */ gridLabel?: string
+  /** controles propios de la pantalla en la barra de la tabla (los chips de filtro del Vestuario) */ bar?: ReactNode
+  /** línea arriba de la tabla, dentro de su tarjeta (el modo "Armar la reserva") */ head?: ReactNode
+  /** la pantalla pone una vista y un orden (cada `n` nuevo los aplica una vez) */ mode?: { view: string; sort?: Sort; n: number }
+  /** avance en curso: las acciones que escriben quedan deshabilitadas */ busy?: boolean
+  /** la vista activa (`custom` si el jugador editó las columnas) */ onView?: (view: string) => void
 }) {
   const { g, openPlayer, save, refresh, nav } = useGame()
   const open = (pid: number) => (openTab ? nav({ page: 'player', id: pid, tab: openTab }) : openPlayer(pid))
@@ -140,6 +174,9 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   // misma lista si no cambió: una lista nueva en cada pasada re-dibujaría sin fin a quien escucha `onSel` (y Seguimiento arma `players` en cada render)
   useEffect(() => setSel(s => { const f = s.filter(id => players.some(p => p.id === id)); return f.length === s.length ? s : f }), [players])
   useEffect(() => { onSel?.(sel) }, [sel])
+  // la pantalla pide una vista y un orden ("Armar la reserva"): se aplican una vez por pedido
+  const modeN = useRef(0)
+  useEffect(() => { if (mode && mode.n !== modeN.current) { modeN.current = mode.n; setPrefs({ ...prefs, view: mode.view, edit: undefined }); if (mode.sort) setSort(mode.sort) } }, [mode?.n])
 
   const allViews = [...views.filter(v => VIEWS[v]).map(v => [v, VIEWS[v].name] as const), ...Object.keys(prefs.mine).map(v => [`mine:${v}`, v] as const)]
   const view = allViews.some(v => v[0] === prefs.view) ? prefs.view : def
@@ -149,14 +186,18 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   const scale = Math.max(1, parseFloat(getComputedStyle(document.documentElement).fontSize) / 14 || 1)
   const budget = width - 34 - 8
   const vis = [...want]
+  // las prioridades propias de la vista valen solo en la vista tal cual (no en una editada ni en las del jugador)
+  const vdef = !prefs.edit && !view.startsWith('mine:') ? VIEWS[view] : undefined
+  const pr = (k: string) => vdef?.prio?.[k] ?? prio(k), keep = vdef?.keep ?? 3
   const fit = () => vis.reduce((s, k) => s + COLS[k].w * scale + 12, 0)
-  while (fit() > budget && vis.length > 3) {
+  while (fit() > budget && vis.length > keep) {
     // se oculta la de menor prioridad; a igual prioridad, la que está más a la derecha
     let drop = -1
-    vis.forEach((k, i) => { if (k !== 'name' && (drop < 0 || prio(k) <= prio(vis[drop]))) drop = i })
+    vis.forEach((k, i) => { if (k !== 'name' && (drop < 0 || pr(k) <= pr(vis[drop]))) drop = i })
     vis.splice(drop, 1)
   }
   const hiddenN = want.length - vis.length
+  useEffect(() => { onView?.(prefs.edit ? 'custom' : view) }, [view, !!prefs.edit])
 
   const ql = q.trim().toLowerCase()
   let list = players.filter(p => (!line || p.line === line) && (!ql || p.name.toLowerCase().includes(ql)))
@@ -167,7 +208,7 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   const chosen = sel.map(i => g.players[i]).filter(Boolean)
 
   const clickHead = (k: string, add: boolean) => {
-    const asc = ['name', 'pos', 'num', 'age', 'nat', 'club', 'con'].includes(k) ? 1 : -1
+    const asc = ['name', 'pos', 'num', 'age', 'nat', 'club', 'con', 'pers', 'res', 'talk'].includes(k) ? 1 : -1
     const i = keys.findIndex(s => s.k === k)
     if (add) setSort(i >= 0 ? keys.map(s => (s.k === k ? { k, d: -s.d } : s)) : [...keys, { k, d: asc }].slice(-3))
     else setSort(i === 0 && keys.length === 1 ? [{ k, d: -keys[0].d }] : [{ k, d: asc }])
@@ -217,6 +258,7 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   return (
     <div className="ptable-wrap col" style={{ gap: 8 }}>
       <div className="row wrap ptable-bar" style={{ gap: 8 }}>
+        {bar}
         <div className="seg" role="group" aria-label="Vista">{allViews.map(([k, l]) => <button key={k} className={view === k && !prefs.edit ? 'on' : ''} aria-pressed={view === k && !prefs.edit} onClick={() => setPrefs({ ...prefs, view: k, edit: undefined })}>{l}</button>)}{prefs.edit && <button className="on" aria-pressed>Personalizada</button>}</div>
         <div style={{ position: 'relative' }}>
           <button className={`btn sm ${menu ? 'on' : ''}`} aria-expanded={menu} onClick={() => setMenu(!menu)}>Columnas{hiddenN > 0 ? ` · ${hiddenN} ocultas por el ancho` : ''}</button>
@@ -233,11 +275,13 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
       {sel.length > 0 && <div className="bulkbar row wrap">
         <b>{sel.length} seleccionado{sel.length > 1 ? 's' : ''}</b>
         <button className="btn sm primary" disabled={sel.length < 2 || sel.length > 3} title="Elegí 2 o 3 jugadores" onClick={() => setCmp(sel)}>Comparar</button>
-        {bulk.filter(b => !b.show || b.show(chosen)).map(b => <button key={b.label} className={`btn sm ${b.danger ? 'danger' : ''}`} onClick={() => runBulk(b)}>{b.label}</button>)}
+        {bulk.filter(b => !b.show || b.show(chosen)).map(b => <button key={b.label} className={`btn sm ${b.danger ? 'danger' : ''}`} disabled={busy} onClick={() => runBulk(b)}>{b.label}</button>)}
         <button className="btn sm" onClick={() => { setSel([]); setNote('') }}>Limpiar</button>
-        {note && <span className="acc sm">{note}</span>}
+        {note && <span className="acc sm" role="status">{note}</span>}
+        {busy && <span className="ib-help">Frená el avance para cambiar el plantel.</span>}
       </div>}
       <div className="card ptable" ref={wrap}>
+        {head}
         <table {...(onPick ? { role: 'grid', 'aria-label': gridLabel ?? 'Jugadores', 'aria-rowcount': total + 1 } : {})}>
           <colgroup><col style={{ width: 34 }} />{vis.map(k => <col key={k} style={k === 'name' ? undefined : { width: Math.round(COLS[k].w * scale) }} />)}</colgroup>
           <thead><tr>
@@ -248,16 +292,17 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
                   {c.l}{c.t && c.t !== c.l && <span className="vh"> ({c.t})</span>}{i >= 0 && <span className="acc" aria-hidden={!on || undefined}>{keys[i].d > 0 ? ' ▴' : ' ▾'}{keys.length > 1 ? i + 1 : ''}</span>}</button></th>) })}
           </tr></thead>
           <tbody ref={tbody} onKeyDown={onRowKey}>{list.map(p => (
-            <tr key={p.id} data-pid={p.id} className={`click ${p.clubId === g.userClubId && id !== 'squad' ? 'me' : ''} ${sel.includes(p.id) ? 'selrow' : ''}`}
+            <tr key={p.id} data-pid={p.id} className={`click ${p.clubId === g.userClubId && id !== 'squad' && id !== 'locker' ? 'me' : ''} ${sel.includes(p.id) ? 'selrow' : ''}`}
               {...(onPick ? { tabIndex: p.id === stop ? 0 : -1, 'aria-selected': p.id === picked, 'aria-label': rowName(p), onFocus: () => setCur(p.id) } : {})}
               onClick={() => (onPick ? onPick(p, 'click') : open(p.id))}>
               <td onClick={e => { e.stopPropagation(); toggle(p.id, e.shiftKey) }}><input type="checkbox" aria-label={`Seleccionar a ${p.name}`} checked={sel.includes(p.id)} readOnly tabIndex={onPick ? -1 : undefined} /></td>
               {vis.map(k => <td key={k} className={COLS[k].r ? 'r' : ''}>{k === 'name' && onPick
                 ? <span className="row" style={{ gap: 8, minWidth: 0 }}><Face p={p} club={g.clubs[p.clubId]} size={26} /><button className="linkish ell mk-name" tabIndex={-1} onClick={e => { e.stopPropagation(); openPlayer(p.id) }}>{p.name}</button></span>
+                : k === 'res' ? <ResToggle p={p} grid={!!onPick} busy={busy} />
                 : COLS[k].c(p, g)}</td>)}
             </tr>))}</tbody>
         </table>
-        {!total && <div className="dim sm" style={{ padding: 12 }}>{empty}</div>}
+        {!total && (typeof empty === 'string' ? <div className="dim sm" style={{ padding: 12 }}>{empty}</div> : empty)}
         {total > list.length && <button className="btn sm mk-more" onClick={() => setMore(more + 1)}>Mostrar {Math.min(limit, total - list.length)} más</button>}
       </div>
       {cmp && <Compare ids={cmp} onClose={() => setCmp(null)} onOffer={onOffer} />}
@@ -265,11 +310,24 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   )
 }
 
+/** Alternable de la reserva (columna `res`): escribe con `setReserve`; en la grilla no es una parada de Tab (con teclado, Espacio + "A la reserva"). */
+function ResToggle({ p, grid, busy }: { p: Player; grid: boolean; busy: boolean }) {
+  const { g, save, refresh } = useGame()
+  if (p.clubId !== g.userClubId) return <span className="dim">–</span>
+  const on = !!p.reserve
+  return <span className="vt-res-cell">
+    <button className={`btn sm vt-res ${on ? 'on' : ''}`} aria-pressed={on} tabIndex={grid ? -1 : undefined} disabled={busy}
+      onClick={e => { e.stopPropagation(); setReserve(g, [p.id], !on); save(); refresh() }}>{on ? <>✓ Anotado<span className="vh">: {p.name} en la reserva</span></> : <>Anotar<span className="vh"> a {p.name} en la reserva</span></>}</button>
+    {(p.injury || p.susp > 0) && <span className="vt-res-sub">{p.injury ? 'Lesionado' : 'Suspendido'}</span>}
+  </span>
+}
+
 function ColMenu({ cols, hidden, onChange, onClose, onSave, onDelete, current }: { cols: string[]; hidden: string[]; onChange: (c: string[]) => void; onClose: () => void; onSave: (name: string) => void; onDelete?: () => void; current: string }) {
   const [name, setName] = useState(current || 'Mi vista')
   const groups: [string, string[]][] = [
     ['Datos', ['num', 'pos', 'age', 'nat', 'club', 'val', 'pot', 'role', 'st']],
     ['Estado', ['cond', 'mor', 'happy', 'know']],
+    ['Vestuario', ['mins', 'pers', 'res', 'talk']],
     ['Temporada', ['pj', 'min', 'gol', 'ast', 'rat', 'motm', 'shots', 'yc']],
     ['Contrato y mercado', ['value', 'ask', 'wage', 'con', 'clause', 'deal']],
     ...(['Técnicos', 'Mentales', 'Físicos', 'Arquero'] as const).map((n, gi) => [n, ATTRS.filter((_, i) => (gi === 0 ? i < 10 : gi === 1 ? i >= 10 && i < 18 : gi === 2 ? i >= 18 && i < 23 : i >= 23)).map(a => `a_${a as Attr}`)] as [string, string[]]),
@@ -372,10 +430,14 @@ export function ownBulk(g: Game): Bulk[] {
       return add.length ? `${add.length} al banco de suplentes (máximo 9).` : 'No hay disponibles para el banco: están en el once, lesionados o suspendidos.'
     } },
     { label: 'Sacar del banco', show: ps => ps.some(p => t().bench.includes(p.id)), run: ps => { t().bench = t().bench.filter(id => !ps.some(p => p.id === id)) } },
-    { label: 'A la reserva', show: ps => ps.some(p => !p.reserve), run: ps => { ps.forEach(p => (p.reserve = true)) } },
-    { label: 'Sacar de la reserva', show: ps => ps.some(p => p.reserve), run: ps => { ps.forEach(p => (p.reserve = false)) } },
-    { label: 'Declarar transferibles', show: ps => ps.some(p => !p.listed && canSell(p)), run: ps => { ps.forEach(p => { if (canSell(p)) p.listed = true }) } },
-    { label: 'Quitar de transferibles', show: ps => ps.some(p => p.listed), run: ps => { ps.forEach(p => (p.listed = false)) } },
+    // la pantalla no escribe en `g`: la reserva y los transferibles pasan por el motor (así resolver o reabrir un pedido de salida sigue la regla de leído)
+    { label: 'A la reserva', show: ps => ps.some(p => !p.reserve), run: ps => { const n = setReserve(g, ps.map(p => p.id), true); return n ? `Anotaste a ${n} en la reserva.` : 'Ya estaban anotados.' } },
+    { label: 'Sacar de la reserva', show: ps => ps.some(p => p.reserve), run: ps => { const n = setReserve(g, ps.map(p => p.id), false); return `Sacaste a ${n} de la reserva.` } },
+    { label: 'Declarar transferibles', show: ps => ps.some(p => !p.listed && canSell(p)), run: ps => { const n = ps.filter(p => setListed(g, p.id, true)).length; return n === 1 ? 'Declaraste transferible a 1.' : `Declaraste transferibles a ${n}.` } },
+    { label: 'Quitar de transferibles', show: ps => ps.some(p => p.listed), run: ps => {
+      const done = ps.filter(p => setListed(g, p.id, false)), out = done.filter(p => p.wantsOut)
+      return `Quitaste de transferibles a ${done.length}.${out.length ? ` ${out.map(p => p.name).join(', ')} ${out.length === 1 ? 'sigue queriendo irse: el pedido vuelve' : 'siguen queriendo irse: los pedidos vuelven'} a Para decidir.` : ''}`
+    } },
   ]
 }
 /** Para jugadores ajenos: seguimiento y ojeo. */

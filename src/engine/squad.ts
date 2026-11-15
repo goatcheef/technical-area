@@ -260,11 +260,11 @@ export function dailySquad(g: Game, rng: Rng) {
     if (cur) Object.assign(cur, { got, result: kept ? 'kept' : 'broken' })
     else logPromise(p, { made: g.date, until: pr.until, target: pr.share, got, result: kept ? 'kept' : 'broken' })
     if (kept) {
-      p.happy = clamp((p.happy ?? 50) + 25, 0, 100); p.morale = clamp(p.morale + 8, 5, 100)
+      p.happy = clamp((p.happy ?? 70) + 25, 0, 100); p.morale = clamp(p.morale + 8, 5, 100)
       if (p.moodNote) p.moodNote = undefined
       news(g, { tag: 'club', clubId: c.id, pid: p.id, title: `${p.name}, conforme`, body: `${g.manager.name} cumplió con lo que le prometió a ${p.name}: tuvo los minutos que esperaba.${fig}` })
     } else {
-      p.happy = clamp((p.happy ?? 50) - 30, 0, 100); p.morale = clamp(p.morale - 14, 5, 100)
+      p.happy = clamp((p.happy ?? 70) - 30, 0, 100); p.morale = clamp(p.morale - 14, 5, 100)
       p.moodNote = { date: g.date, kind: 'broken' }
       g.manager.rep = clamp(g.manager.rep - 1, 5, 99)
       for (const o of sq) if (o !== p) o.morale = clamp(o.morale - 1, 5, 100)
@@ -316,7 +316,7 @@ export function weeklyReserve(g: Game, rng: Rng) {
   }
   for (const p of res) {
     addProgress(p, 0.18 * (ageOn(p.birth, g.date) <= 21 ? 1 : 0.4)) // hasta su potencial
-    if (p.status === 'young' || p.status === 'sub') p.happy = clamp((p.happy ?? 60) + 3, 0, 100)
+    if (p.status === 'young' || p.status === 'sub') p.happy = clamp((p.happy ?? 70) + 3, 0, 100)
     p.cond = Math.max(70, p.cond - 6)
   }
   const opp = rng.pick(Object.values(g.clubs).filter(x => x.division === c.division && x.id !== c.id))
@@ -404,7 +404,7 @@ const TALK_RULE: Record<TalkKind, string> = {
   patience: 'Convence a los leales y muy leales, y a los de ambición baja; a los demás no les convence.',
   status: 'Subirle el rol lo pone contento, pero si no le das esos minutos se va a molestar más rápido. Bajarle el rol lo molesta: más si es ambicioso o temperamental.',
   free: 'Queda transferible y, con el libro abierto, los clubes van a ofertar. Si no lo pidió, se ofende y pasa a querer irse.',
-  praise: 'Lo agradece si viene jugando bien (promedio 6,9 o más, o 3 goles); si no, lo toma mal.',
+  praise: 'Lo agradece si viene jugando bien (promedio 6,9 o más, o 3 goles); si no, no le convence.',
   demand: 'Lo toman bien los profesionales; si no es profesional, se enojan los temperamentales; los demás lo escuchan sin entusiasmo.',
 }
 /** Rasgos que deciden la respuesta, en el orden en que la regla los nombra. */
@@ -488,9 +488,9 @@ export function talkResult(g: Game, p: Player, kind: TalkKind, newStatus?: Squad
   if (chk.disabled) return none(chk.disabled)
   const q = persOf(p), { form, goals } = talkContext(g, p)
   const was = { out: !!p.wantsOut, listed: !!p.listed, status: p.status, promise: p.promise }
-  const before = { happy: p.happy ?? 60, morale: p.morale }
+  const before = { happy: p.happy ?? 70, morale: p.morale }
   p.lastTalk = g.date
-  const mh = (d: number) => { p.happy = clamp((p.happy ?? 60) + d, 0, 100) }, mm = (d: number) => { p.morale = clamp(p.morale + d, 5, 100) }
+  const mh = (d: number) => { p.happy = clamp((p.happy ?? 70) + d, 0, 100) }, mm = (d: number) => { p.morale = clamp(p.morale + d, 5, 100) }
   let text = '', reply: TalkReply = 'Le convenció'
   switch (kind) {
     case 'praise':
@@ -503,7 +503,7 @@ export function talkResult(g: Game, p: Player, kind: TalkKind, newStatus?: Squad
       else { mm(-2); reply = 'No le convenció'; text = 'Lo escucha sin mucho entusiasmo: "Está bien."' }
       break
     case 'promise':
-      p.promise = { until: addDays(g.date, 35), share: Math.min(0.9, STATUS[p.status ?? 'sub'].share + 0.22), mins: [] }
+      p.promise = { until: addDays(g.date, 35), share: Math.min(0.9, STATUS[statusOf(g, p)].share + 0.22), mins: [] }
       mh(18); mm(5); p.wantsOut = false
       logPromise(p, { made: g.date, until: p.promise.until, target: p.promise.share })
       text = `"Le tomo la palabra." Le prometiste más minutos durante las próximas cinco semanas: si no cumplís, se va a sentir engañado.`
@@ -530,7 +530,7 @@ export function talkResult(g: Game, p: Player, kind: TalkKind, newStatus?: Squad
       else { mh(-10); mm(-8); reply = 'No le convenció'; text = 'Acepta quedarse, pero de mala gana. Puede volver a pedirlo.' }
       break
   }
-  const after = { happy: p.happy ?? 60, morale: p.morale }
+  const after = { happy: p.happy ?? 70, morale: p.morale }
   // registro, causa del humor y pedido de salida
   p.talks = [...(p.talks ?? []), { date: g.date, kind, reply }].slice(-5)
   if (after.happy < before.happy) p.moodNote = { date: g.date, kind: kind === 'status' ? 'demoted' : kind === 'free' ? 'freed' : 'talk' }
@@ -651,7 +651,7 @@ export function moodCause(g: Game, p: Player): { kind: MoodNoteKind | 'minutes';
   if (n) {
     const d = fmtDay(n.date)
     const text = n.kind === 'broken' ? `Desde la promesa rota del ${d}.` : n.kind === 'demoted' ? `Desde que le bajaste el rol el ${d}.`
-      : n.kind === 'freed' ? `Desde que le dijiste que podía buscar club, el ${d}.` : `Desde la charla del ${d}, que tomó mal.`
+      : n.kind === 'freed' ? `Desde que le dijiste que podía buscar club, el ${d}.` : `Desde la charla del ${d}, que no le cayó bien.`
     return { kind: n.kind, date: n.date, text }
   }
   return { kind: 'minutes', text: `Juega ${pct(share(p))} % y espera ${pct(STATUS[statusOf(g, p)].share)} %.` }
@@ -828,7 +828,7 @@ export function evalOffer(g: Game, p: Player, mode: NegMode, offer: Terms, dem: 
   score += Math.min(0.08, (offer.bonus / Math.max(1, want.bonus)) * 0.04)
   if (offer.clause > 0) score += offer.clause < p.value * 1.6 ? (amb - 8) * 0.006 : offer.clause > p.value * 4 ? -0.05 - (amb - 10) * 0.005 : 0
   else score += 0.02 + (amb - 10) * 0.004
-  if (renew) score += (persOf(p).loy - 10) * 0.008 + ((p.happy ?? 60) - 50) * 0.002
+  if (renew) score += (persOf(p).loy - 10) * 0.008 + ((p.happy ?? 70) - 50) * 0.002
   const club = g.clubs[g.userClubId], bill = squadOf(g, club.id).reduce((s, x) => s + (x.id === p.id ? 0 : x.wage), 0)
   if (bill + offer.wage > club.wageBudget) return { ok: false, msg: `Con este sueldo superás el tope salarial por US$ ${(bill + offer.wage - club.wageBudget).toLocaleString('es-AR')} (te quedan ${Math.max(0, club.wageBudget - bill).toLocaleString('es-AR')} por mes). Esto no gasta paciencia.` }
   if (mode === 'buy' && offer.bonus > club.balance) return { ok: false, msg: 'El club no tiene caja para pagar esa prima. Esto no gasta paciencia.' }
@@ -855,7 +855,7 @@ export function applyRenewal(g: Game, p: Player, t: Terms) {
   c.balance -= t.bonus; c.ledger.wages += t.bonus
   // renovar es una respuesta del DT a su pedido de salida: lo resuelve y marca leídos sus mensajes
   if (p.wantsOut) { readDecisionNews(g, `out${p.id}`); p.outDate = undefined }
-  p.happy = clamp((p.happy ?? 60) + 15, 0, 100); p.morale = clamp(p.morale + 6, 5, 100); p.wantsOut = false
+  p.happy = clamp((p.happy ?? 70) + 15, 0, 100); p.morale = clamp(p.morale + 6, 5, 100); p.wantsOut = false
   news(g, { tag: 'club', clubId: c.id, pid: p.id, title: `${p.name} renovó con ${c.short}`, body: `${p.name} firmó su nuevo contrato hasta diciembre de ${p.contractEnd}${t.clause ? `, con una cláusula de rescisión de US$ ${t.clause.toLocaleString('es-AR')}` : ''}.` })
 }
 /** El representante se levanta de una renovación: no vuelve a sentarse por 30 días. La ventana ya lo mostró: la noticia nace leída. */
