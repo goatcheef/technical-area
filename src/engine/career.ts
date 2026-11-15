@@ -292,31 +292,6 @@ export function wageDemand(g: Game, p: Player, dest: Club): number {
   const base = valuation(p, g.date).wage * (1 + (dest.rep - 60) / 180)
   return Math.round(Math.max(p.wage * 1.05, base) / 100) * 100
 }
-export interface BidResult { ok: boolean; reason?: string; counter?: number }
-/** Evalúa una oferta del usuario. No ejecuta el pase. */
-export function evaluateBid(g: Game, p: Player, fee: number, loan: boolean): BidResult {
-  const dest = g.clubs[g.userClubId], src = g.clubs[p.clubId]
-  if (!windowOpen(g.date)) return { ok: false, reason: closedReason(g.date) }
-  if (p.loanFrom) return { ok: false, reason: 'El jugador está a préstamo en su club actual.' }
-  if (!loan && p.clause && fee >= p.clause) return windowOpen(g.date) && fee <= dest.budget ? { ok: true } : { ok: false, reason: 'No te alcanza el presupuesto para pagar la cláusula.' }
-  const sq = squadOf(g, src.id), rank = squadRank(g, p)
-  if (sq.length <= 20 || (p.line === 'GK' && sq.filter(x => x.line === 'GK').length <= 2)) return { ok: false, reason: `${src.name} no puede desprenderse del jugador: se queda sin recambio.` }
-  if (squadOf(g, dest.id).length >= 45) return { ok: false, reason: 'Tu plantel ya tiene 45 jugadores.' }
-  if (dest.division > src.division && rank < 11) return { ok: false, reason: `${p.name} no quiere bajar de categoría.` }
-  if (dest.rep < src.rep - (rank < 14 ? 6 : 16)) return { ok: false, reason: `${p.name} no ve con buenos ojos irse a un club de menor nivel.` }
-  const wage = loan ? p.wage : wageDemand(g, p, dest)
-  if (wageBill(g, dest.id) + wage > dest.wageBudget) return { ok: false, reason: `Pide US$ ${wage.toLocaleString('es-AR')} por mes y supera tu tope salarial.` }
-  if (loan) {
-    if (rank < 14) return { ok: false, reason: `${src.name} lo considera importante y no lo cede a préstamo.` }
-    const need = loanFee(p)
-    if (fee < need) return { ok: false, reason: 'El cargo por el préstamo es bajo.', counter: need }
-  } else {
-    const thr = bidThreshold(g, p)
-    if (fee < thr) return { ok: false, reason: `${src.name} rechazó la oferta.`, counter: thr }
-  }
-  if (fee > dest.budget) return { ok: false, reason: 'No te alcanza el presupuesto de pases.' }
-  return { ok: true }
-}
 
 function freeNumber(g: Game, clubId: number, p: Player): number {
   const used = new Set(squadOf(g, clubId).map(x => x.num))
@@ -517,9 +492,14 @@ function addDeal(g: Game, d: Omit<Deal, 'id' | 'steps' | 'updated'>, text: strin
   g.nextDeal = deal.id + 1
   const ds = (g.deals ??= [])
   ds.push(deal)
-  // tope de 60: se podan primero los terminales más viejos, nunca uno abierto ni uno con bloqueo vigente (hacen falta para el bloqueo y el club molesto)
-  let extra = ds.length - MAX_DEALS
-  if (extra > 0) g.deals = ds.filter(x => !(extra > 0 && !isOpenDeal(x) && !(x.blockUntil && x.blockUntil >= g.date) && extra-- > 0))
+  // tope de 60: nunca se poda uno abierto ni uno con bloqueo vigente (hacen falta para el bloqueo y el club molesto). Primero se van las
+  // ofertas recibidas ya cerradas más viejas (son la mayoría: vencen solas); recién después los tratos del DT (sus ofertas y acuerdos)
+  const extra = ds.length - MAX_DEALS
+  if (extra > 0) {
+    const keep = (x: Deal) => isOpenDeal(x) || !!(x.blockUntil && x.blockUntil >= g.date), drop = new Set<Deal>()
+    for (const sell of [true, false]) for (const x of ds) if (drop.size < extra && !keep(x) && (x.side === 'sell') === sell) drop.add(x)
+    g.deals = ds.filter(x => !drop.has(x))
+  }
   return deal
 }
 function step(g: Game, d: Deal, text: string) { d.steps = [...d.steps, { date: g.date, text }].slice(-8); d.updated = g.date }
@@ -652,7 +632,7 @@ export function acceptCounter(g: Game, dealId: number): boolean {
 }
 
 /**
- * Respuesta del club el día `answerOn`: la lógica de `evaluateBid` con el estado de ese día, sin los controles inmediatos y sin mirar el
+ * Respuesta del club el día `answerOn`: la lógica de la antigua `evaluateBid` con el estado de ese día, sin los controles inmediatos y sin mirar el
  * tope salarial ni el presupuesto (los controla `signDeal`): ningún motivo dice un sueldo. Con el club molesto, el umbral sube un 10 %.
  */
 export function clubAnswer(g: Game, d: Deal): { ok: boolean; reason?: string; counter?: number } {

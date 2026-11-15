@@ -1,12 +1,14 @@
 // Tabla de jugadores única para todo el juego: vistas, columnas a elección, orden por varias columnas,
 // filtros, selección múltiple con acciones y comparador. Se adapta al ancho sin desplazamiento horizontal.
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { askingPrice, canSell } from '../engine/career'
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKeyEvent, type ReactNode } from 'react'
+import { askingPrice, bidBlock, canSell, openDealFor } from '../engine/career'
+import { fmtDay } from '../engine/game'
 import { ageOn } from '../engine/positions'
-import { STATUS, fmtRange, knowOf, knownRating, scout, shown, toggleShortlist } from '../engine/squad'
+import { STATUS, fmtRange, knowOf, knownRating, scout, shown, toggleShortlist, wageShown } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Attr, type Game, type Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Cond, Face, Modal, PosPill, Status, Val, avgRat, money, ratClass } from './common'
+import { MI, StateChip, wr } from './deal'
 
 // ---------- columnas ----------
 interface Col { l: string; n?: string; t?: string; w: number; r?: boolean; v: (p: Player, g: Game) => number | string; c: (p: Player, g: Game) => ReactNode }
@@ -18,6 +20,19 @@ const rat = (p: Player) => (pj(p) ? p.stats.ratSum / pj(p) : 0)
 /** Valor visible (punto medio del rango que se conoce): ordenar no revela lo que el ojeo todavía no sabe. */
 const seen = (g: Game, p: Player, v: number, w: number, salt: number, lo = 1, hi = 20) => { const r = shown(g, p, v, w, salt, lo, hi); return (r[0] + r[1]) / 2 }
 const valSeen = knownRating
+/** Sueldo que se ve: exacto el de tus jugadores; de un ajeno, el rango de `wageShown` (nunca el número real). */
+const wageOf = (g: Game, p: Player): [number, number] => (p.clubId === g.userClubId ? [p.wage, p.wage] : wageShown(g, p, p.wage, 401))
+const dealRank = (g: Game, p: Player) => { const d = openDealFor(g, p.id); return d ? (d.state === 'agreed' ? 3 : d.state === 'countered' ? 2 : 1) : bidBlock(g, p.id) ? 0.5 : 0 }
+function dealCell(g: Game, p: Player): ReactNode {
+  if (p.clubId === g.userClubId) return <span className="dim">–</span>
+  const d = openDealFor(g, p.id)
+  if (d) return <StateChip d={d} />
+  const b = bidBlock(g, p.id)
+  if (b) return <span className="mk-st lock">{MI.lock}Bloqueado hasta {fmtDay(b.until)}</span>
+  const last = (g.deals ?? []).filter(x => x.pid === p.id && x.side !== 'sell' && x.userClubId === g.userClubId).sort((a, b2) => b2.id - a.id)[0]
+  if (last?.state === 'refused' && last.updated >= g.date.slice(0, 4)) return <span className="mk-st x">{MI.x}Sin acuerdo</span>
+  return <span className="dim">–</span>
+}
 const potGap = (g: Game, p: Player) => (p.clubId === g.userClubId || (ageOn(p.birth, g.date) <= 23 && knowOf(g, p) >= 70) ? p.pa - p.ca : -1)
 const stars = (gap: number) => (gap < 0 ? <span className="dim">–</span> : <span className={gap >= 12 ? 'good' : gap >= 6 ? '' : 'dim'}>{gap >= 12 ? '★★★' : gap >= 6 ? '★★' : '★'}</span>)
 
@@ -44,7 +59,9 @@ const BASE: Record<string, Col> = {
   yc: { l: 'TA', n: 'Amarillas', t: 'Tarjetas amarillas', w: 40, r: true, v: p => p.stats.yc, c: p => <span className="num">{p.stats.yc}{p.stats.rc ? <span className="bad"> {p.stats.rc}R</span> : ''}</span> },
   value: { l: 'Valor US$', n: 'Valor', w: 80, r: true, v: p => p.value, c: p => <span className="num">{m$(p.value)}</span> },
   ask: { l: 'Pedido US$', n: 'Pedido', t: 'Lo que pide su club para venderlo', w: 86, r: true, v: (p, g) => (p.clubId === g.userClubId ? 0 : askingPrice(g, p)), c: (p, g) => (p.clubId === g.userClubId ? <span className="dim">–</span> : <b className="num">{m$(askingPrice(g, p))}</b>) },
-  wage: { l: 'Sueldo US$', n: 'Sueldo', t: 'Sueldo mensual', w: 84, r: true, v: p => p.wage, c: p => <span className="num dim">{m$(p.wage)}</span> },
+  wage: { l: 'Sueldo US$', n: 'Sueldo', t: 'Sueldo mensual (estimado si no lo conocés bien)', w: 92, r: true, v: (p, g) => { const r = wageOf(g, p); return (r[0] + r[1]) / 2 },
+    c: (p, g) => { const r = wageOf(g, p); return r[0] === r[1] ? <span className="num dim">{m$(r[0])}</span> : <span className="num dim">{wr(r).replace('US$ ', '')}<span className="vh"> estimado</span></span> } },
+  deal: { l: 'Trato', n: 'Trato', t: 'Tu oferta por él, si hay', w: 112, v: (p, g) => dealRank(g, p), c: (p, g) => dealCell(g, p) },
   con: { l: 'Contrato', w: 74, r: true, v: p => p.contractEnd, c: (p, g) => <span className={`num ${p.contractEnd <= g.season ? 'warn' : 'dim'}`}>{p.contractEnd}</span> },
   clause: { l: 'Cláusula US$', n: 'Cláusula', w: 92, r: true, v: p => p.clause ?? 0, c: p => (p.clause ? <span className="num dim">{m$(p.clause)}</span> : <span className="dim">–</span>) },
   know: { l: 'Conoc.', n: 'Conocimiento', t: 'Cuánto sabés del jugador', w: 64, r: true, v: (p, g) => knowOf(g, p), c: (p, g) => (g.scouting.includes(p.id) ? <span className="acc sm">Ojeando</span> : <span className="num dim">{Math.round(knowOf(g, p))}%</span>) },
@@ -60,7 +77,7 @@ const attrTone = (v: number) => (v >= 16 ? 'good' : v >= 13 ? '' : v >= 9 ? 'dim
 export const COLS: Record<string, Col> = { ...BASE, ...ATTR_COLS }
 
 /** Prioridad al faltar ancho: se ocultan primero las de número más bajo. Los atributos elegidos a mano pesan como los datos clave. */
-const PRIO: Record<string, number> = { num: 1, nat: 1, st: 6, min: 3, mor: 5, motm: 3, yc: 3, shots: 4, wage: 4, happy: 5, role: 5, clause: 5, know: 6, club: 6, value: 6, ask: 7, con: 7, cond: 7, pj: 8, gol: 8, ast: 8, rat: 8, pot: 8, age: 9, val: 10, pos: 10 }
+const PRIO: Record<string, number> = { deal: 6, num: 1, nat: 1, st: 6, min: 3, mor: 5, motm: 3, yc: 3, shots: 4, wage: 4, happy: 5, role: 5, clause: 5, know: 6, club: 6, value: 6, ask: 7, con: 7, cond: 7, pj: 8, gol: 8, ast: 8, rat: 8, pot: 8, age: 9, val: 10, pos: 10 }
 const prio = (k: string) => PRIO[k] ?? 9
 
 // ---------- vistas ----------
@@ -68,7 +85,7 @@ export const VIEWS: Record<string, { name: string; cols: string[] }> = {
   general: { name: 'General', cols: ['num', 'name', 'pos', 'age', 'val', 'cond', 'mor', 'pj', 'gol', 'ast', 'rat', 'value', 'wage', 'con', 'st'] },
   fisico: { name: 'Físico', cols: ['name', 'pos', 'age', 'cond', 'a_pac', 'a_acc', 'a_sta', 'a_str', 'a_jmp', 'min', 'st'] },
   contrato: { name: 'Contrato', cols: ['name', 'pos', 'age', 'val', 'role', 'happy', 'value', 'wage', 'con', 'clause', 'st'] },
-  ojeo: { name: 'Ojeo', cols: ['name', 'pos', 'club', 'age', 'val', 'pot', 'know', 'value', 'ask', 'wage', 'con'] },
+  ojeo: { name: 'Ojeo', cols: ['name', 'pos', 'club', 'age', 'val', 'pot', 'know', 'value', 'ask', 'wage', 'con', 'deal'] },
   stats: { name: 'Estadísticas', cols: ['name', 'pos', 'club', 'pj', 'min', 'gol', 'ast', 'rat', 'motm', 'shots', 'yc'] },
 }
 const LINES: [string, string][] = [['', 'Todos'], ['GK', 'Arq'], ['DF', 'Def'], ['MF', 'Med'], ['FW', 'Del']]
@@ -83,8 +100,13 @@ function usePrefs(id: string, def: string): [Prefs, (p: Prefs) => void] {
 export interface Bulk { label: string; run: (ps: Player[]) => string | void; show?: (ps: Player[]) => boolean; danger?: boolean }
 type Sort = { k: string; d: number }[]
 
-export function PlayerTable({ id, players, views = ['general', 'fisico', 'contrato', 'stats'], def = 'general', bulk = [], limit = 200, empty = 'No hay jugadores.', filters = true, defSort }: {
+/**
+ * `onPick`: la fila elige en vez de abrir la ficha (Mercado, ≥ 1180 px). Foco itinerante: una parada de Tab, ↑ ↓ Inicio Fin Re Pág Av Pág
+ * mueven el foco, Enter elige, Espacio marca la casilla (no avanza el día), Mayús + ↑ ↓ extiende la selección. `picked`: la fila elegida.
+ */
+export function PlayerTable({ id, players, views = ['general', 'fisico', 'contrato', 'stats'], def = 'general', bulk = [], limit = 200, empty = 'No hay jugadores.', filters = true, defSort, onPick, picked }: {
   id: string; players: Player[]; views?: string[]; def?: string; bulk?: Bulk[]; limit?: number; empty?: string; filters?: boolean; defSort?: Sort
+  onPick?: (p: Player, how: 'click' | 'key') => void; picked?: number | null
 }) {
   const { g, openPlayer, save, refresh } = useGame()
   const [prefs, setPrefs] = usePrefs(id, def)
@@ -97,6 +119,9 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   const [note, setNote] = useState('')
   const [more, setMore] = useState(1)
   const last = useRef<number | null>(null)
+  const [cur, setCur] = useState<number | null>(null)
+  const focusRow = useRef<number | null>(null), tbody = useRef<HTMLTableSectionElement>(null)
+  useEffect(() => { const k = focusRow.current; if (k == null) return; focusRow.current = null; const el = tbody.current?.querySelector<HTMLElement>(`tr[data-pid="${k}"]`); el?.focus({ preventScroll: true }); el?.scrollIntoView({ block: 'nearest' }) })
   // ancho disponible: se ocultan columnas de menor prioridad (las del final de la vista) para no desplazar de costado
   const wrap = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(1200)
@@ -155,6 +180,28 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
     setPrefs({ view: `mine:${name}`, mine })
   }
   const allSel = list.length > 0 && list.every(p => sel.includes(p.id))
+  // foco itinerante (solo con `onPick`): la fila con foco, la elegida o la primera
+  const stop = onPick ? (list.find(p => p.id === cur) ?? list.find(p => p.id === picked) ?? list[0])?.id : undefined
+  const onRowKey = (e: RKeyEvent<HTMLTableSectionElement>) => {
+    if (!onPick || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || (e.target as HTMLElement).tagName !== 'TR') return
+    const i = Math.max(0, list.findIndex(p => p.id === stop))
+    let j = -1
+    switch (e.key) {
+      case 'ArrowDown': j = i + 1; break
+      case 'ArrowUp': j = i - 1; break
+      case 'Home': j = 0; break
+      case 'End': j = list.length - 1; break
+      case 'PageDown': j = i + 10; break
+      case 'PageUp': j = i - 10; break
+      case 'Enter': e.preventDefault(); e.stopPropagation(); onPick(list[i], 'key'); return
+      case ' ': e.preventDefault(); e.stopPropagation(); toggle(list[i].id, false); return
+      default: return
+    }
+    e.preventDefault(); e.stopPropagation()
+    const k = list[Math.max(0, Math.min(list.length - 1, j))]
+    if (e.shiftKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) setSel(s => [...new Set([...s, list[i].id, k.id])])
+    setCur(k.id); focusRow.current = k.id
+  }
   return (
     <div className="ptable-wrap col" style={{ gap: 8 }}>
       <div className="row wrap ptable-bar" style={{ gap: 8 }}>
@@ -168,7 +215,7 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
           <input type="search" placeholder="Filtrar por nombre" value={q} onChange={e => setQ(e.target.value)} style={{ width: 170, padding: '5px 10px' }} /></>}
         <span className="grow" />
         {keys.length > 1 && <span className="dim sm">Orden: {keys.map(s => COLS[s.k]?.l).join(' › ')} <button className="btn sm" onClick={() => setSort([])}>Quitar</button></span>}
-        <span className="dim sm">{total} jugador{total === 1 ? '' : 'es'}</span>
+        <span className="dim sm" aria-live="polite">{total} jugador{total === 1 ? '' : 'es'}.</span>
       </div>
       {sel.length > 0 && <div className="bulkbar row wrap">
         <b>{sel.length} seleccionado{sel.length > 1 ? 's' : ''}</b>
@@ -186,14 +233,18 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
               <th key={k} className={`sortable ${c.r ? 'r' : ''}`} title={`${c.t ?? c.l}. Clic para ordenar; Mayús + clic suma un criterio.`} onClick={e => clickHead(k, e.shiftKey)}>
                 {c.l}{i >= 0 && <span className="acc">{keys[i].d > 0 ? ' ▴' : ' ▾'}{keys.length > 1 ? i + 1 : ''}</span>}</th>) })}
           </tr></thead>
-          <tbody>{list.map(p => (
-            <tr key={p.id} data-pid={p.id} className={`click ${p.clubId === g.userClubId && id !== 'squad' ? 'me' : ''} ${sel.includes(p.id) ? 'selrow' : ''}`} onClick={() => openPlayer(p.id)}>
-              <td onClick={e => { e.stopPropagation(); toggle(p.id, e.shiftKey) }}><input type="checkbox" aria-label={`Seleccionar a ${p.name}`} checked={sel.includes(p.id)} readOnly /></td>
-              {vis.map(k => <td key={k} className={COLS[k].r ? 'r' : ''}>{COLS[k].c(p, g)}</td>)}
+          <tbody ref={tbody} onKeyDown={onRowKey}>{list.map(p => (
+            <tr key={p.id} data-pid={p.id} className={`click ${p.clubId === g.userClubId && id !== 'squad' ? 'me' : ''} ${sel.includes(p.id) ? 'selrow' : ''}`}
+              {...(onPick ? { tabIndex: p.id === stop ? 0 : -1, 'aria-selected': p.id === picked, onFocus: () => setCur(p.id) } : {})}
+              onClick={() => (onPick ? onPick(p, 'click') : openPlayer(p.id))}>
+              <td onClick={e => { e.stopPropagation(); toggle(p.id, e.shiftKey) }}><input type="checkbox" aria-label={`Seleccionar a ${p.name}`} checked={sel.includes(p.id)} readOnly tabIndex={onPick ? -1 : undefined} /></td>
+              {vis.map(k => <td key={k} className={COLS[k].r ? 'r' : ''}>{k === 'name' && onPick
+                ? <span className="row" style={{ gap: 8, minWidth: 0 }}><Face p={p} club={g.clubs[p.clubId]} size={26} /><button className="linkish ell mk-name" tabIndex={-1} onClick={e => { e.stopPropagation(); openPlayer(p.id) }}>{p.name}</button></span>
+                : COLS[k].c(p, g)}</td>)}
             </tr>))}</tbody>
         </table>
         {!total && <div className="dim sm" style={{ padding: 12 }}>{empty}</div>}
-        {total > list.length && <div style={{ padding: 10 }}><button className="btn sm" onClick={() => setMore(more + 1)}>Mostrar {Math.min(limit, total - list.length)} más</button></div>}
+        {total > list.length && <button className="btn sm mk-more" onClick={() => setMore(more + 1)}>Mostrar {Math.min(limit, total - list.length)} más</button>}
       </div>
       {cmp && <Compare ids={cmp} onClose={() => setCmp(null)} />}
     </div>
@@ -206,7 +257,7 @@ function ColMenu({ cols, hidden, onChange, onClose, onSave, onDelete, current }:
     ['Datos', ['num', 'pos', 'age', 'nat', 'club', 'val', 'pot', 'role', 'st']],
     ['Estado', ['cond', 'mor', 'happy', 'know']],
     ['Temporada', ['pj', 'min', 'gol', 'ast', 'rat', 'motm', 'shots', 'yc']],
-    ['Contrato y mercado', ['value', 'ask', 'wage', 'con', 'clause']],
+    ['Contrato y mercado', ['value', 'ask', 'wage', 'con', 'clause', 'deal']],
     ...(['Técnicos', 'Mentales', 'Físicos', 'Arquero'] as const).map((n, gi) => [n, ATTRS.filter((_, i) => (gi === 0 ? i < 10 : gi === 1 ? i >= 10 && i < 18 : gi === 2 ? i >= 18 && i < 23 : i >= 23)).map(a => `a_${a as Attr}`)] as [string, string[]]),
   ]
   const on = (k: string) => cols.includes(k)
@@ -246,7 +297,7 @@ export function Compare({ ids, onClose }: { ids: number[]; onClose: () => void }
     ['Goles · asistencias', p => `${p.stats.goals} · ${p.stats.ast}`, p => p.stats.goals + p.stats.ast],
     ['Promedio', p => avgRat(p.stats), rat],
     ['Valor', p => money(p.value), p => p.value],
-    ['Sueldo', p => money(p.wage), p => p.wage, false],
+    ['Sueldo', p => wr(wageOf(g, p)), p => { const r = wageOf(g, p); return (r[0] + r[1]) / 2 }, false],
     ['Contrato', p => `dic ${p.contractEnd}`, p => p.contractEnd],
     ['Pedido', p => (p.clubId === g.userClubId ? '–' : money(askingPrice(g, p))), p => (p.clubId === g.userClubId ? 0 : -askingPrice(g, p))],
   ]

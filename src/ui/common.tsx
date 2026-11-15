@@ -1,7 +1,7 @@
-import { useId, useRef, useEffect, useState, type ReactNode } from 'react'
+import { useId, useRef, useEffect, useState, type KeyboardEvent as RKeyEvent, type ReactNode } from 'react'
 import crestsJson from '../data/crests.json'
 import { PLAYER_PHOTO } from '../data/playerPhoto'
-import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
+import { askingPrice, windowOpen } from '../engine/career'
 import { STATUS, fmtRange, knowOf, minutesShare, persLabels, scout, shown } from '../engine/squad'
 import { fmtDate } from '../engine/game'
 import { sab } from '../engine/week'
@@ -186,9 +186,20 @@ export function Modal({ children, onClose, wide }: { children: ReactNode; onClos
   }, [])
   return <div className="modal-bg" onClick={onClose}><div ref={box} className="modal" role="dialog" aria-modal="true" tabIndex={-1} style={wide ? { width: 'min(1120px, 100%)' } : undefined} onClick={e => e.stopPropagation()}>{children}</div></div>
 }
-/** Control segmentado: la opción elegida lleva ✓ (por CSS) y aria-pressed. */
-export function Seg({ value, options, onChange, label }: { value: number; options: string[]; onChange: (v: number) => void; label?: string }) {
-  return <div className="seg" role="group" aria-label={label}>{options.map((o, i) => <button key={o} className={i === value ? 'on' : ''} aria-pressed={i === value} onClick={() => onChange(i)}>{o}</button>)}</div>
+/**
+ * Control segmentado: la opción elegida lleva ✓ (por CSS) y aria-pressed. `cnt`: contador visible por opción (con su `.vh`; `dec` es una
+ * decisión y lleva "!"); sin número no se dibuja (nunca "0"). `roving`: una sola parada de Tab y ← → entre opciones (no eligen solas).
+ */
+export function Seg({ value, options, onChange, label, cnt, className = 'seg', roving }: { value: number; options: ReactNode[]; onChange: (v: number) => void; label?: string; cnt?: (null | undefined | { n: number; dec?: boolean; vh: string })[]; className?: string; roving?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const key = (e: RKeyEvent) => {
+    if (!roving || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return
+    const bs = [...(ref.current?.querySelectorAll('button') ?? [])], j = bs.indexOf(document.activeElement as HTMLButtonElement) + (e.key === 'ArrowRight' ? 1 : -1)
+    if (bs[j]) { e.preventDefault(); bs[j].focus(); bs[j].scrollIntoView({ block: 'nearest', inline: 'nearest' }) }
+  }
+  return <div ref={ref} className={className} role="group" aria-label={label} onKeyDown={key}>{options.map((o, i) => { const c = cnt?.[i]; return (
+    <button key={i} className={i === value ? 'on' : ''} aria-pressed={i === value} tabIndex={roving ? (i === value ? 0 : -1) : undefined} onClick={() => onChange(i)}>{o}
+      {c && c.n > 0 && <span className={`mk-cnt ${c.dec ? 'dec' : ''}`}><span className="vh">, </span>{c.dec && <span aria-hidden="true">!</span>}{c.n}<span className="vh"> {c.vh}</span></span>}</button>) })}</div>
 }
 
 // ---------- gráficos ----------
