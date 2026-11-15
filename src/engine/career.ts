@@ -1,10 +1,10 @@
 // Mercado de pases, finanzas, dirigencia, juveniles y carrera del DT.
 import { makeStaff, sab } from './week'
-import { initSquad } from './squad'
-import { addDays, autoPick, clubsIn, fmtDate, leagueFx, news, squadOf, tableOf, valuation } from './game'
+import { demand, demandWage, evalOffer, initSquad, naturalStatusFor, wageShown, type Demand, type NegResult } from './squad'
+import { addDays, autoPick, clubsIn, daysBetween, fmtDate, fmtDay, leagueFx, news, readDecisionNews, squadOf, tableOf, valuation } from './game'
 import { FORMATIONS, POS_LINE, POS_WEIGHTS, ageOn, bestRating, posRating, rawRating } from './positions'
 import { Rng, clamp } from './rng'
-import { ATTRS, A, STAFF_ROLES, emptyLedger, emptyStats, type Club, type Fixture, type Game, type JobOffer, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type StaffRole, type Terms } from './types'
+import { ATTRS, A, STAFF_ROLES, emptyLedger, emptyStats, type Club, type Deal, type DealState, type DealWhy, type Fixture, type Game, type JobOffer, type Line, type Manager, type MgrAttr, type Offer, type Player, type Pos, type StaffRole, type Terms } from './types'
 
 // ---------- DT ----------
 export const BACKGROUNDS: { id: string; name: string; desc: string; points: number; rep: number }[] = [
@@ -122,13 +122,20 @@ export function closeCareerSeason(g: Game, note: string) {
   if (m.cur.pj) m.career.push({ season: g.season, clubId: g.userClubId, ...m.cur, note })
   m.cur = { pj: 0, g: 0, e: 0, p: 0 }
 }
-export function takeJob(g: Game, clubId: number) { switchClub(g, clubId, 'Despedido', -6) }
-/** Acepta una oferta de trabajo de otro club. */
-export function acceptJob(g: Game, clubId: number) { switchClub(g, clubId, `Se fue a ${g.clubs[clubId].short}`, 2) }
+/** Despedido, toma un club nuevo: los tratos abiertos se caen con mensajes sin leer (nadie se los mostró antes). */
+export function takeJob(g: Game, clubId: number) { switchClub(g, clubId, 'Despedido', -6, false) }
+/** Acepta una oferta de trabajo de otro club. La confirmación nombró los tratos que se caen: sus mensajes nacen leídos. */
+export function acceptJob(g: Game, clubId: number) { switchClub(g, clubId, `Se fue a ${g.clubs[clubId].short}`, 2, true) }
 const coachName = (g: Game) => `${NOMBRES[(g.nextId * 7) % NOMBRES.length]} ${APELLIDOS[(g.nextId++ * 13) % APELLIDOS.length]}`
-function switchClub(g: Game, clubId: number, note: string, repDelta: number) {
+function switchClub(g: Game, clubId: number, note: string, repDelta: number, saw: boolean) {
   closeCareerSeason(g, note)
   const old = g.clubs[g.userClubId]
+  // antes de cambiar de club: los tratos del club viejo se caen y las ofertas recibidas quedan registradas
+  for (const d of myOpen(g)) {
+    fall(g, d, 'club', `Se cayó: dejaste ${old.short}`)
+    dealNews(g, d, `Se cayó tu ${d.state === 'agreed' ? 'acuerdo' : 'oferta'} por ${d.name}: dejaste ${old.short}`, `Con tu salida de ${old.name}, el trato con ${d.clubName} quedó sin efecto.`, saw)
+  }
+  for (const o of g.offers) { recordOffer(g, o, 'fell', 'club'); if (saw) readDecisionNews(g, `offer${o.id}`) }
   old.manager = coachName(g)
   g.userClubId = clubId
   const c = g.clubs[clubId]
@@ -162,7 +169,7 @@ function moveStaff(g: Game, from: Club, to: Club) {
   return came
 }
 /** Lo que pasa al aceptar un trabajo: se pierden las ofertas por jugadores, las otras ofertas de trabajo y la conferencia abierta; el ayudante y el preparador físico vienen con el DT (`follow`) y el resto del cuerpo técnico queda en el club (`staff`). */
-export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number; follow: number; staffRoles: StaffRole[]; followRoles: StaffRole[] } {
+export function jobConsequences(g: Game, clubId: number): { offers: number; jobs: number; press: boolean; staff: number; follow: number; staffRoles: StaffRole[]; followRoles: StaffRole[]; deals: { pid: number; name: string; clubName: string; state: DealState }[] } {
   const mine = g.staff.filter(s => s.clubId === g.userClubId)
   const followRoles = COACH_STAFF.filter(r => mine.some(s => s.role === r)), staffRoles = CLUB_STAFF.filter(r => mine.some(s => s.role === r))
   return {
@@ -170,6 +177,7 @@ export function jobConsequences(g: Game, clubId: number): { offers: number; jobs
     jobs: (g.jobOffers ?? []).filter(j => j.clubId !== clubId && j.until >= g.date).length,
     press: !!g.press,
     staff: staffRoles.length, follow: followRoles.length, staffRoles, followRoles,
+    deals: myOpen(g).map(d => ({ pid: d.pid, name: d.name, clubName: d.clubName, state: d.state })),
   }
 }
 /** De mitad de temporada (6 días) o de fin de temporada (hasta comenzar la próxima). Las partidas viejas no guardan el tipo. */
@@ -241,8 +249,34 @@ export function windowOpen(date: string): boolean {
   const md = date.slice(5)
   return (md >= '01-01' && md <= '02-20') || (md >= '06-25' && md <= '08-10')
 }
+/** Estado del libro: abierto con el día del cierre y los días que quedan ("hoy" es el último día: 0), o cerrado con la reapertura.
+ *  Desde el 11 de agosto reabre al comenzar la temporada siguiente (10 ene), sin contar días: entre temporadas el tiempo no corre. */
+export interface WindowState { open: boolean; closesOn?: string; daysLeft?: number; opensOn?: string; daysToOpen?: number; nextSeason?: boolean }
+export function windowState(date: string): WindowState {
+  const y = Number(date.slice(0, 4)), md = date.slice(5)
+  if (windowOpen(date)) { const closesOn = `${y}-${md <= '02-20' ? '02-20' : '08-10'}`; return { open: true, closesOn, daysLeft: daysBetween(date, closesOn) } }
+  if (md > '02-20' && md < '06-25') { const opensOn = `${y}-06-25`; return { open: false, opensOn, daysToOpen: daysBetween(date, opensOn) } }
+  return { open: false, opensOn: `${y + 1}-01-10`, nextSeason: true }
+}
+/** "El libro de pases está cerrado. Reabre el 25 de junio." (o "al comenzar la temporada 2027 (10 ene)"). */
+export function closedReason(date: string): string {
+  const ws = windowState(date)
+  return `El libro de pases está cerrado. ${ws.nextSeason ? `Reabre al comenzar la temporada ${ws.opensOn!.slice(0, 4)} (10 ene).` : 'Reabre el 25 de junio.'}`
+}
+const nf = (d: number) => new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: d })
+/** Plata en los textos del motor, como la escribe la interfaz: "US$ 1,4 M", "US$ 850 mil", "US$ 500". */
+export const usd = (v: number) => {
+  const a = Math.abs(v)
+  if (a < 1000) return `US$ ${nf(0).format(v)}`
+  if (Math.round(a / 1000) < 1000) return `US$ ${nf(0).format(Math.round(v / 1000))} mil`
+  return `US$ ${nf(a >= 1e7 ? 1 : 2).format(v / 1e6)} M`
+}
 const FOREIGN = ['Benfica', 'Porto', 'Ajax', 'Sevilla', 'Villarreal', 'Betis', 'Bologna', 'Fiorentina', 'Flamengo', 'Palmeiras', 'Botafogo', 'Inter Miami', 'Atlanta United', 'Brighton', 'Wolverhampton', 'Olympique de Marsella', 'Zenit', 'Cruz Azul', 'Monterrey', 'Sporting de Lisboa', 'Atlético Mineiro', 'Girona']
 const hash = (a: number, b: number) => ((a * 2654435761 + b * 40503) >>> 0) % 1000 / 1000
+/** Cargo mínimo que pide un club por prestar a un jugador (también el valor inicial del campo). */
+export const loanFee = (p: Player) => Math.max(5000, Math.round((p.value * 0.08) / 5000) * 5000)
+/** Monto desde el que el club acepta una compra: fijo por jugador y temporada; ×1,1 si el club está molesto con el DT. */
+const bidThreshold = (g: Game, p: Player, cool = 1) => Math.round((askingPrice(g, p) * (0.9 + hash(p.id, g.season) * 0.2) * (1 - (g.manager.attrs.neg - 10) * 0.012) * cool) / 10000) * 10000
 
 export function squadRank(g: Game, p: Player): number {
   return squadOf(g, p.clubId).filter(x => x.line === p.line || true).sort((a, b) => b.ca - a.ca).findIndex(x => x.id === p.id)
@@ -262,7 +296,7 @@ export interface BidResult { ok: boolean; reason?: string; counter?: number }
 /** Evalúa una oferta del usuario. No ejecuta el pase. */
 export function evaluateBid(g: Game, p: Player, fee: number, loan: boolean): BidResult {
   const dest = g.clubs[g.userClubId], src = g.clubs[p.clubId]
-  if (!windowOpen(g.date)) return { ok: false, reason: 'El libro de pases está cerrado. Reabre el 1 de enero y el 25 de junio.' }
+  if (!windowOpen(g.date)) return { ok: false, reason: closedReason(g.date) }
   if (p.loanFrom) return { ok: false, reason: 'El jugador está a préstamo en su club actual.' }
   if (!loan && p.clause && fee >= p.clause) return windowOpen(g.date) && fee <= dest.budget ? { ok: true } : { ok: false, reason: 'No te alcanza el presupuesto para pagar la cláusula.' }
   const sq = squadOf(g, src.id), rank = squadRank(g, p)
@@ -274,10 +308,10 @@ export function evaluateBid(g: Game, p: Player, fee: number, loan: boolean): Bid
   if (wageBill(g, dest.id) + wage > dest.wageBudget) return { ok: false, reason: `Pide US$ ${wage.toLocaleString('es-AR')} por mes y supera tu tope salarial.` }
   if (loan) {
     if (rank < 14) return { ok: false, reason: `${src.name} lo considera importante y no lo cede a préstamo.` }
-    const need = Math.round((p.value * 0.08) / 5000) * 5000
+    const need = loanFee(p)
     if (fee < need) return { ok: false, reason: 'El cargo por el préstamo es bajo.', counter: need }
   } else {
-    const thr = Math.round((askingPrice(g, p) * (0.9 + hash(p.id, g.season) * 0.2) * (1 - (g.manager.attrs.neg - 10) * 0.012)) / 10000) * 10000
+    const thr = bidThreshold(g, p)
     if (fee < thr) return { ok: false, reason: `${src.name} rechazó la oferta.`, counter: thr }
   }
   if (fee > dest.budget) return { ok: false, reason: 'No te alcanza el presupuesto de pases.' }
@@ -295,7 +329,12 @@ function dropFromTactics(g: Game, p: Player) {
   if (!t) return
   t.lineup = t.lineup.map(id => (id === p.id ? 0 : id)); t.bench = t.bench.filter(id => id !== p.id)
 }
-export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan = false, quiet = false, terms?: Terms) {
+/**
+ * Ejecuta un pase. `why` dice por qué se cancelan las otras ofertas por el jugador (`sold`: el DT aceptó una; `clause`: otro club pagó la
+ * cláusula; `gone`: cualquier otra vía) y `read`, si el DT ya vio esa consecuencia (la venta que confirmó, el fichaje que firmó): entonces
+ * la noticia del pase y los mensajes de las ofertas canceladas nacen leídos.
+ */
+export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan = false, quiet = false, terms?: Terms, why: DropWhy = 'gone', read = false) {
   const from = g.clubs[p.clubId], to = g.clubs[toId]
   dropFromTactics(g, p)
   from.balance += fee; from.ledger.sales += fee
@@ -307,28 +346,35 @@ export function doTransfer(g: Game, p: Player, toId: number, fee: number, loan =
   p.status = toId === g.userClubId ? (terms?.status ?? undefined) : undefined
   p.recent = []; p.promise = null; p.wantsOut = false; p.reserve = false; p.happy = 72; p.tfocus = undefined
   p.clubId = toId; p.listed = false; p.morale = clamp(p.morale + 8, 0, 100)
-  g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: to.name, fee, loan })
-  if (g.transfers.length > 300) g.transfers.length = 300
-  g.offers = g.offers.filter(o => o.pid !== p.id)
-  if (toId === g.userClubId) g.shortlist = g.shortlist.filter(id => id !== p.id) // si se va a otro club, el DT lo sigue observando
   const mine = from.id === g.userClubId || to.id === g.userClubId
+  g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: to.name, fee, loan, ...(mine ? { mine } : {}) })
+  if (g.transfers.length > 300) g.transfers.length = 300
+  dropOffersFor(g, p.id, why, read, to.short)
+  if (toId === g.userClubId) g.shortlist = g.shortlist.filter(id => id !== p.id) // si se va a otro club, el DT lo sigue observando
   if (!quiet && (mine || fee >= 1500000)) news(g, {
-    tag: 'mercado', clubId: to.id, pid: p.id, ...(from.id === g.userClubId ? { me: true } : {}), title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
+    tag: 'mercado', clubId: to.id, pid: p.id, ...(from.id === g.userClubId ? { me: true } : {}), ...(read && mine ? { read: true } : {}), title: `${p.name} ${loan ? 'llega a préstamo a' : 'es nuevo jugador de'} ${to.short}`,
     body: `${to.name} ${loan ? 'acordó el préstamo' : 'cerró la contratación'} de ${p.name}, proveniente de ${from.name}${fee ? `, a cambio de US$ ${fee.toLocaleString('es-AR')}` : ''}.`,
   })
 }
-function sellAbroad(g: Game, p: Player, buyer: string, fee: number) {
-  const from = g.clubs[p.clubId]
+function sellAbroad(g: Game, p: Player, buyer: string, fee: number, why: DropWhy = 'gone', read = false) {
+  const from = g.clubs[p.clubId], mine = from.id === g.userClubId
   dropFromTactics(g, p)
   from.balance += fee; from.ledger.sales += fee; from.budget += Math.round(fee * 0.6)
-  g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: buyer, fee })
-  news(g, { tag: 'mercado', clubId: from.id, pid: p.id, title: `${p.name} se va a ${buyer}`, body: `${from.name} vendió a ${p.name} a ${buyer} en US$ ${fee.toLocaleString('es-AR')}. El jugador, de ${ageOn(p.birth, g.date)} años, seguirá su carrera en el exterior.` })
-  removePlayer(g, p)
+  g.transfers.unshift({ date: g.date, pid: p.id, name: p.name, from: from.name, to: buyer, fee, ...(mine ? { mine } : {}) })
+  news(g, { tag: 'mercado', clubId: from.id, pid: p.id, ...(read && mine ? { read: true } : {}), title: `${p.name} se va a ${buyer}`, body: `${from.name} vendió a ${p.name} a ${buyer} en US$ ${fee.toLocaleString('es-AR')}. El jugador, de ${ageOn(p.birth, g.date)} años, seguirá su carrera en el exterior.` })
+  removePlayer(g, p, why, read, buyer)
 }
-export function removePlayer(g: Game, p: Player) {
+/** Saca a un jugador del juego (venta al exterior, retiro, recorte del plantel). Las ofertas por él quedan registradas con `why`. */
+export function removePlayer(g: Game, p: Player, why: DropWhy = 'gone', read = false, by?: string) {
   dropFromTactics(g, p)
-  g.offers = g.offers.filter(o => o.pid !== p.id); g.shortlist = g.shortlist.filter(id => id !== p.id)
+  dropOffersFor(g, p.id, why, read, by); g.shortlist = g.shortlist.filter(id => id !== p.id)
   delete g.players[p.id]
+}
+export type DropWhy = 'sold' | 'clause' | 'gone'
+/** Borra las ofertas recibidas por un jugador que se va y registra cada una en `g.deals` (`fell` con `why`). Con `read`, el DT ya las vio nombradas: sus mensajes se marcan leídos. */
+export function dropOffersFor(g: Game, pid: number, why: DropWhy | 'club', read = false, by?: string) {
+  for (const o of g.offers) if (o.pid === pid) { recordOffer(g, o, 'fell', why, by); if (read) readDecisionNews(g, `offer${o.id}`) }
+  g.offers = g.offers.filter(o => o.pid !== pid)
 }
 
 /** Un jugador que el club tiene a préstamo no es suyo: no se puede declarar transferible, ni recibir ofertas, ni vender. */
@@ -337,11 +383,18 @@ export const canSell = (p: Player) => p.loanFrom == null
 export function acceptOffer(g: Game, o: Offer): boolean {
   const p = g.players[o.pid]
   if (!p || !windowOpen(g.date) || !canSell(p)) return false
-  if (o.from === 0) sellAbroad(g, p, o.fromName, o.fee); else doTransfer(g, p, o.from, o.fee)
   g.offers = g.offers.filter(x => x.id !== o.id)
+  recordOffer(g, o, 'sold'); readDecisionNews(g, `offer${o.id}`)
+  // la confirmación nombró las otras ofertas por él: se registran como canceladas y sus mensajes quedan leídos; la noticia de la venta, también
+  if (o.from === 0) sellAbroad(g, p, o.fromName, o.fee, 'sold', true); else doTransfer(g, p, o.from, o.fee, false, false, undefined, 'sold', true)
   return true
 }
-export function rejectOffer(g: Game, o: Offer) { g.offers = g.offers.filter(x => x.id !== o.id) }
+export function rejectOffer(g: Game, o: Offer) { closeOffer(g, o, 'declined') }
+function closeOffer(g: Game, o: Offer, state: DealState) {
+  if (!g.offers.some(x => x.id === o.id)) return
+  g.offers = g.offers.filter(x => x.id !== o.id)
+  recordOffer(g, o, state); readDecisionNews(g, `offer${o.id}`)
+}
 /** Último día para responder una oferta: `marketTick` la borra al cerrar ese día (corre antes de pasar la fecha). */
 export const offerDeadline = (o: Offer) => addDays(o.date, 9)
 /** Pide más plata. Devuelve true si el comprador mejora la oferta; si no, se retira. Con el libro de pases cerrado no se negocia: devuelve false y la oferta queda como estaba. */
@@ -352,17 +405,22 @@ export function haggle(g: Game, o: Offer): boolean {
   const asked = Math.round((o.fee * 1.15) / 10000) * 10000
   const k = o.asks ?? 0
   o.asks = k + 1 // cada pedido es una tirada nueva; el id no cambia (lo usan la noticia y la bandeja)
-  if (asked <= top && hash(o.id * 31 + k, p.id) < 0.75) { o.fee = asked; return true }
-  rejectOffer(g, o)
+  if (asked <= top && hash(o.id * 31 + k, p.id) < 0.75) { o.fee = asked; readDecisionNews(g, `offer${o.id}`); return true }
+  closeOffer(g, o, 'withdrawn')
   return false
 }
 
 /** Actividad diaria del mercado (clubes de la IA, ofertas del exterior y por jugadores del usuario). */
 export function marketTick(g: Game, days: number, rng: Rng) {
-  for (const o of g.offers) if (offerDeadline(o) <= g.date && g.players[o.pid]?.clubId === g.userClubId)
-    news(g, { tag: 'mercado', clubId: g.userClubId, pid: o.pid, ref: o.id, me: true, title: `Venció la oferta de ${o.fromName} por ${g.players[o.pid].name}`, body: `No respondiste a tiempo y ${o.fromName} retiró la oferta de US$ ${o.fee.toLocaleString('es-AR')} por ${g.players[o.pid].name}.` })
+  for (const o of g.offers) if (offerDeadline(o) <= g.date && g.players[o.pid]?.clubId === g.userClubId) {
+    // con `act` y `ref`: es el mensaje más nuevo de esa oferta y reemplaza en el conteo al de la oferta
+    news(g, { tag: 'mercado', clubId: g.userClubId, pid: o.pid, act: 'offer', ref: o.id, me: true, title: `Venció la oferta de ${o.fromName} por ${g.players[o.pid].name}`, body: `No respondiste a tiempo y ${o.fromName} retiró la oferta de US$ ${o.fee.toLocaleString('es-AR')} por ${g.players[o.pid].name}.` })
+    recordOffer(g, o, 'expired')
+  }
   g.offers = g.offers.filter(o => offerDeadline(o) > g.date && g.players[o.pid])
   if (!windowOpen(g.date)) return
+  // un jugador con el que el DT tiene un acuerdo no se lo vende la IA a otro club: el club dio su palabra
+  const held = new Set(myOpen(g).filter(d => d.state === 'agreed').map(d => d.pid))
   const clubs = Object.values(g.clubs).filter(c => c.division > 0)
   const all = Object.values(g.players).filter(p => g.clubs[p.clubId]?.division > 0)
   for (let d = 0; d < days; d++) {
@@ -378,7 +436,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
         let best: Player | null = null, bs = 0
         for (let k = 0; k < 70; k++) {
           const p = rng.pick(all)
-          if (!g.players[p.id] || p.clubId === buyer.id || p.positions[0] !== pos || !canSell(p)) continue
+          if (!g.players[p.id] || p.clubId === buyer.id || p.positions[0] !== pos || !canSell(p) || held.has(p.id)) continue
           const r = bestRating(p), price = askingPrice(g, p), src = g.clubs[p.clubId]
           if (r < wr + 2.5 || price > buyer.budget || buyer.rep < src.rep - 5 || squadOf(g, src.id).length <= 22) continue
           if (wageBill(g, buyer.id) + wageDemand(g, p, buyer) > buyer.wageBudget * 1.08) continue
@@ -388,8 +446,9 @@ export function marketTick(g: Game, days: number, rng: Rng) {
         if (best) {
           const price = askingPrice(g, best)
           if (best.clubId === g.userClubId && best.clause && buyer.budget >= best.clause && (best.pers?.amb ?? 10) >= 12 && rng.chance(0.3)) {
-            news(g, { tag: 'mercado', clubId: g.userClubId, pid: best.id, title: `${buyer.name} pagó la cláusula de ${best.name}`, body: `${buyer.name} depositó los US$ ${best.clause.toLocaleString('es-AR')} de la cláusula de rescisión y ${best.name} deja el club.` })
-            doTransfer(g, best, buyer.id, best.clause)
+            const others = g.offers.filter(o => o.pid === best!.id).map(o => o.fromName)
+            news(g, { tag: 'mercado', clubId: g.userClubId, pid: best.id, title: `${buyer.name} pagó la cláusula de ${best.name}`, body: `${buyer.name} depositó los US$ ${best.clause.toLocaleString('es-AR')} de la cláusula de rescisión y ${best.name} deja el club.${others.length ? ` Se cancela${others.length > 1 ? 'n' : ''} también la${others.length > 1 ? 's' : ''} oferta${others.length > 1 ? 's' : ''} de ${others.join(' y ')} por él.` : ''}` })
+            doTransfer(g, best, buyer.id, best.clause, false, false, undefined, 'clause')
           } else if (best.clubId === g.userClubId) { if (best.listed || best.wantsOut || rng.chance(0.5)) pushOffer(g, best, buyer.id, buyer.name, Math.round((price * (0.8 + rng.next() * 0.3)) / 10000) * 10000) }
           else doTransfer(g, best, buyer.id, price)
         }
@@ -415,7 +474,7 @@ export function marketTick(g: Game, days: number, rng: Rng) {
     }
     // ventas al exterior
     if (rng.chance(0.14)) {
-      const cands = all.filter(p => g.players[p.id] && g.clubs[p.clubId]?.division === 1 && p.ca >= 73 && ageOn(p.birth, g.date) <= 26 && canSell(p))
+      const cands = all.filter(p => g.players[p.id] && g.clubs[p.clubId]?.division === 1 && p.ca >= 73 && ageOn(p.birth, g.date) <= 26 && canSell(p) && !held.has(p.id))
       if (cands.length) {
         const p = rng.weighted(cands, x => (x.pa - 65) ** 2)
         const fee = Math.round((p.value * (1.1 + rng.next() * 0.6)) / 50000) * 50000
@@ -432,9 +491,388 @@ export function marketTick(g: Game, days: number, rng: Rng) {
 }
 function pushOffer(g: Game, p: Player, from: number, fromName: string, fee: number) {
   if (!canSell(p) || g.offers.some(o => o.pid === p.id && o.from === from) || g.offers.length >= 8) return
-  const o: Offer = { id: g.nextId++, pid: p.id, from, fromName, fee, date: g.date }
+  const o: Offer = { id: g.nextId++, pid: p.id, from, fromName, fee, date: g.date, fee0: fee }
   g.offers.push(o)
   news(g, { tag: 'mercado', clubId: g.userClubId, pid: p.id, act: 'offer', ref: o.id, title: `Oferta de ${fromName} por ${p.name}`, body: `${fromName} ofrece US$ ${fee.toLocaleString('es-AR')} por el pase de ${p.name}. Podés responder desde este mensaje. Vence el ${fmtDate(offerDeadline(o))}.` })
+}
+
+// ---------- tratos: ofertas del DT con respuesta demorada (`g.deals`) ----------
+const OPEN_STATES: DealState[] = ['waiting', 'countered', 'agreed']
+/** Trato de compra o préstamo todavía abierto (esperando respuesta, con contraoferta o acordado). */
+export const isOpenDeal = (d: Deal) => d.side !== 'sell' && OPEN_STATES.includes(d.state)
+/** Tratos abiertos del club actual del DT. */
+const myOpen = (g: Game) => (g.deals ?? []).filter(d => isOpenDeal(d) && d.userClubId === g.userClubId)
+const myDeal = (g: Game, id: number) => (g.deals ?? []).find(d => d.id === id && d.side !== 'sell' && d.userClubId === g.userClubId)
+/** El trato abierto por un jugador (a lo sumo uno, compra o préstamo). */
+export const openDealFor = (g: Game, pid: number) => myOpen(g).find(d => d.pid === pid)
+/** Lo comprometido: lo que ofertó el DT en los tratos abiertos (en una contraoferta, su oferta, no el pedido del club). */
+export const committed = (g: Game) => myOpen(g).reduce((s, d) => s + d.fee, 0)
+/** Ofertas abiertas que cuentan para el tope de 5 (esperando respuesta o con contraoferta; los acuerdos no). */
+export const openBids = (g: Game) => myOpen(g).filter(d => d.state !== 'agreed').length
+export const MAX_BIDS = 5
+const MAX_DEALS = 60
+
+function addDeal(g: Game, d: Omit<Deal, 'id' | 'steps' | 'updated'>, text: string): Deal {
+  const deal: Deal = { ...d, id: g.nextDeal ?? 1, updated: g.date, steps: [{ date: g.date, text }] }
+  g.nextDeal = deal.id + 1
+  const ds = (g.deals ??= [])
+  ds.push(deal)
+  // tope de 60: se podan primero los terminales más viejos, nunca uno abierto ni uno con bloqueo vigente (hacen falta para el bloqueo y el club molesto)
+  let extra = ds.length - MAX_DEALS
+  if (extra > 0) g.deals = ds.filter(x => !(extra > 0 && !isOpenDeal(x) && !(x.blockUntil && x.blockUntil >= g.date) && extra-- > 0))
+  return deal
+}
+function step(g: Game, d: Deal, text: string) { d.steps = [...d.steps, { date: g.date, text }].slice(-8); d.updated = g.date }
+function fall(g: Game, d: Deal, why: DealWhy, text: string, block = false) {
+  d.state = 'fell'; d.why = why; d.answerOn = undefined
+  if (block) d.blockUntil = blockDate(g.date)
+  step(g, d, text)
+}
+/** Cierre de una oferta recibida (lado venta). */
+function recordOffer(g: Game, o: Offer, state: DealState, why?: DealWhy, by?: string) {
+  const p = g.players[o.pid], name = p?.name ?? ''
+  const text = state === 'sold' ? `Vendido a ${o.fromName} por ${usd(o.fee)}` : state === 'declined' ? `Rechazaste la oferta de ${o.fromName}` : state === 'withdrawn' ? `${o.fromName} se retiró de la negociación`
+    : state === 'expired' ? `Venció la oferta de ${o.fromName}` : why === 'club' ? `Se canceló: dejaste ${g.clubs[g.userClubId].short}` : why === 'sold' ? `Se canceló: vendiste a ${name} a ${by ?? ''}`
+    : why === 'clause' ? `Se canceló: ${by ?? ''} pagó la cláusula de ${name}` : `Se canceló: ${name} ya no está en el club`
+  addDeal(g, { side: 'sell', pid: o.pid, name, clubId: o.from, clubName: o.fromName, state, fee: o.fee, round: (o.asks ?? 0) + 1, userClubId: g.userClubId, opened: o.date, offerId: o.id, ...(why ? { why } : {}), ...(by ? { by } : {}) }, text)
+}
+function dealNews(g: Game, d: Deal, title: string, body: string, read = false) {
+  news(g, { tag: 'mercado', clubId: d.clubId || g.userClubId, pid: d.pid, act: 'deal', ref: d.id, me: true, title, body, ...(read ? { read: true } : {}) })
+}
+const dealKey = (d: Deal) => `deal${d.id}`
+
+/** Un día de libro jugable: el libro de enero se juega desde el 10 (antes no corre el tiempo). */
+const playable = (d: string) => windowOpen(d) && d.slice(5) >= '01-10'
+/** Último día de un bloqueo de `n` días de libro abierto desde `from` (con el libro abierto, `from + n`). Así salirse de un acuerdo
+ *  en la última semana del libro también cuesta: el bloqueo y el club molesto siguen cuando reabre. */
+export function blockDate(from: string, n = 14): string {
+  let d = from
+  for (let k = 0, i = 0; k < n && i < 800; i++) { d = addDays(d, 1); if (playable(d)) k++ }
+  return d
+}
+/** Último día para responder una contraoferta o cerrar un acuerdo: 7 días desde `from` o el último día del libro, lo que llegue antes. */
+export function dealDeadline(g: Game, from = g.date): string {
+  const ws = windowState(from), d = addDays(from, 7)
+  return ws.closesOn && ws.closesOn < d ? ws.closesOn : d
+}
+/** Rango visible de la respuesta de una oferta hecha hoy (o `date`). `afterClose`: puede contestar con el libro cerrado; `allAfterClose`: seguro. */
+export function answerWindow(g: Game, date = g.date): { from: string; by: string; afterClose: boolean; allAfterClose: boolean } {
+  const from = addDays(date, 1), by = addDays(date, 3), close = windowState(date).closesOn
+  return { from, by, afterClose: !close || by > close, allAfterClose: !close || from > close }
+}
+function schedule(g: Game, d: Deal) {
+  // demora determinista (1 a 3 días), sin consumir el azar de la partida: recargar y repetir la oferta da la misma demora y la misma respuesta
+  const w = answerWindow(g)
+  d.answerFrom = w.from; d.answerBy = w.by; d.answerOn = addDays(g.date, 1 + Math.floor(hash(d.id * 31 + d.round, g.seed) * 3))
+}
+
+/** Bloqueo vigente para ofertar por un jugador (tras una ruptura, una cancelación o un acuerdo vencido): `until` es el último día bloqueado. */
+export function bidBlock(g: Game, pid: number): { until: string; why: DealWhy; on: string; dealId: number; text: string } | undefined {
+  const d = (g.deals ?? []).filter(x => x.pid === pid && x.side !== 'sell' && x.blockUntil && x.blockUntil >= g.date).sort((a, b) => b.id - a.id)[0]
+  if (!d) return undefined
+  const on = d.why === 'deadline' ? d.deadline ?? d.updated : d.updated, until = d.blockUntil!
+  const what = d.why === 'walk' ? `Su representante cortó la negociación el ${fmtDay(on)}` : d.why === 'cancel' ? `Cancelaste el trato por él el ${fmtDay(on)}` : `Dejaste vencer el acuerdo por él el ${fmtDay(on)}`
+  return { until, why: d.why!, on, dealId: d.id, text: `${what}. No podés volver a ofertar por él hasta el ${fmtDay(until)}.` }
+}
+/** El club está molesto con el DT (canceló un acuerdo o lo dejó vencer, con el bloqueo vigente): pide un 10 % más por sus jugadores. */
+export function clubCool(g: Game, clubId: number): { until: string; pid: number; name: string; dealId: number; text: string } | undefined {
+  const d = (g.deals ?? []).filter(x => x.clubId === clubId && x.side !== 'sell' && (x.why === 'cancel' || x.why === 'deadline') && x.blockUntil && x.blockUntil >= g.date).sort((a, b) => b.id - a.id)[0]
+  if (!d) return undefined
+  return { until: d.blockUntil!, pid: d.pid, name: d.name, dealId: d.id, text: `${d.clubName} está molesto: ${d.why === 'cancel' ? 'cancelaste el trato' : 'dejaste vencer el acuerdo'} por ${d.name}. Hasta el ${fmtDay(d.blockUntil!)} va a pedir un 10 % más por sus jugadores.` }
+}
+
+/**
+ * Controles inmediatos de una oferta (lo que el DT puede saber sin preguntarle al club). Devuelve el motivo para dejar el botón
+ * deshabilitado o `null`. Si ya hay una contraoferta abierta por el jugador (del mismo tipo), es Mejorar: no cuenta como oferta abierta
+ * ni para el tope, y lo comprometido pasa del monto viejo al nuevo. El sueldo no es un control inmediato (se controla al firmar).
+ */
+export function bidCheck(g: Game, pid: number, fee: number, loan: boolean): string | null {
+  const p = g.players[pid], me = g.clubs[g.userClubId], ws = windowState(g.date)
+  const cur = p ? openDealFor(g, pid) : undefined, improve = cur?.state === 'countered' && (cur.side === 'loan') === loan
+  if (!ws.open) return closedReason(g.date)
+  if (ws.daysLeft === 0) return improve ? 'Hoy cierra el libro: una mejora ya no llegaría a tener respuesta. Podés aceptar su pedido o retirar la oferta.' : 'Hoy cierra el libro: una oferta nueva ya no llegaría a tener respuesta.'
+  const src = p && g.clubs[p.clubId]
+  if (!p || !src || p.clubId === me.id || src.division === 0) return 'Ya no está disponible.'
+  if (!improve) {
+    if (cur) return 'Ya tenés una oferta abierta por él.'
+    if (p.loanFrom != null) return `Está a préstamo de ${g.clubs[p.loanFrom]?.name ?? 'otro club'}: no se puede comprar ni pedir a préstamo.`
+    if (squadOf(g, me.id).length >= 45) return 'Tu plantel ya tiene 45 jugadores: vendé o liberá a alguien antes de ofertar.'
+    const b = bidBlock(g, pid)
+    if (b) return b.text
+    if (openBids(g) >= MAX_BIDS) return `Ya tenés ${MAX_BIDS} ofertas abiertas (esperando respuesta o con contraoferta): retirá una o esperá que contesten.`
+  }
+  if (!(fee > 0)) return 'Escribí un monto.'
+  const others = myOpen(g).filter(d => d !== (improve ? cur : undefined)), com = others.reduce((s, d) => s + d.fee, 0), free = me.budget - com
+  if (fee > free) return com > 0 ? `Te quedan libres ${usd(Math.max(0, free))}: tenés ${usd(com)} comprometidos en ${others.length} ${others.length === 1 ? 'oferta' : 'ofertas'}.` : `Te quedan libres ${usd(Math.max(0, free))} para pases.`
+  return null
+}
+/**
+ * Oferta del DT por un jugador ajeno (compra o, con `loan`, préstamo con su cargo). No consulta al club: crea un trato `waiting` que el club
+ * contesta entre 1 y 3 días después (`dailyDeals`). Con una contraoferta abierta por él, es Mejorar: el mismo trato vuelve a esperar con `round + 1`.
+ */
+export function placeBid(g: Game, pid: number, fee: number, loan: boolean): { ok: boolean; reason?: string; deal?: Deal } {
+  const why = bidCheck(g, pid, fee, loan)
+  if (why) return { ok: false, reason: why }
+  const p = g.players[pid], cur = openDealFor(g, pid)
+  if (cur?.state === 'countered') {
+    cur.fee = fee; cur.round++; cur.state = 'waiting'; cur.deadline = undefined
+    schedule(g, cur); step(g, cur, `Mejoraste tu oferta a ${usd(fee)}`)
+    readDecisionNews(g, dealKey(cur))
+    return { ok: true, deal: cur }
+  }
+  const src = g.clubs[p.clubId]
+  const d = addDeal(g, { side: loan ? 'loan' : 'buy', pid, name: p.name, clubId: src.id, clubName: src.short, state: 'waiting', fee, round: 1, userClubId: g.userClubId, opened: g.date },
+    loan ? `Pediste el préstamo con un cargo de ${usd(fee)}` : `Ofertaste ${usd(fee)}`)
+  schedule(g, d)
+  return { ok: true, deal: d }
+}
+/** Mejorar una contraoferta: `placeBid` sobre el mismo trato. */
+export function improveBid(g: Game, dealId: number, fee: number): { ok: boolean; reason?: string; deal?: Deal } {
+  const d = myDeal(g, dealId)
+  if (!d || d.state !== 'countered') return { ok: false, reason: 'Ya respondiste esta contraoferta.' }
+  return placeBid(g, d.pid, fee, d.side === 'loan')
+}
+/** Retirar una oferta que espera respuesta o tiene contraoferta. Sin costo. */
+export function withdrawBid(g: Game, dealId: number): boolean {
+  const d = myDeal(g, dealId)
+  if (!d || (d.state !== 'waiting' && d.state !== 'countered')) return false
+  fall(g, d, 'pulled', 'Retiraste la oferta')
+  readDecisionNews(g, dealKey(d))
+  return true
+}
+/** Aceptar el pedido del club: la contraoferta pasa a acuerdo con el mismo plazo. No emite mensaje (lo hizo el DT). */
+export function acceptCounter(g: Game, dealId: number): boolean {
+  const d = myDeal(g, dealId)
+  if (!d || d.state !== 'countered' || d.counter == null || !windowOpen(g.date)) return false
+  if (d.counter > g.clubs[g.userClubId].budget - committed(g) + d.fee) return false
+  d.fee = d.counter; d.state = 'agreed'
+  step(g, d, `Aceptaste el pedido de ${d.clubName}: ${usd(d.fee)}`)
+  readDecisionNews(g, dealKey(d))
+  return true
+}
+
+/**
+ * Respuesta del club el día `answerOn`: la lógica de `evaluateBid` con el estado de ese día, sin los controles inmediatos y sin mirar el
+ * tope salarial ni el presupuesto (los controla `signDeal`): ningún motivo dice un sueldo. Con el club molesto, el umbral sube un 10 %.
+ */
+export function clubAnswer(g: Game, d: Deal): { ok: boolean; reason?: string; counter?: number } {
+  const p = g.players[d.pid], dest = g.clubs[g.userClubId], src = g.clubs[p.clubId], loan = d.side === 'loan'
+  const cool = clubCool(g, src.id) ? 1.1 : 1
+  if (!loan && p.clause && d.fee >= p.clause) return { ok: true }
+  const sq = squadOf(g, src.id), rank = squadRank(g, p)
+  if (sq.length <= 20 || (p.line === 'GK' && sq.filter(x => x.line === 'GK').length <= 2)) return { ok: false, reason: `${src.name} no puede desprenderse del jugador: se queda sin recambio.` }
+  if (dest.division > src.division && rank < 11) return { ok: false, reason: `${p.name} no quiere bajar de categoría.` }
+  if (dest.rep < src.rep - (rank < 14 ? 6 : 16)) return { ok: false, reason: `${p.name} no ve con buenos ojos irse a un club de menor nivel.` }
+  if (loan) {
+    if (rank < 14) return { ok: false, reason: `${src.name} lo considera importante y no lo cede a préstamo.` }
+    const need = Math.round((loanFee(p) * cool) / 5000) * 5000
+    return d.fee < need ? { ok: false, counter: need } : { ok: true }
+  }
+  const thr = bidThreshold(g, p, cool)
+  return d.fee < thr ? { ok: false, counter: thr } : { ok: true }
+}
+function answer(g: Game, d: Deal) {
+  const r = clubAnswer(g, d), loan = d.side === 'loan'
+  d.answerOn = undefined
+  if (r.ok || r.counter != null) {
+    d.deadline = dealDeadline(g); const until = fmtDay(d.deadline)
+    if (r.ok) {
+      d.state = 'agreed'; step(g, d, loan ? `${d.clubName} aceptó prestarlo` : `${d.clubName} aceptó ${usd(d.fee)}`)
+      if (loan) dealNews(g, d, `${d.clubName} te presta a ${d.name}`, `Cargo ${usd(d.fee)}, hasta fin de temporada. Confirmá el préstamo hasta el ${until}.`)
+      else dealNews(g, d, `${d.clubName} aceptó tu oferta por ${d.name}`, `${usd(d.fee)}. Falta el contrato con el jugador: tenés hasta el ${until}.`)
+    } else {
+      d.state = 'countered'; d.counter = r.counter; step(g, d, `${d.clubName} pidió ${usd(r.counter!)}`)
+      dealNews(g, d, loan ? `${d.clubName} pide un cargo de ${usd(r.counter!)} por ${d.name}` : `${d.clubName} pide ${usd(r.counter!)} por ${d.name}`,
+        `No aceptó tu oferta de ${usd(d.fee)}. Respondé hasta el ${until}: aceptar su pedido, mejorar tu oferta o retirarla.`)
+    }
+    return
+  }
+  d.state = 'refused'; d.reason = r.reason; step(g, d, `Sin acuerdo: ${r.reason}`)
+  dealNews(g, d, `${d.clubName} no acepta tu oferta por ${d.name}`, `${r.reason} Podés volver a ofertar más adelante: sería una oferta nueva.`)
+}
+/** Un acuerdo vencido cuesta lo mismo que cancelarlo: bloqueo de 14 días de libro abierto y el club molesto. También si vence con el cierre del libro. */
+function lapseAgreed(g: Game, d: Deal, byWindow: boolean) {
+  fall(g, d, 'deadline', 'Venció el acuerdo', true)
+  dealNews(g, d, `Venció el acuerdo con ${d.clubName} por ${d.name}`, `Tenías hasta el ${fmtDay(d.deadline!)}${byWindow ? ', el último día del libro de pases' : ''}. No podés volver a ofertar por él hasta el ${fmtDay(d.blockUntil!)}, y hasta esa fecha ${d.clubName} va a pedir un 10 % más por sus jugadores.`)
+}
+/**
+ * Al empezar el día (desde `advanceDay` y `finishUserMatch`, después de cambiar la fecha). En este orden: caducan los tratos abiertos con el
+ * libro cerrado (un acuerdo, como vencido: el DT pudo cerrarlo), los de jugadores que ya no están en el club del trato y los plazos vencidos;
+ * después contesta las ofertas del día y, por último, los avisos de cierre del libro (7 días antes y el último día). Un mensaje por cambio,
+ * sin leer. No usa el azar de la partida y no frena nada: el freno lo decide la interfaz con `decisionKeys` y `expiringKeys`.
+ */
+export function dailyDeals(g: Game) {
+  const ws = windowState(g.date)
+  for (const d of (g.deals ?? []).filter(isOpenDeal)) {
+    if (d.userClubId !== g.userClubId) { fall(g, d, 'club', 'Se cayó: el DT dejó el club'); continue } // no debería pasar: `switchClub` ya los cierra
+    const p = g.players[d.pid]
+    if (!ws.open) {
+      if (d.state === 'agreed') { lapseAgreed(g, d, true); continue }
+      const was = d.state
+      fall(g, d, 'window', 'Caducó: se cerró el libro')
+      dealNews(g, d, `Tu oferta por ${d.name} caducó: se cerró el libro de pases`, was === 'countered'
+        ? `No respondiste el pedido de ${d.clubName} (${usd(d.counter ?? d.fee)}) antes del cierre.` : `${d.clubName} no llegó a contestar antes del cierre. Lo comprometido (${usd(d.fee)}) vuelve a estar libre.`)
+      continue
+    }
+    if (!p || p.clubId !== d.clubId) {
+      const t = p ? g.clubs[p.clubId]?.short : g.transfers.find(x => x.pid === d.pid && x.date >= d.opened)?.to
+      fall(g, d, 'gone', t ? `Se cayó: otro club lo compró` : 'Se cayó: ya no está disponible')
+      dealNews(g, d, t ? `${d.clubName} vendió a ${d.name} a ${t}: tu oferta quedó sin efecto` : `${d.name} ya no está disponible: tu oferta quedó sin efecto`, `Lo comprometido (${usd(d.fee)}) vuelve a estar libre para ofertar.`)
+      continue
+    }
+    if (d.state !== 'waiting' && d.deadline && d.deadline < g.date) {
+      if (d.state === 'agreed') { lapseAgreed(g, d, false); continue }
+      fall(g, d, 'deadline', 'Venció la contraoferta')
+      dealNews(g, d, `${d.clubName} dio por terminada la negociación por ${d.name}: no respondiste su pedido`, `Tenías hasta el ${fmtDay(d.deadline)} para responder su pedido de ${usd(d.counter ?? d.fee)}.`)
+      continue
+    }
+    if (d.state === 'waiting' && d.answerOn && d.answerOn <= g.date) answer(g, d)
+  }
+  windowNotice(g, ws)
+}
+const plural = (n: number, one: string, many: string) => `${n === 1 ? 'una' : n} ${n === 1 ? one : many}`
+/** Aviso de cierre del libro: 7 días antes y el último día. Nombra lo abierto de los dos lados. Sin `act`: no es una decisión ni frena el avance. */
+function windowNotice(g: Game, ws: WindowState) {
+  if (!ws.open || (ws.daysLeft !== 7 && ws.daysLeft !== 0)) return
+  const last = ws.daysLeft === 0, close = fmtDay(ws.closesOn!), open = myOpen(g)
+  const wait = open.filter(d => d.state === 'waiting').length, ctr = open.filter(d => d.state === 'countered').length, agr = open.filter(d => d.state === 'agreed')
+  const parts: string[] = []
+  if (wait) parts.push(`${plural(wait, 'oferta', 'ofertas')} esperando respuesta`)
+  if (ctr) parts.push(`${plural(ctr, 'contraoferta', 'contraofertas')} sin responder`)
+  if (agr.length) parts.push(`${agr.length === 1 ? 'un' : agr.length} ${agr.length === 1 ? 'acuerdo' : 'acuerdos'} sin firmar (${agr.map(d => `${d.name}, vence ${d.deadline === g.date ? 'hoy' : `el ${fmtDay(d.deadline!)}`}`).join('; ')})`)
+  const mine = parts.length ? `Tenés ${parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts[parts.length - 1]}` : parts[0]}.${wait ? ' Una oferta que el club conteste después del cierre caduca.' : ''}` : 'No tenés tratos abiertos.'
+  const offs = g.offers.filter(o => g.players[o.pid]?.clubId === g.userClubId).map(o => {
+    const n = g.players[o.pid].name, until = offerDeadline(o) < ws.closesOn! ? offerDeadline(o) : ws.closesOn!
+    return last ? ` ${o.fromName} ofertó por ${n}: hoy es el último día para aceptarla o pedir más; desde mañana solo vas a poder rechazarla hasta que venza (${fmtDay(offerDeadline(o))}).` : ` ${o.fromName} ofertó por ${n}: hasta el ${fmtDay(until)} podés aceptarla o pedir más.`
+  })
+  news(g, { tag: 'mercado', clubId: g.userClubId, me: true, title: last ? 'Hoy cierra el libro de pases' : `Faltan 7 días para que cierre el libro de pases (${close})`, body: mine + offs.join('') })
+}
+
+// ---------- negociación con el representante y firma ----------
+/** Abre (o retoma) la mesa de un acuerdo de compra. La primera vez fija lo que pide el representante y su paciencia; después no se reinicia. */
+export function openNegotiation(g: Game, dealId: number): { demand: Demand; patience: number; max: number; terms: Terms; log: string[] } | null {
+  const d = myDeal(g, dealId), p = d && g.players[d.pid]
+  if (!d || !p || d.state !== 'agreed' || d.side !== 'buy') return null
+  if (!d.neg) {
+    const dem = demand(g, p, 'buy', naturalStatusFor(g, p))
+    d.neg = { terms: dem.terms, patience: dem.patience, max: dem.patience, log: [] }
+    step(g, d, 'Te sentaste a negociar con el representante')
+  }
+  readDecisionNews(g, dealKey(d)) // abrir la mesa ya es actuar sobre el acuerdo
+  const n = d.neg, t = n.terms
+  return { demand: { terms: { ...t }, patience: n.patience }, patience: n.patience, max: n.max, log: [...n.log],
+    terms: { ...(n.counter ?? n.offer ?? { ...t, wage: Math.round((t.wage * 0.9) / 100) * 100, bonus: Math.round((t.bonus * 0.6) / 1000) * 1000 }) } }
+}
+/** Una ronda con el representante: guarda términos, paciencia y respuesta. No ejecuta el pase (eso es `signDeal`); si se levanta, `walkAway`. */
+export function sendTerms(g: Game, dealId: number, terms: Terms): NegResult | null {
+  const d = myDeal(g, dealId), p = d && g.players[d.pid]
+  if (!d || !p || d.state !== 'agreed' || d.side !== 'buy') return null
+  if (!d.neg) openNegotiation(g, dealId)
+  const n = d.neg!, dem = { terms: n.terms, patience: n.patience }
+  const r = evalOffer(g, p, 'buy', terms, dem)
+  n.patience = dem.patience; n.offer = { ...terms }; n.counter = r.counter; n.agreed = r.ok ? { ...terms } : undefined
+  n.log = [...n.log, r.msg].slice(-6)
+  if (r.walk) walkAway(g, d.id)
+  return r
+}
+const sameTerms = (a: Terms, b: Terms) => a.wage === b.wage && a.years === b.years && a.status === b.status && a.clause === b.clause && a.bonus === b.bonus
+/**
+ * Confirma el fichaje (compra, con los términos que aceptó el representante) o el préstamo. Vuelve a controlar libro, presupuesto, plantel,
+ * tope y caja. En el préstamo el tope se controla con el máximo del rango de sueldo que ve el DT (`wageShown`): si no entra, lo dice sin cifra
+ * y sin revelar el sueldo real. Irreversible. La noticia del fichaje nace leída.
+ */
+export function signDeal(g: Game, dealId: number, terms?: Terms): { ok: boolean; reason?: string } {
+  const d = myDeal(g, dealId), p = d && g.players[d.pid], me = g.clubs[g.userClubId]
+  if (!d || d.state !== 'agreed') return { ok: false, reason: 'Este acuerdo ya no está abierto.' }
+  if (!windowOpen(g.date)) return { ok: false, reason: closedReason(g.date) }
+  if (!p || p.clubId !== d.clubId) return { ok: false, reason: 'Ya no está disponible.' }
+  if (squadOf(g, me.id).length >= 45) return { ok: false, reason: 'Tu plantel ya tiene 45 jugadores: vendé o liberá a alguien antes de fichar.' }
+  if (d.fee > me.budget) return { ok: false, reason: `No te alcanza el presupuesto de pases: te quedan ${usd(Math.max(0, me.budget))}.` }
+  const bill = wageBill(g, me.id)
+  let t: Terms | undefined
+  if (d.side === 'buy') {
+    t = terms ?? d.neg?.agreed
+    if (!t || !d.neg?.agreed || !sameTerms(t, d.neg.agreed)) return { ok: false, reason: 'Falta el acuerdo con el jugador: negociá el contrato con su representante.' }
+    if (bill + t.wage > me.wageBudget) return { ok: false, reason: `Con este sueldo superás el tope salarial por ${usd(bill + t.wage - me.wageBudget)}.` }
+    if (t.bonus > me.balance) return { ok: false, reason: 'El club no tiene caja para pagar esa prima.' }
+  } else if (bill + wageShown(g, p, p.wage, 401)[1] > me.wageBudget) return { ok: false, reason: 'Con lo que cobra, superás tu tope salarial.' }
+  doTransfer(g, p, me.id, d.fee, d.side === 'loan', false, t, 'gone', true)
+  d.state = d.side === 'loan' ? 'loaned' : 'signed'
+  step(g, d, d.side === 'loan' ? 'Llegó a préstamo hasta fin de temporada' : `Firmó con ${me.short}`)
+  readDecisionNews(g, dealKey(d))
+  return { ok: true }
+}
+/** El representante se levantó de la mesa: el trato se cae y no se puede volver a ofertar por él durante 14 días de libro abierto. */
+export function walkAway(g: Game, dealId: number): boolean {
+  const d = myDeal(g, dealId)
+  if (!d || d.state !== 'agreed') return false
+  fall(g, d, 'walk', 'El representante se levantó de la mesa', true)
+  readDecisionNews(g, dealKey(d))
+  dealNews(g, d, `Se cayó el pase de ${d.name}`, `${g.clubs[g.userClubId].name} había acordado con ${d.clubName}, pero no llegó a un acuerdo con ${d.name} y la operación se cayó. No podés volver a ofertar por él hasta el ${fmtDay(d.blockUntil!)}.`, true)
+  return true
+}
+/** Cancelar un acuerdo (tras la confirmación): bloqueo de 14 días de libro abierto y el club molesto hasta esa fecha. */
+export function cancelDeal(g: Game, dealId: number): boolean {
+  const d = myDeal(g, dealId)
+  if (!d || d.state !== 'agreed') return false
+  fall(g, d, 'cancel', 'Cancelaste el trato', true)
+  readDecisionNews(g, dealKey(d))
+  dealNews(g, d, `Cancelaste el trato por ${d.name}`, `Se cayó el acuerdo con ${d.clubName}. No podés volver a ofertar por él hasta el ${fmtDay(d.blockUntil!)}, y hasta esa fecha ${d.clubName} va a pedir un 10 % más por sus jugadores.`, true)
+  return true
+}
+
+// ---------- lectura para la interfaz ----------
+export type DealRow = { k: 'offer'; key: string; o: Offer; deadline: string } | { k: 'deal'; key: string; d: Deal; deadline: string }
+/** Tratos agrupados para la pestaña Tratos: para responder (ofertas por tus jugadores y contraofertas), esperando respuesta, para cerrar, para renovar e historial. */
+export function dealsOf(g: Game): { respond: DealRow[]; waiting: Deal[]; close: Deal[]; renew: Player[]; history: Deal[] } {
+  const open = myOpen(g), byDl = (a: { deadline?: string }, b: { deadline?: string }) => (a.deadline ?? '').localeCompare(b.deadline ?? '')
+  const respond: DealRow[] = [
+    ...g.offers.filter(o => g.players[o.pid]).map(o => ({ k: 'offer' as const, key: `offer${o.id}`, o, deadline: offerDeadline(o) })),
+    ...open.filter(d => d.state === 'countered').map(d => ({ k: 'deal' as const, key: dealKey(d), d, deadline: d.deadline! })),
+  ].sort(byDl)
+  return {
+    respond,
+    waiting: open.filter(d => d.state === 'waiting').sort((a, b) => (a.answerFrom ?? '').localeCompare(b.answerFrom ?? '') || a.id - b.id),
+    close: open.filter(d => d.state === 'agreed').sort(byDl),
+    renew: squadOf(g, g.userClubId).filter(p => p.contractEnd <= g.season && p.loanFrom == null).sort((a, b) => a.contractEnd - b.contractEnd || a.name.localeCompare(b.name)),
+    history: (g.deals ?? []).filter(d => !isOpenDeal(d)).sort((a, b) => b.updated.localeCompare(a.updated) || b.id - a.id),
+  }
+}
+export interface DealImpact {
+  /** Presupuesto de pases y lo libre (presupuesto menos lo comprometido en otros tratos), antes → después. */
+  budget: [number, number]; free: [number, number]
+  balance: [number, number]
+  /** Masa salarial antes → después (con el máximo del rango del sueldo que se suma) y el rango que se suma. */
+  wageBill: [number, number]; wageAdd: [number, number]; cap: number
+  /** ¿Entra en el tope? Con el rango del sueldo: "yes" entra entero, "maybe" lo cruza, "no" ni lo mínimo entra. */
+  fits: 'yes' | 'maybe' | 'no'
+  squad: [number, number]; line: [number, number]
+  /** Controles duros que impiden la operación ("supera el tope por US$ 3 mil"). */
+  blocked: string[]
+}
+/**
+ * Lo que cambia una operación antes de confirmarla (pura). `kind`: compra, préstamo o venta. Sin `terms`, el sueldo de una compra es el rango
+ * del sueldo que pediría (`demandWage`) y el de un préstamo, el del que cobra: nunca el número real de un ajeno que no se conoce.
+ */
+export function dealImpact(g: Game, kind: 'buy' | 'loan' | 'sell', pid: number, fee: number, terms?: Terms): DealImpact | null {
+  const me = g.clubs[g.userClubId], p = g.players[pid]
+  if (!p) return null
+  const sq = squadOf(g, me.id), bill = wageBill(g, me.id), lineN = sq.filter(x => x.line === p.line).length, own = kind === 'sell' ? undefined : openDealFor(g, pid)
+  const com = committed(g) - (own?.fee ?? 0), free = me.budget - com, cap = me.wageBudget
+  if (kind === 'sell') {
+    const plus = Math.round(fee * 0.6)
+    return { budget: [me.budget, me.budget + plus], free: [free, free + plus], balance: [me.balance, me.balance + fee], wageBill: [bill, bill - p.wage], wageAdd: [-p.wage, -p.wage], cap, fits: 'yes', squad: [sq.length, sq.length - 1], line: [lineN, lineN - 1], blocked: [] }
+  }
+  const wr: [number, number] = terms ? [terms.wage, terms.wage] : kind === 'loan' ? wageShown(g, p, p.wage, 401) : wageShown(g, p, demandWage(g, p), 402)
+  const bonus = kind === 'buy' ? terms?.bonus ?? 0 : 0, margin = cap - bill
+  // en el préstamo el tope se controla con el máximo del rango (lo mismo que `signDeal`): no hay "puede no entrar"
+  const fits = wr[1] <= margin ? 'yes' : kind === 'loan' || wr[0] > margin ? 'no' : 'maybe'
+  const blocked: string[] = []
+  if (fee > free) blocked.push(`Te quedan libres ${usd(Math.max(0, free))}.`)
+  if (terms && bill + terms.wage > cap) blocked.push(`Con este sueldo superás el tope por ${usd(bill + terms.wage - cap)}.`)
+  if (kind === 'loan' && fits === 'no') blocked.push('Con lo que cobra, superás tu tope salarial.')
+  if (bonus > me.balance) blocked.push('El club no tiene caja para pagar esa prima.')
+  return { budget: [me.budget, me.budget - fee], free: [free, free - fee], balance: [me.balance, me.balance - fee - bonus], wageBill: [bill, bill + wr[1]], wageAdd: wr, cap, fits, squad: [sq.length, sq.length + 1], line: [lineN, lineN + 1], blocked }
 }
 
 // ---------- contratos ----------

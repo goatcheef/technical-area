@@ -10,7 +10,7 @@ import { afterUserMatch, dailySquad, harmonyBoost, initSquad, learnFromMatch, we
 import { isDerby } from './week'
 import { answerPress, dailyTraining, dayEvents, delegatePress, docFactor, initStaff, makePostPress, refreshPool, trainEdge } from './week'
 import { expireSeasonJobs, seasonOffers } from './career'
-import { boardAfterMatch, closeCareerSeason, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
+import { boardAfterMatch, closeCareerSeason, dailyDeals, dailyFinances, gateIncome, initFinances, marketTick, mgrBoost, prize, seasonTurnover, setObjective } from './career'
 
 const db = dbJson as unknown as { start: string; dbVersion?: number; clubs: any[]; players: any[] }
 export const DB_CLUBS = db.clubs as { id: number; name: string; short: string; division: number; zone: string; rep: number; colors: [string, string]; city: string; stadium: string; manager: string }[]
@@ -38,6 +38,13 @@ export function fmtDate(d: string): string {
   const [y, m, dd] = d.split('-').map(Number)
   return `${dd} ${MESES[m - 1]} ${y}`
 }
+/** Fecha corta sin año ("19 ene"), para los plazos de la temporada en curso. */
+export function fmtDay(d: string): string {
+  const [, m, dd] = d.split('-').map(Number)
+  return `${dd} ${MESES[m - 1]}`
+}
+/** Días de `a` a `b` (negativo si `b` es anterior). */
+export const daysBetween = (a: string, b: string) => Math.round((Date.parse(b + 'T12:00:00Z') - Date.parse(a + 'T12:00:00Z')) / 86400000)
 
 // ---------- economía básica ----------
 export function valuation(p: Player, date: string): { value: number; wage: number } {
@@ -259,6 +266,10 @@ export function markRead(g: Game, ids: number[], read: boolean) {
   const s = new Set(ids)
   for (const n of g.news) if (s.has(n.id)) n.read = read
 }
+/** Clave de la decisión de la que habla un mensaje de oferta o de trato (`offer<id>`, `deal<id>`), haya o no un pendiente abierto. */
+export const decisionKeyOf = (n: News): string | null => (n.ref == null ? null : n.act === 'offer' ? `offer${n.ref}` : n.act === 'deal' ? `deal${n.ref}` : null)
+/** Resolver una decisión a propósito marca leídos todos sus mensajes (regla de leído 2). La llaman las funciones del motor que la resuelven. */
+export function readDecisionNews(g: Game, key: string) { markRead(g, g.news.filter(n => !n.read && decisionKeyOf(n) === key).map(n => n.id), true) }
 /** Cuándo vuelve un lesionado y cuántos partidos de tu club se pierde (de hoy a la fecha de vuelta). */
 export function injuryOutlook(g: Game, pid: number): { days: number; back: string; matches: number } | null {
   const p = g.players[pid]
@@ -683,6 +694,7 @@ export function advanceDay(g: Game): DayResult {
   passDays(g, 1)
   if (!userPlayedOn(g, g.date)) withRng(g, r => dailyTraining(g, r, userPlayedOn(g, addDays(g.date, -1))))
   g.date = addDays(g.date, 1)
+  dailyDeals(g) // al empezar el día: respuestas de los clubes, plazos y avisos del libro (no usa el azar de la partida)
   withRng(g, r => dayEvents(g, r))
   withRng(g, r => nightSquad(g, r))
   if (userFixtureToday(g)) return 'match'
@@ -712,6 +724,7 @@ export function finishUserMatch(g: Game, f: Fixture, res: MatchResult, others: {
   if (g.delegate.press) delegatePress(g)
   passDays(g, 1)
   g.date = addDays(g.date, 1)
+  dailyDeals(g)
   withRng(g, r => dayEvents(g, r))
   withRng(g, r => nightSquad(g, r))
 }
