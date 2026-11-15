@@ -1,7 +1,7 @@
 ---
 status: reverse-documented
 source: src/engine/career.ts, src/engine/game.ts, src/engine/week.ts, src/engine/cups.ts, src/ui/Market.tsx, src/ui/Home.tsx, src/ui/Club.tsx, src/ui/Start.tsx
-date: 2026-11-14
+date: 2026-11-15
 verified-by: pending review
 ---
 
@@ -12,11 +12,12 @@ verified-by: pending review
 > This records what the code **does**; intent marked `INTENT UNKNOWN` below was
 > inferred, not confirmed by the author. Where this document and the code
 > disagree, do not assume the document is the requirement.
+> Actualizado el 2026-11-15 con el motor de tratos del mercado (`8fe1dcb`) y `design/ux/mercado.md` (preguntas 22, 28, 43 y 46): plata comprometida, topes al firmar y qué suma cada rubro del `Ledger`.
 
 > **Status**: Implemented (salvo lo marcado en Open Questions)
 > **Author**: usuario + systems-designer (reverse-doc)
-> **Last Updated**: 2026-11-14
-> **Last Verified**: 2026-11-14 (contra `d9b251a`)
+> **Last Updated**: 2026-11-15
+> **Last Verified**: 2026-11-15 (pases, topes y `Ledger` contra `8fe1dcb`; el resto, contra `d9b251a`)
 > **Implements Pillar**: Plan de jugabilidad 4 ("el mundo": economía con gastos de funcionamiento y reinversión de la IA) de `CLAUDE.md` `[inferred — confirm]`
 
 ## Summary
@@ -27,7 +28,7 @@ Cada club argentino tiene caja, presupuesto de pases y tope salarial. Por día c
 
 ## Overview
 
-La economía es un libro mayor por club (`Ledger`: recaudación, TV, premios, ventas, compras, sueldos) que se reinicia cada temporada. La caja (`balance`) sube y baja con todo; el presupuesto de pases (`budget`) solo con los pases; el tope salarial (`wageBudget`) se fija una vez por temporada. Al cambiar de temporada, cada club reinvierte parte de su caja en presupuesto y masa salarial; los de la IA reinvierten más que vos. La dirigencia es un número de 0 a 100 (`g.board.confidence`) con un objetivo en texto y un puesto objetivo (`target`). Solo tu club tiene dirigencia.
+La economía es un libro mayor por club (`Ledger`, `types.ts:142`: recaudación, TV, premios, ventas, compras, sueldos) que se reinicia cada temporada. La caja (`balance`) sube y baja con todo; el presupuesto de pases (`budget`) solo con los pases; el tope salarial (`wageBudget`) se fija una vez por temporada. Al cambiar de temporada, cada club reinvierte parte de su caja en presupuesto y masa salarial; los de la IA reinvierten más que vos. La dirigencia es un número de 0 a 100 (`g.board.confidence`) con un objetivo en texto y un puesto objetivo (`target`). Solo tu club tiene dirigencia.
 
 ## Player Fantasy
 
@@ -44,8 +45,9 @@ Administrar un club argentino real: plata justa, sueldos que aprietan, una dirig
 **Movimientos diarios** — `career.ts:43-55`, llamada en `passDays` (`game.ts:549`) cada día simulado
 
 1. Los clubes de división 0 (exterior) no llevan economía y se saltean.
-2. Por día: TV (`ledger.tv`), menos sueldos de jugadores, menos gastos de funcionamiento (`rep² × 15` por mes). Sueldos y funcionamiento se anotan juntos en `ledger.wages`.
-3. Solo tu club paga, además, los sueldos del cuerpo técnico (`week.ts:325-326`, a `ledger.wages`).
+2. Por día: TV (`ledger.tv`), menos sueldos de jugadores, menos gastos de funcionamiento (`rep² × 15` por mes). Sueldos y funcionamiento se anotan juntos en `ledger.wages` (`career.ts:53`).
+3. Solo tu club paga, además, los sueldos del cuerpo técnico (`week.ts:370`, a `ledger.wages`).
+4. **Qué suma cada rubro** (`mercado.md` pregunta 43): `ledger.wages` = sueldos de jugadores + gastos de funcionamiento + sueldos del cuerpo técnico + indemnizaciones del cuerpo técnico + primas de renovación; `ledger.buys` = montos de compras y préstamos + primas de fichaje; `ledger.sales` = ventas (también al exterior); `gate`, `tv` y `prizes`, un rubro cada uno. La suma de los seis es el resultado real de la temporada: no hay gastos fuera del libro.
 
 **Ingresos por partido y premios**
 
@@ -54,18 +56,19 @@ Administrar un club argentino real: plata justa, sueldos que aprietan, una dirig
 
 **Pases y contratos** (los define `mercado-de-pases`)
 
-1. Venta: el vendedor suma el monto a la caja (`ledger.sales`) y, si no es préstamo, el 60 % al presupuesto de pases (`career.ts:214-216`, `:236`).
-2. Compra: el comprador resta el monto de la caja y del presupuesto (`ledger.buys`); la prima de fichaje sale de la caja (`ledger.buys`, `:219`).
-3. Prima de renovación: sale de la caja (`ledger.wages`, `squad.ts:257`).
-4. Cuerpo técnico: contratar exige caja ≥ 2 sueldos (`week.ts:38`); despedir cuesta 3 sueldos (`week.ts:47`, `ledger.wages`).
+1. Venta: el vendedor suma el monto a la caja (`ledger.sales`) y, si no es préstamo, el 60 % al presupuesto de pases (`career.ts:340-342`, `:362`).
+2. Compra: el comprador resta el monto de la caja y del presupuesto (`ledger.buys`); la prima de fichaje sale de la caja (`ledger.buys`, `:345`). En una compra o un préstamo del DT, la plata se mueve recién al firmar (`signDeal` → `doTransfer`), no al ofertar ni cuando el club acepta.
+3. Prima de renovación: sale de la caja (`ledger.wages`, `squad.ts:363`).
+4. Cuerpo técnico: contratar exige caja ≥ 2 sueldos (`week.ts:40`); despedir cuesta 3 sueldos (`week.ts:49`, `ledger.wages`).
+5. **Plata comprometida** (decisión del usuario, `mercado.md` pregunta 22): lo que el DT ofertó en los tratos abiertos (esperando respuesta, con contraoferta o acordados; en una contraoferta, su oferta, no el pedido del club) es `committed(g)` (`career.ts:509`). No sale de la caja ni del presupuesto, pero se descuenta de **lo libre para ofertar** (`presupuesto − comprometido`), así no se puede comprometer dos veces el mismo presupuesto. Se libera cuando el trato termina.
 
 **Topes**
 
-1. El presupuesto de pases limita el monto de una compra o de un préstamo (`career.ts:180`, `:196`). La prima de una compra se controla contra la caja (`squad.ts:237`).
-2. El tope salarial se controla al comprar (pedido estimado, `career.ts:187`; sueldo negociado, `squad.ts:236`) y al renovar (`squad.ts:236`). No se controla en ningún otro momento: la masa puede quedar por encima del tope (por ejemplo, con un préstamo o un sueldo recalculado) y la interfaz solo lo marca en rojo (`Home.tsx:137`).
+1. El presupuesto de pases limita el monto de una oferta contra lo libre (`bidCheck`, `career.ts:606`; aceptar una contraoferta, `:647`) y, al firmar, contra el presupuesto entero (`signDeal`, `:790`). La prima de una compra se controla contra la caja (`squad.ts:342`, `career.ts:797`).
+2. El tope salarial **no** se controla al ofertar ni en la respuesta del club (decisión de `mercado.md` preguntas 9 y 42: diría el sueldo real). Se controla en la negociación con el sueldo que ofrece el DT (`squad.ts:341`, sin gastar paciencia), al firmar una compra (`career.ts:796`), al confirmar un préstamo con el **máximo del rango** del sueldo que ve el DT (`career.ts:798`) y al renovar (`squad.ts:341`). No se controla en ningún otro momento: la masa puede quedar por encima del tope (por ejemplo, con un sueldo recalculado) y la interfaz solo lo marca en rojo (`Home.tsx:137`).
 3. La caja puede quedar negativa. No tiene consecuencias en el motor más allá de impedir primas y contrataciones del cuerpo técnico.
 
-**Reinversión al cambiar de temporada** — `career.ts:422-425`, dentro de `seasonTurnover` (`game.ts:652`), después de los ascensos y descensos y de los cambios de reputación
+**Reinversión al cambiar de temporada** — `career.ts:959-960`, dentro de `seasonTurnover` (`game.ts:652`), después de los ascensos y descensos y de los cambios de reputación
 
 1. Presupuesto de pases nuevo: 60 % del presupuesto base más una parte de la caja positiva (30 % para vos, 45 % para la IA), con piso de 50.000 (vos) u 80.000 (IA).
 2. Tope salarial nuevo: masa salarial actual × 1,1 más 0,4 % de la caja positiva.
@@ -113,7 +116,7 @@ Los tres primeros solo cambian el texto; el motor no tiene estados de la dirigen
 
 | Sistema | Entra | Sale |
 |---------|-------|------|
-| `mercado-de-pases` | Ventas, compras, primas | Presupuesto, caja y tope que limitan los pases |
+| `mercado-de-pases` | Ventas, compras, primas; lo comprometido en tratos abiertos | Presupuesto (y lo libre), caja y tope que limitan los pases |
 | `temporada-y-ligas` | Posición final, títulos, ascensos y descensos, reputación nueva del club | Objetivo y `target`; reinversión al cambiar de temporada |
 | `copas` | Premios | — |
 | `motor-de-partido` | Resultado, público (`f.att`) | — |
@@ -163,7 +166,7 @@ ingreso  = público * (div 1: 5.5 · div 2: 3.5 · resto: 2.5)
 **Output range**: 0,35 a 1 de la capacidad en la práctica; 0 en cancha neutral.
 **Worked example**: estadio de 50.000, rep 80, ruido 0,1 → 0,95 × 50.000 = 47.500 personas × 5,5 = 261.250 por partido de local. Con dos partidos de local por mes, el club del ejemplo anterior pasa de −166.000 a unos +356.000 por mes.
 
-### Reinversión — `career.ts:423-424`
+### Reinversión — `career.ts:959-960`
 
 ```
 budget'     = max(piso, round10k(baseBudget(rep) * 0.6 + max(0, caja) * k))
@@ -222,7 +225,10 @@ confianzaArranque = confianza * 0.6 + 24
 | Racha negra a mitad de temporada | Desde la tercera derrota seguida cada una resta además `(racha − 2) × 4,5 × k`: con esperado 1,35, DT de rep 28 y club de reputación 60, desde 53,6 alcanzan unas 6 derrotas seguidas | ✅ Resuelto (2026-11-14): despidos según el club y el objetivo |
 | El ingreso por ventas al exterior | Los clubes grandes de la IA crecen unos 10 millones de caja por año (`CLAUDE.md`, pendiente 3) | ⚠️ Balance pendiente |
 | Objetivo en la pantalla de inicio de partida | `Start.tsx` usa `boardObjective`, la misma función pura que `setObjective` | ✅ Resuelto (2026-11-14) |
-| Ingresos y gastos agrupados | Funcionamiento, cuerpo técnico, indemnizaciones y primas de renovación se ven como "Sueldos"; primas de fichaje como "Compras" | El jugador no ve el costo de funcionamiento por separado |
+| Ingresos y gastos agrupados | `ledger.wages` suma sueldos, funcionamiento, cuerpo técnico, indemnizaciones y primas de renovación; `ledger.buys`, compras y primas de fichaje. El balance de Mercado › Presupuesto rotula cada fila con lo que suma y su resultado es el real, sin aclaraciones | ✅ Resuelto en el diseño (`mercado.md` pregunta 43); separarlos en filas propias es E20 (opcional) |
+| Ofertar por más de lo que queda | Lo comprometido se descuenta de lo libre: una oferta nueva no puede pasar `presupuesto − comprometido` | ✅ Resuelto (2026-11-15, `mercado.md` pregunta 22) |
+| Firmar con el presupuesto gastado en otro pase | `signDeal` vuelve a controlar `monto ≤ presupuesto` y no firma | — |
+| Préstamo cuyo sueldo real entraría en el tope | Con poco conocimiento, el máximo del rango puede no entrar y `signDeal` no confirma | Aceptado: el control no revela el sueldo real (`mercado.md` pregunta 46); ojear achica el rango |
 | Cambio de club a mitad de temporada | La caja y el libro del club nuevo son los de la IA (no se reinician) | — |
 
 ## Dependencies
@@ -248,8 +254,8 @@ confianzaArranque = confianza * 0.6 + 24
 | TV | 110.000 + rep × 1.500 / 40.000 / 15.000 por mes (`:50`) | ±50 % | Caja crece | Caja se derrumba |
 | Funcionamiento | rep² × 15 por mes (`:52`) | 8–25 | Frena la acumulación de los grandes | — |
 | Precio de entrada | 5,5 / 3,5 / 2,5 (`:57`) | ±50 % | Localía vale más | — |
-| Parte de una venta al presupuesto | 60 % (`:216`) | 30–100 % | Vender para comprar | — |
-| Reinversión | 0,6 × base + 30 % (vos) / 45 % (IA) de la caja; tope + 0,4 % (`:423-424`) | 0,1–0,6 de la caja | IA más agresiva | Caja ociosa |
+| Parte de una venta al presupuesto | 60 % (`:342`) | 30–100 % | Vender para comprar | — |
+| Reinversión | 0,6 × base + 30 % (vos) / 45 % (IA) de la caja; tope + 0,4 % (`:959-960`) | 0,1–0,6 de la caja | IA más agresiva | Caja ociosa |
 | Sensibilidad de la confianza | 2,2 × `boardDemand` × (1 − repDT/400) | 1–4 | Dirigencia impaciente | — |
 | Exigencia del club (`boardDemand`) | 1 + (rep − 60)/40, clamp 0,7–1,6 | — | Los grandes echan antes | Todos iguales |
 | Racha de derrotas | −4,5 × k por derrota desde la tercera | 2–6 | Despidos por rachas | Rachas sin costo |
@@ -273,8 +279,9 @@ La plata tiene que sentirse escasa pero legible: el jugador entiende de un vista
 
 | Information / Action | Display Location | Update Frequency | Condition |
 |----------------------|-----------------|-----------------|-----------|
-| Presupuesto de pases, caja (rojo si es negativa), sueldos / tope | Mercado, encabezado (`Market.tsx:35-36`) | Al cambiar algo | Siempre |
-| Ingresos (recaudación, TV, premios, ventas), egresos (sueldos, compras) y resultado de la temporada | Mercado › Finanzas (`Market.tsx:70-76`) | Diario | Siempre |
+| Presupuesto de pases con **lo libre para ofertar** ("US$ 1,4 M comprometidos en 1 oferta"), caja (rojo y con signo si es negativa), sueldos / tope con el margen | Franja de estado del Mercado (`design/ux/mercado.md`, KPI; hoy encabezado de `Market.tsx`) | Al cambiar algo | Siempre; `committed` |
+| Balance de la temporada: ingresos (recaudación, TV, premios, ventas), egresos ("Sueldos, gastos de funcionamiento, cuerpo técnico y primas de renovación" = `ledger.wages`; "Compras y primas de fichaje" = `ledger.buys`) y resultado con signo y en palabras | Mercado › Presupuesto (`design/ux/mercado.md`, componente "Balance de la temporada"; hoy Mercado › Finanzas) | Diario | Siempre; sin movimientos, estado vacío F8 |
+| Medidores de presupuesto, caja y tope salarial (usado, queda, qué limita cada uno) | Mercado › Presupuesto | Diario | Siempre |
 | Caja, presupuesto, sueldos mensuales, tope salarial | Club y DT › Finanzas (`Club.tsx:31-32`) | — | Siempre |
 | Presupuesto y sueldos / tope (rojo si se pasa) | Inicio › "Para atender" (`Home.tsx:136-137`) | Diario | Siempre |
 | Confianza (medidor), objetivo, texto según umbral (60 / 30) | Club y DT › Dirigencia (`Club.tsx:28-30`) | Por partido | Siempre |
@@ -322,7 +329,9 @@ La bandeja no recibe avisos de caja negativa, tope superado ni confianza baja.
 - [ ] Cumplir el objetivo suma 15 en el balance; descender resta 30 además de lo que corresponda por el puesto.
 - [ ] Al empezar una temporada, la confianza queda en `confianza × 0,6 + 24`.
 - [ ] El objetivo que muestra la nueva partida coincide con el que fija `setObjective` para cualquier club de las tres categorías (hoy falla en la tercera).
-- [ ] La suma de ingresos menos egresos del libro mayor de tu club coincide con la variación de su caja desde el arranque de la temporada.
+- [ ] La suma de ingresos menos egresos del libro mayor de tu club coincide con la variación de su caja desde el arranque de la temporada (los gastos de funcionamiento, el cuerpo técnico y las primas ya están en `wages` y `buys`).
+- [x] Una oferta nueva por más de `presupuesto − comprometido` no sale; aceptar una contraoferta sin plata libre no se puede (`tests/engine/deals.ts`).
+- [ ] Ofertar, recibir un acuerdo o una contraoferta y cancelar un trato no cambian la caja ni el presupuesto; firmar descuenta el monto del presupuesto y de la caja, y la prima de la caja.
 
 ## Open Questions
 
@@ -332,7 +341,7 @@ La bandeja no recibe avisos de caja negativa, tope superado ni confianza baja.
 | ¿El despido a mitad de temporada es tan tolerante a propósito? | usuario | — | Resuelta (2026-11-14): no; exigencia del club, rachas y distancia al objetivo (Formulas) |
 | ¿La dirigencia tiene que avisar en la bandeja cuando la confianza baja de 30 (ultimátum)? | usuario | Antes de la UX de bandeja | No implementado |
 | ¿Mostrar el puesto objetivo (`target`) junto al objetivo en texto? | usuario | — | No implementado |
-| ¿Separar "funcionamiento" y "cuerpo técnico" de "Sueldos" en Mercado › Finanzas? | usuario | — | — |
+| ¿Separar "funcionamiento" y "cuerpo técnico" de "Sueldos" en Mercado › Finanzas? | usuario | — | Por ahora no: las filas se rotulan con lo que suman (`mercado.md` pregunta 43). E20 (opcional): `Ledger.costs` y `Ledger.bonus` separados de `wages`, sin cambiar el resultado |
 | Crecimiento de la caja de los grandes (pendiente 3 de `CLAUDE.md`): ¿subir funcionamiento, bajar ventas al exterior o reinvertir más? | usuario | — | Abierto |
 | Objetivos no deportivos (finanzas, juveniles) | usuario | — | No implementado |
 | ¿Pedir más presupuesto o tope a la dirigencia durante la temporada? | usuario | — | No implementado |
@@ -345,3 +354,4 @@ La bandeja no recibe avisos de caja negativa, tope superado ni confianza baja.
 
 *This document was generated by `/reverse-document design src/engine/career.ts`*
 | 2026-11-14 | Claude | Despido actualizado: exigencia del club (`boardDemand`), rachas de derrotas, distancia al objetivo y 5 partidos mínimos (Formulas, Tuning Knobs, Acceptance Criteria); objetivo de la pantalla de inicio con `boardObjective`; ascenso desde la tercera en el balance |
+| 2026-11-15 | Claude | Tratos del mercado (`8fe1dcb`): plata comprometida descontada de lo libre, la plata se mueve al firmar, topes al ofertar, en la negociación y al firmar (el préstamo con el máximo del rango del sueldo), qué suma cada rubro del `Ledger` y el balance de Mercado › Presupuesto con las filas rotuladas; líneas de pases y reinversión actualizadas |

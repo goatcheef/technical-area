@@ -2,8 +2,8 @@
 
 > **Estado**: Estable (documenta lo implementado; las propuestas están marcadas como tales)
 > **Autor**: usuario + ux-designer
-> **Última actualización**: 2026-11-14
-> **Versión**: 1.0
+> **Última actualización**: 2026-11-15
+> **Versión**: 1.1 (patrones del Mercado: `design/ux/mercado.md`, sección 15, pregunta 15)
 > **Motor**: aplicación web, sin motor de juego (React 18 + TypeScript + Vite)
 > **Marco de interfaz**: componentes React propios (`src/ui/`) y una hoja de estilos única (`src/styles.css`)
 > **Documentos relacionados**:
@@ -11,12 +11,13 @@
 > - `docs/plan-ui-ux.md`: principios y las seis etapas de UI (todas hechas)
 > - `design/art/art-bible.md`: no existe; las decisiones visuales viven en `src/styles.css`
 > - `design/accessibility-requirements.md`: no existe todavía
+> - `design/ux/bandeja.md` y `design/ux/mercado.md`: especificaciones que usan y amplían F1, F2, F3, F4, F6 y D1, y de donde salen F9, F10, F11 e I3
 >
 > **Plantilla**: Interaction Pattern Library
 
 > **Para qué sirve.** Cada pantalla nueva tiene que poder decir "usa la Tabla de jugadores" o "usa la Ventana modal" en lugar de volver a especificar el foco, el teclado y los estados. Este documento recoge los patrones que **ya existen en el código** para que las pantallas siguientes los reutilicen. Cuando un patrón cambia, cambia acá y en su componente al mismo tiempo.
 >
-> **Estados de un patrón.** *Estable*: implementado y en uso en al menos una pantalla. *Propuesta*: todavía no existe; sale de un hueco o de una inconsistencia que se ve en el código. *Obsoleto*: se está reemplazando y no hay que usarlo en pantallas nuevas.
+> **Estados de un patrón.** *Estable*: implementado y en uso en al menos una pantalla. *Especificado*: definido en una especificación de pantalla aprobada y en implementación; se usa como si fuera estable. *Propuesta*: todavía no existe; sale de un hueco o de una inconsistencia que se ve en el código. *Obsoleto*: se está reemplazando y no hay que usarlo en pantallas nuevas.
 
 ---
 
@@ -74,21 +75,25 @@ Los ocho principios de `docs/plan-ui-ux.md`, en su forma operativa:
 | N10 | Favoritos | Navegación | Hasta 8 jugadores o clubes fijados. | Menú de la estrella, menú "Más" del celular | Estable |
 | I1 | Ficha breve al pasar el mouse | Información | Tarjeta flotante para cualquier `data-pid` o `data-cid`. | Todas las pantallas | Estable |
 | I2 | Explicación en `title` | Información | Texto de ayuda nativo sobre controles y encabezados. | Todas las pantallas | Estable |
-| D1 | Tabla de jugadores | Datos | Tabla única con vistas, columnas, orden, filtros y selección. | Plantel, ficha de club, mercado, seguimiento, estadísticas | Estable |
+| I3 | Franja de estado | Información | Una tarjeta baja y fija arriba de las pestañas con el estado que condiciona toda la pantalla (el libro) y los límites (presupuesto, caja, tope). | Mercado | Especificado |
+| D1 | Tabla de jugadores | Datos | Tabla única con vistas, columnas, orden, filtros y selección; modo `onPick` con fila elegida (una) distinta de las marcadas (casillas) y foco itinerante. | Plantel, ficha de club, mercado, seguimiento, estadísticas | Estable (`onPick`: Especificado) |
 | D2 | Selección múltiple y acciones masivas | Datos / Entrada | Casillas, rangos con Mayús y barra de acciones. | Tabla de jugadores | Estable |
 | D3 | Comparador | Datos | Dos o tres jugadores lado a lado. | Tabla de jugadores | Estable |
 | D4 | Dato con incertidumbre | Datos / Juego | Valores ajenos como rango según el ojeo. | Valoración, atributos, comparador, ficha | Estable |
 | D5 | Gráfico con tooltip y tabla | Datos | Gráfico SVG con tooltip y vista alternativa en tabla. | Centro de datos | Estable |
 | D6 | Escalas y chips de estado | Datos | Valoración, físico, estado, puesto y forma con color y texto. | Todas las pantallas con jugadores | Estable |
 | D7 | Fila clickeable | Datos / Entrada | Fila de tabla que abre algo; alcanzable con Tab y Enter. | Tablas en general | Estable |
-| F1 | Lista y lectura lado a lado | Decisión | Bandeja: `listbox` con foco itinerante, bloque "Para decidir" arriba, mensajes por día; lectura al lado (o detalle aparte en ≤ 900 px). | Bandeja | Estable |
-| F2 | Acción en el mensaje | Decisión | Los botones para decidir viven en el mismo mensaje. | Bandeja, Pendientes, Mercado | Estable |
-| F3 | Indicador de pendientes | Información | Insignias y botón que resumen lo que falta decidir. | Navegación, barra de pantallas, Inicio | Estable |
-| F4 | Avance progresivo con freno | Juego / Información | Continuar un día o avanzar hasta el partido con progreso y Esc. | Barra superior | Estable |
+| F1 | Lista y lectura lado a lado | Decisión | Bandeja: `listbox` con foco itinerante, bloque "Para decidir" arriba, mensajes por día; lectura al lado (o detalle aparte en ≤ 900 px con barra de acciones fija que nunca se mueve por el foco). | Bandeja | Estable |
+| F2 | Acción en el mensaje | Decisión | Los botones para decidir viven en el mismo mensaje; solo el más nuevo de una decisión la ofrece; los viejos dicen por qué no (chip "Trato"). | Bandeja, Pendientes, Mercado | Estable (`deal`: Especificado) |
+| F3 | Indicador de pendientes | Información | Insignias y botón que resumen lo que falta decidir; una decisión suma 1. Mercado cuenta ofertas por tus jugadores, contraofertas y acuerdos. | Navegación, barra de pantallas, Inicio | Estable |
+| F4 | Avance progresivo con freno | Juego / Información | Continuar un día o avanzar hasta el partido con progreso y Esc; frena por una decisión nueva y el último día para responder. | Barra superior | Estable |
 | F5 | Ventana modal | Modal | Decisión corta con foco atrapado y Esc. | Negociación, charla, prensa, informes, ajustes, atajos, comparador | Estable |
-| F6 | Confirmación en dos pasos en el lugar | Entrada | El botón se transforma en "Confirmar / No". | Cuerpo técnico (desvincular) | Estable |
+| F6 | Confirmación en dos pasos en el lugar | Entrada | El botón se transforma en "Confirmar / No" para lo irreversible o con costo; Confirmar primario para aceptar, en peligro para rechazar. | Cuerpo técnico, Bandeja (ofertas, trabajos), Mercado (vender, fichar, préstamo, cancelar un trato) | Estable |
 | F7 | Nota de resultado en el lugar | Información | Texto que confirma lo que hizo una acción, junto a ella. | Acciones masivas, ofertas, ficha de jugador, cuerpo técnico | Estable |
 | F8 | Estado vacío | Información | Texto tenue que explica por qué no hay nada y cuándo habrá. | Listas, tablas, mosaicos, paneles | Estable |
+| F9 | Panel de lectura al costado de una tabla | Decisión | Variante de F1 para una tabla: la fila elegida se lee y se decide en un panel fijo a la derecha. | Mercado › Buscar | Especificado |
+| F10 | Tarjeta de trato | Decisión | Una operación con estado, plazo, cifras, impacto y acciones; la misma anatomía en Tratos, `BidBox` y bandeja. | Mercado › Tratos, panel del jugador, ficha, Bandeja | Especificado |
+| F11 | Vista previa de impacto | Información | Antes → después de lo que cambia una operación (plata libre, caja, sueldos con el tope, plantel), con el veredicto en palabras. | `BidBox`, tarjetas de trato, negociación, venta | Especificado |
 | C1 | Selector segmentado | Entrada | Elección exclusiva entre 2 y 6 opciones visibles. | Ajustes, tabla, partido, Inicio | Estable |
 | C2 | Botones | Entrada | Primario, CTA, común, alternable, peligro, ícono, enlace. | Todas las pantallas | Estable |
 | C3 | Disposición personalizable | Entrada | Modo edición con botones de orden, ancho y ocultar. | Inicio, paneles del partido, columnas | Estable |
@@ -415,6 +420,23 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 ---
 
+#### I3. Franja de estado
+
+**Categoría**: Información · **Estado**: Especificado (`design/ux/mercado.md` 5.2 y 5.3; `production/ui/mercado/visual-design.md`, decisión 1)
+
+**Cuándo usarlo**: cuando un estado del mundo condiciona todo lo que se puede hacer en la pantalla y cambia con los días (el libro de pases abierto o cerrado, cuánto queda) junto con los límites que la gobiernan (presupuesto y lo libre, caja, sueldos y tope). Se lee primero y está igual en todas las pestañas.
+**Cuándo no**: para cifras que solo importan en una pestaña (van en su tarjeta) ni como encabezado decorativo.
+
+**Anatomía**: título `h2` de la pantalla y una tarjeta baja (unos 72 px; dos filas por debajo de 900 px; 2 × 2 en el celular) con el **estado** en texto con ícono ("Libro abierto · cierra el 20 de febrero (quedan 12 días)", "! … cierra mañana", "Libro cerrado · reabre el 25 de junio (faltan 41 días)", "… reabre al comenzar la temporada 2027 (10 ene)", sin contar días entre temporadas) y tres KPI con su leyenda ("US$ 1,4 M comprometidos en 1 oferta", "para primas", "margen US$ 70 mil por mes"). Nunca elipsis en el estado; los montos con `money()`.
+
+**Estados**: abierto; abierto, última semana ("!"); último día; cerrado con reapertura; caja negativa (rojo con signo "−"); masa sobre el tope ("pasaste el tope por US$ X" con "!").
+
+**Accesibilidad**: el estado se dice en texto, no con color; la franja tiene una región `aria-live="polite"` que anuncia una vez por día los cambios de estado del libro y las respuestas de los clubes que llegan con la pantalla abierta.
+
+**Dónde está**: datos de `windowState`, `closedReason`, `committed`, `wageBill` (`src/engine/career.ts`); componente en el Mercado (en implementación).
+
+---
+
 ### Datos
 
 ---
@@ -445,17 +467,26 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 |--------|--------|
 | Sin jugadores | Texto `empty` del llamador (F8) |
 | Fila propia en tabla ajena | `.me` (fondo de acento) |
-| Fila seleccionada | `.selrow` |
+| Fila marcada (casilla, D2) | `.selrow`; en modo `onPick`, solo la casilla tildada, sin fondo |
+| Fila elegida (modo `onPick`) | Fondo `--accent-soft`, riel de 3 px `--sel` a la izquierda, nombre en 700, `aria-selected="true"` |
 | Columnas ocultas | Aviso en el botón y chips sin acento |
 | Más de `limit` | Botón "Mostrar N más" |
 
 **Teclado y mouse**: clic en la fila abre la ficha (D7); clic en la casilla selecciona (D2); Tab llega a las filas y Enter las abre.
 
-**Accesibilidad**: casillas con `aria-label` ("Seleccionar a …", "Seleccionar todos"); valores ajenos como rangos (D4). Los encabezados ordenables solo responden al mouse (ver G3).
+**Modo `onPick`** (Especificado, `design/ux/mercado.md` secciones 7 y 12, pregunta 12; solo en Mercado › Buscar a ≥ 1180 px; el resto de D1 sigue igual):
+- **Elegida y marcada son dos cosas distintas.** *Elegida* es una sola fila: la que se lee en el panel (F9), va en la ruta (`sel`, reemplaza la entrada) y se marca con fondo, riel y peso. *Marcadas* son las de la casilla (D2): varias, para comparar o seguir, no se recuerdan y se ven solo por la casilla tildada (sin fondo, para que no se confundan con la elegida). Una fila puede ser las dos cosas y lleva los dos tratamientos.
+- **Clic** en la fila la elige (no mueve el foco al panel); el nombre es un enlace que abre la ficha. Por debajo de 1180 px, el clic y Enter abren la ficha como en D7.
+- **Foco itinerante**: la tabla es **una sola parada de Tab** (la fila elegida o la primera, `tabindex="0"`); "Mostrar N más" es la parada siguiente, fuera de la tabla. ↑ ↓, Inicio, Fin, Re Pág y Av Pág mueven el foco sin elegir (con `scrollIntoView({ block: 'nearest' })` y `scroll-margin-top` igual a la barra de acciones masivas). El oyente va en la tabla, no en `window`, y respeta `defaultPrevented`.
+- **Enter elige** y lleva el foco al campo "Oferta" del panel. **Espacio marca o desmarca la casilla** (como en todo `listbox` de selección múltiple); Mayús + ↑ ↓ extiende la marca. **Sobre una fila del Mercado, Espacio nunca avanza el día**: es distinto de la bandeja (F1), donde Espacio sobre una fila es Continuar; la diferencia se dice en la ayuda del panel sin elegir ("Espacio marca la casilla; acá no avanza el día") y en la ayuda de atajos.
+- **Estados de foco**: foco sin elegir, contorno de 2 px `--sel` a −2 px, sin fondo; elegida con foco, los dos.
+- **Columna "Trato"** en la vista Ojeo: chip con ícono y palabra (Esperando, Contraoferta, Acordado, Sin acuerdo, Bloqueado hasta {fecha}, "–"); solo los dos que son decisiones llevan el tinte de aviso.
+
+**Accesibilidad**: casillas con `aria-label` ("Seleccionar a …", "Seleccionar todos"); valores ajenos como rangos (D4). Los encabezados ordenables solo responden al mouse (ver G3). En modo `onPick`, la fila elegida lleva `aria-selected="true"` y el contador de jugadores de la barra es una región `aria-live="polite"` ("37 jugadores.", 500 ms después del último cambio de filtro).
 
 **Persistencia**: vista y columnas en `localStorage` (`ta-table-<id>`); orden y filtros con `useSticky` (`tbl.sort.<id>`, `tbl.q.<id>`, `tbl.line.<id>`); la selección no se recuerda.
 
-**Dónde está**: `PlayerTable`, `ColMenu`, `COLS`, `VIEWS`, `PRIO` en `src/ui/PlayerTable.tsx`. Usos: `SquadTable` (`Squad.tsx`, también en la ficha de club), `Market.tsx`, estadísticas.
+**Dónde está**: `PlayerTable`, `ColMenu`, `COLS`, `VIEWS`, `PRIO` en `src/ui/PlayerTable.tsx` (props `onPick` y `picked` para el modo de elegir). Usos: `SquadTable` (`Squad.tsx`, también en la ficha de club), `Market.tsx`, estadísticas.
 
 **Hacé**: pasá un `id` propio por lugar de uso (así cada tabla recuerda lo suyo), las vistas que tienen sentido ahí y un `empty` que explique el vacío. Para un dato nuevo, sumá una columna a `COLS` con prioridad en `PRIO`. **No hagas**: ordenar o filtrar por el valor real de un dato que el ojeo no conoce: usá el punto medio del rango (`seen`).
 
@@ -590,6 +621,11 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 - Lectura `.ib-read`: plantilla por tipo (tarjetas de jugador y club, cifras `.ib-kpi`, plazo y hechos, cuerpo, acciones F2 con confirmación F6 y nota F7).
 - ≤ 900 px: solo la lista; tocar una fila abre el **detalle** como entrada nueva del historial (la única selección que apila), con "◂ Bandeja", "N de M ‹ ›" y la barra de acciones fija abajo.
 
+**Barra de acciones fija (≤ 900 px)** (`design/ux/bandeja.md` 5.2 y preguntas 21 y 22; `design/ux/mercado.md` pregunta 39)
+- Fija sobre la navegación inferior (N3). El primario va a todo el ancho en su propia fila; los secundarios, en una segunda fila; si hay más de tres, el cuarto pasa a "Más acciones" **dentro del contenido**, nunca a un menú.
+- **Una decisión de trato** (F10) lleva en la barra solo el primario (Aceptar US$ X, Negociar contrato / Seguir negociando o Confirmar el préstamo; con la F6 abierta, Confirmar y No en su lugar) y una segunda fila con **un único** botón común (Retirar la oferta o Cancelar el trato). El campo Mejorar con su "Ofertar", los avisos, el impacto (F11), "Ver todos los tratos" y "Ver la ficha" van en el contenido, después de las cifras. **Nunca un campo de texto en la barra fija.**
+- **La barra nunca cambia de posición por el foco.** Sigue fija mientras se edita un campo del contenido; el bloque con el campo lleva `scroll-margin-bottom` igual al alto de la barra, así el campo y su botón quedan siempre por encima de ella, y con el teclado virtual el navegador desplaza el campo sin que el código mueva la barra. Se descartó "pasa a `position: static` con el foco en un campo": movía los botones entre el `mousedown` y el `mouseup` y el clic se perdía. La única regla de posición es la de ventana muy baja (`max-height: 520px`), que depende del alto de la ventana y no del foco; para que el teclado virtual no la dispare, la página no usa `interactive-widget=resizes-content`.
+
 **Estados**
 
 | Estado | Visual / respuesta |
@@ -603,11 +639,11 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 | Vencida o respondida en otro lado | Si seguía elegida, la fila queda como "Ya no está vigente" y el panel cambia las acciones por un texto tenue ("Esta oferta venció el …") |
 | Vacío | F8 con el texto del tema; búsqueda sin coincidencias con "Borrar búsqueda" y "Buscar en todo el fútbol" |
 
-**Teclado y mouse**: la lista es una sola parada de Tab (foco itinerante: solo la fila elegida tiene `tabindex=0`). El oyente está en el `listbox`, no en `window`, y respeta `defaultPrevented` (con un menú abierto la lista no recibe las teclas). ↑ ↓ eligen y mueven el foco juntos (sin dar la vuelta), Inicio y Fin, Re Pág y Av Pág (10 filas); Enter lleva el foco al botón primario del mensaje (en ≤ 900 px abre el detalle); Esc en el panel vuelve a la fila. Espacio sobre una fila sigue siendo Continuar (`role=option` no tiene función propia). Clic elige; hover solo cambia el fondo.
+**Teclado y mouse**: la lista es una sola parada de Tab (foco itinerante: solo la fila elegida tiene `tabindex=0`). El oyente está en el `listbox`, no en `window`, y respeta `defaultPrevented` (con un menú abierto la lista no recibe las teclas). ↑ ↓ eligen y mueven el foco juntos (sin dar la vuelta), Inicio y Fin, Re Pág y Av Pág (10 filas); Enter lleva el foco al botón primario del mensaje (en ≤ 900 px abre el detalle); Esc en el panel vuelve a la fila. Espacio sobre una fila sigue siendo Continuar (`role=option` no tiene función propia); **en la tabla del Mercado con `onPick` (D1), Espacio marca la casilla**: la diferencia es a propósito y las dos ayudas la dicen. Clic elige; hover solo cambia el fondo.
 
-**Dónde está**: `Inbox`, `Panel`, `Actions`, `Toggles` en `src/ui/Inbox.tsx`; `MsgBody`, `DayHead`, `TAG_ICON` en `src/ui/msg.tsx`; motor en `src/engine/inbox.ts` (`pendingOf`, `pendingKeyOf`, `unreadOf`, `inboxCount`). La selección va en `Route.sel` (`"n<id>"` o la clave del pendiente). CSS: `.inbox`, `.ib-*`, `.msg*`.
+**Dónde está**: `Inbox`, `Panel`, `Actions`, `Toggles` en `src/ui/Inbox.tsx`; `MsgBody`, `DayHead`, `TAG_ICON` en `src/ui/msg.tsx`; motor en `src/engine/inbox.ts` (`pendingAll` con los tratos, `pendingOf` sin ellos, `pendingKeyOf`, `newestOf`, `unreadOf`, `inboxCount`). La selección va en `Route.sel` (`"n<id>"` o la clave del pendiente). CSS: `.inbox`, `.ib-*`, `.msg*`.
 
-**Hacé**: que cada decisión cuente una vez (un mensaje con la decisión abierta suma como pendiente, no como sin leer). **No hagas**: marcar leído lo que el DT no abrió, ni sacar la fila de la decisión de abajo del cursor al resolverla.
+**Hacé**: que cada decisión cuente una vez (un mensaje con la decisión abierta suma como pendiente, no como sin leer; de varios mensajes de la misma decisión, solo cuenta el más nuevo). Que resolver una decisión en cualquier pantalla marque leídos sus mensajes, dentro de la función del motor que la resuelve (`readDecisionNews`), y que lo que el DT acaba de ver nazca leído. **No hagas**: marcar leído lo que el DT no abrió (elegir una tarjeta o una fila en otra pantalla no es abrir el mensaje), ni sacar la fila de la decisión de abajo del cursor al resolverla, ni poner un campo o mover la barra fija por el foco.
 
 ---
 
@@ -621,7 +657,11 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 | `act` | Botones |
 |-------|---------|
-| `offer` | Aceptar (primario; deshabilitado con el libro cerrado, con `title` que lo explica), Pedir más, Rechazar (peligro) |
+| `offer` | Aceptar (primario, F6; deshabilitado con el libro cerrado, con el motivo escrito debajo), Pedir más (con el riesgo escrito), Rechazar (peligro, F6) |
+| `deal`, contraoferta | Aceptar US$ X (primario, sin F6, con el costo de salida escrito debajo), Mejorar (campo + Ofertar, en el contenido), Retirar la oferta (común, sin F6), Ver todos los tratos, Ver la ficha |
+| `deal`, acuerdo de compra | Negociar contrato / Seguir negociando (primario, abre F5), Cancelar el trato (común, F6 con el costo), Ver todos los tratos, Ver la ficha |
+| `deal`, acuerdo de préstamo | Confirmar el préstamo (primario, F6 con cargo, plazo y sueldo), Cancelar el trato (común, F6 con el costo) |
+| `deal`, rechazo, caída o vencimiento | Ver todos los tratos, Ver la ficha |
 | `job` | Aceptar, Rechazar, Ver el club |
 | `out` | Hablar con él, Declararlo transferible |
 | `scout` | Ver la ficha, Ofertar |
@@ -630,9 +670,14 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 | `train` | Ir a Entrenamiento |
 | conferencia | Responder, Que hable el ayudante |
 
-**Estados**: vigente; ya resuelto o vencido (el botón se reemplaza por un texto tenue: "Esta oferta ya fue respondida o venció."); resuelto ahora (nota de resultado, F7).
+**Estados**
+- **Vigente**: el mensaje es el **más nuevo** de su decisión (`newestOf`) y la decisión sigue abierta (`pendingKeyOf(g, n)`). Chip de la fila: "Para decidir".
+- **Ya no vigente**: el botón se reemplaza por un texto tenue que dice por qué ("Esta oferta ya fue respondida o venció."). En un trato (`act: 'deal'`), el chip de la fila pasa a **"Trato"** y el texto distingue: un mensaje viejo de un trato que siguió ("Ya respondiste esta contraoferta: mejoraste tu oferta a US$ 1,5 M el 13 ene." / "Lanús respondió de nuevo el 15 ene.", con "Ver la respuesta nueva ▸"); un trato terminal (el texto de su estado: "Este acuerdo venció el 18 ene.", "Se cayó: dejaste Banfield."); si el DT volvió a ofertar por ese jugador, "Ver el trato nuevo ▸"; un trato que ya no está en el registro: "Este trato ya no figura en el historial." con solo "Ver la ficha". Siempre quedan Ver todos los tratos y Ver la ficha.
+- **Actualizado**: un mensaje vigente cuyo trato pasó de contraoferta a acuerdo muestra las acciones del acuerdo con la línea "Actualizado: aceptaste su pedido el 13 ene; falta el contrato."
+- **Resuelto ahora**: nota de resultado (F7).
+- **Esperando respuesta** (variante: algo que el DT empezó y todavía no tiene respuesta). No es una decisión ni un mensaje: vive en la tarjeta de trato (F10) y en el `BidBox`. Dice el monto y **el rango de la fecha esperada** ("Responde entre el 12 y el 14 ene"), nunca el día exacto; si el rango pasa de un cierre, lo avisa ("! El libro cierra el 20 feb: si contesta después, la oferta caduca"). Su única acción es retirarla (común, sin F6, porque no tiene costo). No suma a ningún indicador (F3) ni frena el avance (F4). Ícono de reloj de arena y palabra, nunca solo color.
 
-**Dónde está**: `Message`, `PendDetail`, `OfferActions`, `Who` en `src/ui/Inbox.tsx`. `OfferActions` también se usa en `Market.tsx`.
+**Dónde está**: `Message`, `PendDetail`, `OfferActions`, `Who` en `src/ui/Inbox.tsx`. `OfferActions` también se usa en `Market.tsx`. Las decisiones de trato usan `DealDecision` (F10). La vigencia sale del motor: `pendingKeyOf(g, n)` y `newestOf` (`src/engine/inbox.ts`); `decisionKeyOf` (`src/engine/game.ts`) da la clave `offer<id>` o `deal<id>` de un mensaje.
 
 **Hacé**: al crear una noticia nueva en el motor, completá `pid`, `act` y `ref` (y `me` si es para el DT) y sumá su caso acá. **No hagas**: una noticia accionable que obligue a ir a otra pantalla para resolverla.
 
@@ -642,18 +687,20 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 **Categoría**: Información · **Estado**: Estable
 
-**Cuándo usarlo**: para que lo que falta decidir esté siempre a la vista. Lo pendiente se calcula del estado (`pendingOf`: nueva temporada, conferencia, ofertas de trabajo, ofertas por jugadores, jugadores que quieren irse), nunca se guarda.
+**Cuándo usarlo**: para que lo que falta decidir esté siempre a la vista. Lo pendiente se calcula del estado (`pendingAll`: nueva temporada, conferencia, ofertas de trabajo, ofertas por jugadores, contraofertas y acuerdos para cerrar, jugadores que quieren irse), nunca se guarda.
+**Cuándo no**: para lo que el DT empezó y espera respuesta (una oferta enviada): no hay nada que decidir hasta que llega (F2, "Esperando respuesta").
 
 **Anatomía**
-- **Insignia** `.dot` en Bandeja (sin leer + pendientes; `.dot.warn` si hay pendientes) y en Mercado (ofertas). Tiene `title` con el detalle.
+- **Insignia** `.dot` en Bandeja (`inboxCount`: pendientes + sin leer; `.dot.warn` si hay pendientes) y en Mercado (**decisiones del mercado**: ofertas por tus jugadores, contraofertas y acuerdos para cerrar; los pendientes `offer` y `deal`). Tiene `title` y un `.vh` con lo que cuenta ("3 decisiones del mercado: 1 oferta por tus jugadores, 1 contraoferta y 1 acuerdo para cerrar"; "4 decisiones pendientes").
+- **Una decisión suma 1** en cada indicador donde aparece y nunca 2: el mensaje ligado a un pendiente abierto no cuenta además como sin leer, y de varios mensajes de la misma oferta o trato solo cuenta el más nuevo. Resolverla en cualquier pantalla la saca de todos los indicadores en el mismo `refresh()` y nunca sube la insignia de la Bandeja.
 - **Botón de pendientes** `.pendbtn` en la barra de pantallas: contador `.pdot` y la frase ("Tenés una conferencia y 2 ofertas por jugadores"); lleva a Bandeja > Pendientes.
 - **En Inicio**: `.ib-pend` en el mosaico de mensajes y la fila "Pendiente" en "Para atender".
 
 **Estados**: sin pendientes (no se muestra nada), con pendientes, durante el avance (el botón se oculta). Por debajo de 1500 px el botón le gana el lugar al próximo rival; en el celular queda solo el contador.
 
-**Dónde está**: `pendingOf`, `pendingText`, `unreadOf` en `src/ui/Inbox.tsx`; `badge` y `.pendbtn` en `src/ui/App.tsx`.
+**Dónde está**: `pendingAll`, `pendingText`, `unreadOf`, `inboxCount`, `newestOf` en `src/engine/inbox.ts`; `badge` y `.pendbtn` en `src/ui/App.tsx`.
 
-**Hacé**: un tipo nuevo de decisión se suma a `Pending` y a `pendingText`. Si debe frenar el avance, queda incluido en `decisionKeys`.
+**Hacé**: un tipo nuevo de decisión se suma a `pendingAll` (con su `deadline` si vence) y a `pendingText`; queda incluido en `decisionKeys` y, si tiene plazo, en `expiringKeys`. Si sus mensajes pueden ser varios, que lleven `act` y `ref` para la regla del mensaje más nuevo. **No hagas**: contar con `pendingOf` (es la lista sin los tratos, para la interfaz anterior) ni con `g.offers.length`.
 
 ---
 
@@ -673,13 +720,15 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 | Jugar (Espacio, con partido hoy) | Abre el día de partido |
 | Ir al partido (Mayús + Espacio) | Avanza día por día (un día cada 45 ms) hasta el partido |
 | Frenar (botón, Esc o Espacio) | Se detiene al final del día en curso |
-| Aparece una decisión nueva | Se detiene y abre Bandeja > Pendientes |
+| Aparece una decisión nueva (también la respuesta de un club, `deal<id>`, y otra vez la respuesta a una mejora) | Se detiene y abre Bandeja > Pendientes con esa decisión elegida |
+| Es el último día para responder una decisión pendiente (oferta, trabajo, contraoferta o acuerdo; también si es el último día del libro) | Se detiene una vez por decisión y abre la bandeja con esa decisión elegida; si ya es ese día al apretar, no avanza |
+| Aviso de cierre del libro, rechazo o caída de un trato, oferta enviada esperando respuesta | No frena |
 | Aparece una conferencia | Se detiene y la abre |
 | Termina la temporada | Se detiene; el botón pasa a "Nueva temporada" |
 
 **Accesibilidad**: `role="status"` en el bloque de progreso; el freno es un botón visible, no solo una tecla. El progreso se calcula sobre los días hasta el partido.
 
-**Dónde está**: `advance` en `src/ui/App.tsx`; `decisionKeys` en `src/ui/Inbox.tsx`. CSS: `.advancing`, `.adv-bar`, `.btn.cta`.
+**Dónde está**: `advance` y `expiring` en `src/ui/App.tsx`; `decisionKeys` y `expiringKeys` en `src/engine/inbox.ts`. CSS: `.advancing`, `.adv-bar`, `.btn.cta`.
 
 **No hagas**: un web worker para esto (copiar el estado cuesta más que el día; ver `CLAUDE.md`), ni un avance que no se pueda frenar.
 
@@ -713,15 +762,24 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 
 #### F6. Confirmación en dos pasos en el lugar
 
-**Categoría**: Entrada · **Estado**: Estable (un solo uso)
+**Categoría**: Entrada · **Estado**: Estable
 
-**Cuándo usarlo**: para una acción irreversible o con costo, sin interrumpir con una ventana.
+**Cuándo usarlo**: para una acción **irreversible o con costo**, sin interrumpir con una ventana. "Con costo" alcanza aunque se pueda volver atrás: cancelar un acuerdo del mercado no es irreversible en sentido estricto, pero cuesta 14 días sin ofertar por el jugador y un club molesto, así que lleva F6 (`design/ux/mercado.md` pregunta 46).
+**Cuándo no**: para lo que no cuesta nada: retirar una oferta que espera respuesta o una contraoferta, aceptar el pedido de una contraoferta (no se paga nada hasta firmar; el costo de salirse del acuerdo se escribe **debajo** del botón, siempre visible), Pedir más (el riesgo va escrito debajo).
 
-**Anatomía**: el botón común ("Desvincular") se reemplaza, en el mismo lugar, por **Confirmar (costo)** en peligro y **No**. La etiqueta de confirmación dice la consecuencia (el costo de la indemnización).
+**Anatomía**: el botón se reemplaza, en el mismo lugar, por **Confirmar: {consecuencia}** y **No** (o "Seguir negociando" en la negociación). La etiqueta dice qué se confirma y lo que cuesta: "Confirmar: vender a Pérez a Racing por US$ 2,4 M", "Confirmar: fichar a Pérez, US$ 1,4 M + prima US$ 15 mil", "Confirmar: F. Leiva llega a préstamo hasta fin de temporada, cargo US$ 60 mil, cobra US$ 6 mil por mes" (el sueldo como rango si no se lo conoce al 95 %), "Confirmar: cancelar el trato por L. Gómez. No vas a poder ofertar por él hasta el 26 ene y Banfield va a pedir un 10 % más por sus jugadores hasta esa fecha.", "Confirmar (US$ 9.000)" en el cuerpo técnico.
 
-**Dónde está**: cuerpo técnico en `src/ui/Week.tsx` (estado `sure`).
+**Dos variantes** (la biblioteca decía "Confirmar en peligro y No"; la bandeja y el Mercado usan las dos):
+- **Aceptar o confirmar la acción esperada** (vender, fichar, confirmar un préstamo, aceptar un trabajo): **Confirmar** va como **primario**, porque es la acción que el DT ya eligió.
+- **Rechazar, desvincular o salirse** (rechazar una oferta o un trabajo, desvincular a alguien del cuerpo técnico): **Confirmar** va **en peligro** (bordeado, sin relleno). Cancelar un trato va como botón común y su confirmación, en peligro.
 
-**Hacé**: usalo para toda acción destructiva nueva (ver G5). **No hagas**: "¿Estás seguro?" genérico ni "Sí / No" sin decir qué se confirma.
+**Estados**: botón; confirmación abierta (el foco pasa a Confirmar); confirmado (nota F7 con el resultado); cancelado con No o Esc (el foco vuelve al botón). Elegir otra tarjeta u otro mensaje cancela una confirmación abierta. En la barra fija de ≤ 900 px, la confirmación ocupa el lugar del primario (F1).
+
+**Accesibilidad**: la etiqueta de Confirmar es el nombre accesible completo (la consecuencia escrita, no "Sí"); Esc cancela; el foco nunca se pierde al abrir o cerrar.
+
+**Dónde está**: cuerpo técnico en `src/ui/Week.tsx` (estado `sure`); bandeja en `src/ui/Inbox.tsx` (fila de acciones con `confirm`, `danger` para rechazar); Mercado en `DealDecision` y la ventana de negociación (en implementación).
+
+**Hacé**: usalo para toda acción irreversible o con costo nueva (ver G5) y escribí el costo en la etiqueta. **No hagas**: "¿Estás seguro?" genérico, "Sí / No" sin decir qué se confirma, ni F6 en lo que no cuesta nada.
 
 ---
 
@@ -751,6 +809,80 @@ Cada patrón sigue el mismo formato: **cuándo usarlo**, **anatomía**, **estado
 **Anatomía**: texto `.dim.sm` en el lugar del contenido que dice por qué no hay nada y, si se puede, cuándo va a haber ("Los mejores puntajes del plantel van a aparecer acá cuando empiece el torneo.", "El informe del rival llega 3 días antes") o qué hacer ("Marcá jugadores o clubes con '☆ Favorito' en su ficha y aparecen acá.").
 
 **Hacé**: decí cuándo o cómo se llena. **No hagas**: un "Sin datos" a secas si se puede explicar; un ícono decorativo (el estilo del juego es texto).
+
+---
+
+#### F9. Panel de lectura al costado de una tabla
+
+**Categoría**: Decisión · **Estado**: Especificado (`design/ux/mercado.md` 5.1 a 5.3, 6 y 7)
+
+**Cuándo usarlo**: cuando hay que recorrer una tabla (D1) y decidir sobre una fila por vez sin dejar la tabla: elegir a un jugador y ofertar por él. Es la variante de F1 para una tabla en lugar de una lista de mensajes.
+**Cuándo no**: si la decisión necesita más que un panel de 380 px (una ficha completa, N5), en pantallas de menos de 1180 px (ahí la fila abre la ficha, D7) o si la tabla no tiene una acción por fila.
+
+**Anatomía**: tabla D1 en modo `onPick` a la izquierda (ancho restante, mínimo 560 px) y `aside` de 380 px con `aria-label` ("Jugador elegido"), `position: sticky` bajo las pestañas y scroll propio si no entra. Adentro, los datos del elegido (con rangos D4 para lo que no se conoce), el ojeo con la fecha estimada y el bloque de decisión (`BidBox`: monto, F11, fecha esperada de respuesta, costo de salida, botones). Los botones van al final del contenido, nunca en una barra fija.
+
+**Estados**
+
+| Estado | Respuesta |
+|--------|-----------|
+| Sin elegir | Texto F8 que explica cómo elegir y la diferencia de teclado ("Enter elige; Espacio marca la casilla; acá no avanza el día") |
+| Elegido | La fila elegida (D1) y el panel con sus datos; la elección va en la ruta (`sel`) y reemplaza la entrada |
+| Con trato abierto | El bloque de decisión muestra el estado del trato y sus acciones (F10) en lugar de la oferta nueva |
+| Bloqueado | El motivo y la fecha escritos ("Cancelaste el trato por él el 12 ene. No podés volver a ofertar por él hasta el 26 ene.") con el botón deshabilitado |
+| Llega una respuesta con la pantalla abierta | La elección se conserva y el bloque cambia en el lugar; la región `aria-live` de la franja (I3) lo anuncia |
+
+**Teclado**: Enter en la tabla elige y lleva el foco al primer campo del panel; Esc en el panel vuelve el foco a la fila elegida (si hay una F6 abierta, primero la cancela).
+
+**Accesibilidad**: el panel es una región con nombre; elegir no mueve el foco con el mouse; nada irreversible ocurre al elegir.
+
+**Dónde está**: panel del jugador y `BidBox` (`src/ui/deal.tsx`, en implementación) sobre `PlayerTable` con `onPick`.
+
+---
+
+#### F10. Tarjeta de trato
+
+**Categoría**: Decisión · **Estado**: Especificado (`design/ux/mercado.md` 5.3 "Plantillas de tarjeta de Tratos", 6 y 12; `design/ux/bandeja.md` 5.3)
+
+**Cuándo usarlo**: para toda operación del mercado con estado propio: una oferta por un jugador tuyo, una contraoferta, una oferta esperando respuesta, un acuerdo para cerrar (compra o préstamo), un contrato por renovar o un cierre del historial. **La misma decisión tiene el mismo texto y las mismas llamadas al motor en todos lados** (Mercado › Tratos, `BidBox`, lectura y detalle de la bandeja); solo cambia dónde van las partes.
+**Cuándo no**: para mensajes sin operación detrás (F2 a secas) ni para listas de muchas filas iguales (D1).
+
+**Anatomía** (de arriba abajo): quién (cara, puesto y valoración del jugador, D4 si es ajeno; escudo y categoría del club) → estado en palabra e ícono → cifras clave (oferta, pedido, diferencia con signo y en palabras, lo libre) → plazo en palabras con fecha ("Vence en 5 días · el 19 ene"; "Responde entre el 12 y el 14 ene" si espera) → líneas extra (avisos de cierre del libro, costo de salirse de un acuerdo, otras ofertas por el mismo jugador, bloqueo) → impacto (F11) → acciones (primario, comunes, peligro al final; F6 donde corresponde) → nota F7. En Tratos va en grupos con encabezado y número: Para responder y Para cerrar (decisiones, riel de aviso), Esperando respuesta (neutro), Para renovar, Historial.
+
+**Estados**
+
+| Estado | Visual / respuesta |
+|--------|-------------------|
+| Decisión (contraoferta, acuerdo, oferta recibida) | Riel `--warn` y "!" en el encabezado del grupo; primario |
+| Esperando respuesta | Reloj de arena, tono neutro, rango de fecha, solo "Retirar la oferta" (F2, variante) |
+| Elegida | Borde `--sel` de 3 px, fondo suave, `aria-current="true"`; va en la ruta (`offer<id>`, `deal<id>`, `renew<pid>`). Clic o foco que entra en la tarjeta la eligen; elegir otra cancela una F6 abierta |
+| Resuelta en esta visita | ✓ y "Resuelto" con la nota F7 hasta elegir otra; no salta sola |
+| Vencida o respondida en otro lado | Las acciones se reemplazan por texto tenue ("Este acuerdo venció el 18 ene.", "Ya respondiste esta contraoferta.") |
+| Historial | Estado en texto con ícono (✓, ✗, ⇄); sin acciones, salvo Ver la ficha |
+
+**Accesibilidad**: cada tarjeta es un `role="group"` cuyo nombre accesible resume la decisión ("Contraoferta. Lanús pide 1,6 millones por Juan Pérez. Vence el 19 de enero."); el estado nunca depende solo del color (palabra e ícono); orden de Tab dentro de la tarjeta: jugador, club, acciones en orden visual, nota. Las respuestas que llegan con la pantalla abierta se anuncian una vez en la región `aria-live` de la franja (I3).
+
+**Dónde está**: `DealDecision` (contraoferta y acuerdo) y `OfferDecision` (oferta recibida), compartidos por Mercado y bandeja; datos de `dealsOf`, `bidBlock`, `clubCool`, `dealDeadline` y `answerWindow` (`src/engine/career.ts`). En implementación en `src/ui/deal.tsx`.
+
+**Hacé**: una sola fuente de texto y de acciones por tipo de decisión. **No hagas**: mostrar el día exacto de la respuesta, la paciencia del representante antes de que el DT se siente a negociar, o un sueldo ajeno exacto que no pase por `wageShown`.
+
+---
+
+#### F11. Vista previa de impacto
+
+**Categoría**: Información · **Estado**: Especificado (`design/ux/mercado.md` 5.3 `DealImpact`, 8 y 12)
+
+**Cuándo usarlo**: antes de confirmar o mientras se edita cualquier operación que mueve plata, sueldos o plantel (ofertar, aceptar un pedido, negociar, firmar, vender, confirmar un préstamo), para que el DT no tenga que hacer la cuenta.
+**Cuándo no**: después de la operación (eso es F7) ni para datos que no cambian con la decisión.
+
+**Anatomía**: tabla de cuatro filas "antes → después": **lo libre para ofertar** (con lo comprometido en otras ofertas, si hay), **caja**, **sueldos por mes** con el tope y el veredicto en palabras ("entra", "puede no entrar", "no entra") y **plantel** (total y de su línea). Mientras el sueldo es un rango (antes de la negociación), la fila de sueldos muestra un rango ("410 mil → 416–420 mil") y el veredicto sale del rango: "puede no entrar" si lo cruza; en un préstamo no hay "puede no entrar" (se controla con el máximo, igual que al firmar). Con el sueldo que ofrece el DT en la negociación, es exacta. Debajo, los controles duros que impiden la operación ("Te quedan libres US$ 0,7 M.", "Con este sueldo superás el tope por US$ 3 mil.").
+
+**Estados**: entra (sin aviso); puede no entrar ("!" y la palabra); no entra o bloqueada (controles duros escritos; el botón queda deshabilitado con el mismo texto).
+
+**Accesibilidad**: los montos que suben o bajan llevan signo o flecha y palabra, nunca solo verde y rojo; al cambiar el monto, un anuncio `aria-live="polite"` 500 ms después de la última tecla ("Presupuesto después de la oferta: 0,7 millones. Entra.").
+
+**Dónde está**: `dealImpact(g, kind, pid, fee, terms?)` (`src/engine/career.ts`, pura) y su componente en `src/ui/deal.tsx` (en implementación).
+
+**No hagas**: calcular el impacto en la pantalla con números propios, ni mostrar el sueldo real de un ajeno que el DT no conoce.
 
 ---
 
@@ -1075,7 +1207,7 @@ Propuesta: resolverlo en `Seg`, en un componente `Tabs` nuevo y en `Modal`, y mi
 
 **G4. La ficha breve no existe para teclado ni táctil (propuesta).** `HoverCard` solo responde a `mouseover`. Con teclado o en el celular, el dato de "0 clics" (contrato de un jugador) no está. Propuesta: mostrarla también con el foco sobre un `data-pid` o `data-cid` (con la misma espera) y, en táctil, con una pulsación larga.
 
-**G5. Acciones destructivas sin confirmación (propuesta).** Rechazar una oferta (Bandeja y Mercado), borrar una vista propia de la tabla y las acciones masivas marcadas `danger` se ejecutan al primer clic. Solo desvincular a un miembro del cuerpo técnico usa la confirmación en dos pasos (F6). Propuesta: aplicar F6 a todo botón `.btn.danger` cuyo efecto no se pueda deshacer, y definir cuáles se pueden deshacer.
+**G5. Acciones destructivas sin confirmación (propuesta, resuelta en parte).** La bandeja ya confirma aceptar y rechazar ofertas y trabajos, y el Mercado especifica F6 en vender, rechazar, fichar, confirmar un préstamo y cancelar un trato (F6, criterio "irreversible o con costo"). Siguen sin confirmación borrar una vista propia de la tabla y las acciones masivas marcadas `danger`. Propuesta: aplicar F6 a todo botón `.btn.danger` cuyo efecto no se pueda deshacer.
 
 **G6. Cambiar de pestaña apila historial fuera de las fichas (propuesta).** En las fichas, cambiar de pestaña reemplaza la entrada (N4). En Bandeja y Centro de datos, cada cambio de pestaña apila una entrada nueva, porque la ruta no lleva `id`. Propuesta: que la regla de reemplazo se aplique a cualquier ruta con la misma `page`, haya o no `id`. `nav` en `src/ui/App.tsx`.
 
@@ -1093,6 +1225,6 @@ Propuesta: resolverlo en `Seg`, en un componente `Tabs` nuevo y en `Modal`, y mi
 |----------|-------------|-------------|------------|
 | ¿Qué nivel de accesibilidad se compromete (`design/accessibility-requirements.md`)? Este documento toma como piso lo hecho en la etapa 6. | usuario + ux-designer | Antes de la próxima pantalla nueva | Sin resolver |
 | ¿Las teclas 1 a 0 deben seguir el orden de `PAGES` o el de las secciones visibles? (G2) | usuario | Con la corrección de G2 | Sin resolver |
-| ¿Qué acciones destructivas se pueden deshacer y cuáles necesitan confirmación? (G5) | usuario + game-designer | Antes de implementar G5 | Sin resolver |
+| ¿Qué acciones destructivas se pueden deshacer y cuáles necesitan confirmación? (G5) | usuario + game-designer | Antes de implementar G5 | Resuelta en parte: F6 en todo lo irreversible o con costo de la bandeja y el Mercado (`mercado.md` pregunta 46); quedan las vistas propias y las acciones masivas |
 | ¿El celular necesita su propia forma de ver la ficha breve (pulsación larga) o alcanza con abrir la ficha? (G4) | usuario | Antes de implementar G4 | Sin resolver |
 | No hay mapa del recorrido del jugador. Conviene escribirlo a mano desde `.claude/docs/templates/player-journey.md` antes de especificar pantallas nuevas. | usuario + ux-designer | Antes de la primera especificación de pantalla | Sin resolver |
