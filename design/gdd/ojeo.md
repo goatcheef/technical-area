@@ -62,10 +62,18 @@ Cada jugador ajeno tiene un conocimiento de 0 a 100 %. Arranca en un valor base 
 
 **Qué depende del conocimiento** (ajenos)
 13. Atributos, valoración, valoración por puesto, radar (punto medio): rangos.
-14. Personalidad: visible con conocimiento ≥ 60 (`PlayerPage.tsx:101`, `157`); si no, "Desconocida".
+14. **Personalidad y ánimo** (decisión del usuario, `design/ux/vestuario.md` 5.5, preguntas 2 y 22, la opción prudente): una sola función decide qué se ve según el conocimiento, `persTraits(g, p)` para la personalidad y `moraleShown(g, p)` para el ánimo (`squad.ts:90-95`, `:122-125`); ninguna pantalla mira `k >= 60` por su cuenta. Las palabras son las mismas que las de los propios (bandas de `design/gdd/plantel.md`, F9 y F10).
+
+| Conocimiento del ajeno | Personalidad (`persTraits`) | Ánimo (`moraleShown`) | Conformidad |
+|---|---|---|---|
+| Menos de 60 % | `level: 'none'`: "Todavía no la conocés. Mandalo a ojear para saber cómo es." | `null`: "Su ánimo lo dice el informe completo." | No se muestra (solo tu plantel) |
+| 60 % a 99 % | `level: 'extremes'`: solo los rasgos extremos (ambición, lealtad y temperamento 16 o más; presión 15 o más o 5 o menos; profesionalismo 15 o más o 7 o menos; liderazgo 15 o más), con la palabra de su banda ("Ambición muy alta", "Muy leal", "Temperamental", "Aparece en los partidos grandes", "Sufre la presión", "Profesional", "Poco profesional", "Líder natural"). Sin ninguno: "Ningún rasgo marcado a la vista.", siempre con "Lo que se ve hasta ahora: el informe completo dice cómo es en cada rasgo." Nunca "Equilibrado" | `null`, con el mismo texto | No |
+| 100 % (informe completo) | `level: 'full'`: una palabra por rasgo, igual que con los propios | Solo la palabra (`moraleWord`: Muy alto, Bueno, Normal, Bajo), nunca el número | No |
+
+Cada extremo cae dentro de su banda, así lo que se ve al 60 % nunca lo contradice el informe completo. Se aplica en la ficha › Resumen (la tarjeta "Felicidad" de un ajeno pasa a "Ánimo" y deja de mostrar la moral en número), la ficha › Ojeo, las columnas `pers` y `mor` de `PlayerTable` (ordenan por banda; "—" al final) y la tarjeta del mensaje "Informe completo", cuyo texto dice lo que se gana: "Ya conocés sus atributos, su potencial, cómo es en cada rasgo de su personalidad y su ánimo." (`squad.ts:283`). La fuga aceptada para los propios (`plantel`, regla 4) no alcanza a los ajenos: no se ve ningún número de su conformidad ni de su moral, no se habla con ellos y el sueldo que pedirían en una compra no usa la ambición (`demandWage`, regla 22).
 15. Potencial en la ficha: visible con conocimiento ≥ 70 (`PlayerPage.tsx:37`), en estrellas y con texto ("Futura figura" pa ≥ 85, "Muy buen potencial" ≥ 78, "Buen potencial" margen ≥ 8, "Potencial limitado", "Ya alcanzó su techo" con más de 26 años).
 16. Potencial en tablas (`pot`): solo jugadores de 23 años o menos con conocimiento ≥ 70 (`PlayerTable.tsx:21`), como 1-3 estrellas por margen `pa − ca` (≥ 12, ≥ 6, resto).
-17. Siempre exactos, sin importar el conocimiento: edad, nacionalidad, lista de puestos, pie, valor de mercado, contrato (vencimiento), cláusula, pedido de su club, estadísticas, lesión, suspensión y moral (la tarjeta "Felicidad" de un ajeno muestra la moral). El valor, el pedido, la cláusula y el vencimiento son el dato público del mercado (decisión del usuario, `mercado.md` pregunta 9).
+17. Siempre exactos, sin importar el conocimiento: edad, nacionalidad, lista de puestos, pie, valor de mercado, contrato (vencimiento), cláusula, pedido de su club, estadísticas, lesión y suspensión. La moral de un ajeno ya no: solo su palabra y solo con el informe completo (regla 14). El valor, el pedido, la cláusula y el vencimiento son el dato público del mercado (decisión del usuario, `mercado.md` pregunta 9).
 
 **Sueldos de un ajeno** (`wageShown`, `squad.ts:259-281`; F5; decisión del usuario, `mercado.md` preguntas 9 y 38)
 18. El **sueldo que cobra** (`wageShown(g, p, p.wage, 401)`) y el **sueldo que pediría** (`wageShown(g, p, demandWage(g, p), 402)`) se muestran como un rango en US$ que se achica con el conocimiento y es exacto desde 95 % (el mismo umbral que la valoración) o si el jugador es propio. Nunca `p.wage`, `wageDemand` ni `demand` directo de un ajeno en una pantalla.
@@ -91,7 +99,7 @@ Cada jugador ajeno tiene un conocimiento de 0 a 100 %. Arranca en un valor base 
 | Conocido (100) | Ojeo completo o suficientes partidos | — (no decae) | Todo exacto; sin botón de ojeo |
 | Propio | Fichado | Vendido o el DT cambia de club | 100 implícito; al salir vuelve al valor base, porque nunca se guardó en `g.know` |
 
-Umbrales visibles: 60 (personalidad), 70 (potencial), 91 (atributos exactos), 95 (valoración y sueldos exactos), 100 (informe). El ancho del rango de sueldos cambia en escalones de 5 puntos de conocimiento (F5).
+Umbrales visibles: 60 (rasgos extremos de la personalidad), 70 (potencial), 91 (atributos exactos), 95 (valoración y sueldos exactos), 100 (informe: personalidad completa y ánimo en palabras). El ancho del rango de sueldos cambia en escalones de 5 puntos de conocimiento (F5).
 
 ### Interactions with Other Systems
 
@@ -357,3 +365,4 @@ No genera decisiones pendientes. Cuando llega el informe el jugador ya está al 
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/squad.ts` y la interfaz en `d9b251a` |
 | 2026-11-14 | Claude | Resueltos: conocimiento base sin fuga del `ca`, rango no centrado (F1), búsqueda, buscador, figuras e informe del rival por la valoración conocida, seguimiento que se conserva y "Seguir" en el informe de ojeo |
 | 2026-11-15 | Claude | Sueldos de los ajenos como rango (`wageShown`, F5: escalones de 2 % cada 5 puntos, corrimiento multiplicativo y anidado, exacto desde 95 %), `demandWage` como única fuente del sueldo que pediría, préstamo con el tope controlado por el máximo del rango, lista de lo exacto y lo estimado, fugas aceptadas (a) a (d), perillas, requisitos de interfaz y criterios nuevos; líneas de `squad.ts` actualizadas a `8fe1dcb` |
+| 2026-11-15 | Claude (game-designer) | Personalidad y ánimo de los ajenos (`11816f4`, `design/ux/vestuario.md` 5.5, preguntas 2 y 22): tabla de conocimiento de la regla 14 con `persTraits` (extremos desde 60 %, palabras al 100 %) y `moraleShown` (solo la palabra y solo al 100 %); la moral sale de la lista de datos siempre exactos (regla 17) |

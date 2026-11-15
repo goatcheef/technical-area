@@ -1,7 +1,7 @@
 ---
 status: reverse-documented
-source: src/engine/squad.ts, src/engine/career.ts (juveniles), src/ui/Locker.tsx, src/ui/PlayerPage.tsx, src/ui/PlayerTable.tsx, src/ui/Inbox.tsx
-date: 2026-11-14
+source: src/engine/squad.ts, src/engine/inbox.ts, src/engine/game.ts (startNewSeason, decisionKeyOf), src/engine/career.ts (juveniles, acceptOffer, OFFER_CHANCE), src/engine/types.ts, tests/engine/vestuario.ts, design/ux/vestuario.md
+date: 2026-11-15
 verified-by: pending review
 ---
 
@@ -12,88 +12,142 @@ verified-by: pending review
 > This records what the code **does**; intent marked `INTENT UNKNOWN` below was
 > inferred, not confirmed by the author. Where this document and the code
 > disagree, do not assume the document is the requirement.
+> **Actualizado el 2026-11-15 con el motor del Vestuario** (`11816f4`; requisitos R1 a R14 de `design/ux/vestuario.md`, sección 8, y las decisiones del usuario de su sección 15): personalidad en palabras, una escala por dato, lectura del humor y "Para atender" en el motor, charlas con opciones y resultado, pedido de salida como decisión completa, promesas con estado y registro, reserva por el motor y dos umbrales alineados (lealtad 13, temperamento 14). Las líneas son de `11816f4`.
 
-> **Status**: Implemented (con huecos listados en Open Questions)
-> **Author**: Claude (game-designer, reverse-doc) · revisión pendiente del usuario
-> **Last Updated**: 2026-11-14
-> **Last Verified**: 2026-11-14 (contra `d9b251a`)
-> **Implements Pillar**: Plan de jugabilidad, punto 3 "El plantel como grupo" (`CLAUDE.md`, acordado con el usuario) · Pilar 3 "Cada decisión se entiende" de `game-concept.md` (supuesto)
+> **Status**: Implemented en el motor (la pantalla del Vestuario, en implementación según `design/ux/vestuario.md`)
+> **Author**: Claude (game-designer, reverse-doc) · decisiones del usuario del 2026-11-15
+> **Last Updated**: 2026-11-15
+> **Last Verified**: 2026-11-15 (contra `11816f4`)
+> **Implements Pillar**: Plan de jugabilidad, punto 3 "El plantel como grupo" (`CLAUDE.md`, acordado con el usuario) · Pilar 3 "Cada decisión se entiende" de `game-concept.md`
 
 ## Summary
 
-El plantel convierte a los jugadores del DT en personas con expectativas: cada uno tiene una personalidad, un rol acordado que define cuántos minutos espera, y una conformidad que sube o baja según esos minutos. Si la conformidad se hunde puede pedir irse; el DT responde con charlas, promesas, cambios de rol o la reserva. La suma del humor del grupo y de sus referentes da la armonía, que mueve un poco el rendimiento en la cancha.
+El plantel convierte a los jugadores del DT en personas con expectativas: cada uno tiene una personalidad (que el DT ve en palabras), un rol acordado que define cuántos minutos espera, y una conformidad que sube o baja según esos minutos. Si la conformidad se hunde puede pedir irse; el DT responde con charlas, promesas, cambios de rol o la reserva. La suma del humor del grupo y de sus referentes da la armonía, que mueve un poco el rendimiento en la cancha. Todo lo que la interfaz muestra (palabras, tendencias, a quién atender, qué charlas hay y qué dejó cada una) sale del motor.
 
-> **Quick reference** — Layer: `Feature` · Priority: `Vertical Slice` (implementado; ver `systems-index.md`) · Key deps: `motor-de-partido`, `mercado-de-pases`, `entrenamiento-y-cuerpo-tecnico`, `comunicacion-y-bandeja`
+> **Quick reference** — Layer: `Feature` · Priority: `Vertical Slice` (implementado; ver `systems-index.md`) · Key deps: `motor-de-partido`, `mercado-de-pases`, `entrenamiento-y-cuerpo-tecnico`, `comunicacion-y-bandeja`, `ojeo`
 
 ## Overview
 
-Después de cada partido del club del DT, el juego compara los minutos que jugó cada futbolista en sus últimos seis partidos con los que espera según su rol (Jugador clave, Titular, Rotación, Suplente, Promesa). El que juega claramente menos pierde conformidad, más rápido si es ambicioso y más despacio si es leal; con la conformidad muy baja puede pedir irse, y ese pedido llega a la bandeja como decisión pendiente. El DT tiene herramientas para manejarlo: una charla individual por semana (felicitar, exigir, prometer minutos, pedir paciencia, cambiar el rol, dejarlo ir o negarle la salida), la reserva de los miércoles para dar rodaje y la promoción anual de juveniles de inferiores. Todo se ve en el Vestuario, en la ficha del jugador y en las tablas del plantel.
+Después de cada partido del club del DT, el juego compara los minutos que jugó cada futbolista en sus últimos seis partidos con los que espera según su rol (Jugador clave, Titular, Rotación, Suplente, Promesa). El que juega claramente menos pierde conformidad, más rápido si es ambicioso y más despacio si es leal; con la conformidad muy baja puede pedir irse, y ese pedido llega a la bandeja como decisión pendiente que cuenta una sola vez. El DT tiene herramientas para manejarlo: una charla individual por semana (felicitar, exigir, prometer minutos, pedir paciencia, cambiar el rol, dejarlo buscar club o negarle la salida), declararlo transferible, la reserva de los miércoles para dar rodaje y la promoción anual de juveniles de inferiores. El motor dice a quién conviene atender y por qué (`attentionOf`), qué charlas tienen sentido y qué rasgo decide cada una (`talkOptions`), qué cambió después (`talkResult`) y cómo viene cada promesa (`promiseStatus`). Todo se ve en el Vestuario (`design/ux/vestuario.md`), en la ficha del jugador y en las tablas del plantel.
 
-**Scope**: incluye personalidad y rasgos visibles, rol y minutos esperados, conformidad, pedido de salida, promesas, charlas, armonía y referentes, reserva semanal y camada juvenil anual. **Excluye** (otros GDD): la negociación de contratos (`demand`, `evalOffer`, `applyRenewal`, en `squad.ts` pero documentada en `mercado-de-pases`), el ojeo de jugadores ajenos (`ojeo`), el entrenamiento diario (`entrenamiento-y-cuerpo-tecnico`) y la moral por resultados (`motor-de-partido`).
+**Scope**: incluye personalidad y su lectura en palabras, rol y minutos esperados, conformidad y moral en palabras, pedido de salida, promesas, charlas, armonía y referentes, "Para atender", reserva semanal y camada juvenil anual. **Excluye** (otros GDD): la negociación de contratos (`demand`, `evalOffer`, `applyRenewal`, en `squad.ts` pero documentada en `mercado-de-pases`; acá solo entra que `applyRenewal` resuelve el pedido de salida), el ojeo de jugadores ajenos (`ojeo`; acá solo entra la tabla de conocimiento de la personalidad y el ánimo de los ajenos, que usa las mismas palabras), el entrenamiento diario (`entrenamiento-y-cuerpo-tecnico`) y la moral por resultados (`motor-de-partido`).
 
 ## Player Fantasy
 
-`[inferred — confirm]` Ser el DT que maneja un vestuario de verdad: saber quién es el referente, a quién hay que darle bola esta semana y a quién se le puede pedir paciencia. La tensión central es que no hay minutos para todos: elegir el once es también una decisión humana con consecuencias. Estéticas MDA principales: **Challenge** (administrar expectativas en conflicto) y **Narrative** (los pedidos, las promesas cumplidas o rotas, el pibe que sube de inferiores). Necesidad SDT principal: **Relatedness** con los jugadores, apoyada en **Competence** (la ficha explica por qué está molesto: "juega el 20 %, espera 62 %").
+Ser el DT que maneja un vestuario de verdad: saber quién es el referente, a quién hay que darle bola esta semana y a quién se le puede pedir paciencia. La tensión central es que no hay minutos para todos: elegir el once es también una decisión humana con consecuencias. Estéticas MDA principales: **Challenge** (administrar expectativas en conflicto) y **Narrative** (los pedidos, las promesas cumplidas o rotas, el pibe que sube de inferiores). Necesidad SDT principal: **Relatedness** con los jugadores, apoyada en **Competence**: cada cambio de humor se rastrea a una cifra visible ("juega el 20 % y espera el 62 %") y cada respuesta de una charla se puede prever por una palabra de su personalidad (`design/ux/vestuario.md`, sección 1: "conocer a su grupo").
 
 ## Detailed Design
 
 ### Core Rules
 
-**Personalidad** (`persOf`, `squad.ts:12-22`)
-1. Cada jugador tiene cuatro rasgos de 1 a 20: ambición (`amb`), temperamento (`temp`), lealtad (`loy`) y presión (`pres`). Se calculan la primera vez que se piden, con un azar determinístico por id de jugador (`h`, `g4`), y quedan guardados en `p.pers`.
-2. El profesionalismo (`p.prof`, 1-20, oculto) viene de la base y no forma parte de `pers`, pero sí de los rasgos visibles.
-3. Rasgos visibles (`persLabels`, `squad.ts:24-36`), en este orden: "Modelo de profesional" (prof ≥ 16 y amb ≥ 13) o "Profesional" (prof ≥ 15) o "Poco profesional" (prof ≤ 7); "Líder natural" (Liderazgo ≥ 15); "Ambicioso" (amb ≥ 16); "Temperamental" (temp ≥ 16); "Leal al club" (loy ≥ 16); "Aparece en los partidos grandes" (pres ≥ 15); "Sufre la presión" (pres ≤ 5). Sin ninguno: "Equilibrado".
-4. Efectos fuera de este sistema: presión en partidos importantes (`match.ts:87`), temperamento en faltas y tarjetas (`match.ts:509`), ambición para que un rival pague la cláusula (`career.ts:292`) y ambición y lealtad en la negociación (`mercado-de-pases`).
+**Personalidad** (`persOf`, `squad.ts:31-41`; `ensurePersonalities`, `:43`)
+1. Cada jugador tiene cuatro rasgos de 1 a 20: ambición (`amb`), temperamento (`temp`), lealtad (`loy`) y presión (`pres`), con un azar determinístico por id (`h`, `g4`, F1). Se fijan para todos al empezar la partida y, cada día, para los que se sumaron (`ensurePersonalities` en `dailySquad`), y quedan en `p.pers`.
+2. El profesionalismo (`p.prof`, 1-20) viene de la base y el liderazgo es el atributo Liderazgo (`attrs[A.lea]`): no forman parte de `pers`, pero sí de los rasgos visibles.
+3. **Rasgos visibles en palabras** (`persTraits`, `squad.ts:90-95`; bandas en `traitOf`, `:71-80`; decisión del usuario, `vestuario.md` preguntas 1, 2, 22, 23 y 24): una palabra por rasgo, nunca números, con las bandas cortadas en los umbrales de las charlas y del motor (F9), así cada palabra dice de qué lado de cada regla está el jugador. Orden fijo: ambición, lealtad, temperamento, presión, profesionalismo, liderazgo (`TRAIT_KEYS`, `:63`); el liderazgo solo aparece si es "Líder natural". Cada rasgo trae su índice de banda (`band`) para ordenar por banda y nunca por el valor.
+   - Propio, o ajeno con conocimiento 100 %: `level: 'full'`, todas las palabras.
+   - Ajeno con conocimiento de 60 a 99 %: `level: 'extremes'`, solo los rasgos extremos (`isExtreme`, `:84`: ambición, lealtad y temperamento 16 o más; presión 15 o más o 5 o menos; profesionalismo 15 o más o 7 o menos; liderazgo 15 o más), con la palabra de su banda. Cada extremo cae dentro de su banda, así lo que se ve al 60 % nunca lo contradice el informe completo.
+   - Ajeno con menos de 60 %: `level: 'none'`, sin rasgos.
+   - `persLabels` (`:45-57`, con "Modelo de profesional", "Ambicioso", "Leal al club" y "Equilibrado") queda solo por compatibilidad: ninguna pantalla nueva lo usa. "Modelo de profesional" desaparece (rasgo combinado sin umbral del motor detrás, `vestuario.md` pregunta 45).
+4. **Fuga aceptada para los propios** (decisión del usuario, `vestuario.md` pregunta 1): la conformidad, la moral y los efectos de las charlas se ven con su número exacto, y con eso un DT que haga cuentas puede despejar la ambición exacta (bajarle el rol cambia la conformidad en −2 − ambición), acotar el temperamento a unos cinco valores, y acotar ambición y lealtad por la renovación. Son su plantel. Los ajenos no tienen esta excepción (5.5 de `vestuario.md` y `ojeo`).
+5. Efectos fuera de este sistema: presión en partidos importantes (`match.ts:94`), temperamento en faltas y tarjetas (`match.ts:535`), ambición 12 o más para aceptar que un rival pague la cláusula (`career.ts:432`, el corte de la banda "Alta") y ambición y lealtad en la renovación (`mercado-de-pases`).
 
-**Rol en el plantel** (`STATUS`, `squad.ts:39-46`)
-5. Cinco roles con minutos esperados (`share`, fracción de 90 por partido), nivel (`lvl`) y factor de sueldo: Jugador clave 0,82 / 4 / 1,25; Titular 0,62 / 3 / 1,1; Rotación 0,36 / 2 / 1; Suplente 0,14 / 1 / 0,9; Promesa 0,08 / 0 / 0,8.
-6. Rol natural (`naturalStatus`, `squad.ts:48-55`): se ordena el plantel por valoración en el mejor puesto; puestos 1-3 son clave; 4-11 titulares; 12-18 rotación, o Promesa si tiene 20 años o menos; del 19 en adelante suplentes, o Promesa si tiene 21 o menos.
-7. `initSquad` (`squad.ts:56-58`) asigna el rol natural **solo a quien no tiene rol**, conformidad 70 y lista de minutos vacía. Corre al empezar la partida (`game.ts:278`), al asumir en otro club (`career.ts:103`) y al empezar cada temporada (`game.ts:657`).
-8. El rol cambia solo por charla (`status`), por renovación o fichaje con el rol pactado (`applyRenewal`, `doTransfer`, ver `mercado-de-pases`).
+**Rol en el plantel** (`STATUS`, `squad.ts:128-134`)
+6. Cinco roles con minutos esperados (`share`, fracción de 90 por partido), nivel (`lvl`) y factor de sueldo: Jugador clave 0,82 / 4 / 1,25; Titular 0,62 / 3 / 1,1; Rotación 0,36 / 2 / 1; Suplente 0,14 / 1 / 0,9; Promesa 0,08 / 0 / 0,8.
+7. Rol natural (`naturalStatus`, `squad.ts:137-144`): se ordena el plantel por valoración en el mejor puesto; puestos 1-3 son clave; 4-11 titulares; 12-18 rotación, o Promesa si tiene 20 años o menos; del 19 en adelante suplentes, o Promesa si tiene 21 o menos.
+8. `initSquad` (`squad.ts:145-148`) asigna el rol natural **solo a quien no tiene rol**, conformidad 70 y lista de minutos vacía. Corre al empezar la partida (`game.ts:377`), al asumir en otro club (`career.ts:145`) y al empezar cada temporada (`game.ts:824`).
+9. El rol cambia solo por charla (`status`), por renovación o fichaje con el rol pactado (`applyRenewal`, `doTransfer`, ver `mercado-de-pases`).
 
-**Minutos y conformidad** (`afterUserMatch`, `squad.ts:63-86`; se llama en `game.ts:377` tras cada partido del DT, en cualquier competencia)
-9. Para cada jugador del plantel: minutos del partido, con tope 90 (0 si no jugó). Si está lesionado o suspendido y no jugó, ese partido no cuenta para él.
-10. Se agregan a `p.recent` (últimos 6) y, si tiene una promesa activa, a `p.promise.mins`.
-11. Con menos de 3 partidos en `recent` no pasa nada más.
-12. Si el déficit es positivo, baja la conformidad (fórmula F2); si no, sube 2 (4 si estaba debajo de 60).
-13. Con conformidad < 35, baja la moral (F3).
-14. Pide irse (`wantsOut = true`) si todavía no lo pidió, conformidad < 18, lealtad < 15, rol distinto de Promesa y un azar determinístico que se sortea de nuevo cada semana (`hash01(id, semana) < 0,5`). Genera la noticia `act: 'out'` (ver UI Requirements).
+**Minutos y conformidad** (`afterUserMatch`, `squad.ts:177-195`; se llama en `game.ts:501` tras cada partido del DT, en cualquier competencia)
+10. Para cada jugador del plantel: minutos del partido, con tope 90 (0 si no jugó). Si está lesionado o suspendido y no jugó, ese partido no cuenta para él (`:182`).
+11. Se agregan a `p.recent` (últimos 6) y, si tiene una promesa activa, a `p.promise.mins`.
+12. Con menos de 3 partidos en `recent` no pasa nada más (el partido se agrega antes del corte: con 2 en `recent`, el próximo ya cuenta).
+13. La conformidad nueva sale de `moodAfter` (`:167-172`), la misma regla que usa la lectura del humor (`moodDelta`, `:174`; `minutesOf.nextDelta`): si el déficit es positivo, baja (F2, con la tolerancia del rol `minutesTol`, `:158-161`); si no, sube 2 (4 si estaba debajo de 60). El refactor no cambió la regla (`tests/engine/vestuario.ts`, "refactor de moodDelta"; la simulación da idéntica).
+14. Con conformidad < 35, baja la moral (F3).
+15. Pide irse (`wantsOut = true`, `p.outDate = hoy`) si todavía no lo pidió, conformidad < 18, lealtad < 15, rol con nivel ≥ 1 (no Promesa) y un azar determinístico que se sortea de nuevo cada semana (`hash01(id, weekNo(fecha)) < 0,5`, `:190`). Genera el mensaje `act: 'out'` con la causa en números (`:192`).
 
-**Promesas** (`talk 'promise'` y `dailySquad`, `squad.ts:89-106`)
-15. Prometer minutos crea `{ until: hoy + 35 días, share: min(0,9, share del rol + 0,22), mins: [] }`, suma 18 de conformidad y 5 de moral y anula el pedido de salida.
-16. Cada día, si llegó la fecha: con menos de 2 partidos registrados el plazo se corre 14 días; si no, se compara el promedio jugado con `share × 0,85`. Cumplida: +25 conformidad, +8 moral, noticia "X, conforme". Rota: −30 conformidad, −14 moral, −1 de reputación del DT, −1 de moral para el resto del plantel, noticia "X se siente engañado". La promesa se borra en ambos casos.
+**Lectura del humor** (todo en el motor; la pantalla no calcula nada, `vestuario.md` R7 y R12)
+16. **Una escala por dato** (F10): la conformidad en palabras sale solo de `moodOf(happy)` (`squad.ts:104-108`: Muy contento ≥ 80, Contento ≥ 60, Conforme ≥ 35, Molesto ≥ 18, Muy molesto < 18; 35 y 18 son los cortes del motor); la moral, de `moraleOf` / `moraleWord` (`:111-115`: Muy alto ≥ 80, Bueno ≥ 60, Normal ≥ 35, Bajo < 35; con menos de 35 no quiere renovar); la armonía, de `harmonyWord` (`:117`: Grupo unido ≥ 70, Clima normal ≥ 45, Hay ruido ≥ 25, Vestuario partido). `moodOf` y `moraleOf` dan el número con `Math.floor`, así número y palabra nunca se contradicen en un corte. "Molesto" quiere decir < 35 en todas partes; el referente entre 35 y 49 "resta", no está "molesto".
+17. **El ánimo que se ve** (`moraleShown`, `:122-125`): propio, número y palabra; ajeno con conocimiento 100 %, solo la palabra; ajeno con menos, nada (`null`: "Su ánimo lo dice el informe completo.").
+18. **Minutos** (`minutesOf`, `:220-224`): participación (`got`), lo que espera el rol (`expected`), el umbral (`expected × 0,85`), la tolerancia (`tol`), los minutos que cuentan (`recent`), `counts` (2 partidos o más: el próximo ya mueve la conformidad), `idle` si no juega el próximo partido por lesión (`injuryOutlook(...).matches > 0`) o suspensión (`idleOf`, `:198-202`), y `nextDelta`: el cambio que le dejaría el próximo partido al ritmo de hoy (0 sin `counts` o con `idle`; la pantalla muestra solo su signo).
+19. **Tendencia** (`moodOutlook`, `:231-235`): `sin datos` sin `counts`, `en pausa` con `idle`, `baja` / `sube` / `estable` por el signo de `nextDelta`. `canAskOut`: lo que mira `afterUserMatch` después del próximo partido (cuenta, sin `idle`, no lo pidió, `happy + nextDelta < 18`, nivel ≥ 1, lealtad < 15). No expone el sorteo de la semana: el texto es "Puede pedir irse después del próximo partido (cada semana, una chance en dos)".
+20. **Causa del humor** (`moodCause`, `:649-658`): la última causa que no son los minutos (`p.moodNote`: promesa rota, rol bajado, charla que lo dejó peor, "puede buscar club" sin pedirlo) con su fecha; si no hay, la de los minutos ("Juega 20 % y espera 62 %."). La nota la escriben `talkResult` (si la charla le bajó la conformidad; la borra si se la subió) y `dailySquad` (promesa rota; la cumplida la borra).
 
-**Charlas individuales** (`talk`, `squad.ts:148-187`; UI `TalkModal`, `Locker.tsx:54-82`)
-17. Una charla cada 7 días por jugador (`canTalk`, `p.lastTalk`). La fecha se registra al empezar la charla, salga como salga.
-18. Opciones y cuándo se ofrecen (`Locker.tsx:59-66`): Felicitarlo y Exigirle más (siempre); Prometerle más minutos (conformidad < 60 o quiere irse, y sin promesa activa); Pedirle paciencia (conformidad < 60); Decirle que no se va (quiere irse); Decirle que puede buscar club (no es transferible); Cambiarle el rol (siempre, con selector de rol).
-19. Resultados (tabla F5). Cada charla devuelve una respuesta textual que se muestra en la misma ventana; no genera noticia.
+**"Para atender"** (`attentionOf`, `squad.ts:701-705`; motivos en `reasonsOf`, `:664-697`)
+21. Una fila por jugador propio con al menos un motivo (tabla "Motivos" de `vestuario.md` 5.3). El motivo principal es el de rango más alto (1); los demás van como chips secundarios. Orden: por rango y, dentro de un rango, por conformidad de menor a mayor. Es la **única fuente** de la lista del Vestuario, de su número y de la línea "Vestuario" del Inicio.
 
-**Armonía y referentes** (`harmony`, `squad.ts:135-145`)
-20. Referentes: los 3 no lesionados con más `Liderazgo × 2 + edad × 0,4 + nivel del rol × 2`.
-21. Disconformes: conformidad < 35 o quiere irse.
-22. Valor de 0 a 100 (F6). Efecto en partido: `harmonyBoost` multiplica el control del mediocampo y el término táctico del equipo del DT (`game.ts:327` → `match.ts:128`, `match.ts:195`).
+| Rango | Motivo (`k`, chip) | Condición |
+|---|---|---|
+| 1 | `out`, "Quiere irse" (es el pendiente `out<pid>`, `decide: true`, "No vence.") | `wantsOut && !listed` |
+| 1 | `outListed`, "Quiere irse · transferible" | `wantsOut && listed` |
+| 2 | `promiseRisk`, "Promesa en riesgo" | Promesa vigente con `onTrack` falso |
+| 3 | `upset`, la palabra de `moodOf` ("Molesto" o "Muy molesto") | `happy < 35` |
+| 4 | `falling`, "En baja" (`fallingOf`, `:237`) | `happy ≥ 35`, `counts`, sin `idle` y `nextDelta < 0` |
+| 5 | `leader`, "Referente que resta" | Referente con `happy < 50` |
+| 6 | `promiseOk`, "Minutos prometidos" | Promesa vigente que va bien |
 
-**Reserva** (`weeklyReserve`, `squad.ts:120-132`)
-23. Los miércoles (día UTC 3, dentro de `advanceDay`, `game.ts:568`) juega la reserva si hay al menos 7 jugadores marcados (`p.reserve`) y sanos.
-24. Cada uno suma progreso de entrenamiento (`p.tx`, F7), 3 de conformidad si es Suplente o Promesa, y pierde 6 de físico (piso 70). Rival al azar de la misma categoría; resultado 0-3 a 0-3 al azar; figura al azar entre los que jugaron. Noticia del resultado. Los minutos de reserva **no** cuentan para `recent`.
+La consecuencia de no hacer nada del rango 1 mira el libro (`windowState`): abierto, "siguen llegando ofertas por él"; cerrado, cuándo reabre (el 25 jun, o al comenzar la temporada siguiente, el 10 ene). Del rango 3, con `idle`: "Resta armonía. Mientras no juegue por la lesión, su conformidad no cambia." Una Promesa (`tol` 0) no entra nunca en "En baja" por los minutos, salvo ambición 15 o más y 20 años o más.
 
-**Juveniles de inferiores** (`seasonTurnover` y `makeYouth`, `career.ts:364-421`)
-25. Al empezar cada temporada, cada club recibe `max(3, 24 − tamaño del plantel)` juveniles; el club del DT, `max(3 + (Trabajo con juveniles ≥ 15 ? 1 : 0), 24 − tamaño)`. Si quedan menos de 2 arqueros, se suma un arquero extra (que no figura en la noticia).
-26. Cada juvenil: 16 a 18 años, nacionalidad argentina, puesto al azar con pesos (`YOUTH_POS`, `career.ts:357`), contrato hasta temporada + 3, `gen: true`, `youth: true`, sueldo y valor de `valuation`. Calidad por F8.
-27. Para el club del DT, noticia con todos los nombres y el de mayor potencial destacado. Después `initSquad` les da rol natural (casi siempre Promesa).
+**Promesas** (`talkResult 'promise'`, `squad.ts:505-509`; `dailySquad`, `:246-273`; `promiseStatus`, `:637-647`)
+22. Prometer minutos crea `{ until: hoy + 35 días, share: min(0,9, share del rol + 0,22), mins: [] }`, suma 18 de conformidad y 5 de moral, anula el pedido de salida y abre una línea en `p.promiseLog`.
+23. Cada día, si llegó la fecha (al empezar el día `until`, antes del partido de ese día): con menos de 2 partidos registrados el plazo se corre 14 días, se marca `p.promise.ext`, se anota la prórroga en `p.promiseLog` y llega el mensaje "El plazo de la promesa a {nombre} se corrió al {fecha}: jugó menos de 2 partidos." (`:254`, nace sin leer). Si no, se compara el promedio jugado con `share × 0,85`. Cumplida: +25 conformidad, +8 moral, borra `moodNote`, mensaje "X, conforme". Rota: −30 conformidad, −14 moral, `moodNote` "promesa rota", −1 de reputación del DT, −1 de moral para el resto del plantel, mensaje "X se siente engañado". Los dos mensajes suman la cifra: "Jugó el 74 % de los minutos; le habías prometido el 84 % (cumplías con 71 %)." La promesa se borra y su línea del registro queda con `got` y `result`.
+24. **Estado de la promesa** (`promiseStatus`): objetivo, umbral (`target × 0,85`), lo jugado (`got`, `played`), `matchesLeft` (partidos del club sin jugar desde hoy hasta el **día anterior** a `until`: el de ese día se juega después de evaluar), `minutesNeeded` (F4), `onTrack` (al ritmo de hoy cumple; con menos de 2 partidos, verdadero: "Todavía no jugó lo suficiente para medirla"), `reachable` (si no, "Ya no llega: aunque juegue todo, no cumplís.") y `extended` / `extendedOn`.
+
+**Charlas individuales** (`talkOptions`, `squad.ts:447-462`; `talkResult`, `:481-548`; `talk`, `:550`, la forma vieja que devuelve solo el texto)
+25. Una charla cada 7 días por jugador (`canTalk`, `:362`; `nextTalk`). La fecha (`p.lastTalk`) se registra solo si la charla se hizo: una charla rechazada por el motor (ya hablaron, opción oculta o deshabilitada, mismo rol) no gasta la semana.
+26. **Opciones** (`talkOptions`): las siete charlas, **ya ordenadas** según el motivo principal de "Para atender" (`TALK_ORDER`, `:413`; tabla "Orden de las opciones" de `vestuario.md` 5.3), con su título, la regla en palabras sin veredicto (`TALK_RULE`, `:401`), el rasgo que decide con la palabra de `persTraits` (`trait` y `traits`, `TALK_TRAITS`, `:411`: no se va → lealtad; paciencia → lealtad y ambición; rol → ambición y temperamento; exigir → profesionalismo y temperamento), si se muestra, si está deshabilitada y por qué (`talkCheck`, `:375-394`), si pide confirmación (`cost`: prometer, cambiar el rol, buscar club) y sus datos (`extra`: objetivo, umbral, plazo y partidos de la promesa; lo que espera cada rol y lo que juega hoy; forma y goles de `talkContext`; `letGo` en "buscar club").
+27. **Disponibilidad** (`talkCheck`; la misma función valida `talkResult`, así no hay dos copias). Las condiciones son las de antes, pasadas al motor; los cuatro casos que antes se ocultaban en silencio ahora se muestran deshabilitados con el motivo (`vestuario.md` pregunta 53):
+
+| Charla | Oculta si | Deshabilitada si (motivo) | Confirmación |
+|---|---|---|---|
+| Decirle que no se va (`stay`) | No quiere irse | — | No |
+| Prometerle más minutos (`promise`) | Conformidad ≥ 60, no quiere irse y no está "En baja" | Promesa vigente ("Ya tiene una promesa hasta el {fecha}."); conformidad ≥ 60, sin pedido y "En baja" ("Todavía está contento (conformidad {n}): podés prometerle cuando baje de 60.") | Sí |
+| Pedirle paciencia (`patience`) | Conformidad ≥ 60, no quiere irse y no está "En baja" | Conformidad ≥ 60 con pedido o "En baja" ("… pedirle paciencia sirve cuando baje de 60.") | No |
+| Cambiarle el rol (`status`) | Nunca | — (el mismo rol no hace nada: "Elegí un rol distinto del que tiene.") | Sí |
+| Decirle que puede buscar club (`free`) | Nunca | A préstamo ("Está a préstamo: no se lo puede declarar transferible."); ya transferible ("Ya está declarado transferible.") | Sí |
+| Felicitarlo (`praise`), Exigirle más (`demand`) | Nunca | — | No |
+
+28. **Resultado** (`talkResult`, F5): `{ text, before, after, changes, reply, resolved? }`. `text` es la frase del jugador; `before` / `after`, la conformidad y la moral antes y después; `changes`, los cambios de estado ("Ya no pide irse", "Pasa a querer irse", "Minutos prometidos hasta el {fecha}", "Quedó transferible", "Nuevo rol: {rol}"); `reply`, la respuesta corta ("Le convenció", "No le convenció", "Lo tomó mal"); sin `after`, no hubo charla. La charla no emite mensaje: el DT ya vio la respuesta.
+29. **Registro** (`vestuario.md` pregunta 7; campos opcionales, `Game.version` sigue en 6): `p.talks` guarda las últimas 5 charlas `{ date, kind, reply }`; `p.promiseLog`, las promesas de la temporada (`made`, `until`, `target`, `got`, `result`: `kept`, `broken` o `extended`; sin `result`, la vigente), que se vacía al cambiar de temporada salvo la vigente (`game.ts:810`) y se borra con un pase (`doTransfer`, `career.ts:316`); `p.moodNote`, la causa del humor (regla 20); `p.outDate`, desde cuándo quiere irse (en partidas viejas, `outDateOf`, `:611-614`, usa la fecha del mensaje `act: 'out'` más nuevo).
+30. **Estado de la charla en un texto** (`talkState`, `:564-571`): con la charla disponible, "Disponible"; si no, `long` "Hablaron el 12 nov · de nuevo desde el 19 nov" ("Hablaron hoy · …" el mismo día), `withReply` con la respuesta corta ("Hablaron el 12 nov (no le convenció) · …") y `short` "desde el 19 nov". Un solo texto para la fila, el panel, la ficha, la banda, la tabla y la ventana.
+31. "Felicitarlo" juzga por `talkContext` (`:366-368`): promedio de `p.form` (6,5 sin partidos) y goles de la temporada.
+
+**Pedido de salida como decisión** (`vestuario.md` R1, R11; `bandeja.md` preguntas 24 y 25)
+32. Mientras quiere irse y no es transferible, es el pendiente `out<pid>` de la bandeja (`pendingAll` con `outOpen`, `inbox.ts:66-69`). Cuenta **una vez**: `decisionKeyOf` reconoce `out<pid>` por `act: 'out'` y `pid`, sin `ref` (`game.ts:273-274`); de varios mensajes del mismo jugador solo el más nuevo se liga al pendiente (`newestOf`); y `pendingKeyOf(g, n)` lo da por abierto solo con `outOpen` (`inbox.ts:82`). El Vestuario lo muestra en "Para atender" sin contarlo de nuevo.
+33. **Resolverlo a propósito marca leídos sus mensajes** (`readDecisionNews(g, 'out<pid>')` dentro de la función del motor): `talkResult` cuando la charla le saca el pedido (`stay`, `promise`, `status` con subida) o lo deja transferible (`free`) (`:546`; `resolved: 'out'` si no era transferible); `setListed(g, pid, true)` con pedido (`:355-361`; también la acción masiva "Declarar transferibles"); `applyRenewal` (`:852-860`); y `acceptOffer` (`career.ts:371`), la venta que decide el DT, a un club argentino o al exterior (`sellAbroad` no pasa por `doTransfer`).
+34. **Lo que lo cierra sin el DT no se marca**: un rival que paga su cláusula, la vuelta de un préstamo, el pase libre, el retiro o el cambio de club del DT dejan el mensaje sin leer y, como `outOpen` deja de cumplirse, cuenta una vez como mensaje común.
+35. **Reaparecer**: "Quitar de transferibles" (`setListed(g, pid, false)`) a un jugador que quiere irse reabre `out<pid>` con su mensaje ya leído (cuenta 1 como pendiente; no frena el avance, lo hizo el DT). El cambio de temporada vacía la lista de transferibles (`game.ts:809`); el motor anota antes a los del DT que estaban en la lista queriendo irse (`:803`) y, **después de `seasonTurnover`** (`:812`), manda a cada uno que siga en el plantel queriendo irse "{nombre} sigue queriendo irse" (`act: 'out'`, nace sin leer, `:815-818`), que es el más nuevo de su clave.
+36. **Sin charla extra** (`vestuario.md` pregunta 8): si la charla de la semana ya se usó, la acción disponible es "Declararlo transferible". `outActions(g, p)` (`:600-608`) dice cuál es la principal (`talk` si se puede hablar; si no, `list` si se puede vender y no es transferible; si no, ninguna) y el texto (`note`: "Hablaron el 12 nov · de nuevo desde el 19 nov. Mientras tanto, podés declararlo transferible: no gasta la charla, pero tampoco lo pone más contento.", o el de préstamo).
+37. **Dos caminos con efectos distintos** (`vestuario.md` pregunta 5; `letGoInfo`, `:586-595`, F11): "Declararlo transferible" no cambia el humor, no gasta la charla y, si quería irse, sigue queriendo; "Decirle que puede buscar club" es una charla: +15 / +6 si lo pidió, −20 / −12 y pasa a querer irse si no. Los dos lo dejan transferible. `letGoInfo` da los números que la pantalla puede prometer (la chance diaria de oferta, el libro de `windowState`, el precio ×0,75 solo para los clubes que lo buscan para reforzar un puesto) y la respuesta de `free` a quien lo pidió mira el libro (`freeOfferText`, `:552-557`).
+
+**Armonía y referentes** (`harmony`, `squad.ts:334-346`)
+38. Referentes: los 3 no lesionados con más `Liderazgo × 2 + edad × 0,4 + nivel del rol × 2`.
+39. Disconformes: conformidad < 35 o quiere irse. Los disconformes con temperamento 14 o más (`TEMP_HOT`, `:15`, el corte de la palabra "Temperamental"; antes 15) restan 3 más (decisión del usuario, `vestuario.md` pregunta 23, R13).
+40. Valor de 0 a 100 (F6) y su desglose en enteros (`parts`: `base`, `lead`, `unhappy`, `temper`, `clip`) que siempre suma el valor, para "Qué la mueve". Efecto en partido: `harmonyBoost` (`:348`) multiplica el control del mediocampo del equipo del DT (`game.ts:451`).
+
+**Reserva** (`setReserve`, `squad.ts:290-294`; `weeklyReserve`, `:306-325`)
+41. Anotar o sacar de la reserva pasa por `setReserve(g, ids, on)`: solo jugadores del DT; devuelve cuántos cambiaron. La pantalla no escribe `p.reserve`. `nextReserveDay` (`:296-300`) da el próximo miércoles después de hoy y `reserveOf` (`:302-305`) cuántos hay anotados y sanos y el mínimo (7).
+42. Los miércoles (día UTC 3, en `nightSquad`, `game.ts:682-685`, que corren `advanceDay` y `finishUserMatch`) juega la reserva si hay al menos 7 anotados y sanos. Cada uno suma progreso (`addProgress`, F7, hasta su potencial), 3 de conformidad si es Suplente o Promesa, y pierde 6 de físico (piso 70). Rival al azar de la misma categoría, resultado 0-3 a 0-3 al azar, figura al azar; mensaje del resultado. Los minutos de reserva **no** cuentan para `recent`.
+43. Con anotados pero menos de 7 sanos no se juega y llega "Reserva: no hubo partido" con cuántos había y cuántos lesionados, `act: 'reserve'` ("Armar la reserva" abre el Vestuario en ese modo) y el texto "Podés anotar más desde este mensaje." (`:313`). Sin anotados, nada.
+
+**Juveniles de inferiores** (`seasonTurnover` y `makeYouth`, `career.ts:882-947`)
+44. Al empezar cada temporada, cada club recibe `max(3, 24 − tamaño del plantel)` juveniles; el club del DT, `max(3 + (Trabajo con juveniles ≥ 15 ? 1 : 0), 24 − tamaño)` (`career.ts:939`). Si quedan menos de 2 arqueros, se suma un arquero extra (que no figura en la noticia).
+45. Cada juvenil: 16 a 18 años, nacionalidad argentina, puesto al azar con pesos (`YOUTH_POS`, `career.ts:882`), contrato hasta temporada + 3, `gen: true`, `youth: true`, sueldo y valor de `valuation`. Calidad por F8.
+46. Para el club del DT, noticia con todos los nombres y el de mayor potencial destacado (`career.ts:945`). Después `initSquad` les da rol natural (casi siempre Promesa).
 
 ### States and Transitions
 
 | State | Entry Condition | Exit Condition | Behavior |
 |-------|----------------|----------------|----------|
-| Conforme (`happy` ≥ 35, sin pedido) | Valor inicial 70; o subida de conformidad | Conformidad < 35 | Sin chips; suma a la armonía |
-| Molesto (`happy` < 35) | Déficit sostenido de minutos, promesa rota, charla mal recibida | Conformidad ≥ 35 | Chip "Molesto"; cuenta como disconforme (−3 de armonía, −6 si temp ≥ 15); pierde moral tras cada partido |
-| Quiere irse (`wantsOut`) | Regla 14; o charla "puede buscar club" sin haberlo pedido | Promesa, subida de rol, "no se va", renovación, transferencia | Chip "Quiere irse"; pendiente `out` mientras no sea transferible; recibe ofertas (5 % por día con el libro abierto, `career.ts:329`) |
-| Quiere irse y transferible | Charla "puede buscar club" o botón "Declararlo transferible" | Venta, "no se va", promesa, subida de rol | Sale de pendientes; sigue siendo disconforme; ofertas al 12 % diario |
-| Promesa activa (`promise`) | Charla "Prometerle más minutos" | Fecha límite con ≥ 2 partidos; transferencia | Chip "Promesa" con fecha; registra minutos |
-| Promesa vencida sin partidos | Fecha límite con < 2 partidos | Se reprograma +14 días | Sin efecto visible |
-| En reserva (`reserve`) | Botón en Vestuario o acción masiva | Botón o acción masiva; transferencia | Chip "Reserva"; juega los miércoles si hay 7 |
-| Charla en espera | Charla realizada | 7 días | Vestuario muestra "Hablaron hace poco" |
+| Contento o conforme (`happy` ≥ 35, sin pedido) | Valor inicial 70; o subida de conformidad | Conformidad < 35 | Palabra de `moodOf` ("Muy contento", "Contento", "Conforme"); suma a la armonía |
+| En baja (`happy` ≥ 35, `nextDelta` < 0) | Al ritmo de hoy el próximo partido le baja la conformidad | Juega lo que espera, cambia de rol, se lesiona o queda suspendido | Fila "En baja" (rango 4); "Prometer" y "Paciencia" se muestran (deshabilitadas si está en 60 o más) |
+| Molesto / Muy molesto (`happy` < 35 / < 18) | Déficit sostenido de minutos, promesa rota, charla que lo dejó peor | Conformidad ≥ 35 | Palabra de `moodOf`; cuenta como disconforme (−3 de armonía, −6 si temperamento ≥ 14); pierde moral tras cada partido; con `canAskOut`, puede pedir irse tras el próximo |
+| En pausa (`idle`) | Lesionado para el próximo partido o suspendido | Vuelve a estar disponible | Tendencia "en pausa"; sin "En baja" ni `canAskOut` (el motor no cuenta ese partido) |
+| Quiere irse (`wantsOut`, `outDate`) | Regla 15; o charla "puede buscar club" sin haberlo pedido | Promesa, subida de rol, "no se va", renovación, venta (decisiones del DT); cláusula, préstamo que vuelve, libre, retiro, cambio de club del DT (sin decisión) | Pendiente `out<pid>` (cuenta 1); fila rango 1 "Para decidir"; recibe ofertas con el libro abierto (5 % por día, `OFFER_CHANCE.out`, `career.ts:287`) |
+| Quiere irse y transferible | Charla "puede buscar club" o "Declararlo transferible" | Venta, "no se va", promesa, subida de rol; "Quitar de transferibles" o el cambio de temporada lo devuelven a "Quiere irse" | Sale de pendientes; fila "Quiere irse · transferible"; sigue disconforme; ofertas al 12 % diario con el libro abierto |
+| Promesa activa (`promise`) | Charla "Prometerle más minutos" | Fecha límite con ≥ 2 partidos; transferencia | Fila "Minutos prometidos" (rango 6) o "Promesa en riesgo" (rango 2) según `promiseStatus`; registra minutos |
+| Promesa extendida (`promise.ext`) | Fecha límite con < 2 partidos | Nueva fecha límite | Se corre 14 días, sin límite de veces; mensaje de la prórroga y línea `extended` en el registro |
+| En reserva (`reserve`) | `setReserve` (panel, ficha, columna de la tabla, acción masiva) | `setReserve`; transferencia | Juega los miércoles si hay 7 sanos |
+| Charla en espera | Charla realizada | 7 días | `talkState`: "Hablaron el … · de nuevo desde el …" en lugar de "Hablar" |
 
 Roles (Clave ↔ Titular ↔ Rotación ↔ Suplente ↔ Promesa): cualquier rol a cualquier otro por charla; subir es bien recibido, bajar no (F5).
 
@@ -101,17 +155,17 @@ Roles (Clave ↔ Titular ↔ Rotación ↔ Suplente ↔ Promesa): cualquier rol 
 
 | Sistema | Entra | Sale | Responsable |
 |---------|-------|------|-------------|
-| `motor-de-partido` | Minutos por jugador (`res.lines`) tras cada partido del DT | `harmonyBoost` para el equipo del DT; `pers.pres` y `pers.temp` del once | `game.ts` aplica el resultado y llama a `afterUserMatch` |
-| `temporada-y-ligas` | Día del calendario (miércoles), cambio de temporada | — | `advanceDay`, `finishUserMatch`, `startNewSeason` |
-| `mercado-de-pases` | `doTransfer` resetea minutos, promesa, pedido, reserva y deja conformidad 72 | `wantsOut` y `listed` aumentan las ofertas; rol y personalidad alimentan `demand`/`evalOffer` | `career.ts` |
-| `entrenamiento-y-cuerpo-tecnico` | `sab(g, 'youth')` para la camada; `dailyTraining` convierte `p.tx` en atributos | Reserva y "Exigirle más" suman `p.tx` | `week.ts:119-131` |
+| `motor-de-partido` | Minutos por jugador tras cada partido del DT | `harmonyBoost` para el equipo del DT; `pers.pres` y `pers.temp` del once | `game.ts` aplica el resultado y llama a `afterUserMatch` |
+| `temporada-y-ligas` | Día del calendario (miércoles), cambio de temporada | Mensaje "sigue queriendo irse" al vaciar la lista | `advanceDay`, `finishUserMatch`, `startNewSeason` |
+| `mercado-de-pases` | `doTransfer` resetea minutos, promesa, pedido, reserva, `outDate`, `moodNote` y `promiseLog` y deja conformidad 72; `acceptOffer` resuelve el pedido; `windowState` para los textos | `wantsOut` y `listed` aumentan las ofertas (`OFFER_CHANCE`, `LISTED_PRICE`); rol y personalidad alimentan `demand`/`evalOffer` | `career.ts` |
+| `entrenamiento-y-cuerpo-tecnico` | `sab(g, 'youth')` para la camada; `dailyTraining` convierte `p.tx` en atributos | Reserva y "Exigirle más" suman `p.tx` | `week.ts` |
 | `carrera-del-dt` | Atributo "Trabajo con juveniles" (`manager.attrs.you`) | Promesa rota: −1 reputación del DT | `career.ts` |
-| `comunicacion-y-bandeja` | — | Noticias y pendiente `out` | `news()` en `game.ts:176` |
-| `ojeo` | — | `persLabels` se muestra para ajenos con conocimiento ≥ 60 | `PlayerPage.tsx` |
+| `comunicacion-y-bandeja` | — | Mensajes, pendiente `out<pid>`, `readDecisionNews` al resolver | `news()` en `game.ts:252`; `inbox.ts` |
+| `ojeo` | `knowOf` | `persTraits` y `moraleShown` deciden qué se ve de un ajeno (tabla de conocimiento) | `squad.ts` |
 
 ## Formulas
 
-**F1. Rasgos de personalidad** (`squad.ts:10-22`)
+**F1. Rasgos de personalidad** (`squad.ts:18-41`)
 ```
 g4(pid, k) = (h(pid,k) + h(pid,k+7) + h(pid,k+13) + h(pid,k+29) − 2) × 1,73   // ≈ normal(0, 1), rango ±3,46
 amb  = clamp(round(10 + g4·3,6 + (ca − 62) / 7), 1, 20)
@@ -119,59 +173,74 @@ temp = clamp(round(10 + (Agresividad − 10)·0,55 + g4·3,2), 1, 20)
 loy  = clamp(round(10 + g4·3,8), 1, 20)
 pres = clamp(round(9 + (Serenidad − 10)·0,5 + (2026 − año_nac − 24)·0,2 + g4·3), 1, 20)
 ```
-Ejemplo: ca 76, g4 = 0,5 → amb = round(10 + 1,8 + 2) = 14. Nota: `pres` usa 2026 fijo, no la temporada actual.
+Ejemplo: ca 76, g4 = 0,5 → amb = round(10 + 1,8 + 2) = 14 ("Alta"). Nota: `pres` usa 2026 fijo, no la temporada actual.
 
-**F2. Pérdida de conformidad por minutos** (`squad.ts:75-79`)
+**F2. Conformidad por minutos** (`moodAfter`, `squad.ts:167-172`; `minutesTol`, `:158-161`)
 ```
 jugado  = Σ recent / (len(recent) × 90)
 deficit = share_rol × 0,85 − jugado
-tol     = Promesa: (amb ≥ 15 y edad ≥ 20 ? 0,6 : 0) · Suplente: 0,5 · resto: 1
+tol     = Promesa: (amb ≥ 15 y edad a g.date ≥ 20 ? 0,6 : 0) · Suplente: 0,5 · resto: 1
 si deficit > 0: happy −= deficit × 22 × tol × (1 + (amb − 10)·0,05) × (1 − (loy − 10)·0,04)
 si no:          happy += 2 (+2 si happy < 60)
 happy ∈ [0, 100]
+moodDelta(g, p, sh) = moodAfter(g, p, sh) − happy        // ya recortado; minutesOf.nextDelta = moodDelta(g, p, jugado)
 ```
 | Variable | Tipo | Rango | Fuente | Descripción |
 |---|---|---|---|---|
 | share_rol | float | 0,08-0,82 | `STATUS` | Minutos esperados |
 | jugado | float | 0-1 | `p.recent` | Últimos 6 partidos |
+| tol | float | 0, 0,5, 0,6, 1 | `minutesTol` | Cuánto le pesa al rol |
 | amb, loy | int | 1-20 | `persOf` | Ambición, lealtad |
 
-Ejemplo: Titular (0,62), sin minutos en 3 partidos, amb 10, loy 10, conformidad 70 → 70 − 0,527 × 22 = **58,4**. Jugador clave al 30 % con amb 14 y loy 8: −0,397 × 22 × 1,2 × 1,08 = **−11,3** por partido; de 70 a menos de 18 en unos 5 partidos.
+Ejemplo: Titular (0,62), sin minutos en 3 partidos, amb 10, loy 10, conformidad 70 → 70 − 0,527 × 22 = **58,4**. Jugador clave al 30 % con amb 14 y loy 8: −0,397 × 22 × 1,2 × 1,08 = **−11,3** por partido; de 70 a menos de 18 en unos 5 partidos. Una Promesa con 0 minutos y ambición 10 tiene `nextDelta` 0 ("estable") y no entra en "Para atender"; con ambición 15 y 20 años, sí ("En baja").
 
-**F3. Moral del molesto** (`squad.ts:80`): si happy < 35, `morale −= 1,5 + (temp − 10)·0,12`, morale ∈ [5, 100].
+**F3. Moral del molesto** (`squad.ts:188`): si happy < 35 después del partido, `morale −= 1,5 + (temp − 10)·0,12`, morale ∈ [5, 100].
 
-**F4. Promesa** (`squad.ts:95-105`, `163`): `objetivo = min(0,9, share_rol + 0,22)`; se cumple si `Σ mins / (n × 90) ≥ objetivo × 0,85`. Titular: objetivo 0,84; necesita 71 % de los minutos.
+**F4. Promesa** (`squad.ts:506`, `:257`; `promiseStatus`, `:637-647`)
+```
+objetivo      = min(0,9, share_rol + 0,22)
+umbral        = objetivo × 0,85                                  // se cumple si Σ mins / (n × 90) ≥ umbral
+matchesLeft   = partidos del DT sin jugar con hoy ≤ fecha < until
+minutesNeeded = max(0, ceil(umbral × 90 × (n + matchesLeft) − Σ mins))
+reachable     = minutesNeeded ≤ 90 × matchesLeft
+```
+Ejemplo: Titular, objetivo 0,84, umbral 0,714. Jugó 56 minutos en 2 partidos (31 %) y quedan 3: faltan ceil(0,714 × 90 × 5 − 56) = **266** minutos, alcanzable (≤ 270).
 
-**F5. Efecto de cada charla** (`squad.ts:155-185`; forma = promedio de `p.form`, 6,5 si no hay)
-| Charla | Condición | Conformidad | Moral | Otros |
-|---|---|---|---|---|
-| Felicitar | forma ≥ 6,9 o ≥ 3 goles | — | +7 | — |
-| Felicitar | si no | — | −2 | — |
-| Exigir | prof ≥ 14 | — | +2 | `tx` +0,25 |
-| Exigir | temp ≥ 14 | −6 | −8 | — |
-| Exigir | resto | — | −2 | — |
-| Prometer | — | +18 | +5 | crea promesa, anula pedido |
-| Paciencia | loy ≥ 13 o amb ≤ 8 | +10 | — | — |
-| Paciencia | si no | −6 | −3 | — |
-| Subir rol | — | +16 | +6 | anula pedido |
-| Bajar rol | — | −12 − (amb − 10) | −6 − (temp − 10)·0,4 | — |
-| Puede buscar club | ya quería irse | +15 | +6 | transferible |
-| Puede buscar club | no quería | −20 | −12 | transferible, `wantsOut = true` |
-| No se va | loy ≥ 12 | +8 | — | anula pedido |
-| No se va | si no | −10 | −8 | anula pedido |
+**F5. Efecto de cada charla** (`talkResult`, `squad.ts:495-531`; forma = promedio de `p.form`, 6,5 si no hay)
+| Charla | Condición | Conformidad | Moral | Otros | `reply` |
+|---|---|---|---|---|---|
+| Felicitar | forma ≥ 6,9 o ≥ 3 goles | — | +7 | — | Le convenció |
+| Felicitar | si no | — | −2 | — | No le convenció |
+| Exigir | prof ≥ 14 | — | +2 | `tx` +0,25 (`addProgress`) | Le convenció |
+| Exigir | temp ≥ 14 (y prof < 14) | −6 | −8 | — | Lo tomó mal |
+| Exigir | resto | — | −2 | — | No le convenció |
+| Prometer | — | +18 | +5 | crea promesa, anula pedido | Le convenció |
+| Paciencia | loy ≥ 13 o amb ≤ 8 | +10 | — | — | Le convenció |
+| Paciencia | si no | −6 | −3 | — | No le convenció |
+| Subir rol | — | +16 | +6 | anula pedido | Le convenció |
+| Bajar rol | — | −12 − (amb − 10) | −6 − (temp − 10)·0,4 | — | Lo tomó mal |
+| Puede buscar club | ya quería irse | +15 | +6 | transferible | Le convenció |
+| Puede buscar club | no quería | −20 | −12 | transferible, `wantsOut`, `outDate` | Lo tomó mal |
+| No se va | loy ≥ 13 (`LOY_STAY`, `squad.ts:13`; antes 12) | +8 | — | anula pedido | Le convenció |
+| No se va | si no | −10 | −8 | anula pedido (puede volver a pedirlo) | No le convenció |
 
-**F6. Armonía** (`squad.ts:137-145`)
+Conformidad ∈ [0, 100], moral ∈ [5, 100]. Si la conformidad bajó, `moodNote` = `demoted` (rol), `freed` (buscar club) o `talk` (las demás); si subió, se borra la nota. Los efectos de "buscar club" son constantes exportadas (`FREE_FX`, `:370`), las mismas que lee `letGoInfo`.
+
+**F6. Armonía** (`squad.ts:334-346`)
 ```
 lider_i   = Liderazgo·2 + edad·0,4 + lvl_rol·2           → top 3 sanos
 aporte_i  = happy_i ≥ 50 ? (Liderazgo_i − 10)·1,2 : −(Liderazgo_i − 8)·1,5
-armonía   = clamp(round(prom_happy·0,7 + 18 + Σ aporte − 3·n_disconformes − 3·n_disconformes_temp≥15), 0, 100)
+crudo     = round(prom_happy·0,7 + 18 + Σ aporte − 3·n_disconformes − 3·n_disconformes_con_temp≥14)
+armonía   = clamp(crudo, 0, 100)
+parts     = { lead: round(Σ aporte), unhappy: −3·n_disc, temper: −3·n_temp, clip: armonía − crudo,
+              base: crudo − lead − unhappy − temper }        // base + lead + unhappy + temper + clip = armonía
 boost     = 1 + (armonía − 60)·0,0006                   → 0,964 a 1,024
 ```
-Ejemplo: promedio 70, referentes contentos con Liderazgo 15, 14 y 12, dos disconformes → 49 + 18 + 13,2 − 6 = **74** ("Grupo unido"), boost 1,0084.
+Ejemplo: promedio 70, referentes contentos con Liderazgo 15, 14 y 12, dos disconformes tranquilos → 49 + 18 + 13,2 − 6 = **74** ("Grupo unido"), `parts` = { base 67, lead 13, unhappy −6, temper 0, clip 0 }, boost 1,0084. Si uno de los dos tiene temperamento 14, resta 3 más (71); con 13, no.
 
-**F7. Progreso en la reserva** (`squad.ts:125`): `tx += 0,18 × (edad ≤ 21 ? 1 : 0,4)` por partido. Cada vez que `tx` llega a 1, `dailyTraining` sube un atributo (`week.ts:120-131`). Para comparar: un pibe de 19 con prof 11 en práctica normal suma ≈ 0,014 por día (`week.ts:119`), unas 0,1 por semana.
+**F7. Progreso en la reserva** (`squad.ts:318`): `tx += 0,18 × (edad ≤ 21 ? 1 : 0,4)` por partido, con `addProgress` (hasta el potencial). Cada vez que `tx` llega a 1, `dailyTraining` sube un atributo. Para comparar: un pibe de 19 con prof 11 en práctica normal suma ≈ 0,014 por día, unas 0,1 por semana.
 
-**F8. Calidad del juvenil** (`career.ts:367-378`)
+**F8. Calidad del juvenil** (`makeYouth`, `career.ts:889`)
 ```
 boost  = club del DT ? (Trabajo con juveniles − 10)·0,5 + (sab(coordinador de inferiores) − 10)·0,4 : 0
 target = clamp(round(15 + rep·0,5 + gauss·5 + boost), 25, 80)
@@ -181,31 +250,71 @@ prof   = clamp(round(11 + gauss·3,5), 1, 20)
 ```
 Ejemplo: club rep 80, DT con 15 y coordinador 12 → boost 3,3; target medio 58.
 
+**F9. Bandas de la personalidad** (`traitOf`, `squad.ts:71-80`; R14)
+| Rasgo | Bandas (de la más alta a la más baja) | Qué umbral cae en cada borde |
+|---|---|---|
+| Ambición | Muy alta ≥ 15 · Alta 12-14 · Normal 9-11 · Baja ≤ 8 | 15: paciencia corta del representante y juvenil impaciente (`tol` 0,6); 12: acepta irse si un rival paga su cláusula (`career.ts:432`; corte nuevo, pregunta 23); 8: acepta que le pidas paciencia |
+| Lealtad | Muy leal ≥ 15 · Leal 13-14 · Normal 8-12 · Poco apegado ≤ 7 | 15: nunca pide irse; 13: acepta paciencia y acepta de buena gana quedarse; 7: descriptivo (la lealtad frena la caída de forma continua) |
+| Temperamento | Temperamental ≥ 14 · Tranquilo ≤ 13 | 14: se enoja si le exigís y, disconforme, resta armonía (R13) |
+| Presión | Aparece en los partidos grandes ≥ 15 · Normal · Sufre la presión ≤ 5 | — |
+| Profesionalismo | Profesional ≥ 14 · Normal · Poco profesional ≤ 7 | 14: toma bien que le exijan |
+| Liderazgo | Líder natural ≥ 15 (sin palabra si no) | — |
+
+Con R13 y R14 ningún umbral del motor queda dentro de una banda. Extremos visibles de un ajeno al 60-99 %: ambición, lealtad y temperamento ≥ 16; presión ≥ 15 o ≤ 5; profesionalismo ≥ 15 o ≤ 7; liderazgo ≥ 15 (cada uno dentro de su banda).
+
+**F10. Escalas en palabras** (`squad.ts:104-117`)
+| Dato | Función | Cortes |
+|---|---|---|
+| Conformidad | `moodOf` | Muy contento ≥ 80 · Contento ≥ 60 · Conforme ≥ 35 · Molesto ≥ 18 · Muy molesto < 18 |
+| Moral (ánimo) | `moraleOf`, `moraleWord` | Muy alto ≥ 80 · Bueno ≥ 60 · Normal ≥ 35 · Bajo < 35 |
+| Armonía | `harmonyWord` | Grupo unido ≥ 70 · Clima normal ≥ 45 · Hay ruido ≥ 25 · Vestuario partido |
+
+**F11. Los dos caminos para dejarlo ir** (`letGoInfo`, `squad.ts:586-595`; `OFFER_CHANCE` y `LISTED_PRICE`, `career.ts:285-287`)
+```
+list = { happy: 0, morale: 0, spendsTalk: false, staysOut: quiere_irse }
+talk = quiere_irse ? { happy: +15, morale: +6 } : { happy: −20, morale: −12, becomesOut: true }; from = próxima charla si ya se usó
+offerChance = { now: quiere_irse ? 0,05 : 0, listed: 0,12 }      // por día, solo con el libro abierto (marketTick)
+window = windowState(g.date)    // cerrado del 21 feb al 24 jun: reabre el 25 jun; desde el 11 ago: el 10 ene con nextSeason
+price  = { factor: 0,75, scope: 'refuerzo' }                     // solo askingPrice; el interés por transferibles ofrece 0,7-1,1 del valor
+```
+
 ## Edge Cases
 
 | Scenario | Expected Behavior | Rationale |
 |----------|------------------|-----------|
-| Lesionado o suspendido que no juega | El partido no se registra para él (`squad.ts:68`) | No castigar lo que el DT no eligió |
-| Menos de 3 partidos en `recent` (inicio de temporada, recién llegado) | No cambia la conformidad | Evitar reacciones a una muestra chica |
+| Lesionado o suspendido que no juega | El partido no se registra para él (`squad.ts:182`); `minutesOf.idle`, tendencia "en pausa", sin "En baja" ni `canAskOut` | No castigar ni anticipar lo que el DT no eligió |
+| Menos de 3 partidos en `recent` (inicio de temporada, recién llegado) | No cambia la conformidad; con 2, `counts` es verdadero (el próximo ya cuenta) | Muestra chica; la lectura sigue al motor (`vestuario.md` pregunta 51) |
 | Partido con alargue (120') | Minutos con tope 90 | El cálculo es por 90 |
-| Promesa sin partidos al vencer | Se corre 14 días, sin límite de veces | No juzgar sin datos |
+| Promesa sin partidos al vencer | Se corre 14 días, sin límite de veces, con mensaje y línea en el registro | ✅ Resuelto (2026-11-15): antes la prórroga era silenciosa |
+| Partido el día `until` de la promesa | No cuenta para la promesa: se evalúa al empezar el día | `matchesLeft` lo excluye (`vestuario.md` pregunta 37) |
 | Promesa con rol cambiado después | El objetivo queda el del momento de prometer | Implementado así; `INTENT UNKNOWN` |
-| Promesa (rol `young`) | Nunca pide irse; solo pierde conformidad si amb ≥ 15 y tiene 20+ | `tol` 0 y `lvl ≥ 1` en regla 14 |
-| Pedido de salida y azar | El azar se sortea cada semana (fijo dentro de la semana): un disconforme termina pidiéndolo | ✅ Resuelto (2026-11-14): `hash01(id, weekNo)` |
-| Jugador transferible que quiere irse | Desaparece de pendientes pero sigue como disconforme | Pendiente filtra `!listed` (`Inbox.tsx:27`) |
-| Reserva con menos de 7 | No se juega; si el DT marcó a alguien, llega "Reserva: no hubo partido" con cuántos había y cuántos lesionados | ✅ Resuelto (2026-11-14) |
+| Promesa (rol `young`) | Nunca pide irse; solo pierde conformidad si amb ≥ 15 y tiene 20+ | `tol` 0 y `lvl ≥ 1` en regla 15 |
+| Pedido de salida y azar | El azar se sortea cada semana (fijo dentro de la semana) | ✅ Resuelto (2026-11-14): `hash01(id, weekNo)` |
+| Pedido de salida contado dos veces | Un pedido cuenta 1, también resuelto y con varios mensajes | ✅ Resuelto (2026-11-15): `decisionKeyOf` con `out<pid>`, `outOpen` en `pendingKeyOf`, `readDecisionNews` en cada camino (R1) |
+| Venta al exterior de quien quiere irse | `acceptOffer` marca leído el pedido antes de despachar la venta | ✅ Resuelto (2026-11-15; `vestuario.md` pregunta 47) |
+| Cláusula, préstamo que vuelve, libre, retiro, cambio de club del DT | El pendiente desaparece y el mensaje sin leer cuenta 1 como mensaje común ("Ya no está en el plantel.") | Lo que pasa sin el DT no se marca (`vestuario.md` pregunta 52) |
+| "Quitar de transferibles" a quien quiere irse | Reabre `out<pid>` con el mensaje leído (cuenta 1) | ✅ (2026-11-15) |
+| Cambio de temporada con transferibles que quieren irse | La lista se vacía; tras `seasonTurnover`, "{nombre} sigue queriendo irse" solo a quien sigue en el plantel | ✅ (2026-11-15) |
+| Jugador transferible que quiere irse | No es pendiente; fila "Quiere irse · transferible" con "Hablar" | Pendiente filtra `!listed` (`outOpen`) |
+| Charla usada y después pide irse | Sin charla extra: la acción disponible es "Declararlo transferible", con la fecha de la próxima charla | Decisión del usuario (`vestuario.md` pregunta 8) |
+| "Decirle que puede buscar club" con el libro cerrado | La respuesta dice cuándo reabre o que no llegan ofertas esta temporada | ✅ (2026-11-15, `freeOfferText`) |
+| Reserva con menos de 7 | No se juega; si el DT marcó a alguien, llega "Reserva: no hubo partido" con "Armar la reserva" | ✅ Resuelto (2026-11-14; acción desde 2026-11-15) |
 | Partido del DT un martes | `finishUserMatch` pasa por `nightSquad`, que corre la reserva los miércoles | ✅ Resuelto (2026-11-14) |
-| Reserva y potencial | La reserva suma con `addProgress`: en su potencial no progresa, y un punto que lo pasaría de `pa` se deshace | ✅ Resuelto (2026-11-14): nadie crece más allá de su potencial |
-| "Exigirle más" semanal a un profesional | +0,25 `tx` con `addProgress`: solo hasta su potencial, y una charla por semana | ✅ Resuelto (2026-11-14): deja de ser dominante (no pasa el potencial) |
-| Charla desde la ficha | El límite está en el motor (`talk` no hace nada si ya hablaron) y la ficha deshabilita "Hablar" con el motivo y la fecha | ✅ Resuelto (2026-11-14): una charla por semana en todos lados |
-| Cambiar de rol al mismo rol | La interfaz deshabilita el botón; el motor devolvería texto vacío pero registraría la charla | Defensa en la interfaz |
-| Cambio de temporada | Rol, conformidad, `recent`, pedido y promesa se conservan; moral vuelve a 70; no se recalcula el rol natural | `initSquad` solo completa faltantes |
-| Fichaje propio | Conformidad 72, sin minutos, sin promesa ni pedido; rol el pactado (o ninguno hasta el primer partido) | `career.ts:220-221` |
-| DT cambia de club | `initSquad` del nuevo club; los datos del anterior quedan en sus jugadores sin uso | `career.ts:103` |
-| Personalidad de rivales | `ensurePersonalities` la fija para todos al empezar la partida y, cada día, para los que se sumaron | ✅ Resuelto (2026-11-14): personalidades fijas |
+| Reserva y potencial | La reserva suma con `addProgress`: nadie crece más allá de su potencial | ✅ Resuelto (2026-11-14) |
+| "Exigirle más" semanal a un profesional | +0,25 `tx` con `addProgress`, una charla por semana | ✅ Resuelto (2026-11-14) |
+| Charla desde la ficha | El límite está en el motor (`canTalk`) | ✅ Resuelto (2026-11-14) |
+| Cambiar de rol al mismo rol | El motor no hace nada ni gasta la charla ("Elegí un rol distinto del que tiene.") | ✅ Resuelto (2026-11-15): antes registraba la charla |
+| Charla oculta o deshabilitada pedida igual | `talkResult` valida con `talkCheck` y no hace nada | ✅ (2026-11-15, R3) |
+| Charla a un jugador ajeno | `talkResult` devuelve texto vacío sin efecto | Solo plantel propio |
+| Cambio de temporada | Rol, conformidad, `recent`, pedido y promesa se conservan; moral vuelve a 70; `promiseLog` queda solo con la promesa vigente; no se recalcula el rol natural | `initSquad` solo completa faltantes |
+| Fichaje propio | Conformidad 72, sin minutos, sin promesa, pedido, `outDate`, `moodNote` ni registro de promesas; rol el pactado | `doTransfer` (`career.ts:316`) |
+| DT cambia de club | `initSquad` del nuevo club; los datos del anterior quedan en sus jugadores sin uso; sus pedidos de salida quedan como mensajes comunes | `career.ts:145` |
+| Partida vieja sin registro | Sin `p.talks`, `p.promiseLog`, `p.moodNote` ni `p.outDate`: la causa es la de los minutos; la fecha del pedido sale del mensaje `act: 'out'` más nuevo (`outDateOf`) | Campos opcionales, `Game.version` 6 |
+| Armonía fuera de 0-100 | `parts.clip` lleva lo recortado: la suma sigue dando el valor | R5 |
+| Personalidad de rivales | `ensurePersonalities` la fija para todos al empezar la partida y, cada día, para los que se sumaron | ✅ Resuelto (2026-11-14) |
 | Presión de juveniles futuros | `pres` usa 2026 fijo: un juvenil generado en 2030 se calcula como si tuviera 4 años menos (−0,8) | ⚠️ Menor |
-| Chip "Inferiores" | Se muestra si el jugador salió de las inferiores del club (`p.youth`) y nunca se transfirió (un pase definitivo pone `youth = false`) | ✅ Resuelto (2026-11-14) |
-| "Decirle que puede buscar club" a un jugador a préstamo | La opción aparece deshabilitada con el motivo; el motor tampoco lo declara transferible (`canSell`) ni gasta la charla | ✅ (2026-11-14) |
+| Chip "Inferiores" | Se muestra si el jugador salió de las inferiores del club (`p.youth`) y nunca se transfirió | ✅ Resuelto (2026-11-14) |
+| "Decirle que puede buscar club" a un jugador a préstamo | Deshabilitada con el motivo; el motor no la aplica ni gasta la charla | ✅ (2026-11-14; motivo en el motor desde 2026-11-15) |
 | Arquero extra de la camada | Se crea pero no aparece en la noticia | Menor |
 | Planteles rivales | No tienen conformidad, pedidos ni armonía | Pendiente en `CLAUDE.md` |
 
@@ -216,82 +325,100 @@ Ejemplo: club rep 80, DT con 15 y coordinador 12 → boost 3,3; target medio 58.
 | `motor-de-partido` | Este depende | Minutos jugados por jugador; aplica `harmonyBoost`, `pres` y `temp` |
 | `motor-de-partido` | Depende de este | Necesita `harmonyBoost(g)` y `p.pers` |
 | `temporada-y-ligas` | Este depende | Avance diario, miércoles, cambio de temporada |
-| `mercado-de-pases` | Bidireccional | Transferencias reinician el estado; pedido y transferible generan ofertas; rol y personalidad en la negociación |
+| `mercado-de-pases` | Bidireccional | Transferencias reinician el estado; pedido y transferible generan ofertas; `acceptOffer` resuelve el pedido; `windowState` en los textos; rol y personalidad en la negociación |
 | `entrenamiento-y-cuerpo-tecnico` | Bidireccional | `sab('youth')` para la camada; `p.tx` se convierte en atributos |
 | `carrera-del-dt` | Bidireccional | `attrs.you` para la camada; promesa rota baja la reputación |
-| `comunicacion-y-bandeja` | Depende de este | Noticias y pendiente `out` |
-| `ojeo` | Depende de este | Rasgos visibles para ajenos |
+| `comunicacion-y-bandeja` | Depende de este | Mensajes, pendiente `out<pid>` y su regla de leído |
+| `ojeo` | Bidireccional | `knowOf` decide qué se ve de la personalidad y el ánimo de un ajeno |
 | `base-de-datos` | Este depende | `prof`, Liderazgo, Agresividad, Serenidad, `ca`, nacimiento |
 
 ## Tuning Knobs
 
-Todos están en el código (`squad.ts`, `career.ts`), no en archivos de datos.
+Todos están en el código (`squad.ts`, `career.ts`), no en archivos de datos. Los umbrales que la interfaz nombra con palabras están exportados (`LOY_STAY`, `TEMP_HOT`, `FREE_FX`, `OFFER_CHANCE`, `LISTED_PRICE`): si se mueven, se mueven también las bandas de F9 para que ningún umbral quede dentro de una banda.
 
 | Parameter | Current Value | Safe Range | Effect of Increase | Effect of Decrease |
 |-----------|--------------|------------|-------------------|-------------------|
-| `STATUS[*].share` (curva) | 0,82/0,62/0,36/0,14/0,08 (`squad.ts:40-44`) | ±0,1 | Más exigencia de minutos | Plantel más tranquilo |
-| Tolerancia del déficit (curva) | `× 0,85` (`squad.ts:75`) | 0,7-0,95 | Se quejan antes | Más margen |
-| Velocidad de pérdida (curva) | `× 22` (`squad.ts:78`) | 12-30 | Crisis más rápidas | Conformidad casi inmóvil |
-| Ventana de minutos (gate) | 6 partidos, mínimo 3 (`squad.ts:69-71`) | 4-10 / 2-4 | Reacción más lenta y estable | Más nervioso |
-| Umbral de molesto (gate) | 35 (`squad.ts:80`, `138`) | 25-45 | Más disconformes | Menos |
-| Umbral de pedido (gate) | happy < 18, loy < 15, azar 0,5 (`squad.ts:81`) | 10-25 / 0,3-0,8 | Más pedidos | Menos |
-| Plazo de promesa (gate) | 35 días, prórroga 14 (`squad.ts:94`, `163`) | 21-56 | Más fácil de cumplir | Más presión |
-| Premio / castigo de promesa | +25 / −30, moral +8 / −14 (`squad.ts:98-103`) | ±10 | Más peso | Menos |
-| Armonía: base y pesos | 0,7·prom + 18; líderes ×1,2/×1,5; −3 por disconforme (`squad.ts:140-141`) | — | — | — |
-| Efecto en partido (feel) | 0,0006 por punto (`squad.ts:145`) | 0,0003-0,0015 | El clima pesa más en la cancha | Solo decorativo |
-| Reserva: mínimo y progreso | 7 jugadores, 0,18 `tx` (×0,4 a los 22+) (`squad.ts:123-125`) | 0,05-0,25 | Reserva más útil | Irrelevante |
-| Cooldown de charla (gate) | 7 días (`squad.ts:149`) | 5-14 | — | Spam de charlas |
-| Camada: cantidad | `max(3 (+1 con juveniles ≥ 15), 24 − plantel)` (`career.ts:414`) | — | Planteles más largos | — |
-| Camada: calidad | `15 + rep·0,5 + gauss·5`, pa `+6..22` (`career.ts:367`, `378`) | — | Mejores pibes | — |
+| `STATUS[*].share` (curva) | 0,82/0,62/0,36/0,14/0,08 (`squad.ts:129-133`) | ±0,1 | Más exigencia de minutos | Plantel más tranquilo |
+| Tolerancia del déficit (curva) | `× 0,85` (`squad.ts:169`) | 0,7-0,95 | Se quejan antes | Más margen |
+| Velocidad de pérdida (curva) | `× 22` (`squad.ts:170`) | 12-30 | Crisis más rápidas | Conformidad casi inmóvil |
+| Tolerancia por rol | Promesa 0 (0,6 con amb ≥ 15 y 20+), Suplente 0,5 (`minutesTol`, `:158-161`) | 0-1 | Los suplentes se molestan como titulares | Nadie se molesta salvo los titulares |
+| Ventana de minutos (gate) | 6 partidos, mínimo 3 (`squad.ts:183-185`) | 4-10 / 2-4 | Reacción más lenta y estable | Más nervioso |
+| Umbral de molesto (gate) | 35 (`squad.ts:188`, `:337`; corte de `moodOf`) | 25-45 | Más disconformes | Menos |
+| Umbral de pedido (gate) | happy < 18, loy < 15, azar 0,5 (`squad.ts:190`; corte "Muy molesto" y "Muy leal") | 10-25 / 0,3-0,8 | Más pedidos | Menos |
+| `LOY_STAY` (gate) | 13 (`squad.ts:13`; antes 12) | 11-15 | Más "de mala gana" | Más "de buena gana" |
+| `TEMP_HOT` (gate) | 14 (`squad.ts:15`; antes 15) | 13-16 | Menos temperamentales restan | Más restan |
+| Paciencia (gate) | loy ≥ 13 o amb ≤ 8 (`squad.ts:512`) | — | — | — |
+| Plazo de promesa (gate) | 35 días, prórroga 14 (`squad.ts:506`, `:251`) | 21-56 | Más fácil de cumplir | Más presión |
+| Premio / castigo de promesa | +25 / −30, moral +8 / −14 (`squad.ts:263`, `:267`) | ±10 | Más peso | Menos |
+| `FREE_FX` | +15/+6 si lo pidió; −20/−12 si no (`squad.ts:370`) | — | — | — |
+| `OFFER_CHANCE` | transferible 0,12, quiere irse 0,05 por día (`career.ts:287`) | 0,05-0,2 | Sale más rápido | Pedido más largo |
+| `LISTED_PRICE` | 0,75 (`career.ts:285`) | 0,6-0,9 | Transferible más caro | Más barato |
+| Armonía: base y pesos | 0,7·prom + 18; líderes ×1,2/×1,5; −3 por disconforme, −3 más por temperamental (`squad.ts:337-341`) | — | — | — |
+| Efecto en partido (feel) | 0,0006 por punto (`squad.ts:348`) | 0,0003-0,0015 | El clima pesa más en la cancha | Solo decorativo |
+| Reserva: mínimo y progreso | 7 jugadores, 0,18 `tx` (×0,4 a los 22+) (`squad.ts:309`, `:318`) | 0,05-0,25 | Reserva más útil | Irrelevante |
+| Cooldown de charla (gate) | 7 días (`squad.ts:362`) | 5-14 | — | Spam de charlas |
+| Registro de charlas | Últimas 5 (`squad.ts:535`) | 3-10 | — | — |
+| Camada: cantidad | `max(3 (+1 con juveniles ≥ 15), 24 − plantel)` (`career.ts:939`) | — | Planteles más largos | — |
+| Camada: calidad | `15 + rep·0,5 + gauss·5`, pa `+6..22` (`makeYouth`, `career.ts:889`) | — | Mejores pibes | — |
 
-**Balance concerns**: la reserva y "Exigirle más" ignoran el potencial (ver Edge Cases); el efecto de la armonía (±2,4 % en un componente) puede ser imperceptible.
+**Balance concerns**: el efecto de la armonía (±2,4 % en un componente) puede ser imperceptible. Bajar `TEMP_HOT` a 14 (R13) mueve el rendimiento por `harmonyBoost`: `vestuario.md` pide `npm run sim -- 3` con tres semillas (12345, 777, 2026) contra la calibración de `CLAUDE.md`, y se espera un efecto de centésimas.
 
 ## Visual/Audio Requirements
 
 | Event | Visual Feedback | Audio Feedback | Priority |
 |-------|----------------|---------------|----------|
-| Jugador molesto / quiere irse / promesa | Chips "Molesto" (warn), "Quiere irse" (bad), "Promesa" (acc) en `Status` (`common.tsx:87-88`) | Ninguno (el juego no tiene sonido) | Alta |
-| Armonía | `Gauge` "ARMONÍA" y título del Vestuario ("Grupo unido", "Clima normal", "Hay ruido", "Vestuario partido") | — | Media |
-| Respuesta de una charla | Texto entre comillas en la ventana | — | Alta |
-| Reserva | Chip "Reserva" en Estado | — | Baja |
+| Conformidad y moral | `MoodBar` (bandas de `moodOf`) y `MoraleBar` (bandas de `moraleOf`): número, palabra y color por banda, el mismo componente en todas las pantallas | Ninguno (el juego no tiene sonido) | Alta |
+| Pedido de salida / promesa | Chips "Quiere irse" (bad) y "Minutos prometidos" (acc; antes "Promesa", que choca con el rol) en `Status` | — | Alta |
+| Armonía | `Gauge` con número y `harmonyWord`, "Qué la mueve" con los términos de `parts` | — | Media |
+| Respuesta de una charla | Frase entre comillas, antes → después y cambios de estado en la ventana | — | Alta |
+| Reserva | Alternable "Anotado" / "Anotar" y línea del encabezado con el próximo miércoles | — | Baja |
 
 ## Game Feel
 
-Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo que importa es la **legibilidad de la causa**: cada cambio de humor debe poder rastrearse a una cifra visible (minutos jugados contra esperados). Las charlas responden al instante con una frase en la voz del jugador.
+Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo que importa es la **legibilidad de la causa**: cada cambio de humor debe poder rastrearse a una cifra visible (minutos jugados contra esperados, la tendencia, la causa con fecha) y cada respuesta de charla a una palabra de su personalidad. Las charlas responden al instante con una frase en la voz del jugador y lo que cambió.
 
 **Feel Acceptance Criteria**
 - [ ] Un jugador de prueba que ve "Molesto" puede explicar por qué mirando solo el Vestuario.
-- [ ] Ninguna respuesta de charla se percibe como aleatoria: el jugador anticipa el resultado por los rasgos visibles en al menos 3 de cada 4 charlas.
+- [ ] Ninguna respuesta de charla se percibe como aleatoria: el jugador anticipa el resultado por la palabra del rasgo que muestra la opción en al menos 3 de cada 4 charlas.
 
 ## UI Requirements
 
+La pantalla está especificada en `design/ux/vestuario.md` (página `locker`, `LockerPage` con `LockerCard` y `TalkModal`; la decisión `out<pid>` en `design/ux/bandeja.md`). Lo que este sistema le exige:
+
 | Information | Display Location | Update Frequency | Condition |
 |-------------|-----------------|-----------------|-----------|
-| Armonía, título, referentes (con "Molesto" si conformidad < 50), disconformes | `LockerPage` (`Locker.tsx:23-29`), página `locker`, sección Plantel | Al abrir; tras cada acción | Siempre |
-| Tabla del vestuario: rasgos, rol, minutos `jugado/esperado %`, conformidad, moral, reserva, Hablar | `Locker.tsx:31-46` | Igual | Plantel propio |
-| Ventana de charla con opciones filtradas y respuesta | `TalkModal` (`Locker.tsx:54-82`), desde Vestuario y desde la ficha | Al abrir | Propio |
-| Rol, minutos, conformidad, promesa vigente, Hablar con él | `PlayerPage` pestaña "Vestuario" (`tab: 'personal'`, `PlayerPage.tsx:159-164`), banda del encabezado (rol), tarjeta "Felicidad" (Muy contento ≥ 80, Contento ≥ 60, Conforme ≥ 40, Molesto ≥ 25, Muy molesto) | Al abrir | Propio |
-| Rasgos de personalidad | Ficha: Información y pestaña Vestuario/Ojeo | Al abrir | Propio, o ajeno con conocimiento ≥ 60 |
-| Columnas Conformidad (`happy`) y Rol (`role`); chip Reserva en Estado; vista Contrato | `PlayerTable.tsx:35-36`, `51`, `70` | Al ordenar o filtrar | Conformidad solo propios |
-| Acciones masivas "A la reserva" / "Sacar de la reserva" | `ownBulk` (`PlayerTable.tsx:295-296`) en Plantel | — | Propio |
-| Mosaico del Inicio: "Vestuario: armonía N · k disconforme(s) · m quiere(n) irse" + botón | `Home.tsx:130` | Al entrar | Siempre |
-| Chip "Inferiores" | Banda de la ficha (`PlayerPage.tsx:58`) | — | `p.gen` |
-| Ayuda de pantalla | `PageTip id="locker"` (`Guide.tsx:78`) | — | Hasta descartarla |
+| Armonía (número y `harmonyWord`), efecto en la cancha (`harmonyBoost` en porcentaje y en palabras), "Qué la mueve" (`harmony().parts`), referentes ("Acompaña" o "Resta" con conformidad < 50), estado de la reserva (`reserveOf`) | Vestuario, encabezado | En cada `refresh()` | Siempre |
+| "Para atender · N": una fila por jugador de `attentionOf`, con motivo, causa, consecuencia y la acción (`outActions`, `talkState`) | Vestuario; N también en la línea "Vestuario" del Inicio (sin repetir los pedidos que ya nombra su línea de pendientes) | Igual | Plantel propio |
+| Detalle de un jugador: rol, minutos con umbral (`minutesOf`), conformidad y tendencia (`moodOf`, `moodOutlook`), moral (`moraleShown`), causa (`moodCause`), personalidad (`persTraits`), promesa (`promiseStatus`), pedido (`outDateOf`), charla (`talkState`, `outActions`, `letGoInfo`), reserva, registro (`p.talks`, `p.promiseLog`) | `LockerCard`: panel del Vestuario (≥ 1180 px) y ficha › Vestuario. Un componente | Igual | Propio |
+| Ventana de charla con las opciones de `talkOptions` (orden, regla, rasgo, deshabilitadas con motivo, confirmación), resultado de `talkResult` (antes → después, cambios) | `TalkModal`, desde el Vestuario y la ficha › Vestuario | Al abrir | Propio |
+| Tabla del plantel: rol, minutos, conformidad, moral, personalidad, estado, reserva (alternable), charla ("Disponible" o `talkState.short`) | `PlayerTable`, vistas `vestuario` y `reserva` (modo "Armar la reserva") | Al ordenar o filtrar | Plantel propio |
+| Comparación "Declararlo transferible" contra "Decirle que puede buscar club" con los números de `letGoInfo` | `LockerCard`, opción de la charla, fila rango 1 con la charla usada, decisión `out<pid>` de la bandeja | Al dibujar | Quiere irse o la opción "buscar club" |
+| Acciones masivas "A la reserva" / "Sacar de la reserva" (`setReserve`) y "Declarar transferibles" / "Quitar de transferibles" (`setListed`) | `ownBulk` (`PlayerTable`) | — | Propio |
+| Personalidad y ánimo de un ajeno según el conocimiento (`persTraits`, `moraleShown`) | Ficha › Resumen y Ojeo, columnas `pers` y `mor`, informe completo de la bandeja | Al dibujar | Ajeno (tabla de conocimiento de `ojeo`) |
+| Chip "Inferiores" | Banda de la ficha | — | `p.youth` |
+| Ayuda de pantalla | `PageTip id="locker"` (texto nuevo en `vestuario.md` 5.3) | — | Hasta descartarla |
 
-**Lo que este sistema manda a la bandeja** (`news()` en `game.ts:176`: `me` es verdadero si `clubId` es el del DT, si hay `act` o si `pid` es un jugador propio)
+**Diferencias con los requisitos anteriores** (`vestuario.md` pregunta 45, confirmadas acá): (1) la tabla del Vestuario ya no lleva un botón "Hablar" por fila (es una grilla de una parada, D1); "Hablar" está en cada fila de "Para atender", en el panel y en la ficha, y la columna `talk` dice si se puede. (2) "Modelo de profesional" desaparece de los rasgos visibles. La reserva sigue en la tabla, como alternable de la vista Reserva. Además, la pantalla no escribe en `g` (`p.reserve` y `p.listed` pasan por `setReserve` y `setListed`) y ninguna pantalla dibuja la conformidad o la moral con `Cond`.
 
-| Mensaje | Origen | `tag` | `clubId` | `pid` | `act` | `ref` | Tema actual (`Inbox.tsx:49-52`) | Acciones hoy |
-|---|---|---|---|---|---|---|---|---|
-| "X quiere irse" | `squad.ts:83` | `club` | club del DT | jugador | `out` | — | Plantel | Hablar con él (navega a la ficha › Vestuario; no abre la charla), Declararlo transferible; "Ya no pide irse." si se resolvió (`Inbox.tsx:198`) |
-| "X, conforme" (promesa cumplida) | `squad.ts:99` | `club` | club del DT | jugador | — | — | Plantel | Solo lectura |
-| "X se siente engañado" (promesa rota) | `squad.ts:104` | `club` | club del DT | jugador | — | — | Plantel | Solo lectura |
-| "Reserva: A g-g B" | `squad.ts:131` | `partido` | club del DT | — (la figura no va en `pid`) | — | — | Partidos | Solo lectura |
-| "Suben N juveniles al plantel" | `career.ts:420` | `club` | club del DT | juvenil de mayor potencial | — | — | Plantel | Solo lectura |
-| "X renovó con …" | `squad.ts:259` (`mercado-de-pases`) | `club` | club del DT | jugador | — | — | Plantel | Solo lectura |
+**Lo que este sistema manda a la bandeja** (`news()` en `game.ts:252`: `me` es verdadero si `clubId` es el del DT, si hay `act` o si `pid` es un jugador propio)
 
-**Decisión pendiente** (`pendingOf`, `Inbox.tsx:27`): `{ k: 'out', key: 'out<pid>', pid }` para cada jugador propio con `wantsOut && !listed`. Se calcula del estado; frena "Ir al partido" cuando aparece (`decisionKeys`). Fila: "X quiere irse · Hablale o declaralo transferible". Detalle: conformidad, Hablar con él, Declararlo transferible (`Inbox.tsx:181-185`). La UX de `design/ux/bandeja.md` pide además rol y minutos esperados contra jugados y la promesa vigente: el motor ya los tiene (`p.status`, `minutesShare`, `STATUS[].share`, `p.promise`).
+| Mensaje | Origen | `tag` | `pid` | `act` | Nace | Acciones |
+|---|---|---|---|---|---|---|
+| "X quiere irse" (con "juega el 20 % y espera el 62 %" y "Podés responderle desde este mensaje.") | `squad.ts:192` | `club` | jugador | `out` | Sin leer | Decisión `out<pid>`: "Hablar con él" (a la ficha › Vestuario) y "Declararlo transferible"; con la charla usada, "Declararlo transferible" es el primario (`outActions`); comparación `letGoInfo` |
+| "X sigue queriendo irse" (nuevo) | `game.ts:817` | `club` | jugador | `out` | Sin leer | Las mismas |
+| "Se corrió el plazo de la promesa a X" (nuevo) | `squad.ts:254` | `club` | jugador | — | Sin leer | Solo lectura |
+| "X, conforme" / "X se siente engañado" (con la cifra) | `squad.ts:265`, `:271` | `club` | jugador | — | Sin leer | Solo lectura |
+| "Reserva: no hubo partido" | `squad.ts:313` | `partido` | — | `reserve` | Sin leer | "Armar la reserva" (`{ page: 'locker', tab: 'armar' }`) |
+| "Reserva: A g-g B" | `squad.ts:324` | `partido` | — | — | Sin leer | Solo lectura |
+| "Informe completo: X" (texto nuevo: "… cómo es en cada rasgo de su personalidad y su ánimo.") | `squad.ts:283` | `mercado` | jugador | `scout` | Sin leer | Las del ojeo; la tarjeta usa `persTraits` |
+| "Suben N juveniles al plantel" | `career.ts:945` | `club` | juvenil de mayor potencial | — | Sin leer | Solo lectura |
+| "X renovó con …" | `squad.ts:859` (`mercado-de-pases`) | `club` | jugador | — | Sin leer | Solo lectura |
 
-**Accesibilidad**: las barras de Conformidad y Moral del Vestuario muestran su número al lado (`BarN`, regla D6 de `design/ux/interaction-patterns.md`), igual que la de Minutos. Resuelto el 2026-11-14.
+La charla no manda mensajes: lo que el DT acaba de ver no vuelve como noticia.
+
+**Decisión pendiente** (`pendingAll`, `inbox.ts:21`): `{ k: 'out', key: 'out<pid>', pid }` para cada jugador con `outOpen`. Se calcula del estado; frena "Ir al partido" cuando aparece (`decisionKeys`). La regla de conteo y de leído está en `comunicacion-y-bandeja` (reglas 9b, 13b y 13d).
+
+**Accesibilidad**: `MoodBar` y `MoraleBar` muestran número y palabra (nunca solo color); el medidor de armonía lleva `role="img"` y `aria-label`; la regla y el rasgo de cada opción de la charla son su `aria-describedby`; los motivos de lo deshabilitado se leen en pantalla (`vestuario.md`, sección 12).
 
 ## Cross-References
 
@@ -300,57 +427,71 @@ Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo q
 | Minutos por jugador tras el partido | `design/gdd/motor-de-partido.md` | `MatchResult.lines[].mins` | Data dependency |
 | La armonía mueve el mediocampo | `design/gdd/motor-de-partido.md` | `opts.boost[side][2]` | Ownership handoff |
 | Presión y temperamento en el partido | `design/gdd/motor-de-partido.md` | `pers.pres`, `pers.temp` | Ownership handoff |
-| Reserva los miércoles, cambio de temporada | `design/gdd/temporada-y-ligas.md` | `advanceDay`, `startNewSeason` | State trigger |
-| Transferencia reinicia el estado del jugador | `design/gdd/mercado-de-pases.md` | `doTransfer` | State trigger |
-| Pedido y transferible generan ofertas | `design/gdd/mercado-de-pases.md` | `marketTick` (`career.ts:295`, `329`) | Rule dependency |
+| Reserva los miércoles, cambio de temporada, "sigue queriendo irse" | `design/gdd/temporada-y-ligas.md` | `advanceDay`, `startNewSeason` | State trigger |
+| Transferencia reinicia el estado del jugador; venta resuelve el pedido | `design/gdd/mercado-de-pases.md` | `doTransfer`, `acceptOffer` | State trigger |
+| Pedido y transferible generan ofertas | `design/gdd/mercado-de-pases.md` | `marketTick`, `OFFER_CHANCE`, `LISTED_PRICE`, `windowState` | Rule dependency |
 | Rol y personalidad en la negociación | `design/gdd/mercado-de-pases.md` | `demand`, `evalOffer`, `STATUS[].wage` | Data dependency |
 | `tx` se convierte en atributos | `design/gdd/entrenamiento-y-cuerpo-tecnico.md` | `dailyTraining` | Rule dependency |
 | Coordinador de inferiores | `design/gdd/entrenamiento-y-cuerpo-tecnico.md` | `sab(g, 'youth')` | Data dependency |
 | Trabajo con juveniles y reputación del DT | `design/gdd/carrera-del-dt.md` | `manager.attrs.you`, `manager.rep` | Data dependency |
-| Noticias y pendiente `out` | `design/gdd/comunicacion-y-bandeja.md` | `news()`, `pendingOf`, `decisionKeys` | Ownership handoff |
-| Personalidad visible de ajenos | `design/gdd/ojeo.md` | Umbral de conocimiento 60 | Rule dependency |
+| Mensajes, pendiente `out<pid>` y regla de leído | `design/gdd/comunicacion-y-bandeja.md` | `news()`, `pendingAll`, `decisionKeyOf`, `pendingKeyOf`, `readDecisionNews` | Ownership handoff |
+| Personalidad y ánimo de los ajenos | `design/gdd/ojeo.md` | `knowOf`, tabla de conocimiento (60 / 100) | Rule dependency |
+| Pantalla del Vestuario | `design/ux/vestuario.md` | Toda la especificación (R1-R14) | Ownership handoff |
 | Atributos base y `prof` | `design/gdd/base-de-datos.md` | `db.json` | Data dependency |
 
 ## Acceptance Criteria
 
-**What exists**
+**What exists** (motor; `tests/engine/vestuario.ts` cubre R1 a R14 y corre con `npm run test:engine`)
 - [x] Titular (0,62) sin minutos en 3 partidos, amb 10, loy 10, conformidad 70: tras `afterUserMatch` queda en 58,4 (±0,1).
 - [x] Jugador que juega lo esperado: +2 por partido (+4 si estaba debajo de 60), tope 100.
-- [x] Con 2 partidos en `recent`, `afterUserMatch` no cambia la conformidad.
-- [x] Lesionado que no jugó: `recent` no cambia.
-- [x] Con conformidad 17, loy 14, rol Titular y azar < 0,5: `wantsOut = true` y exactamente una noticia con `act: 'out'`, `pid` y `clubId` del DT; `pendingOf` incluye `out<pid>` hasta que sea transferible.
-- [x] Promesa: `until = hoy + 35`; al vencer con ≥ 2 partidos y 85 % del objetivo, +25 conformidad y noticia "conforme"; si no, −30, −1 reputación del DT, −1 moral al resto.
-- [x] `canTalk` es falso durante 7 días después de una charla (en el Vestuario).
-- [x] Armonía del ejemplo de F6 = 74; `harmonyBoost` = 1,0084.
-- [x] Con 6 jugadores en reserva no hay partido ni noticia; con 7 sí, los miércoles.
+- [x] Con 2 partidos en `recent`, `afterUserMatch` no cambia la conformidad y `minutesOf.counts` es verdadero; con 1, `nextDelta` 0.
+- [x] Lesionado que no jugó: `recent` no cambia; lesionado o suspendido para el próximo partido: `idle`, `nextDelta` 0, sin "En baja" ni `canAskOut`.
+- [x] `moodDelta` da lo mismo que `afterUserMatch` en el partido siguiente; `npm run sim -- 3` da idéntico con los cambios de regla apagados.
+- [x] Con conformidad 17, loy 14, rol Titular y azar < 0,5: `wantsOut = true`, `outDate` = hoy y exactamente un mensaje con `act: 'out'`.
+- [x] Pedido de salida: la insignia sube 1; baja 1 al resolverlo con `talkResult` (`stay`, `promise`, `status` con subida, `free`), `setListed`, `applyRenewal` y `acceptOffer` a un club argentino y al exterior; el cambio de club del DT y una cláusula pagada lo dejan como mensaje común (cuenta 1); con dos mensajes del mismo jugador solo cuenta el más nuevo; "Quitar de transferibles" reabre con 1; la nueva temporada deja 1 con "sigue queriendo irse", que no llega a quien se retira, se va libre o vuelve de un préstamo.
+- [x] `talkResult` devuelve antes y después, cambios y respuesta corta; sin charla, sin `after` y sin gastar la semana; la respuesta de `free` a quien lo pidió cambia con el libro (abierto, cerrado hasta el 25 jun, cerrado desde el 11 ago).
+- [x] `talkOptions`: una prueba por fila de la tabla de disponibilidad; `talkResult` no hace nada con una opción oculta o deshabilitada.
+- [x] "No se va" con lealtad 12 sale de mala gana y con 13 de buena gana (R9).
+- [x] Armonía: un disconforme con temperamento 13 no resta de más y con 14 resta 3 (R13); `parts` suma el valor también con redondeo de borde y con el valor recortado (R5). Armonía del ejemplo de F6 = 74; `harmonyBoost` = 1,0084.
+- [x] Bandas: ambición 11/12 y 14/15 cambian de banda (R14); un ajeno al 59 % no muestra rasgos, al 60-99 % solo extremos, al 100 % todas las palabras; `moraleShown` da número para propios, palabra para ajenos al 100 % y `null` si no.
+- [x] Promesa: `until = hoy + 35`; al vencer con ≥ 2 partidos y 85 % del objetivo, +25 conformidad y mensaje "conforme" con la cifra; si no, −30, −1 reputación del DT, −1 moral al resto; con < 2 partidos, prórroga con mensaje y `ext`; `promiseStatus` no cuenta el partido del día `until`.
+- [x] `letGoInfo.window`: el 1 mar, cerrado con reapertura el 25 jun; el 14 nov, cerrado, 10 ene del año siguiente y `nextSeason`.
+- [x] `setReserve` ignora a los ajenos y devuelve cuántos cambiaron; con 6 anotados no hay partido y llega el aviso `act: 'reserve'`; con 7 sí, los miércoles.
+- [x] Una Promesa con 0 minutos y ambición 10 no está en `attentionOf`; con ambición 15 y 20 años, sí ("En baja").
 - [x] La camada del DT con plantel de 30 tiene 3 juveniles (4 con Trabajo con juveniles ≥ 15), de 16 a 18 años, todos con `pa ≥ ca` y `pa ≤ 92`.
 - [x] `persOf` devuelve lo mismo para el mismo jugador en dos partidas distintas.
 
 **What's missing**
-- [ ] El límite de una charla por semana también vale desde la ficha.
-- [ ] La reserva y "Exigirle más" respetan el potencial (o se decide que no).
-- [ ] Aviso cuando la reserva no se juega por falta de jugadores.
+- [ ] La pantalla del Vestuario según `design/ux/vestuario.md` (sección 14), con su prueba de aceptación `node tests/ui/vestuario.cjs` (en implementación).
 - [ ] Conflictos en planteles rivales; préstamos de juveniles (pendientes de `CLAUDE.md`).
 
 **Experiential (playtest)**
 - [ ] En una temporada de prueba con plantel de 30, aparecen entre 1 y 4 pedidos de salida, no 0 ni 10.
 - [ ] El jugador de prueba usa al menos tres tipos de charla distintos sin que una domine.
+- [ ] Ningún pedido de salida llega sin que el jugador haya estado antes en "Para atender" ("En baja" o "Molesto").
 
-**Performance**: `afterUserMatch` y `harmony` recorren el plantel una vez (`squadOf` filtra todos los jugadores): por debajo de 1 ms en un día de avance (mediana de 1 ms por día según `CLAUDE.md`).
+**Performance**: `afterUserMatch`, `harmony` y `attentionOf` recorren el plantel una vez (`squadOf` filtra todos los jugadores): por debajo de 1 ms en un día de avance (mediana de 1 ms por día según `CLAUDE.md`). `attentionOf` calcula `harmony` y `windowState` una vez para toda la lista.
 
 ## Open Questions
 
 | Question | Owner | Deadline | Resolution |
 |----------|-------|----------|-----------|
-| ¿El pedido de salida debe depender de un azar fijo por temporada (`h(id, len + temporada)`)? Hoy, con 6 partidos, o lo pide enseguida o nunca en esa temporada. `INTENT UNKNOWN` | Usuario | Antes de la temporada completa de prueba | Resuelta (2026-11-14): se sortea cada semana |
-| ¿La reserva y "Exigirle más" deben poder superar el potencial? Opción A: aplicar el factor 0,15 de `dailyTraining` cuando `ca ≥ pa`. Opción B: dejarlo como premio a la gestión | Usuario | Idem | Resuelta (2026-11-14): no; todo el progreso pasa por `addProgress` |
-| ¿Hablar desde la ficha debe respetar el límite semanal? (hoy no) | Usuario | Idem | Resuelta (2026-11-14): sí, el límite está en el motor |
+| ¿El pedido de salida debe depender de un azar fijo por temporada? | Usuario | — | Resuelta (2026-11-14): se sortea cada semana |
+| ¿La reserva y "Exigirle más" deben poder superar el potencial? | Usuario | — | Resuelta (2026-11-14): no; todo el progreso pasa por `addProgress` |
+| ¿Hablar desde la ficha debe respetar el límite semanal? | Usuario | — | Resuelta (2026-11-14): sí, el límite está en el motor |
 | ¿Se recalcula el rol natural al empezar la temporada o solo se completa? `INTENT UNKNOWN` | Usuario | — | — |
 | ¿La promesa debe seguir al rol si cambia después? | Usuario | — | — |
-| ¿La personalidad de todos los jugadores debe calcularse al crear la partida, para que el partido no dependa de qué fichas miró el DT? | Usuario | — | Resuelta (2026-11-14): sí (`ensurePersonalities`) |
+| ¿La personalidad de todos los jugadores debe calcularse al crear la partida? | Usuario | — | Resuelta (2026-11-14): sí (`ensurePersonalities`) |
 | ¿Los planteles rivales tienen conflictos? ¿Préstamos de juveniles? (pendientes 2 de `CLAUDE.md`) | Usuario | — | No implementado |
 | ¿El partido de reserva debe correr también cuando el paso al miércoles lo hace `finishUserMatch`? | Usuario | — | Resuelta (2026-11-14): sí (`nightSquad`) |
-| ¿"Hablar con él" desde la bandeja debe abrir la charla directamente en vez de la pestaña Vestuario? Ver `design/ux/bandeja.md` | Usuario + UX | — | — |
+| ¿"Hablar con él" desde la bandeja debe abrir la charla directamente? | Usuario | — | Resuelta (2026-11-15, `vestuario.md` pregunta 4): no, sigue llevando a la ficha › Vestuario |
+| ¿Qué personalidad ve el DT de sus jugadores y de los ajenos? | Usuario | — | Resuelta (2026-11-15, preguntas 1, 2, 22 y 24): una palabra por rasgo para los propios (fuga aceptada); ajenos, extremos desde 60 % y palabras al 100 % |
+| ¿"Decirle que no se va" con lealtad 12 o 13? | Usuario | — | Resuelta (2026-11-15, pregunta 16): 13 (`LOY_STAY`) |
+| ¿Dos umbrales del motor dentro de una banda (temperamento 15, ambición 12)? | Usuario | — | Resuelta (2026-11-15, pregunta 23): temperamento 14 en la armonía (`TEMP_HOT`) y corte de ambición en 12 |
+| ¿Charla extra cuando un jugador pide irse después de haber hablado? | Usuario | — | Resuelta (2026-11-15, pregunta 8): no; "Declararlo transferible" es la acción disponible |
+| ¿Unificar "Declararlo transferible" y "Decirle que puede buscar club"? | Usuario | — | Resuelta (2026-11-15, pregunta 5): no; efectos distintos, comparados con números (`letGoInfo`) |
+| ¿Ignorar un pedido de salida tiene costo con el tiempo? | Usuario | — | Resuelta (2026-11-15, pregunta 13): sin costo nuevo; el que ya hay (resta armonía, ofertas con el libro abierto) se muestra |
+| ¿Prometer y pedir paciencia a un jugador "En baja" que todavía está contento (conformidad 60 o más)? Hoy se muestran deshabilitadas con el motivo; habilitarlas sería un cambio de juego | Usuario | Antes de implementar las charlas | **Abierta** (`vestuario.md` pregunta 46). Recomendado: dejarlas deshabilitadas |
 | `pres` usa 2026 fijo: ¿usar la temporada actual? | Usuario | — | — |
 | ¿El efecto de la armonía (±2,4 %) es intencional o debería notarse más? `INTENT UNKNOWN` | Usuario | — | — |
 
@@ -360,3 +501,4 @@ Sistema de gestión por turnos diarios: no hay timing ni animación propia. Lo q
 |------|--------|---------|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `src/engine/squad.ts` y `src/engine/career.ts` en `d9b251a` |
 | 2026-11-14 | Claude | Resueltos: azar semanal del pedido de salida, aviso de reserva sin partido, reserva del martes, tope de potencial en la reserva y en "Exigirle más", una charla por semana, personalidades fijas, chip "Inferiores" y números en las barras del Vestuario |
+| 2026-11-15 | Claude (game-designer) | Motor del Vestuario (`11816f4`, `design/ux/vestuario.md` R1-R14 y pregunta 19): personalidad en palabras con bandas (F9; ambición en cuatro bandas con el corte 12; sin "Modelo de profesional"), fuga aceptada para los propios, una escala por dato (F10), lectura del humor (`minutesOf`, `moodOutlook`, `moodCause`) y "Para atender" (`attentionOf`), charlas con opciones y resultado en el motor (`talkOptions`, `talkResult`, `talkState`), F5 con lealtad 13 (`LOY_STAY`), F6 con temperamento 14 (`TEMP_HOT`) y `parts`, pedido de salida como decisión completa (conteo, caminos que lo resuelven, reapertura y "sigue queriendo irse"), sin charla extra y dos caminos comparados (`outActions`, `letGoInfo`, F11), promesas con estado, prórroga avisada y registro, reserva por `setReserve` con `act: 'reserve'`, registros opcionales (`p.talks`, `p.promiseLog`, `p.moodNote`, `p.outDate`), mensajes nuevos, diferencias con los requisitos de interfaz y criterios; líneas actualizadas a `11816f4` |

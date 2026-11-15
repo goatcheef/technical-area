@@ -2,7 +2,7 @@
 
 > **Estado**: Comprometido (nivel elegido por el usuario; cumplimiento parcial, ver brechas al final)
 > **Autor**: usuario + ux-designer
-> **Última actualización**: 2026-11-14
+> **Última actualización**: 2026-11-15
 > **Nivel de accesibilidad comprometido**: Estándar
 > **Plataformas**: Web. Navegador de escritorio primero (mouse y teclado); celular por navegador (pantalla táctil, barra inferior debajo de 760 px).
 > **Normas externas**:
@@ -303,4 +303,5 @@ El juego no tiene audio. Todo lo que pasa se ve: relato escrito, marcador, canch
 11. Barra de comandos y guía: retener el foco y devolverlo al cerrar (AM-07).
 12. Foco visible en `.tn-opt` y en el gráfico de líneas (AV-09).
 13. Movimiento reducido para el festejo del gol y el desplazamiento suave (AV-10).
-14. Ficha breve con Esc y con foco (AC-06); `--s-muted` a ≥ 3:1; `aria-pressed` en `Seg` y `aria-labelledby` en `Modal`; objetivos táctiles en el celular fuera de la bandeja (AM-09). (AC-02, el freno antes de un vencimiento, quedó hecho en la fase 5 de la bandeja.)
+14. Ficha breve con Esc y con foco (AC-06); `--s-muted` a ≥ 3:1; `aria-pressed` en `Seg`; objetivos táctiles en el celular fuera de la bandeja (AM-09). (AC-02, el freno antes de un vencimiento, quedó hecho en la fase 5 de la bandeja; `aria-labelledby` en `Modal`, AC-09, ya está: apunta al primer título de la caja, `common.tsx:185-190`.)
+15. Dos huecos globales que encontró el Vestuario (`design/ux/vestuario.md`, pregunta 21; ui-programmer, al implementar): el medidor `Gauge` era un SVG mudo, sin `role="img"` ni `aria-label` (`common.tsx:258` en `11816f4`; WCAG 1.1.1): la implementación del Vestuario le suma un `aria` opcional y, sin él, lo deja `aria-hidden`, así que cada uso que comunica un dato tiene que pasarlo; y `Modal` cierra siempre con Esc (`common.tsx:198`), así una ventana con una confirmación adentro (la charla, F6) no puede hacer que Esc cancele primero la confirmación (AM-07).
