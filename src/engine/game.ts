@@ -266,8 +266,12 @@ export function markRead(g: Game, ids: number[], read: boolean) {
   const s = new Set(ids)
   for (const n of g.news) if (s.has(n.id)) n.read = read
 }
-/** Clave de la decisión de la que habla un mensaje de oferta o de trato (`offer<id>`, `deal<id>`), haya o no un pendiente abierto. */
-export const decisionKeyOf = (n: News): string | null => (n.ref == null ? null : n.act === 'offer' ? `offer${n.ref}` : n.act === 'deal' ? `deal${n.ref}` : null)
+/**
+ * Clave de la decisión de la que habla un mensaje, haya o no un pendiente abierto: `offer<id>` y `deal<id>` con `ref`, y `out<pid>` para el
+ * pedido de salida (`act: 'out'` con `pid`, sin mirar `ref`). `newestOf` la usa para ligar al pendiente solo el mensaje más nuevo.
+ */
+export const decisionKeyOf = (n: News): string | null =>
+  n.act === 'out' ? (n.pid != null ? `out${n.pid}` : null) : n.ref == null ? null : n.act === 'offer' ? `offer${n.ref}` : n.act === 'deal' ? `deal${n.ref}` : null
 /** Resolver una decisión a propósito marca leídos todos sus mensajes (regla de leído 2). La llaman las funciones del motor que la resuelven. */
 export function readDecisionNews(g: Game, key: string) { markRead(g, g.news.filter(n => !n.read && decisionKeyOf(n) === key).map(n => n.id), true) }
 /** Cuándo vuelve un lesionado y cuántos partidos de tu club se pierde (de hoy a la fecha de vuelta). */
@@ -795,14 +799,23 @@ export function startNewSeason(g: Game) {
   g.season++
   g.date = `${g.season}-01-10`
   expireSeasonJobs(g)
+  // los del DT que estaban en la lista y quieren irse: al vaciarla, su pedido vuelve (el aviso sale después de `seasonTurnover`)
+  const relist = squadOf(g, g.userClubId).filter(p => p.listed && p.wantsOut).map(p => p.id)
   for (const p of Object.values(g.players)) {
     p.history.push({ season: g.season - 1, clubId: p.clubId, stats: p.stats })
     develop(p, ageOn(p.birth, g.date), rng, p.clubId === g.userClubId ? 1 + (g.manager.attrs.you - 10) * 0.04 : 1)
     p.stats = emptyStats()
     p.cond = 100; p.injury = null; p.susp = 0; p.ycAcc = 0; p.form = []; p.morale = 70
     p.listed = false; p.ups = 0
+    if (p.promiseLog) p.promiseLog = p.promiseLog.filter(x => !x.result) // el registro es de la temporada: queda solo la promesa vigente
   }
   seasonTurnover(g, rng)
+  // la lista vaciada reabre el pedido de los que querían irse: si siguen en el plantel (no se retiraron, no se fueron libres ni volvieron
+  // de un préstamo en `seasonTurnover`), un mensaje nuevo dice por qué volvió a "Para decidir" (nace sin leer; es el más nuevo de `out<pid>`)
+  for (const pid of relist) {
+    const p = g.players[pid]
+    if (p?.clubId === g.userClubId && p.wantsOut && !p.listed) news(g, { tag: 'club', clubId: g.userClubId, pid, act: 'out', title: `${p.name} sigue queriendo irse`, body: `Con la nueva temporada se vació la lista de transferibles y ${p.name} sigue queriendo irse. Podés responderle desde este mensaje.` })
+  }
   // el valor se actualiza para todos; el sueldo solo en los clubes de la IA: en el tuyo manda el contrato firmado (también el de los juveniles)
   for (const p of Object.values(g.players)) { const w = p.wage; Object.assign(p, valuation(p, g.date)); if (p.clubId === g.userClubId) p.wage = w }
   g.offers = []
