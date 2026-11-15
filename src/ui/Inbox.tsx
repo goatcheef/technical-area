@@ -1,11 +1,11 @@
 // Bandeja de entrada (design/ux/bandeja.md): arriba lo que hay que decidir, abajo la correspondencia por día; cada mensaje trae sus botones.
 // La pantalla no escribe en `g`: llama al motor (markRead, acceptOffer, haggle, rejectJob, setListed…), guarda y refresca.
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent as RKey, type ReactNode } from 'react'
-import { acceptJob, acceptOffer, divName, haggle, jobConsequences, offerDeadline, rejectJob, rejectOffer, windowOpen } from '../engine/career'
-import { clubsIn, fmtDate, injuryOutlook, isMine, leagueFx, markRead, nextUserFixture, squadOf, tableOf } from '../engine/game'
-import { pendingKeyOf, pendingOf, type Pending } from '../engine/inbox'
+import { acceptJob, acceptOffer, askingPrice, committed, divName, haggle, jobConsequences, offerDeadline, rejectJob, rejectOffer, windowOpen } from '../engine/career'
+import { clubsIn, decisionKeyOf, fmtDate, injuryOutlook, isMine, leagueFx, markRead, nextUserFixture, squadOf, tableOf } from '../engine/game'
+import { newestOf, pendingAll, pendingKeyOf, type AnyPending as Pending } from '../engine/inbox'
 import { POS_NAME, ageOn } from '../engine/positions'
-import { STATUS, demand, minutesShare, naturalStatusFor, persLabels, setListed, toggleShortlist } from '../engine/squad'
+import { STATUS, demandWage, knowOf, minutesShare, persLabels, setListed, toggleShortlist, wageShown } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Club, type Fixture, type Game, type News, type Offer, type StaffRole } from '../engine/types'
 import { delegatePress, scoutReport } from '../engine/week'
 import { useGame, useSticky, type Route } from '../store'
@@ -13,6 +13,8 @@ import { Badge, Face, MatchReport, PosPill, Status, Val, attrClass, money } from
 import { PageTip } from './Guide'
 import { DayHead, IC, MsgBody, TAG_ICON, TAG_NAME, daysUntil, shortDay } from './msg'
 import { ReportModal } from './Week'
+import { DealView, dealModel, dealStateText, offerModel, wr } from './deal'
+import { NegotiationModal } from './Locker'
 
 // ---------- vistas: alcance y tema ----------
 const TOPICS: [string, string][] = [['todo', 'Todo'], ['plantel', 'Plantel'], ['mercado', 'Mercado'], ['partidos', 'Partidos'], ['torneos', 'Torneos'], ['dirigencia', 'Dirigencia']]
@@ -75,10 +77,12 @@ function pendDesc(g: Game, p: Pending): RowDesc {
   if (p.k === 'offer') { const pl = g.players[p.o.pid]; return { kind: 'Oferta', who: p.o.fromName, title: `${p.o.fromName} ofrece ${money(p.o.fee)} por ${pl?.name ?? 'un jugador'}`, due: dueOf(p.deadline, g.date, true) } }
   if (p.k === 'job') { const c = g.clubs[p.clubId]; return { kind: 'Oferta de trabajo', who: c?.name, title: p.kind === 'season' ? `${c?.name} te ofrece dirigir` : `${c?.name} te quiere como DT`, due: p.kind === 'season' ? { text: 'Antes de comenzar la próxima temporada' } : dueOf(p.deadline, g.date, true) } }
   if (p.k === 'out') { const pl = g.players[p.pid]; return { kind: 'Vestuario', who: pl?.name, title: `${pl?.name ?? 'Un jugador'} quiere irse`, due: { text: 'No vence', none: true } } }
+  if (p.k === 'deal') { const d = p.d; return { kind: p.kind === 'countered' ? 'Contraoferta' : d.side === 'loan' ? 'Préstamo para confirmar' : 'Acuerdo para cerrar', who: d.clubName,
+    title: p.kind === 'countered' ? `${d.clubName} pide ${money(d.counter ?? d.fee)} por ${d.name}` : d.side === 'loan' ? `${d.clubName} te presta a ${d.name}` : `Acordado con ${d.clubName}: falta el contrato con ${d.name}`, due: dueOf(p.deadline, g.date, true) } }
   if (p.k === 'press') { const pre = g.press?.kind === 'pre'; return { kind: 'Prensa', title: pre ? 'Conferencia previa al partido' : 'Conferencia después del partido', due: { text: pre ? 'Antes del partido' : 'Si no respondés, habla el ayudante', none: true } } }
   return { kind: 'Temporada', title: `Terminó la temporada ${g.season}`, due: { text: 'Comenzá la próxima desde el inicio', none: true } }
 }
-const PEND_TOPIC: Record<Pending['k'], string> = { offer: 'Mercado', job: 'Dirigencia', out: 'Vestuario', press: 'Prensa', season: 'Temporada' }
+const PEND_TOPIC: Record<Pending['k'], string> = { offer: 'Mercado', deal: 'Mercado', job: 'Dirigencia', out: 'Vestuario', press: 'Prensa', season: 'Temporada' }
 
 function useNarrow() {
   const q = '(max-width: 900px)'
@@ -117,7 +121,7 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
   const uid = useId().replace(/:/g, '')
 
   // lo pendiente, más la decisión elegida que acaba de desaparecer (resuelta acá o en otro lado), en su lugar
-  const pend = pendingOf(g), pendKeys = new Set(pend.map(p => p.key))
+  const pend = pendingAll(g), pendKeys = new Set(pend.map(p => p.key)), newest = newestOf(g)
   pend.forEach((p, i) => (snap.current[p.key] = { p, d: pendDesc(g, p), i }))
   const routeSel = route.sel
   const block: Item[] = pend.map(p => ({ key: p.key, p }))
@@ -125,7 +129,7 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
 
   const qn = q.trim().length >= 2 ? norm(q.trim()) : ''
   const own = (n: News) => isMine(g, n)
-  const openDec = (n: News) => { const k = pendingKeyOf(n); return !!k && pendKeys.has(k) }
+  const openDec = (n: News) => { const k = pendingKeyOf(g, n, newest); return !!k && pendKeys.has(k) }
   const countable = (n: News) => !n.read && own(n) && !openDec(n)
   const base = scope === 'club' ? g.news.filter(own) : g.news
   const matches = (n: News) => !qn || [n.title, n.body, n.pid != null ? g.players[n.pid]?.name : '', n.clubId != null ? g.clubs[n.clubId]?.name : ''].some(s => !!s && norm(s).includes(qn))
@@ -163,7 +167,7 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
     const r = fn()
     // si el guardado falla, la nota de la decisión suma el aviso (la decisión ya quedó hecha en memoria)
     save().then(ok => { if (!ok) setFlash(f => (f && f.key === key ? { ...f, saveErr: true } : f)) })
-    const resolved = r.resolved !== false, left = pendingOf(g).filter(p => p.key !== key).length
+    const resolved = r.resolved !== false, left = pendingAll(g).filter(p => p.key !== key).length
     setFlash({ key, text: r.text + (resolved && !left ? ' Nada para decidir. Podés seguir con Continuar.' : ''), tone: r.tone ?? 'ok', resolved })
     pin()
     if (resolved) focusReq.current = { to: 'next' }
@@ -253,7 +257,7 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
   const msgRow = (n: News) => {
     const k = `n${n.id}`, pl = n.pid != null ? g.players[n.pid] : undefined, c = n.clubId != null && n.clubId !== g.userClubId ? g.clubs[n.clubId] : undefined
     const who = pl?.name ?? c?.name, unread = !n.read && own(n), dec = openDec(n)
-    const chip = dec ? 'Para decidir' : n.act === 'result' && g.fixtures.some(f => f.id === n.ref) ? 'Ver informe' : n.act === 'scout' || n.act === 'rival' ? 'Informe' : ''
+    const chip = dec ? 'Para decidir' : n.act === 'deal' ? 'Trato' : n.act === 'result' && g.fixtures.some(f => f.id === n.ref) ? 'Ver informe' : n.act === 'scout' || n.act === 'rival' ? 'Informe' : ''
     // en el celular el chip "Para decidir" queda como "!" (CSS); el texto completo sigue en el nombre de la fila
     return <div key={k} {...optProps(k, `${unread ? 'Sin leer. ' : ''}${TAG_NAME[n.tag]}${who ? `, ${who}` : ''}. ${n.title}.${chip ? ` ${chip}.` : ''} ${shortDay(n.date, g.date)}.`)} className={`msg ib-opt ${unread ? 'unread' : ''}`}>
       <MsgBody ico={<span className="msg-ico">{TAG_ICON[n.tag] ?? TAG_ICON.club}</span>} kind={TAG_NAME[n.tag]} who={who} title={hl(n.title, qn)} tag={chip ? <span className={`ib-tag ${dec ? 'dec' : ''}`}>{dec && <span className="ib-tag-i" aria-hidden="true">!</span>}<span className="ib-tag-t">{chip}</span></span> : undefined} unread={unread} chev={narrow} />
@@ -286,7 +290,7 @@ export function Inbox({ busy = false }: { tab?: string; busy?: boolean }) {
   </div>
 
   const item = active ? itemOf(active) : null
-  const panelProps = { flash, run, busy, narrow, nextPend: flash?.resolved ? nextPend : undefined, goNext: () => nextPend && pick(nextPend.key, 'primary'), pin, pressWatch, own, pendKeys, pend }
+  const panelProps = { flash, run, busy, narrow, nextPend: flash?.resolved ? nextPend : undefined, goNext: () => nextPend && pick(nextPend.key, 'primary'), pin, pressWatch, own, pendKeys, pend, newest, pick }
   /** Esc con la ficha breve abierta solo la cierra (Nav.tsx); no mueve el foco. */
   const escOk = (e: RKey) => e.key === 'Escape' && !e.defaultPrevented && !document.querySelector('.modal') && !document.querySelector('.hovercard')
 
@@ -383,7 +387,7 @@ type Act = { label: ReactNode; kind?: 'primary' | 'danger'; run?: () => void; co
 function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: boolean }) {
   const [open, setOpen] = useState<number | null>(null)
   const btns = useRef<(HTMLButtonElement | null)[]>([]), conf = useRef<HTMLButtonElement>(null), back = useRef<number | null>(null)
-  useEffect(() => { if (open != null) conf.current?.focus(); else if (back.current != null) { btns.current[back.current]?.focus(); back.current = null } }, [open])
+  useEffect(() => { if (open != null) { conf.current?.focus(); conf.current?.parentElement?.scrollIntoView({ block: "nearest" }) } else if (back.current != null) { btns.current[back.current]?.focus(); back.current = null } }, [open])
   const cancel = () => { back.current = open; setOpen(null) }
   const decision = acts.some(a => a.confirm || a.dec)
   return <>
@@ -401,7 +405,7 @@ function Actions({ acts, help, busy }: { acts: Act[]; help: ReactNode[]; busy: b
 const Kpi = ({ l, v, s, k, t }: { l: string; v: ReactNode; s?: string; k?: boolean; t?: boolean }) => <div className={`ib-kpi ${k ? 'key' : ''}`}><span className="ib-kpi-l">{l}</span><span className={`ib-kpi-v ${t ? 'txt' : ''}`}>{v}</span>{s && <span className="ib-kpi-s">{s}</span>}</div>
 const Fact = ({ children }: { children: ReactNode }) => <div className="ib-fact">{children}</div>
 
-function PlayerCard({ pid }: { pid?: number }) {
+export function PlayerCard({ pid }: { pid?: number }) {
   const { g, openPlayer } = useGame()
   if (pid == null) return null
   const p = g.players[pid]
@@ -414,7 +418,7 @@ function PlayerCard({ pid }: { pid?: number }) {
     <span className="ib-chev">{IC.next}</span>
   </button>
 }
-function ClubCard({ cid, name }: { cid?: number; name?: string }) {
+export function ClubCard({ cid, name }: { cid?: number; name?: string }) {
   const { g, openClub } = useGame()
   const c = cid != null ? g.clubs[cid] : undefined
   if (!c) return name ? <div className="ib-who static"><span className="msg-ico">{TAG_ICON.club}</span><span className="grow"><b>{name}</b><span className="ib-who-m">Club del exterior</span></span></div> : null
@@ -426,21 +430,25 @@ function ClubCard({ cid, name }: { cid?: number; name?: string }) {
   </button>
 }
 
-type PanelCtx = { flash: Flash | null; run: (key: string, fn: () => { text: string; tone?: Tone; resolved?: boolean }) => void; busy: boolean; narrow: boolean; nextPend?: Pending; goNext: () => void; pin: () => void; pressWatch: { current: string | null }; own: (n: News) => boolean; pendKeys: Set<string>; pend: Pending[] }
+type PanelCtx = { flash: Flash | null; run: (key: string, fn: () => { text: string; tone?: Tone; resolved?: boolean }) => void; busy: boolean; narrow: boolean; nextPend?: Pending; goNext: () => void; pin: () => void; pressWatch: { current: string | null }; own: (n: News) => boolean; pendKeys: Set<string>; pend: Pending[]; newest: Map<string, number>; pick: (k: string, focus?: 'row' | 'primary' | 'title') => void }
 
 /** Plantilla de lectura según el tipo (especificación 5.3): tarjetas, cifras, plazo y hechos, cuerpo y acciones. */
-function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch, own, pendKeys, pend }: { it: Item } & PanelCtx) {
+function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch, own, pendKeys, pend, newest, pick }: { it: Item } & PanelCtx) {
   const { g, save, refresh, go, nav, openPlayer, openClub, openPress } = useGame()
   const [rep, setRep] = useState<Fixture | null>(null)
   const [scout, setScout] = useState<Fixture | null>(null)
-  const n = it.n, dk = it.p ? it.key : n ? pendingKeyOf(n) : null
+  const [negD, setNegD] = useState<number | null>(null)
+  // la clave de la decisión vigente de este mensaje (solo el más nuevo de su oferta o su trato, y solo mientras está abierta)
+  const n = it.n, dk = it.p ? it.key : n ? pendingKeyOf(g, n, newest) : null
+  // la decisión sigue abierta pero este mensaje es uno viejo: se ofrece ir a la respuesta nueva
+  const newer = !dk && n ? decisionKeyOf(n) : null, hasNewer = !!newer && pendKeys.has(newer)
   const livePend = dk ? pend.find(p => p.key === dk) : undefined
   const fl = flash && dk && flash.key === dk ? flash : null
-  const src = n ?? (dk ? g.news.find(x => pendingKeyOf(x) === dk) : undefined)
+  const src = n ?? (dk ? g.news.find(x => pendingKeyOf(g, x, newest) === dk) : undefined)
   const desc = it.p ? pendDesc(g, it.p) : null
-  const kind = it.p?.k ?? (n?.act === 'offer' || n?.act === 'job' || n?.act === 'out' ? n.act : null)
+  const kind = it.p?.k ?? (n?.act === 'offer' || n?.act === 'job' || n?.act === 'out' || n?.act === 'deal' ? n.act : null)
 
-  let cards: ReactNode = null, kpis: ReactNode = null, extra: ReactNode = null, facts: ReactNode = null, conseq: ReactNode = null, gone: ReactNode = null
+  let cards: ReactNode = null, kpis: ReactNode = null, extra: ReactNode = null, facts: ReactNode = null, conseq: ReactNode = null, gone: ReactNode = null, after: ReactNode = null
   let acts: Act[] = [], help: ReactNode[] = []
   const goneMsg = (t: string) => (gone = <div className="ib-gone">{t}</div>)
   const expired = (ref: number, tag: string) => g.news.find(x => x.ref === ref && x.tag === tag && x.title.startsWith('Venció'))
@@ -451,19 +459,36 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     const pid = o?.pid ?? (it.p?.k === 'offer' ? it.p.o.pid : n?.pid), p = pid != null ? g.players[pid] : undefined
     const fromName = o?.fromName ?? (it.p?.k === 'offer' ? it.p.o.fromName : undefined)
     cards = <><PlayerCard pid={pid} /><ClubCard cid={(o?.from ?? (it.p?.k === 'offer' ? it.p.o.from : 0)) || undefined} name={fromName} /></>
-    if (o && p && livePend) {
-      const diff = p.value ? Math.round((o.fee / p.value - 1) * 100) : 0, open = windowOpen(g.date)
-      const left = squadOf(g, g.userClubId).filter(x => x.id !== p.id && x.positions[0] === p.positions[0]).length
-      kpis = <><Kpi k l="Oferta" v={money(o.fee)} /><Kpi l="Valor" v={money(p.value)} /><Kpi l="Diferencia" v={`${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} %`} s={diff > 0 ? 'sobre su valor' : diff < 0 ? 'bajo su valor' : 'igual a su valor'} /><Kpi l="Sueldo" v={money(p.wage)} s="por mes" /><Kpi l="Contrato" v={`dic ${p.contractEnd}`} /></>
-      facts = <><Due d={dueOf(offerDeadline(o), g.date, false)} /><Fact>Libro de pases {open ? 'abierto' : 'cerrado'}.</Fact><Fact>Si lo vendés, te quedan {left} en su puesto ({POS_NAME[p.positions[0]].toLowerCase()}).</Fact></>
-      acts = [
-        { label: 'Aceptar', kind: 'primary', disabled: !open, confirm: { label: `Confirmar: vender a ${p.name} por ${money(o.fee)}`, run: () => run(dk!, () => { acceptOffer(g, o); return { text: `Vendiste a ${p.name} a ${o.fromName} por ${money(o.fee)}.` } }) } },
-        { label: 'Pedir más', dec: true, disabled: !open, run: () => run(dk!, () => (haggle(g, o) ? { text: `${o.fromName} mejoró su oferta: ahora ${money(o.fee)}.`, resolved: false } : { text: `${o.fromName} se retiró de la negociación.`, tone: 'warn' })) },
-        { label: 'Ver la ficha', nav: true, run: () => openPlayer(p.id) },
-        { label: 'Rechazar', kind: 'danger', confirm: { label: 'Confirmar rechazo', danger: true, run: () => run(dk!, () => { rejectOffer(g, o); return { text: `Rechazaste la oferta de ${o.fromName}.` } }) } },
-      ]
-      help = [!open && 'El libro de pases está cerrado: no podés aceptar ni pedir más, solo rechazar.', <><b>Pedir más:</b> {o.fromName} puede mejorar la oferta o retirarse.</>]
-    } else { const ex = expired(oid, 'mercado'); goneMsg(ex ? `Esta oferta venció el ${fmtDate(ex.date)}.` : 'Esta oferta ya fue respondida o venció.') }
+    const om = o && p && livePend ? offerModel(g, o, fn => run(dk!, fn)) : null
+    if (om && p) {
+      // la misma vista que Tratos (deal.tsx, `offerModel`): cabecera, cifras, hechos e impacto; los botones van en la barra de la bandeja
+      extra = <DealView m={om} busy={busy} run={fn => run(dk!, fn)} actions={false} />
+      // primario → comunes → enlaces → peligro, como en Tratos
+      acts = [...om.acts.filter(a => a.kind !== 'danger'), { label: 'Ver la ficha', nav: true, run: () => openPlayer(p.id) }, ...om.acts.filter(a => a.kind === 'danger')]
+      help = [...new Set(om.acts.filter(a => a.disabled && a.why).map(a => a.why!))].concat(om.help as string[])
+      after = <div className="ib-links"><button className="btn" onClick={() => nav({ page: 'market', tab: 'tratos', sel: dk! })}>Ver todos los tratos</button></div>
+    } else if (hasNewer) { goneMsg('Esta oferta tiene un mensaje más nuevo.'); acts = [{ label: 'Ver la respuesta nueva', kind: 'primary', nav: true, run: () => pick(newer!, 'primary') }] }
+    else {
+      const rec = (g.deals ?? []).find(d => d.side === 'sell' && d.offerId === oid), ex = expired(oid, 'mercado')
+      goneMsg(rec ? `${dealStateText(rec)}.` : ex ? `Esta oferta venció el ${fmtDate(ex.date)}.` : 'Esta oferta ya fue respondida o venció.')
+    }
+  } else if (kind === 'deal') {
+    const did = it.p?.k === 'deal' ? it.p.d.id : n!.ref!
+    const d = (g.deals ?? []).find(x => x.id === did), pid = d?.pid ?? n?.pid, p = pid != null ? g.players[pid] : undefined
+    cards = <><PlayerCard pid={pid} />{d && <ClubCard cid={d.clubId || undefined} name={d.clubName} />}</>
+    const links: ReactNode = <div className="ib-links">{d && <button className="btn" onClick={() => nav({ page: 'market', tab: 'tratos', sel: `deal${d.id}` })}>Ver todos los tratos</button>}{p && <button className="btn" onClick={() => openPlayer(p.id)}>Ver la ficha</button>}</div>
+    if (d && livePend && livePend.k === 'deal') {
+      // la misma vista que Tratos y la caja de oferta (deal.tsx, `dealModel`); los botones van en la barra de la bandeja, los enlaces después
+      const m = dealModel(g, d, fn => run(dk!, fn), () => { pin(); setNegD(d.id) })
+      extra = <DealView m={m} busy={busy} run={fn => run(dk!, fn)} actions={false} />
+      after = links
+      acts = m.acts.map(a => ({ ...a }))
+      help = [...new Set(m.acts.filter(a => a.disabled && a.why).map(a => a.why!))].concat(m.help as string[])
+    } else if (d) {
+      extra = links
+      if (hasNewer) { goneMsg(`${d.state === 'waiting' ? 'Ya respondiste esta contraoferta: tu mejora espera respuesta.' : 'Ya respondiste esta contraoferta.'} Hay una respuesta nueva.`); acts = [{ label: 'Ver la respuesta nueva', kind: 'primary', nav: true, run: () => pick(newer!, 'primary') }] }
+      else goneMsg(`${dealStateText(d)}.`)
+    } else { goneMsg('Este trato ya no figura en el historial.'); if (p) acts = [{ label: 'Ver la ficha', nav: true, run: () => openPlayer(p.id) }] }
   } else if (kind === 'job') {
     const cid = it.p?.k === 'job' ? it.p.clubId : n!.ref!, c = g.clubs[cid], mine = g.clubs[g.userClubId]
     const lp = livePend?.k === 'job' ? livePend : undefined
@@ -484,6 +509,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       if (jc.jobs) cancel.push(jc.jobs === 1 ? (jc.offers ? 'la de otro club' : 'la oferta de otro club') : jc.offers ? `las ${jc.jobs} de otros clubes` : `las ${jc.jobs} ofertas de otros clubes`)
       if (cancel.length) parts.push(`${jc.offers + jc.jobs === 1 ? 'se cancela' : 'se cancelan'} ${cancel.join(' y ')}`)
       if (jc.press) parts.push('se descarta la conferencia pendiente')
+      if (jc.deals.length) parts.push(`se ${jc.deals.length === 1 ? 'cae tu trato' : `caen tus ${jc.deals.length} tratos`} de mercado: ${jc.deals.map(d => `${d.state === 'waiting' ? 'la oferta por' : d.state === 'countered' ? `la contraoferta de ${d.clubName} por` : `el acuerdo con ${d.clubName} por`} ${d.name}${d.state === 'waiting' ? ` (${d.clubName})` : ''}`).join(', ')}`)
       // "el ayudante de campo y el preparador físico se van con vos", "el médico, el scouting y las inferiores quedan en {club}"
       const list = (rs: StaffRole[]) => { const w = rs.map(r => STAFF_PHRASE[r]); return w.length > 1 ? `${w.slice(0, -1).join(', ')} y ${w[w.length - 1]}` : w[0] }
       if (jc.follow) parts.push(`${list(jc.followRoles)} ${jc.follow > 1 ? 'se van' : 'se va'} con vos`)
@@ -491,7 +517,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       if (parts.length) conseq = <div className={`ib-conseq ${narrow ? 'out' : ''}`}>Si aceptás, {parts.length > 1 ? `${parts.slice(0, -1).join('; ')} y ${parts[parts.length - 1]}` : parts[0]}.</div>
       const nm = (x: Club) => (x.name.length > 26 ? x.short : x.name)
       acts = [
-        { label: 'Aceptar', kind: 'primary', confirm: { label: `Confirmar: dejar ${nm(mine)} y dirigir ${nm(c)}`, run: () => run(dk!, () => { const old = mine.name; acceptJob(g, cid); return { text: `Dejaste ${old}: ahora dirigís ${c.name}.` } }) } },
+        { label: 'Aceptar', kind: 'primary', confirm: { label: `Confirmar: dejar ${nm(mine)} y dirigir ${nm(c)}${jc.deals.length ? `; se ${jc.deals.length === 1 ? 'cae tu trato' : `caen tus ${jc.deals.length} tratos`} de mercado` : ''}`, run: () => run(dk!, () => { const old = mine.name; acceptJob(g, cid); return { text: `Dejaste ${old}: ahora dirigís ${c.name}.` } }) } },
         { label: 'Ver el club', nav: true, run: () => openClub(cid) },
         { label: 'Rechazar', kind: 'danger', confirm: { label: 'Confirmar rechazo', danger: true, run: () => run(dk!, () => { rejectJob(g, cid); return { text: `Rechazaste la oferta de ${c.name}.` } }) } },
       ]
@@ -552,9 +578,9 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
       cards = <PlayerCard pid={n.pid} />
       if (p) {
         const idx = ATTRS.map((_, i) => i).sort((x, y) => p.attrs[y] - p.attrs[x]), top = idx.slice(0, 4), low = idx[idx.length - 1]
-        const mine = p.clubId === g.userClubId, ask = mine ? null : demand(g, p, 'buy', naturalStatusFor(g, p)).terms.wage
+        const mine = p.clubId === g.userClubId, ask = mine ? null : wageShown(g, p, demandWage(g, p), 402)
         extra = <div className="attr-cols ib-attrs">{[...top, low].map((i, j) => <div key={i} className="attr"><span className="attr-l">{j === 4 ? 'Más flojo: ' : ''}{ATTR_LABEL[ATTRS[i]]}</span><span className={`v ${attrClass(p.attrs[i])}`}>{p.attrs[i]}</span></div>)}</div>
-        kpis = <><Kpi t l="Personalidad" v={persLabels(p).join(', ') || '—'} /><Kpi l="Valor" v={money(p.value)} />{ask != null && <Kpi l="Pedido de sueldo" v={money(ask)} s="por mes" />}</>
+        kpis = <><Kpi t l="Personalidad" v={persLabels(p).join(', ') || '—'} /><Kpi l="Valor" v={money(p.value)} />{ask != null && <Kpi l="Pedido de sueldo" v={wr(ask)} s={ask[0] === ask[1] ? 'por mes' : 'por mes (estimado)'} />}</>
         const followed = g.shortlist.includes(p.id)
         acts = [{ label: 'Ver la ficha', kind: 'primary', run: () => openPlayer(p.id) }, ...(!mine ? [
           { label: followed ? '✓ En seguimiento' : 'Seguir', on: followed, run: () => { toggleShortlist(g, p.id); save(); refresh() } },
@@ -594,7 +620,7 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     {!resolved && extra}
     {!resolved && facts && <div className="ib-facts">{facts}</div>}
     {!resolved && links.length > 0 && showActs && <div className="ib-links">{links.map((a, i) => <button key={i} className="btn" onClick={a.run}>{a.label}</button>)}</div>}
-    {src?.body && <p className="ib-body">{src.body}</p>}
+    {!after && src?.body && <p className="ib-body">{src.body}</p>}
     {!resolved && narrow && conseq}
     {(showActs || gone || fl) && <div className={`ib-actwrap ${showActs || fl ? 'ib-actbar' : ''}`}>
       {!resolved && !narrow && conseq}
@@ -604,7 +630,10 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
         {fl?.saveErr && <div className="ib-result err ib-saveerr"><span className="ib-result-ico">{IC.bang}</span><span>No se pudo guardar la partida. Tu decisión quedó hecha en esta sesión; probá exportar la partida desde Ajustes.</span></div>}</div>
       {resolved && nextPend && <button className="btn primary ib-next" data-next onClick={goNext}>Siguiente pendiente{IC.next}</button>}
     </div>}
+    {after && !resolved && after}
+    {after && src?.body && <p className="ib-body">{src.body}</p>}
     {rep && <MatchReport g={g} f={rep} onClose={() => setRep(null)} />}
+    {negD != null && (() => { const d = (g.deals ?? []).find(x => x.id === negD), p = d && g.players[d.pid]; return p ? <NegotiationModal p={p} mode="buy" dealId={negD} onClose={m => { setNegD(null); if (m) run(`deal${negD}`, () => ({ text: m.text, tone: m.tone, resolved: m.tone !== 'warn' })); else refresh() }} /> : null })()}
     {scout && <ReportModal f={scout} onClose={() => setScout(null)} onApply={pp => { Object.assign(g.clubs[g.userClubId].tactic, pp); save(); refresh() }} />}
   </div>
 }

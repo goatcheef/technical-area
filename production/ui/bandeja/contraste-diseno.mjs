@@ -1,5 +1,6 @@
 // Mide los pares "medir" del diseño visual de la bandeja (production/ui/bandeja/visual-design.md, sección 8.2).
 import fs from 'node:fs'
+import { accentOf as clubAccent } from '../../../tools/club-accent.mjs'
 const db = JSON.parse(fs.readFileSync('/home/user/technical-area/src/data/db.json', 'utf8'))
 const clubs = (Array.isArray(db.clubs) ? db.clubs : Object.values(db.clubs)).filter(c => c && c.colors && c.division > 0)
 const rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255] }
@@ -17,7 +18,8 @@ const hexOf = c => '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0'))
 const toward = (h, to, t) => hexOf(rgb(h).map(v => v + (to - v) * t))
 const crH = (a, b) => cr(rgb(a), rgb(b))
 const inked = h => { if (Math.max(crH(h, '#ffffff'), crH(h, '#0b0f14')) >= 4.5) return h; for (let i = 1; i <= 100; i++) { const d = toward(h, 0, i / 100), l = toward(h, 255, i / 100); if (crH(d, '#ffffff') >= 4.5) return d; if (crH(l, '#0b0f14') >= 4.5) return l } return h }
-const accentOf = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = lift(a, lum(a) < 60 ? .45 : .28); return inked(a) }
+// acento efectivo: tools/club-accent.mjs (la regla de clubTheme, con el segundo color o el índigo en los clubes amarillos y naranjas)
+const accentOf = c => inked(clubAccent(c.colors).a)
 const lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }
 const L = c => .2126 * lin(c[0]) + .7152 * lin(c[1]) + .0722 * lin(c[2])
 const cr = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05) }
@@ -41,4 +43,8 @@ const selOf = a => { const hi = wmix(a, .70).map(Math.round), [h, sa] = hs(hi); 
 const per = {
   '42 --sel / panel [3]': [3, a => cr(selOf(a), panel)], '42 --sel / fila elegida [3]': [3, a => cr(selOf(a), over(a, .14, panel))], '42 --sel / panel2 [3]': [3, a => cr(selOf(a), panel2)], '42 --sel / #11132a [3]': [3, a => cr(selOf(a), H('#11132a'))], '18 acento62%+blanco / panel [4,5]': [4.5, a => cr(wmix(a, .62), panel)], '33-34 accent-hi / fila elegida [3]': [3, a => cr(wmix(a, .70), over(a, .14, panel))], '35 accent-hi / fila elegida [3]': [3, a => cr(wmix(a, .70), over(a, .14, panel))], '37 accent-hi / #0a0c1b [3]': [3, a => cr(wmix(a, .70), H('#0a0c1b'))] }
 for (const [k, [need, fn]] of Object.entries(per)) { const v = clubs.map(c => fn(rgb(accentOf(c)))); const n = v.filter(x => x < need).length; fails += n; console.log(`${k}: mín ${Math.min(...v).toFixed(2)} · máx ${Math.max(...v).toFixed(2)} · fallan ${n}/${v.length}`) }
+// el acento efectivo (botón principal, selección) y su versión clara, a ≥ 25° del ámbar de --warn y del amarillo de .cvd en cada club
+{ const wh = [hs(warn)[0], hs(warnC)[0]], rows = clubs.map(c => { const a = rgb(accentOf(c)), ds = [a, wmix(a, .70).map(Math.round)].map(x => { const [h, sa] = hs(x); return sa >= .35 ? Math.min(...wh.map(w => gap(h, w))) : 360 }); return { name: c.short, d: Math.min(...ds) } })
+  const bad = rows.filter(r => r.d < 25); fails += bad.length
+  console.log(`acento efectivo / --warn: distancia de matiz mín ${Math.min(...rows.map(r => r.d)).toFixed(1)}° · fallan ${bad.length}${bad.length ? ' (' + bad.map(r => r.name).join(', ') + ')' : ''}`) }
 console.log('FALLAS', fails)

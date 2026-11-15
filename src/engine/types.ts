@@ -160,8 +160,46 @@ export interface Manager {
   titles: string[]
 }
 export interface Board { confidence: number; objective: string; target: number; fired: boolean; offers: number[] }
-export interface Offer { id: number; pid: number; from: number; fromName: string; fee: number; date: string; loan?: boolean; /** Veces que el DT pidió más. */ asks?: number }
-export interface Transfer { date: string; pid: number; name: string; from: string; to: string; fee: number; loan?: boolean }
+export interface Offer { id: number; pid: number; from: number; fromName: string; fee: number; date: string; loan?: boolean; /** Veces que el DT pidió más. */ asks?: number; /** Monto de la primera oferta (para decir "mejoró de X a Y"). */ fee0?: number }
+/** `mine`: el pase es del club del DT (de ida o de vuelta) cuando se registró; así "Mis pases" no depende del nombre del club. */
+export interface Transfer { date: string; pid: number; name: string; from: string; to: string; fee: number; loan?: boolean; mine?: boolean }
+
+// ---------- tratos del mercado (`g.deals`) ----------
+/** Abiertos: `waiting`, `countered`, `agreed` (compra o préstamo). Terminales del DT: `refused`, `signed`, `loaned`, `fell`. Ventas: `sold`, `declined`, `withdrawn`, `expired`, `fell`. */
+export type DealState = 'waiting' | 'countered' | 'agreed' | 'refused' | 'signed' | 'loaned' | 'fell' | 'sold' | 'declined' | 'withdrawn' | 'expired'
+/** Por qué se cayó: la retiró (`pulled`), la canceló (`cancel`), cerró el libro (`window`), venció el plazo (`deadline`), el representante se levantó (`walk`),
+ *  el jugador ya no está (`gone`), el DT cambió de club (`club`); en ventas, otra venta del mismo jugador (`sold`) o una cláusula pagada (`clause`). */
+export type DealWhy = 'pulled' | 'cancel' | 'window' | 'deadline' | 'walk' | 'gone' | 'club' | 'sold' | 'clause'
+/** Negociación con el representante. `terms` es lo que pidió al sentarse (`demand`); la paciencia baja con cada ronda y no se recupera al cerrar la ventana. */
+export interface DealNeg { terms: Terms; patience: number; max: number; log: string[]; offer?: Terms; counter?: Terms; agreed?: Terms }
+export interface Deal {
+  id: number; side: 'buy' | 'loan' | 'sell'; pid: number; name: string; clubId: number; clubName: string
+  state: DealState
+  /** Lo último que ofertó el DT (cargo, si es préstamo); en una venta, lo que ofrecía el comprador. */
+  fee: number
+  /** Lo que pide el club en `countered`. */
+  counter?: number
+  /** 1 al ofertar; +1 con cada Mejorar. En una venta, los pedidos de más + 1. */
+  round: number
+  /** El club del DT al ofertar: si cambia de club, el trato se cae. */
+  userClubId: number
+  opened: string; updated: string
+  /** Rango visible de la respuesta (día siguiente y tres días después). */
+  answerFrom?: string; answerBy?: string
+  /** Día real de la respuesta: la interfaz nunca lo muestra. */
+  answerOn?: string
+  /** Último día para responder en `countered` y `agreed` (`dealDeadline`). */
+  deadline?: string
+  neg?: DealNeg
+  /** Tras una ruptura, una cancelación o un acuerdo vencido: no se puede volver a ofertar por el jugador antes de esta fecha (y el club queda molesto). */
+  blockUntil?: string
+  why?: DealWhy
+  /** Motivo del club en `refused` (sus palabras, sin sueldos). */
+  reason?: string
+  /** Lado venta: la oferta (`Offer.id`) y, si se canceló por otra venta o una cláusula, quién se lo llevó. */
+  offerId?: number; by?: string
+  steps: { date: string; text: string }[]
+}
 export type PlayKind = 'open' | 'cross' | 'through' | 'long' | 'corner' | 'fk' | 'pen' | 'counter' | 'aerial'
 /** Lo que pasó en el último minuto, para dibujarlo en la cancha. */
 export interface Frame { poss: 0 | 1; route: number[]; shot: Shot | null; kind: PlayKind; channel: 0 | 1 | 2; lostTo?: number }
@@ -240,8 +278,8 @@ export interface News {
   /** Jugador del que habla la noticia. */
   pid?: number
   /** Qué se puede hacer desde la bandeja: responder una oferta, aceptar un trabajo, hablar con un jugador, ver un informe. */
-  act?: 'offer' | 'job' | 'out' | 'scout' | 'rival' | 'train' | 'result' | 'injury'
-  /** Referencia de la acción: id de la oferta, del club o del partido. */
+  act?: 'offer' | 'job' | 'out' | 'scout' | 'rival' | 'train' | 'result' | 'injury' | 'deal'
+  /** Referencia de la acción: id de la oferta, del trato (`Deal.id`), del club o del partido. */
   ref?: number
   /** Es para el DT (su club, sus jugadores, sus decisiones) y no una noticia del resto del fútbol. */
   me?: boolean
@@ -306,4 +344,8 @@ export interface Game {
   nextPid?: number
   /** Favoritos fijados en la barra lateral. */
   favs?: { k: 'p' | 'c'; id: number }[]
+  /** Tratos del mercado (ofertas del DT y cierres de las ofertas recibidas). Opcional: `?? []` (sin subir `version`). Tope 60, ver `addDeal`. */
+  deals?: Deal[]
+  /** Próximo id de trato (propio, no `nextId`). `?? 1`. */
+  nextDeal?: number
 }

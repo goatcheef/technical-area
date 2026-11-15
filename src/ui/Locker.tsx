@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { canSell, doTransfer } from '../engine/career'
-import { addDays, fmtDate, news, squadOf } from '../engine/game'
+import { useEffect, useRef, useState } from 'react'
+import { canSell, dealImpact, openNegotiation, sendTerms, signDeal } from '../engine/career'
+import { fmtDate, fmtDay, squadOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
-import { STATUS, STATUS_KEYS, applyRenewal, canTalk, demand, evalOffer, harmony, minutesShare, naturalStatusFor, nextTalk, persLabels, talk, type NegMode, type TalkKind } from '../engine/squad'
+import { STATUS, STATUS_KEYS, applyRenewal, canTalk, demand, evalOffer, harmony, minutesShare, naturalStatusFor, nextTalk, patienceWord, persLabels, renewWalk, talk, wageShown, type NegMode, type TalkKind } from '../engine/squad'
 import type { Player, SquadStatus, Terms } from '../engine/types'
 import { useGame } from '../store'
-import { Badge, Face, Gauge, Modal, Ovr, PosPill, Seg, Status, money } from './common'
+import { Badge, Face, Gauge, Modal, PosPill, Seg, Status, Val, money } from './common'
+import { Amount, ImpactBox, MI, Note, between, patiencePhrase, wm } from './deal'
 import { PageTip } from './Guide'
 
 const Bar = ({ v, c }: { v: number; c?: string }) => <div className="bar" style={{ width: 70 }}><i style={{ width: `${Math.max(2, Math.min(100, v))}%`, background: c ?? (v >= 60 ? 'var(--good)' : v >= 35 ? 'var(--warn)' : 'var(--bad)') }} /></div>
@@ -87,46 +88,97 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: () => void }) {
   )
 }
 
-/** Negociación de contrato con el representante (compra o renovación). */
-export function NegotiationModal({ p, mode, fee = 0, onClose }: { p: Player; mode: NegMode; fee?: number; onClose: (msg?: string) => void }) {
+/**
+ * Negociación con el representante (F5). Compra: sobre un acuerdo con el club (`dealId`); la paciencia, los términos y las respuestas
+ * se guardan en el trato (`openNegotiation`, `sendTerms`) y el pase se ejecuta recién con "Confirmar: fichar…" (`signDeal`).
+ * Renovación: `demand` y `evalOffer` del motor; si se levanta, `renewWalk`. La ventana no escribe en `g`.
+ */
+export function NegotiationModal({ p, mode, dealId, onClose }: { p: Player; mode: NegMode; dealId?: number; onClose: (m?: { text: string; tone: 'ok' | 'warn' | 'err' }) => void }) {
   const { g, save, refresh } = useGame()
   const me = g.clubs[g.userClubId]
-  const [dem] = useState(() => demand(g, p, mode, naturalStatusFor(g, p)))
-  const [offer, setOffer] = useState<Terms>(() => ({ ...dem.terms, wage: Math.round(dem.terms.wage * 0.9 / 100) * 100, bonus: Math.round(dem.terms.bonus * 0.6 / 1000) * 1000 }))
-  const [log, setLog] = useState<{ t: string; ok?: boolean }[]>([])
-  const [over, setOver] = useState(false)
-  const set = (k: keyof Terms, v: number | string) => setOffer({ ...offer, [k]: v })
-  const usd = (n: number) => `US$ ${n.toLocaleString('es-AR')}`
+  const buy = mode === 'buy' && dealId != null
+  const deal = buy ? (g.deals ?? []).find(d => d.id === dealId) : undefined
+  // abrir la mesa fija lo que pide el representante y su paciencia (la primera vez); después la retoma como quedó
+  const [start] = useState(() => (buy ? openNegotiation(g, dealId!) : null))
+  const [renewDem] = useState(() => (buy ? null : demand(g, p, 'renew', naturalStatusFor(g, p))))
+  useEffect(() => { if (start) { save(); refresh() } }, [])
+  const ask = (start?.demand ?? renewDem!).terms
+  const [offer, setOffer] = useState<Terms>(() => start?.terms ?? { ...ask, wage: Math.round((ask.wage * 0.9) / 100) * 100, bonus: Math.round((ask.bonus * 0.6) / 1000) * 1000 })
+  const [log, setLog] = useState<string[]>(() => start?.log ?? [])
+  const [agreed, setAgreed] = useState<Terms | null>(() => (deal?.neg?.agreed && start && sameT(deal.neg.agreed, start.terms) ? deal.neg.agreed : null))
+  const [over, setOver] = useState<null | { text: string; tone: 'ok' | 'warn' | 'err' }>(null)
+  const [warn, setWarn] = useState<string | null>(null)
+  const pat = buy ? deal?.neg?.patience ?? start?.patience ?? 0 : renewDem!.patience
+  const word = patienceWord(pat)
+  const set = (k: keyof Terms, v: number | string) => { if (over) return; setOffer({ ...offer, [k]: v }); setAgreed(null); setWarn(null) }
+  const logRef = useRef<HTMLDivElement | null>(null), endRef = useRef<HTMLDivElement | null>(null)
+  // al terminar (firmó, renovó o se levantó de la mesa) el botón que tenía el foco desaparece: el foco va al resultado, dentro de la ventana
+  useEffect(() => { if (over) endRef.current?.querySelector<HTMLElement>('.ib-result')?.focus() }, [over])
   const send = () => {
-    const r = evalOffer(g, p, mode, offer, dem)
-    if (r.ok) {
-      if (mode === 'buy') { doTransfer(g, p, me.id, fee, false, false, offer) } else applyRenewal(g, p, offer)
-      setLog([...log, { t: mode === 'buy' ? `¡Firmó! ${p.name} es nuevo jugador de ${me.name}.` : `¡Renovó! Contrato hasta diciembre de ${g.season + offer.years}.`, ok: true }]); setOver(true)
-    } else if (r.walk) {
-      if (mode === 'renew') p.negBlock = addDays(g.date, 30)
-      else news(g, { tag: 'mercado', clubId: me.id, title: `Se cayó el pase de ${p.name}`, body: `${me.name} había acordado con ${g.clubs[p.clubId].name}, pero no llegó a un acuerdo con ${p.name} y la operación se cayó.` })
-      setLog([...log, { t: `${r.msg}${mode === 'renew' ? ' No va a volver a sentarse a negociar por un mes.' : ' La operación se cayó.'}`, ok: false }]); setOver(true)
-    } else { setLog([...log, { t: r.msg }]); if (r.counter) setOffer(r.counter) }
+    const r = buy ? sendTerms(g, dealId!, offer) : evalOffer(g, p, 'renew', offer, renewDem!)
+    if (!r) { setOver({ text: 'Este acuerdo ya no está abierto.', tone: 'warn' }); return }
+    if (r.ok) setAgreed({ ...offer })
+    else if (r.walk) {
+      if (!buy) renewWalk(g, p.id)
+      const until = buy ? (g.deals ?? []).find(d => d.id === dealId)?.blockUntil : undefined
+      setOver({ text: `${r.msg} ${buy ? `La operación se cayó. No podés volver a ofertar por él hasta el ${until ? fmtDay(until) : ''}.` : `No va a volver a sentarse a negociar hasta el ${p.negBlock ? fmtDay(p.negBlock) : ''}.`}`, tone: 'err' })
+    } else if (/no gasta paciencia/.test(r.msg)) setWarn(r.msg)
+    else { if (!buy) setLog(l => [...l, r.msg].slice(-6)); if (r.counter) setOffer(r.counter) }
+    if (buy) setLog([...((g.deals ?? []).find(d => d.id === dealId)?.neg?.log ?? [])])
+    save(); refresh()
+    setTimeout(() => logRef.current?.querySelector<HTMLElement>('[data-primary]')?.focus())
+  }
+  const confirm = () => {
+    if (!agreed) return
+    if (buy) {
+      const r = signDeal(g, dealId!, agreed)
+      if (!r.ok) { setWarn(r.reason ?? 'No se pudo firmar.'); setAgreed(null); return }
+      setOver({ text: `Firmó. ${p.name} es nuevo jugador de ${me.name}.`, tone: 'ok' })
+    } else { applyRenewal(g, p, agreed); setOver({ text: `Renovó. Contrato hasta diciembre de ${g.season + agreed.years}.`, tone: 'ok' }) }
+    setAgreed(null)
     save(); refresh()
   }
-  const num = (k: 'wage' | 'clause' | 'bonus', step: number) => <input type="number" min={0} step={step} value={offer[k]} disabled={over} onChange={e => set(k, Math.max(0, Number(e.target.value)))} />
+  const imp = buy && deal ? dealImpact(g, 'buy', p.id, deal.fee, offer) : null
+  const bill = squadOf(g, me.id).reduce((s, x) => s + (x.id === p.id ? 0 : x.wage), 0), capOver = bill + offer.wage - me.wageBudget
+  const mine = p.clubId === me.id
+  const num = (k: 'wage' | 'clause' | 'bonus', label: string) => <Amount id={`neg-${k}`} label={label} value={offer[k]} onChange={v => set(k, v)} disabled={!!over} auto={k === 'wage'} />
+  // los montos del representante vienen del motor con los miles con punto ("US$ 3.100"): se escriben como el resto ("US$ 3,1 mil")
+  const fmtLog = (t: string) => t.replace(/US\$ (\d{1,3}(?:\.\d{3})+)(?![\d,]| mil| M)/g, (_, n: string) => wm(Number(n.replace(/\./g, ''))))
+  const cw = wageShown(g, p, p.wage, 401)
   return (
-    <Modal onClose={() => onClose()}>
-      <div className="row" style={{ marginBottom: 12 }}><Face p={p} size={52} /><div className="grow"><h3>{mode === 'buy' ? `Contrato con ${me.name}` : 'Renovación'}</h3><h2>{p.name}</h2>
-        <div className="dim sm">{ageOn(p.birth, g.date)} años · {persLabels(p).join(' · ')} · hoy cobra {usd(p.wage)} por mes{mode === 'buy' ? ` · transferencia acordada en ${money(fee)}` : ''}</div></div><Ovr v={bestRating(p)} /></div>
-      <div className="card col" style={{ marginBottom: 12 }}>
-        <div className="dim sm">El representante pide alrededor de <b style={{ color: 'var(--text)' }}>{usd(dem.terms.wage)} por mes</b>, {dem.terms.years} años, una prima de {usd(dem.terms.bonus)} y el rol de <b style={{ color: 'var(--text)' }}>{STATUS[dem.terms.status].name.toLowerCase()}</b>. Su paciencia es limitada: cada oferta baja la suma.</div>
-        <div className="grid2" style={{ gap: 12 }}>
-          <label className="f">Sueldo mensual (US$){num('wage', 100)}</label>
-          <label className="f">Prima por firmar (US$){num('bonus', 1000)}</label>
-          <label className="f" title="Si un club paga este monto, se lo lleva sin negociar. 0 = sin cláusula. Una cláusula baja le gusta al jugador ambicioso; una alta lo molesta.">Cláusula de rescisión (US$, 0 = sin cláusula){num('clause', 50000)}</label>
-          <div className="f">Años de contrato<Seg value={offer.years - 1} options={['1', '2', '3', '4', '5']} onChange={v => !over && set('years', v + 1)} /></div>
+    <Modal onClose={() => onClose(over ?? undefined)}>
+      <div className="mk-neg">
+        <div className="row" style={{ marginBottom: 4 }}><Face p={p} size={52} /><div className="grow" style={{ minWidth: 0 }}><h2>{buy ? `Contrato con ${me.name}` : `Renovación de ${p.name}`}</h2>
+          <div className="dim sm">{p.name} · {ageOn(p.birth, g.date)} años · <PosPill p={p} /> <Val p={p} /> · hoy cobra {mine ? wm(p.wage) : between(cw)} por mes</div></div>
+          <button className="btn sm icon" aria-label="Cerrar la negociación" title="Cerrar (Esc)" onClick={() => onClose(over ?? undefined)}>✕</button></div>
+        {buy && deal && <div className="sm">Transferencia acordada: <b>{money(deal.fee)}</b> (club: {deal.clubName})</div>}
+        <blockquote className="mk-ask">El representante pide <b>{wm(ask.wage)} por mes</b>, {ask.years} {ask.years === 1 ? 'año' : 'años'}, prima {money(ask.bonus)}, rol {STATUS[ask.status].name.toLowerCase()}.</blockquote>
+        {!over && <div className="mk-pat">Paciencia del representante: <b>{word}</b>. {patiencePhrase(word)}</div>}
+        {buy && deal?.deadline && !over && <div className="ib-conseq">Si cerrás la ventana, la negociación queda como está hasta el {fmtDay(deal.deadline)} (vence el acuerdo con {deal.clubName}). Si se levanta de la mesa, o si dejás vencer el acuerdo o lo cancelás, no podés volver a ofertar por él durante 14 días de libro abierto; si lo dejás vencer o lo cancelás, {deal.clubName} además pide un 10 % más por sus jugadores.</div>}
+        {!buy && !over && <div className="ib-conseq">Si se levanta de la mesa, no va a volver a negociar por un mes.</div>}
+        <fieldset className="mk-terms" disabled={!!over}>
+          <div className="grid2" style={{ gap: 12 }}>
+            {num('wage', 'Sueldo mensual (US$)')}
+            {num('bonus', 'Prima por firmar (US$)')}
+            {num('clause', 'Cláusula (US$, 0 = sin cláusula)')}
+            <div className="f">Años de contrato<Seg label="Años de contrato" value={offer.years - 1} options={['1', '2', '3', '4', '5']} onChange={v => set('years', v + 1)} /></div>
+          </div>
+          <div className="f">Rol prometido<Seg label="Rol prometido" value={STATUS_KEYS.indexOf(offer.status)} options={STATUS_KEYS.map(k => STATUS[k].name)} onChange={v => set('status', STATUS_KEYS[v])} /><span className="dim sm">Prometer un rol mayor ayuda a cerrar, pero después espera esos minutos.</span></div>
+        </fieldset>
+        {imp && !over && <ImpactBox imp={imp} kind="buy" title="Con estos términos" />}
+        <div aria-live="polite">{!over && capOver > 0 && <Note kind="warn">Con este sueldo superás el tope por {wm(capOver)}. Esto no gasta paciencia.</Note>}</div>
+        <div className="mk-log" role="status" ref={el => { logRef.current = el; endRef.current = el }}>
+          {log.filter(l => !(agreed && /^¡Hay acuerdo/.test(l))).map((l, i) => <div key={i} className="mk-log-r"><span className="mk-log-i">{MI.info}</span><span>{fmtLog(l)}</span></div>)}
+          {warn && <div className="mk-log-r warn"><span className="mk-log-i">{MI.bang}</span><span>{warn}</span></div>}
+          {over && <div className={`ib-result ${over.tone === 'ok' ? '' : over.tone}`} tabIndex={-1}><span className="ib-result-ico">{over.tone === 'ok' ? MI.ok : MI.x}</span><span>{over.text}</span></div>}
+          {agreed && !over && <div className="mk-agree"><b><span className="mk-agree-i">{MI.ok}</span>Hay acuerdo con el representante. Falta tu confirmación.</b>
+            <div className="ib-acts"><button className="btn primary" data-primary onClick={confirm}>{buy ? `Confirmar: fichar a ${p.name}, ${money(deal?.fee ?? 0)}${agreed.bonus ? ` + prima ${money(agreed.bonus)}` : ''}` : `Confirmar: renovar a ${p.name} hasta diciembre de ${g.season + agreed.years}`}</button>
+              <button className="btn" onClick={() => setAgreed(null)}>Seguir negociando</button></div></div>}
         </div>
-        <div className="f">Rol prometido<Seg value={STATUS_KEYS.indexOf(offer.status)} options={STATUS_KEYS.map(k => STATUS[k].name)} onChange={v => !over && set('status', STATUS_KEYS[v])} /><span className="dim sm">Prometer un rol mayor ayuda a cerrar, pero después espera esos minutos.</span></div>
+        {!agreed && <div className="row mk-neg-foot"><span className="grow" />{over ? <button className="btn primary" data-primary onClick={() => onClose(over)}>Listo</button> : <><button className="btn" onClick={() => onClose()}>Cancelar</button><button className="btn primary" data-primary onClick={send}>Ofrecer</button></>}</div>}
       </div>
-      {log.map((l, i) => <div key={i} className={`sm ${l.ok === true ? 'good' : l.ok === false ? 'bad' : 'warn'}`} style={{ lineHeight: 1.5, marginBottom: 6 }}>{l.t}</div>)}
-      <div className="row"><span className="grow" />{over ? <button className="btn primary" onClick={() => onClose(log[log.length - 1]?.t)}>Listo</button> : <><button className="btn" onClick={() => onClose()}>Cancelar</button><button className="btn primary" onClick={send}>Ofrecer</button></>}</div>
     </Modal>
   )
 }
+const sameT = (a: Terms, b: Terms) => a.wage === b.wage && a.years === b.years && a.status === b.status && a.clause === b.clause && a.bonus === b.bonus
 export { Badge, fmtDate }

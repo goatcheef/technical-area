@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "db": "tsx tools/build-db.ts",
-    "sim": "tsx tools/sim-season.ts"
+    "sim": "tsx tools/sim-season.ts",
+    "test:engine": "tsx tests/engine/deals.ts && tsx tests/engine/negotiation.ts && tsx tests/engine/wage-shown.ts"
   },
   "dependencies": {
     "react": "^19.3.1",

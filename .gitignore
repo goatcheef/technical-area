@@ -8,3 +8,4 @@ technical-area.html
 .DS_Store
 __pycache__/
 project.local.yaml
+.claude/worktrees/

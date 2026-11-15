@@ -1,6 +1,8 @@
 // Contraste de la tinta sobre el acento del club para los clubes con economía (división > 0) de src/data/db.json.
-// Reproduce clubTheme de src/ui/common.tsx (aclarado en OKLab con lift): si cambia la regla allá, cambiarla acá. Uso: node tools/check-contrast.mjs [-v]
+// El acento sale de tools/club-accent.mjs, la misma regla que clubTheme de src/ui/common.tsx (aclarado en OKLab, segundo color o índigo en los
+// clubes amarillos y naranjas): si cambia la regla allá, cambiarla en club-accent.mjs. Uso: node tools/check-contrast.mjs [-v]
 import fs from 'node:fs'
+import { accentOf } from './club-accent.mjs'
 const db = JSON.parse(fs.readFileSync(new URL('../src/data/db.json', import.meta.url), 'utf8'))
 const clubs = (Array.isArray(db.clubs) ? db.clubs : Object.values(db.clubs)).filter(c => c && c.colors && c.division > 0)
 const rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255] }
@@ -32,8 +34,7 @@ const hueSat = h => { const [r, g, b] = rgb(h).map(v => v / 255), mx = Math.max(
 const gap = (a, b) => { const d = Math.abs(a - b) % 360; return Math.min(d, 360 - d) }
 const WARN = ['#ffb547', '#f3d34a'], WARN_H = WARN.map(w => hueSat(w)[0])
 const selOf = hi => { const [h, s] = hueSat(hi); return s >= .35 && WARN_H.some(w => gap(h, w) < 25) ? '#f1f2fa' : hi }
-const base = c => { let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'; if (lum(a) < 95) a = lift(a, lum(a) < 60 ? .45 : .28); return a }
-const theme = c => { const b = base(c), [a, k, shift] = inked(b), hi = blend(a, W, .7); return { name: c.short, base: b, a, k, shift, a2: fit(blend(a, '#ff6fb5', .55), k), hi, sel: selOf(hi) } }
+const theme = c => { const ac = accentOf(c.colors), b = ac.a, [a, k, shift] = inked(b), hi = blend(a, W, .7); return { name: c.short, base: b, a, k, shift, a2: fit(blend(a, '#ff6fb5', .55), k), hi, sel: selOf(hi), from: ac.from, band: inked(ac.band)[0] } }
 
 const v = process.argv.includes('-v'), T = clubs.map(theme)
 const panel = '#1b1e36', panel2 = '#23274a', text = '#f1f2fa'
@@ -63,6 +64,13 @@ const hueRows = T.map(t => { const [h, s] = hueSat(t.sel); return { t, h, s, d: 
 const colored = hueRows.filter(x => x.s >= .35), hueFails = colored.filter(x => x.d < 25)
 fails += hueFails.length
 console.log(`--sel distinto de --warn (matiz a ≥ 25° de ${WARN.join(' y ')} con saturación ≥ 0,35): distancia mín ${Math.min(...colored.map(x => x.d)).toFixed(1)}° · fallan ${hueFails.length}${hueFails.length ? ' (' + hueFails.map(x => x.t.name).join(', ') + ')' : ''}`)
+// acento efectivo (botón principal, selección) distinto de --warn en todos los clubes: el matiz del acento y el de su versión clara a ≥ 25°
+const accRows = T.flatMap(t => [t.a, t.hi].map(c => { const [h, s] = hueSat(c); return { t, s, d: Math.min(...WARN_H.map(w => gap(h, w))) } })).filter(x => x.s >= .35)
+const accFails = [...new Set(accRows.filter(x => x.d < 25).map(x => x.t.name))]
+fails += accFails.length
+console.log(`acento efectivo distinto de --warn (acento y acento claro a ≥ 25° con saturación ≥ 0,35): distancia mín ${Math.min(...accRows.map(x => x.d)).toFixed(1)}° · fallan ${accFails.length}${accFails.length ? ' (' + accFails.join(', ') + ')' : ''}`)
+const moved = T.filter(t => t.from !== 'first')
+console.log(`clubes amarillos y naranjas con otro acento: ${moved.length}${moved.length ? ': ' + moved.map(t => `${t.name} (banda ${t.band} → ${t.a}, ${t.from === 'second' ? 'segundo color' : 'índigo de reemplazo'})`).join(', ') : ''}`)
 const neutral = T.filter(t => t.sel !== t.hi)
 console.log(`--sel neutro (#f1f2fa) en lugar del acento claro: ${neutral.length} clubes${neutral.length ? ': ' + neutral.map(t => `${t.name} (${t.hi}, ${hueSat(t.hi)[0].toFixed(0)}°)`).join(', ') : ''}`)
 const root = '#3ddc97'; console.log(`acento por defecto ${root} con tinta #04130c: ${cr(root, '#04130c').toFixed(2)}:1`)

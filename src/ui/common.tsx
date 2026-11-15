@@ -1,7 +1,7 @@
-import { useId, useRef, useEffect, useState, type ReactNode } from 'react'
+import { useId, useRef, useEffect, useState, type KeyboardEvent as RKeyEvent, type ReactNode } from 'react'
 import crestsJson from '../data/crests.json'
 import { PLAYER_PHOTO } from '../data/playerPhoto'
-import { askingPrice, doTransfer, evaluateBid, wageDemand, windowOpen } from '../engine/career'
+import { askingPrice, windowOpen } from '../engine/career'
 import { STATUS, fmtRange, knowOf, minutesShare, persLabels, scout, shown } from '../engine/squad'
 import { fmtDate } from '../engine/game'
 import { sab } from '../engine/week'
@@ -73,13 +73,32 @@ const lift = (hex: string, t: number) => {
   for (let i = 0; i < 40 && fromLab(L, A * k, B * k).some(v => v < -1e-4 || v > 1 + 1e-4); i++) k *= 0.97
   return '#' + fromLab(L, A * k, B * k).map(v => Math.round(Math.min(255, Math.max(0, toSrgb(Math.min(1, Math.max(0, v)))))).toString(16).padStart(2, '0')).join('')
 }
-/** Variables de tema a partir de los colores del club (regla repetida en tools/check-contrast.mjs). */
+const nearWarn = (h: string) => { const [x, s] = hueSat(h); return s >= 0.35 && WARN_HUES.some(w => hueGap(x, w) < 25) }
+const ACC_DEFAULT = '#3ddc97', ACC_FALLBACK = '#8b93ff'
+const prepAccent = (h: string) => (lum(h) < 95 ? lift(h, lum(h) < 60 ? 0.45 : 0.28) : h)
+const clashes = (a: string) => nearWarn(a) || nearWarn(blend(a, '#ffffff', 0.7))
+/**
+ * Acento efectivo del club (regla repetida en tools/club-accent.mjs, que usan los scripts de contraste): el primer color con saturación,
+ * aclarado en OKLab si es oscuro. Clubes amarillos y naranjas (decisión del usuario): si el acento o su versión clara caen a menos de 25° del
+ * ámbar de las decisiones, el botón principal y la selección usan el SEGUNDO color del club; si ese también choca o es gris, un índigo
+ * propio. `band`: el color original, para la banda de la ficha del jugador (el escudo y la banda conservan el amarillo).
+ */
+export function accentOf(colors: [string, string]): { a: string; band: string; from: 'first' | 'second' | 'fallback' } {
+  const [c0, c1] = colors
+  const first = sat(c0) > 50 ? c0 : sat(c1) > 50 ? c1 : ACC_DEFAULT
+  const a = prepAccent(first)
+  if (!clashes(inked(a)[0])) return { a, band: a, from: 'first' }
+  const other = first === c0 ? c1 : c0
+  if (sat(other) > 50 && !clashes(inked(prepAccent(other))[0])) return { a: prepAccent(other), band: a, from: 'second' }
+  return { a: ACC_FALLBACK, band: a, from: 'fallback' }
+}
+/** Variables de tema a partir de los colores del club (regla repetida en tools/club-accent.mjs y tools/check-contrast.mjs). */
 export function clubTheme(c: { colors: [string, string] }): Record<string, string> {
-  let a = sat(c.colors[0]) > 50 ? c.colors[0] : sat(c.colors[1]) > 50 ? c.colors[1] : '#3ddc97'
-  if (lum(a) < 95) a = lift(a, lum(a) < 60 ? 0.45 : 0.28)
-  const [acc, k] = inked(a), [r, g, b] = rgb(acc), hi = blend(acc, '#ffffff', 0.7)
+  const ac = accentOf(c.colors)
+  const [acc, k] = inked(ac.a), [r, g, b] = rgb(acc), hi = blend(acc, '#ffffff', 0.7)
   const soft = (h: string, o: number) => { const [x, y, z] = rgb(h); return `rgba(${x}, ${y}, ${z}, ${o})` }
   return { '--accent': acc, '--accent-ink': k, '--accent-soft': `rgba(${r}, ${g}, ${b}, .14)`, '--accent-hi': hi, '--sel': selColor(hi), '--accent-2': fit(blend(acc, '#ff6fb5', 0.55), k),
+    '--band': inked(ac.band)[0],
     '--c1a': soft(c.colors[0], lum(c.colors[0]) > 200 ? 0.1 : 0.34), '--c2a': soft(c.colors[1], lum(c.colors[1]) > 200 ? 0.08 : 0.26) }
 }
 
@@ -88,7 +107,9 @@ export function Badge({ club, size = 28 }: { club: ClubLike; size?: number }) {
   const src = club.id != null ? CRESTS[club.id] : undefined
   if (src) return <img className="crest" data-cid={club.id} src={src} alt={club.short} width={size} height={size} style={{ width: size, height: size }} />
   const [a, b] = club.colors
-  return <span className="badge" data-cid={club.id ?? undefined} title={club.short} style={{ width: size, height: size, background: a, borderColor: b, color: ink(a), fontSize: size * 0.3 }}>{(club.code ?? club.short).slice(0, 3).toUpperCase()}</span>
+  // el código del club solo entra legible (≥ 12 px) desde 40 px; más chico, el escudo de reemplazo es solo los colores y el nombre va en el rótulo
+  const code = (club.code ?? club.short).slice(0, 3).toUpperCase()
+  return <span className="badge" role="img" aria-label={club.short} data-cid={club.id ?? undefined} title={club.short} style={{ width: size, height: size, background: a, borderColor: b, color: ink(a), fontSize: Math.max(12, size * 0.3) }}>{size >= 40 ? <span aria-hidden="true">{code}</span> : null}</span>
 }
 const SKIN = ['#f3d2b3', '#e2b48c', '#c98f62', '#a06a43', '#6e4428']
 const HAIR = ['#1c1410', '#3b2a1d', '#6b4a2b', '#b98a4a', '#9aa0a6', '#d9d9d9']
@@ -171,13 +192,15 @@ export function Modal({ children, onClose, wide }: { children: ReactNode; onClos
     const prev = document.activeElement as HTMLElement | null
     const el = box.current
     const items = () => [...(el?.querySelectorAll<HTMLElement>('button:not(:disabled), select, input, textarea, [tabindex]:not([tabindex="-1"])') ?? [])]
-    ;(items()[0] ?? el)?.focus()
+    ;(el?.querySelector<HTMLElement>('[data-autofocus]') ?? items()[0] ?? el)?.focus()
     const key = (e: KeyboardEvent) => {
       if (!el || !el.isConnected || el !== [...document.querySelectorAll('.modal')].pop()) return // solo la ventana de más arriba
       if (e.key === 'Escape') { e.preventDefault(); close.current() }
       else if (e.key === 'Tab') {
         const it = items(); if (!it.length) return
         const first = it[0], last = it[it.length - 1]
+        // el foco quedó fuera de la ventana (por ejemplo, desapareció el botón que lo tenía): vuelve adentro
+        if (!el.contains(document.activeElement)) { e.preventDefault(); (e.shiftKey ? last : first).focus(); return }
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
       }
     }
@@ -186,9 +209,20 @@ export function Modal({ children, onClose, wide }: { children: ReactNode; onClos
   }, [])
   return <div className="modal-bg" onClick={onClose}><div ref={box} className="modal" role="dialog" aria-modal="true" tabIndex={-1} style={wide ? { width: 'min(1120px, 100%)' } : undefined} onClick={e => e.stopPropagation()}>{children}</div></div>
 }
-/** Control segmentado: la opción elegida lleva ✓ (por CSS) y aria-pressed. */
-export function Seg({ value, options, onChange, label }: { value: number; options: string[]; onChange: (v: number) => void; label?: string }) {
-  return <div className="seg" role="group" aria-label={label}>{options.map((o, i) => <button key={o} className={i === value ? 'on' : ''} aria-pressed={i === value} onClick={() => onChange(i)}>{o}</button>)}</div>
+/**
+ * Control segmentado: la opción elegida lleva ✓ (por CSS) y aria-pressed. `cnt`: contador visible por opción (con su `.vh`; `dec` es una
+ * decisión y lleva "!"); sin número no se dibuja (nunca "0"). `roving`: una sola parada de Tab y ← → entre opciones (no eligen solas).
+ */
+export function Seg({ value, options, onChange, label, cnt, className = 'seg', roving }: { value: number; options: ReactNode[]; onChange: (v: number) => void; label?: string; cnt?: (null | undefined | { n: number; dec?: boolean; vh: string })[]; className?: string; roving?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const key = (e: RKeyEvent) => {
+    if (!roving || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return
+    const bs = [...(ref.current?.querySelectorAll('button') ?? [])], j = bs.indexOf(document.activeElement as HTMLButtonElement) + (e.key === 'ArrowRight' ? 1 : -1)
+    if (bs[j]) { e.preventDefault(); bs[j].focus(); bs[j].scrollIntoView({ block: 'nearest', inline: 'nearest' }) }
+  }
+  return <div ref={ref} className={className} role={roving ? 'toolbar' : 'group'} aria-label={label} onKeyDown={key}>{options.map((o, i) => { const c = cnt?.[i]; return (
+    <button key={i} className={i === value ? 'on' : ''} aria-pressed={i === value} tabIndex={roving ? (i === value ? 0 : -1) : undefined} onClick={() => onChange(i)}>{o}
+      {c && c.n > 0 && <span className={`mk-cnt ${c.dec ? 'dec' : ''}`}><span className="vh">, </span>{c.dec && <span aria-hidden="true">!</span>}{c.n}<span className="vh"> {c.vh}</span></span>}</button>) })}</div>
 }
 
 // ---------- gráficos ----------

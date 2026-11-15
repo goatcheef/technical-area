@@ -34,9 +34,16 @@ async function newGame(browser, { club = 'Independiente', w = 1440, h = 900, tou
 async function installCtx(page) {
   await page.evaluate(() => {
     window.__ctx = () => {
-      const el = document.querySelector('.shell') || document.querySelector('#root > *')
-      const fk = el && Object.keys(el).find(k => k.startsWith('__reactFiber'))
-      for (let f = fk ? el[fk] : null; f; f = f.return) { const v = f.memoizedProps?.value; if (v && v.g && v.nav && v.refresh) return v }
+      // desde la raíz vigente (FiberRoot.current), no desde la fibra que guarda un nodo: esa puede ser la alterna, la del render anterior
+      const root = document.getElementById('root'), ck = root && Object.keys(root).find(k => k.startsWith('__reactContainer'))
+      const cur = ck ? root[ck].stateNode?.current : null
+      const stack = cur ? [cur] : []
+      for (let n = 0; stack.length && n < 5000; n++) {
+        const f = stack.pop(), v = f.memoizedProps?.value
+        if (v && v.g && v.nav && v.refresh) return v
+        if (f.sibling) stack.push(f.sibling)
+        if (f.child) stack.push(f.child)
+      }
       return null
     }
   })

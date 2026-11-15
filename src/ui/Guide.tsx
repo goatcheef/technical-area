@@ -12,7 +12,7 @@ function steps(club: string, objective: string): Step[] {
     { sel: '.subnav [data-page="tables"]', title: 'Inicio: la competición', text: 'Cada sección muestra sus pantallas en esta segunda fila. En Inicio están el resumen, la bandeja, el calendario, el fixture, las posiciones y las estadísticas.' },
     { sel: '.sections [data-group="squad"]', title: 'Plantel', text: 'El plantel (una tabla con vistas, columnas a elección y selección múltiple), el vestuario y el cuerpo técnico. Pasá el mouse sobre cualquier nombre para ver su ficha breve.' },
     { sel: '.sections [data-group="match"]', title: 'Partido', text: 'Tácticas (dibujo, once, roles e instrucciones), el entrenamiento de la semana y el centro de datos con tu xG, el desgaste del plantel y cómo juegan los rivales.' },
-    { sel: '.sections [data-group="market"]', title: 'Mercado', text: 'Buscá jugadores, mandalos a ojear, ofertá y respondé las ofertas por los tuyos. El libro de pases abre en enero y en julio.' },
+    { sel: '.sections [data-group="market"]', title: 'Mercado', text: 'Buscá jugadores, mandalos a ojear, ofertá y respondé las ofertas por los tuyos. El club contesta tu oferta en 1 a 3 días. El libro de pases está abierto desde que empieza la temporada (10 de enero) hasta el 20 de febrero, y del 25 de junio al 10 de agosto.' },
     { sel: '.subnav .tn-me', title: 'Atajos y ajustes', text: <>Con <span className="kbd">Ctrl + K</span> buscás jugadores, clubes y pantallas; con <span className="kbd">?</span> ves todos los atajos. Arriba están tus favoritos, la ayuda y los ajustes: densidad, texto, movimiento y colores para daltonismo.</> },
   ]
 }
@@ -76,7 +76,7 @@ const TIPS: Record<string, { title: string; text: string }> = {
   tactics: { title: 'Tácticas', text: 'Tocá un jugador del once y después a otro para cambiarlos. Cada rol cambia lo que hace en el puesto. La familiaridad sube si repetís el dibujo: cambiarlo seguido cuesta rendimiento.' },
   training: { title: 'Entrenamiento', text: 'Más intensidad mejora más rápido pero cansa y lesiona más. El día después del partido conviene descansar. Si no querés ocuparte, delegalo en el ayudante.' },
   locker: { title: 'Vestuario', text: 'Cada jugador espera minutos según su rol. Si no los tiene, baja su conformidad y puede pedir irse. Hablale, prometele minutos o acordá otro rol.' },
-  market: { title: 'Mercado', text: 'De los jugadores ajenos ves rangos: mandalos a ojear para conocerlos mejor antes de ofertar. El libro de pases abre en enero y en julio.' },
+  market: { title: 'Mercado', text: 'Lo que ves de un jugador ajeno es un rango, también su sueldo; mandalo a ojear antes de ofertar. El libro de pases está abierto desde que empieza la temporada (10 de enero) hasta el 20 de febrero, y del 25 de junio al 10 de agosto.' },
   inbox: { title: 'Bandeja', text: 'Lo que tenés que decidir está siempre arriba, con su plazo: las ofertas y los trabajos vencen. Cada mensaje trae los botones para resolverlo.' },
   data: { title: 'Centro de datos', text: 'El xG mide la calidad de las ocasiones. Si convertís mucho más de lo que generás, probablemente no dure: mirá el xG para saber si el equipo juega bien.' },
 }

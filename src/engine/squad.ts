@@ -1,7 +1,7 @@
 // El plantel como grupo: personalidades, rol de cada jugador, minutos, promesas, charlas,
 // armonía del vestuario, reserva, ojeo con incertidumbre y negociación de contratos.
 import { canSell } from './career'
-import { addDays, news, squadOf, valuation } from './game'
+import { addDays, fmtDay, news, squadOf, valuation } from './game'
 import { bestRating, ageOn } from './positions'
 import { Rng, clamp } from './rng'
 import { A, type Game, type Personality, type Player, type SquadStatus, type Terms } from './types'
@@ -125,7 +125,7 @@ export function dailySquad(g: Game, rng: Rng) {
     }
   }
   // ojeo
-  const rate = 3 + sab(g, 'scout') * 0.35
+  const rate = scoutRate(g)
   for (const pid of [...g.scouting]) {
     const p = g.players[pid]
     if (!p || p.clubId === c.id) { g.scouting = g.scouting.filter(x => x !== pid); continue }
@@ -253,7 +253,47 @@ export function knownRating(g: Game, p: Player): number {
   const r = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99)
   return (r[0] + r[1]) / 2
 }
-export const fmtRange = (r: [number, number]) => (r[0] === r[1] ? String(r[0]) : `${r[0]}-${r[1]}`)
+export const fmtRange = (r: [number, number]) => (r[0] === r[1] ? String(r[0]) : `${r[0]}–${r[1]}`)
+
+/**
+ * Potencial en palabras, como lo sabe el DT (ficha y panel del Mercado: el mismo texto en los dos lados). `null` si no lo sabe:
+ * de un ajeno, hasta conocerlo al 70 %; de uno propio, con buen cuerpo técnico de inferiores y ayudante, o si ya pasó los 23.
+ */
+export function potentialText(g: Game, p: Player): string | null {
+  const age = ageOn(p.birth, g.date), mine = p.clubId === g.userClubId
+  const known = mine ? sab(g, 'youth') + sab(g, 'asst') >= 18 || age > 23 : knowOf(g, p) >= 70
+  if (!known) return null
+  return age > 26 ? 'Ya alcanzó su techo' : p.pa >= 85 ? 'Futura figura' : p.pa >= 78 ? 'Muy buen potencial' : p.pa - p.ca >= 8 ? 'Buen potencial' : 'Potencial limitado'
+}
+
+// ---------- sueldos de los ajenos como rango ----------
+/** Escalones del medio ancho del rango de sueldo: 2 % cada 5 puntos de conocimiento (20 % → ±32 %, 35 % → ±26 %, 94 % → ±2 %), exacto desde 95 %. */
+const WAGE_STEPS = 20
+export const wageStep = (k: number) => (k >= 95 ? 0 : clamp(Math.round((100 - k) / 5), 1, WAGE_STEPS))
+const wL = (i: number) => Math.log(1 - i * 0.02), wU = (i: number) => Math.log(1 + i * 0.02)
+/** Corrimiento sorteado para el escalón i, en logaritmos: deja el valor real entre el 20 % y el 80 % del rango (no centrado). */
+const wTarget = (pid: number, salt: number, i: number) => -(wU(i) + wL(i)) / 2 + (hash01(pid * 131 + salt, i) * 2 - 1) * 0.3 * (wU(i) - wL(i))
+const roundOut = (x: number, up: boolean) => { const u = x < 10000 ? 100 : 1000; return (up ? Math.ceil(x / u) : Math.floor(x / u)) * u }
+/**
+ * Rango en US$ que se muestra para un sueldo de un jugador ajeno (el que cobra, `salt` 401, o el que pediría, 402). Exacto desde 95 % de
+ * conocimiento o si es propio. Si no, `[v·(1−w)·e^a, v·(1+w)·e^a]` con `w` en escalones (`wageStep`): el cociente hi/lo es el mismo para todos
+ * los jugadores con el mismo escalón y no dice nada de `v`. El corrimiento `a` es determinista y **anidado**: se arma del escalón más ancho al de
+ * hoy y cada rango queda dentro del anterior, así cruzar los rangos de días distintos no achica la franja por debajo de la de hoy. Siempre
+ * contiene `v`; los extremos se redondean hacia afuera (US$ 100 por debajo de 10 mil, US$ 1 mil desde ahí), lo que agranda el cociente a lo
+ * sumo en `(hi + u) / (lo − u)`.
+ */
+export function wageShown(g: Game, p: Player, v: number, salt: number): [number, number] {
+  const j = p.clubId === g.userClubId ? 0 : wageStep(knowOf(g, p))
+  if (!j || v <= 0) return [v, v]
+  let a = wTarget(p.id, salt, WAGE_STEPS)
+  for (let i = WAGE_STEPS - 1; i >= j; i--) a = Math.min(a + wU(i + 1) - wU(i), -wL(i), Math.max(a + wL(i + 1) - wL(i), -wU(i), wTarget(p.id, salt, i)))
+  const c = v * Math.exp(a)
+  return [Math.min(v, roundOut(c * (1 - j * 0.02), false)), Math.max(v, roundOut(c * (1 + j * 0.02), true))]
+}
+/** Ritmo diario del ojeo (lo mismo que suma `dailySquad`, en promedio). */
+export const scoutRate = (g: Game) => 3 + sab(g, 'scout') * 0.35
+/** Días que faltan para conocer del todo a un jugador si se lo manda a ojear (0 si ya se lo conoce). */
+export const scoutEta = (g: Game, p: Player) => (p.clubId === g.userClubId ? 0 : Math.ceil(Math.max(0, 100 - knowOf(g, p)) / scoutRate(g)))
 export function scout(g: Game, p: Player) {
   if (p.clubId === g.userClubId || g.scouting.includes(p.id)) return
   g.scouting = [...g.scouting, p.id].slice(-10)
@@ -275,31 +315,47 @@ export function learnFromMatch(g: Game, playerIds: number[]) {
 // ---------- negociación de contratos ----------
 export type NegMode = 'buy' | 'renew'
 export interface Demand { terms: Terms; patience: number }
+/**
+ * Lo que pide el representante. En una compra (`buy`, jugador ajeno) ningún término sale de la personalidad: el "estilo" del
+ * representante es un margen fijo por jugador (`hash01(p.id, …)`), y la ambición solo decide la paciencia inicial (que se ve en
+ * palabra y recién en la mesa). En una renovación (jugador propio, cuya personalidad se ve en la ficha) siguen la ambición y la lealtad.
+ */
 export function demand(g: Game, p: Player, mode: NegMode, status: SquadStatus): Demand {
-  const q = persOf(p), dest = g.clubs[g.userClubId], age = ageOn(p.birth, g.date)
-  const base = mode === 'buy' ? Math.max(p.wage * 1.05, valuation(p, g.date).wage * (1 + (dest.rep - 60) / 180)) : Math.max(p.wage * 1.08, valuation(p, g.date).wage)
-  const wage = Math.round((base * (1 + (q.amb - 10) * 0.022) * STATUS[status].wage * (mode === 'renew' ? 1 - (q.loy - 10) * 0.012 : 1) * (1 - (g.manager.attrs.neg - 10) * 0.008)) / 100) * 100
-  const years = age <= 23 ? 4 : age <= 29 ? 3 : 2
-  return { terms: { wage, years, status, clause: 0, bonus: Math.round((wage * (1 + q.amb / 5)) / 1000) * 1000 }, patience: q.amb >= 15 ? 2 : 3 }
+  const q = persOf(p), dest = g.clubs[g.userClubId], age = ageOn(p.birth, g.date), neg = 1 - (g.manager.attrs.neg - 10) * 0.008
+  const years = age <= 23 ? 4 : age <= 29 ? 3 : 2, patience = q.amb >= 15 ? 2 : 3
+  if (mode === 'buy') {
+    const base = Math.max(p.wage * 1.05, valuation(p, g.date).wage * (1 + (dest.rep - 60) / 180))
+    const wage = Math.round((base * (0.8 + 0.4 * hash01(p.id, 23)) * STATUS[status].wage * neg) / 100) * 100
+    return { terms: { wage, years, status, clause: 0, bonus: Math.round((wage * (2 + 2 * hash01(p.id, 17))) / 1000) * 1000 }, patience }
+  }
+  const base = Math.max(p.wage * 1.08, valuation(p, g.date).wage)
+  const wage = Math.round((base * (1 + (q.amb - 10) * 0.022) * STATUS[status].wage * (1 - (q.loy - 10) * 0.012) * neg) / 100) * 100
+  return { terms: { wage, years, status, clause: 0, bonus: Math.round((wage * (1 + q.amb / 5)) / 1000) * 1000 }, patience }
 }
+/** El sueldo que pediría un jugador ajeno: el mismo que pide el representante al sentarse (rol que pediría, negociación del DT). Una sola fuente. */
+export const demandWage = (g: Game, p: Player) => demand(g, p, 'buy', naturalStatusFor(g, p)).terms.wage
+/** Paciencia del representante en palabra (nunca el número). */
+export const patienceWord = (n: number) => (n >= 3 ? 'mucha' : n === 2 ? 'media' : 'poca')
 export interface NegResult { ok: boolean; walk?: boolean; msg: string; counter?: Terms }
+/** Respuesta del representante a una oferta. En `buy` los términos de rol y de cláusula valen lo de ambición 10 y la pendiente de la contraoferta es un margen fijo por jugador. */
 export function evalOffer(g: Game, p: Player, mode: NegMode, offer: Terms, dem: Demand): NegResult {
-  const q = persOf(p), age = ageOn(p.birth, g.date), nat = naturalStatusFor(g, p)
-  const want = dem.terms
+  const age = ageOn(p.birth, g.date), nat = naturalStatusFor(g, p), renew = mode === 'renew'
+  const amb = renew ? persOf(p).amb : 10, want = dem.terms
   let score = offer.wage / want.wage
-  score += (STATUS[offer.status].lvl - STATUS[nat].lvl) * (offer.status === nat ? 0 : STATUS[offer.status].lvl > STATUS[nat].lvl ? 0.04 : 0.1 + (q.amb - 10) * 0.01)
+  score += (STATUS[offer.status].lvl - STATUS[nat].lvl) * (offer.status === nat ? 0 : STATUS[offer.status].lvl > STATUS[nat].lvl ? 0.04 : 0.1 + (amb - 10) * 0.01)
   score += age <= 23 ? (offer.years >= 3 ? 0.02 : -0.03) : age >= 30 ? (offer.years >= 2 ? 0.05 : -0.08) : 0
   score += Math.min(0.08, (offer.bonus / Math.max(1, want.bonus)) * 0.04)
-  if (offer.clause > 0) score += offer.clause < p.value * 1.6 ? (q.amb - 8) * 0.006 : offer.clause > p.value * 4 ? -0.05 - (q.amb - 10) * 0.005 : 0
-  else score += 0.02 + (q.amb - 10) * 0.004
-  if (mode === 'renew') score += (q.loy - 10) * 0.008 + ((p.happy ?? 60) - 50) * 0.002
+  if (offer.clause > 0) score += offer.clause < p.value * 1.6 ? (amb - 8) * 0.006 : offer.clause > p.value * 4 ? -0.05 - (amb - 10) * 0.005 : 0
+  else score += 0.02 + (amb - 10) * 0.004
+  if (renew) score += (persOf(p).loy - 10) * 0.008 + ((p.happy ?? 60) - 50) * 0.002
   const club = g.clubs[g.userClubId], bill = squadOf(g, club.id).reduce((s, x) => s + (x.id === p.id ? 0 : x.wage), 0)
-  if (bill + offer.wage > club.wageBudget) return { ok: false, msg: `Ese sueldo supera el tope salarial del club (te quedan ${Math.max(0, club.wageBudget - bill).toLocaleString('es-AR')} por mes).` }
-  if (mode === 'buy' && offer.bonus > club.balance) return { ok: false, msg: 'El club no tiene caja para pagar esa prima.' }
+  if (bill + offer.wage > club.wageBudget) return { ok: false, msg: `Con este sueldo superás el tope salarial por US$ ${(bill + offer.wage - club.wageBudget).toLocaleString('es-AR')} (te quedan ${Math.max(0, club.wageBudget - bill).toLocaleString('es-AR')} por mes). Esto no gasta paciencia.` }
+  if (mode === 'buy' && offer.bonus > club.balance) return { ok: false, msg: 'El club no tiene caja para pagar esa prima. Esto no gasta paciencia.' }
   if (score >= 0.985) return { ok: true, msg: '¡Hay acuerdo!' }
   dem.patience -= score < 0.85 ? 2 : 1
   if (dem.patience <= 0) return { ok: false, walk: true, msg: `El representante de ${p.name} da por terminada la negociación.` }
-  const need = Math.round((offer.wage * (1 + (0.985 - score) * 1.15)) / 100) * 100
+  const slope = renew ? 1.15 : 1 + 0.3 * hash01(p.id, 29)
+  const need = Math.round((offer.wage * (1 + (0.985 - score) * slope)) / 100) * 100
   const counter: Terms = { ...offer, wage: Math.max(need, Math.round(want.wage * 0.92 / 100) * 100), bonus: Math.max(offer.bonus, Math.round(want.bonus * 0.7 / 1000) * 1000) }
   const why = STATUS[offer.status].lvl < STATUS[nat].lvl ? ' Además, pretende un rol más importante en el plantel.' : ''
   return { ok: false, msg: `${score < 0.85 ? 'La oferta le parece muy baja.' : 'Está cerca.'} Pide US$ ${counter.wage.toLocaleString('es-AR')} por mes y una prima de US$ ${counter.bonus.toLocaleString('es-AR')}.${why}`, counter }
@@ -318,4 +374,11 @@ export function applyRenewal(g: Game, p: Player, t: Terms) {
   c.balance -= t.bonus; c.ledger.wages += t.bonus
   p.happy = clamp((p.happy ?? 60) + 15, 0, 100); p.morale = clamp(p.morale + 6, 5, 100); p.wantsOut = false
   news(g, { tag: 'club', clubId: c.id, pid: p.id, title: `${p.name} renovó con ${c.short}`, body: `${p.name} firmó su nuevo contrato hasta diciembre de ${p.contractEnd}${t.clause ? `, con una cláusula de rescisión de US$ ${t.clause.toLocaleString('es-AR')}` : ''}.` })
+}
+/** El representante se levanta de una renovación: no vuelve a sentarse por 30 días. La ventana ya lo mostró: la noticia nace leída. */
+export function renewWalk(g: Game, pid: number) {
+  const p = g.players[pid]
+  if (!p || p.clubId !== g.userClubId) return
+  p.negBlock = addDays(g.date, 30)
+  news(g, { tag: 'club', clubId: p.clubId, pid, me: true, read: true, title: `Se cortó la renovación de ${p.name}`, body: `El representante de ${p.name} dio por terminada la negociación. No va a volver a sentarse a negociar hasta el ${fmtDay(p.negBlock)}.` })
 }

@@ -90,8 +90,8 @@ export function SubNav({ g, group, page, go, badge, right, onSettings, onHelp, o
       <span className="grow" />
       {right}
       <div className="tn-item">
-        <button className="tn-me" aria-label="Menú del DT" {...m.opener('me')} onClick={() => m.setOpen(m.open === 'me' ? null : 'me')}>
-          <ManagerFace a={g.manager.avatar} size={26} /><span className="tn-me-t"><b className="ell">{g.manager.name}</b><span className="dim">Prestigio {Math.round(g.manager.rep)}</span></span>
+        <button className="tn-me" {...m.opener('me')} onClick={() => m.setOpen(m.open === 'me' ? null : 'me')}>
+          <ManagerFace a={g.manager.avatar} size={26} /><span className="tn-me-t"><b className="ell">{g.manager.name}</b><span className="dim">Prestigio {Math.round(g.manager.rep)}</span></span><span className="vh">, menú del DT</span>
           <svg className="chev" viewBox="0 0 24 24" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
         </button>
         <m.Menu id="me" right>
