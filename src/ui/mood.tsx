@@ -7,7 +7,7 @@ import { fmtDay } from '../engine/game'
 import { moodOf, moraleOf, type LetGoInfo, type Minutes, type Trait, type Trend } from '../engine/squad'
 import { dec } from './common'
 import { MI } from './deal'
-import { ic } from './msg'
+import { ic, shortDay } from './msg'
 
 /** Íconos nuevos del vestuario (manifiesto de assets, sección 11). */
 export const VI = {
@@ -19,6 +19,9 @@ export const VI = {
   down: ic('M6 9l6 6 6-6', 2.6),
 }
 const pc = (v: number) => dec(Math.round(v * 100))
+/** Fechas que no se parten al cortar la línea ("14\u00a0ene", "mié\u00a014\u00a0ene"). */
+export const fdy = (d: string) => fmtDay(d).replace(' ', '\u00a0')
+export const sdy = (d: string, today: string) => shortDay(d, today).replace(/ /g, '\u00a0')
 
 type Tone = 'lo' | 'mid' | 'hi'
 /** Una escala ordinal cortada en tramos: el relleno tiene el largo del valor y un solo tono por banda (rojo, gris, blanco; nunca semáforo). */
@@ -50,17 +53,21 @@ export function MinsBar({ m, size = 'md', promise }: { m: Minutes; size?: 'sm' |
   const low = promise ? promise.bad : m.nextDelta < 0
   const n = m.recent.length
   if (!promise && n < 2) {
-    return size === 'sm' ? <span className="vt-mins sm none"><span className="vt-mins-t dim">—</span><span className="vt-mins-s">Todavía no cuenta (jugó {n})</span></span>
+    // en la celda, solo "—": la explicación está en la nota del encabezado (visual-design 4.3, revisada en la fase 5)
+    return size === 'sm' ? <span className="vt-mins sm none"><span className="vt-mins-t dim" aria-hidden="true">—</span><span className="vh">Todavía no cuenta (jugó {n})</span></span>
       : <span className="vt-mins md none"><span className="vt-mins-t dim">—</span><span className="vt-mins-s">Todavía no cuenta: sus minutos empiezan a mover la conformidad en su tercer partido (jugó {n}).</span></span>
   }
   const track = <span className="vt-mins-track" aria-hidden="true"><i style={{ width: `${Math.min(100, got * 100)}%` }} />{mark != null && <b className="vt-mins-mark" style={{ left: `${Math.min(100, mark * 100)}%` }} />}</span>
+  // celda de tabla: dos renglones como mucho (filas de 40 a 48 px). Sin marca, "no le pesa" va en lugar de la pista; lo que no se ve va en `.vh`.
   if (size === 'sm') return <span className={`vt-mins sm ${low ? 'low' : ''}`}>
-    <span className="vt-mins-t">{m.tol === 0 ? <><b>{pc(got)}</b>{' %'}</> : <><b>{pc(got)}</b>/{pc(m.expected)}{' %'}</>}</span>{track}{m.tol === 0 && <span className="vt-mins-s">no le pesa</span>}
-    {!m.counts ? null : n === 2 && <span className="vt-mins-s">cuenta desde el próximo partido</span>}
+    <span className="vt-mins-t">{m.tol === 0 ? <><b>{pc(got)}</b>{'\u00a0%'}</> : <><b>{pc(got)}</b>/{pc(m.expected)}{'\u00a0%'}</>}</span>
+    {m.tol === 0 ? <span className="vt-mins-s one">no le pesa</span> : track}
+    {m.tol > 0 && <span className="vh">, se molesta por debajo de {pc(m.threshold)}{'\u00a0%'}</span>}
+    {m.counts && n === 2 && <span className="vh">, cuenta desde el próximo partido</span>}
   </span>
   return <span className={`vt-mins md ${low ? 'low' : ''}`}>
-    <span className="vt-mins-row">{track}<span className="vt-mins-t">{promise ? <><b>{pc(got)}{' %'}</b> desde que prometiste</> : <><b>{pc(got)}{' %'}</b> de {pc(m.expected)}{' %'}</>}</span></span>
-    {!promise && <span className="vt-mins-s">{m.tol === 0 ? 'Con su rol no se molesta por los minutos.' : `se molesta por debajo de ${pc(m.threshold)} %${m.tol === 0.5 ? ', pero la mitad de rápido que un titular' : ''}`}</span>}
+    <span className="vt-mins-row">{track}<span className="vt-mins-t">{promise ? <><b>{pc(got)}{'\u00a0%'}</b> desde que prometiste</> : <><b>{pc(got)}{'\u00a0%'}</b> de {pc(m.expected)}{'\u00a0%'}</>}</span></span>
+    {!promise && <span className="vt-mins-s">{m.tol === 0 ? 'Con su rol no se molesta por los minutos.' : `se molesta por debajo de ${pc(m.threshold)}\u00a0%${m.tol === 0.5 ? ', pero la mitad de rápido que un titular' : ''}`}</span>}
     {!promise && n === 2 && <span className="vt-mins-s">Desde el próximo partido, sus minutos cuentan.</span>}
   </span>
 }
@@ -83,7 +90,7 @@ export function Traits({ traits, inline }: { traits: Trait[]; inline?: boolean }
 /** El texto de la charla usada (`talkState`), con su reloj. Recibe el foco por programa, no es una parada de Tab. */
 export function TalkSt({ text, big, id }: { text: string; big?: boolean; id?: string }) {
   // las fechas en 700: "Hablaron el 12 nov · de nuevo desde el 19 nov"
-  const parts = text.split(/(\d{1,2} [a-z]{3})/)
+  const parts = text.replace(/(\d{1,2}) ([a-z]{3})\b/g, '$1\u00a0$2').split(/(\d{1,2}\u00a0[a-z]{3})/)
   return <span className={`vt-talkst ${big ? 'big' : ''}`} tabIndex={-1} id={id}>{MI.clock}<span>{parts.map((s, i) => (i % 2 ? <b key={i}>{s}</b> : s))}</span></span>
 }
 
@@ -92,11 +99,11 @@ export function LetGo({ info, id }: { info: LetGoInfo; id?: string }) {
   const t = info.talk, sg = (v: number) => (v > 0 ? `+${v}` : `−${Math.abs(v)}`), w = info.window
   const offers = w.open
     ? <>Con los dos, mientras el libro de pases está abierto, llegan más ofertas por él (la chance de cada día pasa del <b>{dec(info.offerChance.now * 100)} %</b> al <b>{dec(info.offerChance.listed * 100)} %</b>), y los clubes que lo buscan para reforzar un puesto ofrecen sobre un precio un <b>{dec((1 - info.price.factor) * 100)} %</b> más bajo; las demás ofertas no cambian.</>
-    : !w.nextSeason ? <>Con el libro cerrado no llegan ofertas: vuelven a llegar cuando reabra, el <b>{fmtDay(w.opensOn!)}</b>.</>
-    : <>Con el libro cerrado no llegan ofertas hasta la temporada <b>{w.opensOn!.slice(0, 4)}</b> (reabre el <b>{fmtDay(w.opensOn!)}</b>), y al comenzarla se vacía la lista de transferibles: si sigue queriendo irse, el pedido vuelve a Para decidir.</>
+    : !w.nextSeason ? <>Con el libro cerrado no llegan ofertas: vuelven a llegar cuando reabra, el <b>{fdy(w.opensOn!)}</b>.</>
+    : <>Con el libro cerrado no llegan ofertas hasta la temporada <b>{w.opensOn!.slice(0, 4)}</b> (reabre el <b>{fdy(w.opensOn!)}</b>), y al comenzarla se vacía la lista de transferibles: si sigue queriendo irse, el pedido vuelve a Para decidir.</>
   return <div className="ib-conseq vt-letgo" id={id}>
     <p><b>Declararlo transferible</b>: queda en la lista ya, sin gastar la charla; su conformidad y su moral no cambian{info.list.staysOut ? ' y sigue queriendo irse' : ''}.</p>
-    <p><b>"Decirle que puede buscar club"</b> (charla{t.from ? <>, desde el <b>{fmtDay(t.from)}</b></> : null}): {t.becomesOut
+    <p><b>"Decirle que puede buscar club"</b> (charla{t.from ? <>, desde el <b>{fdy(t.from)}</b></> : null}): {t.becomesOut
       ? <>queda transferible, pero como no lo pidió, conformidad <b>{sg(t.happy)}</b> y moral <b>{sg(t.morale)}</b>, y pasa a querer irse{t.from ? '' : '; gasta la charla de esta semana'}.</>
       : <>lo mismo y, como lo pidió, conformidad <b>{sg(t.happy)}</b> y moral <b>{sg(t.morale)}</b>{t.from ? '' : '; gasta la charla de esta semana'}.</>}</p>
     <p className="vt-letgo-o">{MI.swap}<span>{offers}</span></p>
@@ -106,7 +113,7 @@ export function LetGo({ info, id }: { info: LetGoInfo; id?: string }) {
 /** Frase del libro para la nota de "Declararlo transferible" (7.2; pregunta 50: nunca promete ofertas con el libro cerrado). */
 export function listedNote(name: string, info: LetGoInfo, wantsOut: boolean): string {
   const w = info.window
-  const book = w.open ? 'Las ofertas van a llegar a la bandeja.' : !w.nextSeason ? `Las ofertas van a llegar cuando reabra el libro, el ${fmtDay(w.opensOn!)}.`
-    : `Con el libro cerrado no van a llegar ofertas esta temporada, y la nueva (${fmtDay(w.opensOn!)}) vacía la lista de transferibles.`
+  const book = w.open ? 'Las ofertas van a llegar a la bandeja.' : !w.nextSeason ? `Las ofertas van a llegar cuando reabra el libro, el ${fdy(w.opensOn!)}.`
+    : `Con el libro cerrado no van a llegar ofertas esta temporada, y la nueva (${fdy(w.opensOn!)}) vacía la lista de transferibles.`
   return `Declaraste transferible a ${name}. ${book}${wantsOut ? ' Sigue queriendo irse: su humor no cambió.' : ''}`
 }

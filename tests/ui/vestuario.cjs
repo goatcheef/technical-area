@@ -6,6 +6,10 @@
 // El estado del plantel se arma con el motor en la página (pedido de salida, promesa en riesgo, molesto, en baja, referente que resta,
 // reserva). Cada botón y cada foco se comprueban VISIBLES con elementFromPoint (helpers.cjs), no solo "clickeables".
 // `--out` corre solo la pasada del pedido de salida. AXE=<ruta a axe.min.js> corre además axe-core (no está en el repositorio: instalalo aparte).
+// Fase 5 (pulido): cada bloqueante de las revisiones de la fase 4 tiene su comprobación: la tabla al empezar la temporada (celda de Minutos
+// y alto de fila), el contraste de "Quiere irse" en la banda, la ficha breve y la bandeja (muestreado en píxeles), Esc desde una charla
+// abierta en la ficha, el foco después de "Armar la reserva" y de "A la reserva" (y en 320 × 256, nunca debajo de la barra masiva),
+// nested-interactive con "Cambiarle el rol" marcada, los anuncios de la reserva, las columnas de las vistas del Plantel y los nombres a 320.
 const fs = require('fs')
 const path = require('path')
 const H = require('./helpers.cjs')
@@ -98,17 +102,67 @@ async function tabWalk(page, scope, max = 60) {
   }
   return { bad, n }
 }
-/** Controles de menos de 44 px de alto (celular). */
-const under44 = (page, scope) => page.evaluate(s => [...document.querySelectorAll(`${s} button, ${s} summary, ${s} [role=radio]:not([aria-disabled=true]), ${s} .ptable td:first-child`)]
-  .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('.vh') && !e.classList.contains('linkish') && (e.tagName === 'TD' ? r.width < 43.5 : r.height < 43.5) })
+/** Controles de menos de 44 px de alto (celular). Los enlaces también (los referentes); no los que no son una parada (`tabindex=-1`: el nombre dentro de la fila, cuyo objetivo es la fila). */
+const under44 = (page, scope) => page.evaluate(s => [...document.querySelectorAll(`${s} button, ${s} summary, ${s} [role=radio]:not([aria-disabled=true]), ${s} .ptable td:first-child, ${s} .ptable th .th-all-l`)]
+  .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('.vh') && e.getAttribute('tabindex') !== '-1' && (e.tagName === 'TD' ? r.width < 43.5 : e.tagName === 'LABEL' ? r.width < 43.5 || r.height < 43.5 : r.height < 43.5) })
   .map(e => `${(e.textContent || e.getAttribute('aria-label') || e.tagName).trim().replace(/\s+/g, ' ').slice(0, 24)}:${Math.round(e.getBoundingClientRect().width)}×${Math.round(e.getBoundingClientRect().height)}`).slice(0, 6), scope)
+
+/**
+ * Contraste de un texto sobre su fondo real: el texto se pone transparente, se captura su caja y el color más frecuente es el fondo
+ * (sirve para tintes sobre degradés, que el cálculo del CSS no ve). Devuelve también el tamaño de letra.
+ */
+async function textContrast(page, sel) {
+  const info = await page.evaluate(s => {
+    const e = document.querySelector(s); if (!e) return null
+    e.scrollIntoView({ block: 'center' })
+    const r = e.getBoundingClientRect(), cs = getComputedStyle(e), out = { r: [r.x, r.y, r.width, r.height], color: cs.color, fs: parseFloat(cs.fontSize) }
+    e.dataset.vtCol = e.style.color; e.style.color = 'transparent'
+    return out
+  }, sel)
+  if (!info) return null
+  await sleep(60)
+  const buf = await page.screenshot({ clip: { x: info.r[0], y: info.r[1], width: Math.max(1, info.r[2]), height: Math.max(1, info.r[3]) } })
+  await page.evaluate(s => { const e = document.querySelector(s); if (e) e.style.color = e.dataset.vtCol }, sel)
+  const r = await page.evaluate(async ([b64, color]) => {
+    const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode()
+    const c = document.createElement('canvas'); c.width = img.width; c.height = img.height
+    const x = c.getContext('2d'); x.drawImage(img, 0, 0)
+    const d = x.getImageData(0, 0, c.width, c.height).data, cnt = new Map()
+    for (let i = 0; i < d.length; i += 4) { const k = `${d[i]},${d[i + 1]},${d[i + 2]}`; cnt.set(k, (cnt.get(k) || 0) + 1) }
+    const bg = [...cnt].sort((a, b) => b[1] - a[1])[0][0].split(',').map(Number), fg = color.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map(v => (/^color\(srgb/.test(color) ? v * 255 : v))
+    const L = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b) }
+    const a = L(fg), b = L(bg)
+    return { ratio: Math.round(((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)) * 100) / 100, bg: `rgb(${bg})` }
+  }, [buf.toString('base64'), info.color])
+  return { ...r, fs: Math.round(info.fs * 10) / 10 }
+}
+const contrastOk = c => !!c && c.ratio >= 4.5 && c.fs >= 11.95
+/** Alto de las filas de la tabla del Vestuario (máximo y mínimo). */
+const rowHeights = page => page.evaluate(() => {
+  const rs = [...document.querySelectorAll('.vt .ptable tbody tr')], hs = rs.map(r => r.getBoundingClientRect().height), i = hs.indexOf(Math.max(...hs))
+  return { max: Math.round(hs[i]), min: Math.round(Math.min(...hs)), n: hs.length, tallest: [...(rs[i]?.children ?? [])].map(td => td.textContent.trim().slice(0, 24)).join(' | ') }
+})
+/** Nombres de la tabla cortados con "…" (más ancho que su caja). */
+const cutNames = page => page.evaluate(() => [...document.querySelectorAll('.vt .ptable .mk-name')].filter(n => n.scrollWidth > n.clientWidth + 1).map(n => n.textContent))
+const headCols = page => page.evaluate(() => [...document.querySelectorAll('.ptable thead th .th-sort')].map(b => b.firstChild?.textContent))
 
 async function run(browser, [w, h], opt = {}) {
   const tag = `${w}×${h}${opt.text ? ` texto ${opt.text} %` : ''}${opt.club ? ` ${opt.club}` : ''}`
   const { ok, res } = H.reporter(`${tag} · `)
   const { page, errs } = await H.newGame(browser, { w, h, touch: w < 760, club: opt.club ?? 'Independiente', settings: opt.text ? { text: opt.text } : undefined })
+  const wide = w > 1180, phone = w <= 760, scale = (opt.text ?? 100) / 100
+  // comienzo de temporada (partida nueva, nadie jugó): la celda de Minutos dice solo "—" (con su .vh) y las filas miden de 40 a 48 px
+  await go(page, { page: 'locker' }); await sleep(250)
+  const mc = await page.evaluate(() => [...document.querySelectorAll('.vt .ptable .vt-mins.sm')].map(m => ({ seen: [...m.querySelectorAll(':scope > :not(.vh)')].map(e => e.textContent).join(''), vh: m.querySelector('.vh')?.textContent ?? '' })))
+  if (mc.length) ok('Comienzo de temporada: la celda de Minutos dice "—" y el resto va en .vh', mc.every(c => c.seen === '—' && /Todavía no cuenta/.test(c.vh)), JSON.stringify(mc[0]))
+  else ok('Comienzo de temporada: la celda de Minutos dice "—" (columna oculta por el ancho)', null)
+  const rh0 = await rowHeights(page), top0 = Math.round((phone ? 49 : 48) * scale + 1)
+  ok(`Comienzo de temporada: filas de la tabla de ${top0} px como mucho`, rh0.n > 20 && rh0.max <= top0, JSON.stringify(rh0))
+  if (w === 1440 && !opt.text && !opt.club) await shot(page, 'vestuario-inicio-1440')
+  if (w === 320 && !opt.text) await shot(page, 'vestuario-inicio-320')
+  if (w <= 390) { const cut = await cutNames(page); ok('Comienzo de temporada: ningún nombre de la tabla se corta', !cut.length, cut.slice(0, 4).join(', ')) }
+  await go(page, { page: 'home' })
   const ids = await setupLocker(page)
-  const wide = w > 1180, phone = w <= 760
   await go(page, { page: 'locker' }); await sleep(250)
 
   // foco al entrar: con panel, la fila elegida; sin panel, la primera fila sin elegirla
@@ -151,8 +205,11 @@ async function run(browser, [w, h], opt = {}) {
   if (opt.club) await shot(page, 'vestuario-defensa-1440')
   if (opt.text && w === 390) await shot(page, 'vestuario-390-texto-120')
   if (w === 390 && !opt.text) await shot(page, 'vestuario-390', true)
-  if (w === 320) await shot(page, 'vestuario-320')
+  if (w === 320 && !opt.text) await shot(page, 'vestuario-320')
 
+  const rh1 = await rowHeights(page), top1 = Math.round((phone ? 49 : 48) * scale + 1)
+  ok(`Plantel con motivos: filas de ${top1} px como mucho`, rh1.max <= top1, JSON.stringify(rh1))
+  if (w <= 390) { const cut = await cutNames(page); ok('Los nombres de la tabla se leen enteros (nombre corto o en dos renglones)', !cut.length, cut.slice(0, 4).join(', ')) }
   // columnas por prioridad: a 320-390 px, nombre y conformidad; en la vista Reserva, nombre y alternable
   const cols = await page.evaluate(() => [...document.querySelectorAll('.vt .ptable thead th .th-sort')].map(b => b.firstChild?.textContent))
   if (w <= 390) ok('Vista Vestuario angosta: nombre y conformidad', JSON.stringify(cols) === JSON.stringify(['Jugador', 'Conform.']), JSON.stringify(cols))
@@ -172,12 +229,13 @@ async function run(browser, [w, h], opt = {}) {
   if (w === 1440 && !opt.text && !opt.club) { await page.evaluate(() => { document.querySelector('.modal').scrollTop = 0 }); await shot(page, 'charla-elegir-1440') }
   // cambiarle el rol: confirmación en el lugar; "No" y Esc vuelven sin gastar la charla
   await page.keyboard.press('Space'); await sleep(150)
-  await page.click('.vt-opt[data-k="status"] .vt-opt-extra .seg button:first-child'); await sleep(120)
+  await page.click('.vt-opt-wrap[data-kw="status"] .vt-opt-extra .seg button:first-child'); await sleep(120)
   await page.click('.vt-talk-go'); await sleep(200)
   const c0 = await active(page)
   ok('Confirmación: el foco en "Confirmar: …"', /^Confirmar: cambiarle el rol/.test(c0.text), JSON.stringify(c0))
   { const v = await seen(page, '.modal .vt-confirm button'); ok('Confirmación: "No" y "Confirmar" se alcanzan', allOk(v), why(v)) }
-  if (w === 320) await shot(page, 'charla-confirmar-320')
+  if (w === 320 && !opt.text) await shot(page, 'charla-confirmar-320')
+  if (w === 390 && !opt.text) { await page.evaluate(() => { const m = document.querySelector('.modal'); m?.querySelector('.vt-opt-wrap[data-kw="status"]')?.scrollIntoView({ block: 'start' }) }); await sleep(100); await shot(page, 'charla-rol-390') }
   await page.keyboard.press('Escape'); await sleep(200)
   const stillOpen = await page.evaluate(() => !!document.querySelector('.vt-talk') && !document.querySelector('.vt-confirm'))
   ok('Esc en la confirmación vuelve a elegir (no cierra)', stillOpen)
@@ -189,7 +247,14 @@ async function run(browser, [w, h], opt = {}) {
   // hablar (felicitarlo, sin confirmación): respuesta con antes → después y el foco en ella
   await page.click(`${fallRow} .vt-att-talk`); await sleep(300)
   const before = await page.evaluate(pid => { const p = window.__ctx().g.players[pid]; return [Math.floor(p.happy), Math.floor(p.morale)] }, ids.fall)
-  await page.click('.vt-opt[data-k="praise"]'); await page.click('.vt-talk-go'); await sleep(300)
+  await page.click('.vt-opt[data-k="praise"]'); await sleep(150)
+  if (w === 1440) {
+    const under = await page.evaluate(() => getComputedStyle(document.querySelector('.vt-opt-wrap[data-kw="praise"]')).borderColor)
+    await page.mouse.move(2, 2); await sleep(200)
+    const away = await page.evaluate(() => getComputedStyle(document.querySelector('.vt-opt-wrap[data-kw="praise"]')).borderColor)
+    ok('Charla: la opción marcada se ve marcada también con el puntero encima', under === away, `${under} / ${away}`)
+  }
+  await page.click('.vt-talk-go'); await sleep(300)
   const rep = await page.evaluate(() => ({ focus: document.activeElement?.classList.contains('vt-reply'), role: document.querySelector('.vt-reply')?.getAttribute('role'), rows: [...document.querySelectorAll('.vt-reply .mk-impact tr')].map(tr => tr.textContent) }))
   const after = await page.evaluate(pid => { const p = window.__ctx().g.players[pid]; return [Math.floor(p.happy), Math.floor(p.morale)] }, ids.fall)
   ok('Respuesta: role="status" con el foco', rep.focus && rep.role === 'status', JSON.stringify(rep))
@@ -205,27 +270,40 @@ async function run(browser, [w, h], opt = {}) {
   await page.click('.vt-res-go'); await sleep(450)
   const rt = await route(page)
   ok('"Armar la reserva": la entrada queda con tab: todo', rt.tab === 'todo', JSON.stringify(rt))
+  const fa0 = await page.evaluate(() => { const a = document.activeElement; return { tag: a?.tagName, first: a === document.querySelector('.vt .ptable tbody tr[data-pid]') } })
+  const fa1 = await H.focusVisible(page)
+  ok('"Armar la reserva": el foco en la primera fila del orden nuevo, entera a la vista', fa0.tag === 'TR' && fa0.first && fa1.ok, `${JSON.stringify(fa0)} ${JSON.stringify(fa1)}`)
   const view = await page.evaluate(() => document.querySelector('.vt .ptable-bar .seg[aria-label="Vista"] button[aria-pressed=true]')?.textContent)
   ok('"Armar la reserva": vista Reserva y la línea de ayuda', view === 'Reserva' && !!(await page.$('.vt-resmode')), view)
   const toggles = await seen(page, '.vt .ptable tbody tr:first-child .vt-res, .vt .ptable tbody tr:last-child .vt-res')
   ok('Vista Reserva: el alternable de la primera y la última fila se ve', allOk(toggles), why(toggles))
   const nameW = await page.evaluate(() => Math.round(document.querySelector('.vt .ptable thead th:nth-child(2)')?.getBoundingClientRect().width ?? 0))
-  if (w <= 390) ok('Vista Reserva: el nombre mide al menos 120 px', nameW >= 120, `${nameW} px`)
+  if (w <= 390 && !opt.text) ok('Vista Reserva: el nombre mide al menos 120 px', nameW >= 120, `${nameW} px`)
+  if (w <= 390) { const cut = await cutNames(page); ok('Vista Reserva: ningún nombre se corta', !cut.length, cut.slice(0, 4).join(', ')) }
   const m0 = await page.evaluate(() => window.__ctx().g && Object.values(window.__ctx().g.players).filter(p => p.clubId === window.__ctx().g.userClubId && p.reserve).length)
   const off = await page.$('.vt .ptable tbody .vt-res:not(.on)')
   if (off) { await off.click(); await sleep(250) }
   const m1 = await page.evaluate(() => Object.values(window.__ctx().g.players).filter(p => p.clubId === window.__ctx().g.userClubId && p.reserve).length)
   const line = await page.evaluate(() => document.querySelector('.vt-res-txt')?.textContent ?? '')
   ok('Tocar "Anotar" anota y la línea del encabezado suma 1', m1 === m0 + 1 && line.includes(`${m1} anotados`), `${m0}→${m1} · ${line}`)
+  const said = await page.evaluate(() => document.querySelector('.vt .ptable-wrap [role=status].vh')?.textContent ?? '')
+  ok('El alternable de la tabla anuncia el cambio (role="status")', /^Anotaste a .* en la reserva: \d+ anotados? y sanos?/.test(said), said)
+  const modeN = await page.evaluate(() => document.querySelector('.vt-resmode-n')?.textContent ?? '')
+  ok('La línea del modo cuenta anotados y sanos como el encabezado', /\d+ anotados?(, \d+ sanos?)? · (faltan \d+|mínimo \d+ sanos)/.test(modeN), modeN)
   if (w === 390 && !opt.text) await shot(page, 'reserva-390')
-  if (!wide && !phone && w === 1024) {
-    // solo con el teclado: Espacio en dos filas y "A la reserva"
+  {
+    // solo con el teclado: Espacio en dos filas y "A la reserva" (que deja de dibujarse): el foco va a la nota, a la vista, nunca a body
     await page.evaluate(() => { Object.values(window.__ctx().g.players).forEach(p => { if (p.clubId === window.__ctx().g.userClubId) p.reserve = false }); window.__ctx().refresh() }); await sleep(200)
     await page.focus('.vt .ptable tbody tr[tabindex="0"]'); await page.keyboard.press('Space'); await page.keyboard.press('ArrowDown'); await sleep(60); await page.keyboard.press('Space'); await sleep(150)
-    const bb = await page.$('.bulkbar button:text-is("A la reserva")')
-    if (bb) { await bb.click(); await sleep(250) }
+    const fr = await H.focusVisible(page)
+    ok('Con dos filas marcadas, la fila con foco se ve (no queda debajo de la barra masiva)', fr.ok, JSON.stringify(fr))
+    await page.evaluate(() => [...document.querySelectorAll('.bulkbar button')].find(b => b.textContent === 'A la reserva')?.focus())
+    await page.keyboard.press('Enter'); await sleep(300)
     const m2 = await page.evaluate(() => Object.values(window.__ctx().g.players).filter(p => p.clubId === window.__ctx().g.userClubId && p.reserve).length)
     ok('Con el teclado: Espacio en dos filas y "A la reserva" anota a los dos', m2 === 2, `${m2}`)
+    const fn = await active(page), fv = await H.focusVisible(page)
+    ok('Después de "A la reserva": el foco en la nota (role="status"), a la vista', /bulk-note/.test(fn.cls) && fv.ok, `${JSON.stringify(fn)} ${JSON.stringify(fv)}`)
+    await page.evaluate(() => [...document.querySelectorAll('.bulkbar button')].find(b => b.textContent === 'Limpiar')?.click()); await sleep(150)
   }
   // volver a la vista Vestuario
   await page.click('.vt .ptable-bar .seg[aria-label="Vista"] button:text-is("Vestuario")'); await sleep(200)
@@ -265,6 +343,38 @@ async function run(browser, [w, h], opt = {}) {
   { const v = await seen(page, '.vt-scope button:not(:disabled)'); ok('Ficha › Vestuario: los controles se ven', allOk(v), why(v)) }
   const smallF = await H.smallText(page, '.vt-scope'); ok('Ficha › Vestuario: nada por debajo de 12 px', !smallF.length, smallF.join(' '))
   if ((w === 1440 || w === 390) && !opt.text && !opt.club) await shot(page, `ficha-vestuario-${w}`, w === 1440)
+  // Esc en una charla abierta en la ficha cierra la ventana y nada más: la ficha queda, el foco vuelve a "Hablar"
+  await go(page, { page: 'player', id: ids.leader, tab: 'resumen' })
+  await page.click('.vt-band-hablar'); await sleep(300); await page.keyboard.press('Escape'); await sleep(300)
+  const e1 = await route(page), e1a = await active(page)
+  ok('Esc en la charla abierta desde la banda: la ficha queda y el foco vuelve a "Hablar"', e1.page === 'player' && e1.tab === 'resumen' && /vt-band-hablar/.test(e1a.cls) && !(await page.$('.modal')), `${JSON.stringify(e1)} ${JSON.stringify(e1a)}`)
+  await go(page, { page: 'player', id: ids.leader, tab: 'personal' })
+  await page.click('.vt-scope .vt-card-talk'); await sleep(300); await page.keyboard.press('Escape'); await sleep(300)
+  const e2 = await route(page), e2a = await active(page)
+  ok('Esc en la charla abierta desde ficha › Vestuario: la ficha queda y el foco vuelve a "Hablar con él"', e2.page === 'player' && e2.tab === 'personal' && /vt-card-talk/.test(e2a.cls), `${JSON.stringify(e2)} ${JSON.stringify(e2a)}`)
+  // el alternable de la reserva de la tarjeta anuncia el cambio con la nota F7
+  await page.click('.vt-scope .vt-res'); await sleep(250)
+  const rn = await page.evaluate(() => document.querySelector('.vt-scope .vt-res-note')?.textContent ?? '')
+  ok('LockerCard › reserva: la nota F7 anuncia el cambio con la cuenta', /^(Anotaste|Sacaste) a .* reserva: \d+ anotados? y sanos?/.test(rn), rn)
+  // "Quiere irse" en la banda de la ficha: 4,5:1 y 12 px como mínimo (pixeles reales sobre el degradé del club)
+  await go(page, { page: 'player', id: ids.out, tab: 'resumen' })
+  if (w === 1440 && !opt.text && !opt.club) { await page.evaluate(() => { document.getElementById('main').scrollTop = 0 }); await sleep(100); await shot(page, 'ficha-quiere-irse-1440') }
+  const cb = await textContrast(page, '.pband .chip.bad')
+  ok('"Quiere irse" en la banda de la ficha: ≥ 4,5:1 y ≥ 12 px', contrastOk(cb), JSON.stringify(cb))
+  const dimB = await textContrast(page, '.pband-id .dim')
+  ok('--dim en la banda de la ficha: ≥ 4,5:1', !!dimB && dimB.ratio >= 4.5, JSON.stringify(dimB))
+  if (phone) { const u = await under44(page, '.pband-tabs'); ok('Ficha en el celular: pestañas y botones de la banda de 44 px', !u.length, u.join(' ')) }
+  if (!phone) {
+    // la ficha breve (pasar el mouse por una fila de la tabla): la moral con la escala nueva y "Quiere irse" legible
+    await go(page, { page: 'locker' })
+    await page.evaluate(pid => document.querySelector(`.vt .ptable tr[data-pid="${pid}"]`)?.scrollIntoView({ block: 'center' }), ids.out); await sleep(400)
+    await page.hover(`.vt .ptable tr[data-pid="${ids.out}"] td:nth-child(2)`); await sleep(900)
+    const hc = await page.evaluate(() => ({ on: !!document.querySelector('.hovercard'), sc: document.querySelectorAll('.hovercard .vt-scale').length, words: [...document.querySelectorAll('.hovercard .vt-scale-w')].map(e => e.textContent) }))
+    ok('Ficha breve: la moral y la conformidad con la escala del vestuario (número y palabra)', hc.on && hc.sc === 2, JSON.stringify(hc))
+    const ch = await textContrast(page, '.hovercard .chip.bad')
+    ok('Ficha breve: "Quiere irse" ≥ 4,5:1 y ≥ 12 px', contrastOk(ch), JSON.stringify(ch))
+    await page.mouse.move(2, 2)
+  }
   ok('Sin errores en la consola', !errs.length, errs.slice(0, 3).join(' | '))
   await page.close()
   return res
@@ -309,7 +419,7 @@ async function runOut(browser) {
   const rn = await page.evaluate(() => ({ f: !!document.activeElement?.closest('.vt-att-note, .vt-page-note'), t: document.activeElement?.textContent }))
   ok('Fila › "Declararlo transferible": la nota del origen recibe el foco', rn.f, JSON.stringify(rn))
   ok('Fila › "Declararlo transferible": resuelve y marca leído', !(await pendOut(page, ids.out)) && (await outRead(page, ids.out)))
-  // 4. Bandeja con la charla usada: Enter lleva al título; otro Enter no decide; Tab llega a "Declararlo transferible"
+  // 4. Bandeja con la charla usada: Enter lleva al título; otro Enter no decide; Tab sigue el orden visual (la tarjeta, después "Declararlo transferible")
   ;({ ids } = await fresh(true))
   await H.openInbox(page, null, 'club.todo')
   await page.focus(`[data-k="out${ids.out}"]`); await sleep(80)
@@ -319,8 +429,16 @@ async function runOut(browser) {
   await page.keyboard.press('Enter'); await sleep(200)
   ok('…un segundo Enter no lo declara transferible', !(await page.evaluate(pid => window.__ctx().g.players[pid].listed, ids.out)))
   await page.keyboard.press('Tab'); await sleep(100)
-  ok('…y el siguiente Tab llega a "Declararlo transferible"', /Declararlo transferible/.test((await active(page)).text))
+  ok('…Tab no salta: la siguiente parada es la tarjeta del jugador', /ib-who/.test((await active(page)).cls), JSON.stringify(await active(page)))
+  await page.keyboard.press('Tab'); await sleep(100)
+  ok('…y la siguiente, "Declararlo transferible"', /Declararlo transferible/.test((await active(page)).text), JSON.stringify(await active(page)))
   ok('Bandeja: la comparación de los dos caminos a la vista', await page.evaluate(() => !!document.querySelector('.ib-panel .vt-letgo')))
+  const once = await page.evaluate(() => (document.querySelector('.ib-panel')?.textContent.match(/Hablaron el/g) ?? []).length)
+  ok('Bandeja: la charla usada se dice una sola vez', once === 1, `${once}`)
+  const cib = await textContrast(page, '.ib-panel .ib-who .chip.bad')
+  ok('Bandeja: "Quiere irse" en la tarjeta ≥ 4,5:1 y ≥ 12 px', contrastOk(cib), JSON.stringify(cib))
+  const gap = await page.evaluate(() => { const a = document.querySelector('.ib-panel .ib-actwrap'), l = document.querySelector('.ib-panel .vt-letgo'); return a && l ? Math.round(l.getBoundingClientRect().top - a.getBoundingClientRect().bottom) : null })
+  ok('Bandeja: la comparación separada de los botones (12 px)', gap != null && gap >= 11, `${gap}`)
   await shot(page, 'bandeja-pedido-1440')
   await page.keyboard.press('Enter'); await sleep(300)
   ok('Bandeja › "Declararlo transferible": resuelve y marca leído', !(await pendOut(page, ids.out)) && (await outRead(page, ids.out)))
@@ -377,6 +495,14 @@ async function runOut(browser) {
   await page.evaluate(() => { indexedDB.open = window.__idbOpen })
   errs.splice(0, errs.length, ...errs.filter(e => !/IndexedDB roto|No se pudo guardar/.test(e)))
   ok('Sin errores en la consola', !errs.length, errs.slice(0, 3).join(' | '))
+  // el jugador se va del plantel con la charla abierta: la ventana lo dice y el foco va a "Listo", nunca a body
+  ;({ ids } = await fresh())
+  await go(page, { page: 'locker', sel: `p${ids.fall}` })
+  await page.click(`.vt-att-row[data-pid="${ids.fall}"] .vt-att-talk`); await sleep(300)
+  await page.evaluate(pid => { const c = window.__ctx(), g = c.g, other = Object.values(g.clubs).find(x => x.division === 1 && x.id !== g.userClubId); g.players[pid].clubId = other.id; c.refresh() }, ids.fall); await sleep(300)
+  const lf = await active(page)
+  ok('Se va con la charla abierta: "Ya no está en el plantel." y el foco en "Listo"', /Listo/.test(lf.text) && (await page.evaluate(() => /Ya no está en el plantel/.test(document.querySelector('.vt-talk')?.textContent ?? ''))), JSON.stringify(lf))
+  await page.keyboard.press('Enter'); await sleep(250)
   // axe-core en la pantalla con un elegido, la ficha › Vestuario y la ventana en sus tres estados
   if (AXE) {
     const axe = async (name, inc) => {
@@ -391,8 +517,65 @@ async function runOut(browser) {
     await page.click('.vt-opt[data-k="promise"]'); await page.click('.vt-talk-go'); await sleep(200); await axe('Charla: confirmación', '.modal')
     await page.click('.vt-confirm .btn.primary'); await sleep(250); await axe('Charla: respuesta', '.modal')
     await page.click('.vt-reply .btn.primary'); await sleep(200)
+    // "Cambiarle el rol" marcada (el selector de rol ya no está dentro del radio) y su confirmación
+    await go(page, { page: 'locker', sel: `p${ids.fall}` })
+    await page.click(`.vt-att-row[data-pid="${ids.fall}"] .vt-att-talk`); await sleep(300)
+    await page.click('.vt-opt[data-k="status"]'); await sleep(150); await axe('Charla: "Cambiarle el rol" marcada', '.modal')
+    await page.click('.vt-opt-wrap[data-kw="status"] .vt-opt-extra .seg button:first-child'); await page.click('.vt-talk-go'); await sleep(200); await axe('Charla: confirmación de cambiar el rol', '.modal')
+    await page.keyboard.press('Escape'); await sleep(150); await page.keyboard.press('Escape'); await sleep(200)
+    // la bandeja con el pedido de salida (con la charla disponible y usada)
+    ;({ ids } = await fresh())
+    await H.openInbox(page, `out${ids.out}`, 'club.todo'); await axe('Bandeja: pedido de salida', '.ib-panel')
+    ;({ ids } = await fresh(true))
+    await H.openInbox(page, `out${ids.out}`, 'club.todo'); await axe('Bandeja: pedido de salida con la charla usada', '.ib-panel')
   }
   await page.close()
+  return res
+}
+
+/** 320 × 256 (zoom o celular apaisado): con filas marcadas, la barra masiva no tapa la fila con foco ni "Seleccionar todos". */
+async function runShort(browser) {
+  const { ok, res } = H.reporter('320×256 · ')
+  const { page, errs } = await H.newGame(browser, { w: 320, h: 256, touch: true })
+  await setupLocker(page)
+  await go(page, { page: 'locker' }); await sleep(250)
+  await page.focus('.vt .ptable tbody tr[tabindex="0"]'); await page.keyboard.press('Space'); await sleep(150)
+  const bad = []
+  for (let i = 0; i < 6; i++) { await page.keyboard.press('ArrowDown'); await sleep(80); const f = await H.focusVisible(page); if (!f.ok) bad.push(`${f.name} ${f.vis}/5`) }
+  ok('Con una fila marcada, ↓ deja cada fila con foco a la vista (la barra masiva no la tapa)', !bad.length, bad.slice(0, 3).join(' | '))
+  const pos = await page.evaluate(() => getComputedStyle(document.querySelector('.bulkbar')).position)
+  ok('Con poca altura la barra masiva no es fija', pos === 'static', pos)
+  const all = await seen(page, '.vt .ptable th .th-all-l')
+  ok('"Seleccionar todos" se ve', allOk(all), why(all))
+  await page.evaluate(() => [...document.querySelectorAll('.bulkbar button')].find(b => b.textContent === 'A la reserva')?.focus())
+  await page.keyboard.press('Enter'); await sleep(300)
+  const fn = await active(page), fv = await H.focusVisible(page)
+  ok('Después de "A la reserva": el foco en la nota, a la vista', /bulk-note/.test(fn.cls) && fv.ok, `${JSON.stringify(fn)} ${JSON.stringify(fv)}`)
+  await page.click('.vt-res-go'); await sleep(450)
+  const fa = await H.focusVisible(page)
+  ok('Después de "Armar la reserva": el foco en una fila a la vista', fa.ok && (await active(page)).tag === 'TR', JSON.stringify(fa))
+  ok('Sin errores en la consola', !errs.length, errs.slice(0, 3).join(' | '))
+  await page.close()
+  return res
+}
+
+/** Las vistas del Plantel conservan sus columnas: los anchos más grandes de las escalas valen solo en las vistas del Vestuario. */
+async function runSquadCols(browser) {
+  const { ok, res } = H.reporter('Plantel › columnas · ')
+  // 1330 px: presupuesto de 1246 px, donde la moral de 96 px de la fase 3 escondía Sueldo (con 80 px, como antes del Vestuario, entra)
+  for (const [w, h, v, col] of [[1024, 768, 'Contrato', 'Conform.'], [1330, 800, 'General', 'Sueldo US$'], [1440, 900, 'General', 'Sueldo US$'], [1440, 900, 'General', 'Moral']]) {
+    const { page } = await H.newGame(browser, { w, h })
+    await go(page, { page: 'squad' }); await sleep(250)
+    await page.click(`.ptable-bar .seg[aria-label="Vista"] button:text-is("${v}")`); await sleep(200)
+    const cols = await headCols(page)
+    ok(`${w} px, vista ${v}: muestra ${col}`, cols.includes(col), JSON.stringify(cols))
+    if (w === 1440 && col === 'Moral') await shot(page, 'plantel-general-1440')
+    const rh = await page.evaluate(() => Math.round(Math.max(...[...document.querySelectorAll('.ptable tbody tr')].map(r => r.getBoundingClientRect().height))))
+    ok(`${w} px, vista ${v}: filas de 48 px como mucho (la escala compacta entra en 86 y 80 px)`, rh <= 48, `${rh}`)
+    const ov = await page.evaluate(() => [...document.querySelectorAll('.ptable .vt-scale')].filter(s => s.scrollWidth > s.parentElement.clientWidth + 1).length)
+    ok(`${w} px, vista ${v}: las escalas entran en su celda`, ov === 0, `${ov}`)
+    await page.close()
+  }
   return res
 }
 
@@ -409,7 +592,10 @@ function codeChecks() {
   const writes = src.match(/\bp\.(reserve|listed|happy|morale|status|promise|wantsOut)\s*=[^=]/g) ?? []
   ok('La pantalla no escribe en g (p.reserve =, p.listed =, …)', !writes.length, writes.join(' '))
   ok('Sin persLabels ni moodTxt en la interfaz', !/persLabels|moodTxt/.test(src + fs.readFileSync(path.join(ROOT, 'src/ui/Inbox.tsx'), 'utf8')))
-  ok('Sin Cond para conformidad ni moral', !/<Cond v=\{p\.(happy|morale)/.test(src))
+  const nav = ['src/ui/Nav.tsx', 'src/ui/Inbox.tsx', 'src/ui/common.tsx'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n')
+  ok('Sin Cond para conformidad ni moral (también en la ficha breve y la bandeja)', !/<Cond v=\{p\.(happy|morale)/.test(src + nav))
+  const app = fs.readFileSync(path.join(ROOT, 'src/ui/App.tsx'), 'utf8')
+  ok('App ignora el Esc que ya usó una ventana (e.defaultPrevented)', /e\.key === 'Escape' && e\.defaultPrevented\) return/.test(app))
   return res
 }
 
@@ -419,6 +605,9 @@ function codeChecks() {
   if (process.argv.includes('--out')) { all.push(...await runOut(browser)); await browser.close(); const bad = all.filter(r => r.status === 'FALLA'); console.log(`\n${all.length - bad.length} de ${all.length} comprobaciones pasan.`); process.exit(bad.length ? 1 : 0) }
   for (const s of SIZES) all.push(...await run(browser, s))
   if (EXTRA) {
+    all.push(...await runShort(browser))
+    all.push(...await runSquadCols(browser))
+    all.push(...await run(browser, [320, 568], { text: 120 }))
     all.push(...await run(browser, [1440, 900], { text: 120 }))
     all.push(...await run(browser, [390, 844], { text: 120 }))
     all.push(...await run(browser, [1440, 900], { club: 'Defensa y Justicia' }))

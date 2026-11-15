@@ -529,19 +529,21 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
     const pid = it.p?.k === 'out' ? it.p.pid : n!.pid!, p = g.players[pid], here = !!p && p.clubId === g.userClubId
     if (p) cards = <PlayerCard pid={pid} />
     if (p && livePend) {
-      const m = minutesOf(g, p), h = p.happy ?? 50, ts = talkState(g, p), oa = outActions(g, p), ps = promiseStatus(g, p), lg = letGoInfo(g, p)
+      const m = minutesOf(g, p), h = p.happy ?? 70, ts = talkState(g, p), oa = outActions(g, p), ps = promiseStatus(g, p), lg = letGoInfo(g, p)
       kpis = <><div className="ib-kpi key"><span className="ib-kpi-l">Conformidad</span><span className="ib-kpi-v">{Math.floor(h)}</span><MoodBar v={h} size="kpi" /></div>
         <Kpi l="Rol" v={p.status ? STATUS[p.status].name : '—'} />
         <div className="ib-kpi"><span className="ib-kpi-l">Minutos</span><MinsBar m={m} /></div></>
       facts = <><Due d={{ text: 'No vence: sigue pendiente hasta que lo declares transferible o deje de pedir irse.', none: true }} />
-        {!ts.can && <Fact><TalkSt text={ts.long} big /></Fact>}
+        {/* la charla usada se dice una vez: en la nota de `outActions` si la hay (fase 5, revisión M8 / m2) */}
+        {!ts.can && !oa.note && <Fact><TalkSt text={ts.long} big /></Fact>}
         {ps && <Fact>{ps.played >= 2 && !ps.onTrack ? <span className="mk-st vt-why bang">{IC.dec}Promesa en riesgo</span> : <span className="mk-st vt-why ok">{IC.check}Minutos prometidos</span>}<span>hasta el {shortDay(ps.until, g.date)}</span></Fact>}</>
       const doList = () => run(dk!, () => { setListed(g, pid, true); return { text: listedNote(p.name, lg, true) } })
       acts = oa.talk.ok
         ? [{ label: 'Hablar con él', kind: 'primary', nav: true, run: () => nav({ page: 'player', id: pid, tab: 'personal' }) }, ...(oa.list.ok ? [{ label: 'Declararlo transferible', dec: true, describedBy: 'ib-letgo', run: doList }] : [])]
         : oa.list.ok ? [{ label: 'Declararlo transferible', kind: 'primary', dec: true, nofocus: true, describedBy: 'ib-letgo', run: doList }, { label: 'Ver la ficha', nav: true, run: () => openPlayer(pid) }]
         : [{ label: 'Ver la ficha', nav: true, run: () => openPlayer(pid) }]
-      if (oa.note) { titleDesc = 'ib-out-note'; conseq = <div className={`ib-conseq ${narrow ? 'out' : ''}`} id="ib-out-note">{oa.note}</div> }
+      // la nota con el mismo tratamiento que en la fila del Vestuario: texto de 14 px en --dim, sin caja
+      if (oa.note) { titleDesc = 'ib-out-note'; conseq = <p className="vt-att-on vt-out-note" id="ib-out-note">{oa.note}</p> }
       if (oa.list.ok) after = <LetGo info={lg} id="ib-letgo" />
     } else {
       // un mensaje viejo o un pedido ya resuelto: un solo texto por caso (pregunta 25)
@@ -630,9 +632,8 @@ function Panel({ it, flash, run, busy, narrow, nextPend, goNext, pin, pressWatch
   const showActs = !resolved && !gone && acts.length > 0
   return <div className="ib-panel">
     <div className="ib-rhead"><p className="ib-topic">{topic}</p>{stateChip}<span className="grow" /><span className="ib-date">{date}</span>{n && own(n) && <button className="btn sm" onClick={toggleRead}>{n.read ? 'Marcar como no leído' : 'Marcar como leído'}</button>}</div>
-    <h2 className="ib-h" tabIndex={-1} aria-describedby={titleDesc}
-      // con un primario que decide sin confirmación, el foco llega al título y el siguiente Tab va a ese primario (bandeja.md, pregunta 25)
-      onKeyDown={e => { if (e.key !== 'Tab' || e.shiftKey) return; const pr = (e.currentTarget.closest('.ib-panel') as HTMLElement | null)?.querySelector<HTMLElement>('[data-primary][data-nofocus]:not(:disabled)'); if (pr) { e.preventDefault(); pr.focus() } }}>{n?.title ?? desc?.title}</h2>
+    {/* con un primario que decide sin confirmación, el foco llega al título; Tab sigue el orden visual (la tarjeta, después el primario; bandeja.md, pregunta 25) */}
+    <h2 className="ib-h" tabIndex={-1} aria-describedby={titleDesc}>{n?.title ?? desc?.title}</h2>
     {cards && <div className="ib-ents">{cards}</div>}
     {!resolved && kpis && <div className="ib-kpis">{kpis}</div>}
     {!resolved && extra}

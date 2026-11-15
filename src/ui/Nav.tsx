@@ -3,13 +3,14 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { divName } from '../engine/career'
 import { clubsIn, fmtDate, leagueFx, squadOf, tableOf } from '../engine/game'
 import { ageOn, bestRating } from '../engine/positions'
-import { knowOf, wageShown } from '../engine/squad'
+import { knowOf, moraleShown, wageShown } from '../engine/squad'
 import type { Club, Game } from '../engine/types'
 import { useGame, type Settings } from '../store'
 import { Badge, Cond, Face, Modal, PosPill, Seg, Status, Val, avgRat, dec, money, resultText, seenRating } from './common'
 import { FavButton } from './PlayerPage'
 import { SquadTable } from './Squad'
 import { wr } from './deal'
+import { MoodBar, MoraleBar } from './mood'
 
 const leagueComp = (g: Game, c: Club) => (c.division === 1 ? (g.comps.AP?.phase === 'done' ? 'CL' : 'AP') : c.division === 2 ? 'PN' : c.division === 3 ? 'T3' : '')
 function standing(g: Game, c: Club): string {
@@ -125,9 +126,11 @@ export function HoverCard() {
         <span className="dim">Temporada</span><span>{p.stats.apps + p.stats.subs} PJ · {p.stats.goals} G · {p.stats.ast} A · {avgRat(p.stats)}</span>
         <span className="dim">Contrato</span><span>{mine ? money(p.wage) : wr(wageShown(g, p, p.wage, 401))}/mes · dic {p.contractEnd}</span>
         <span className="dim">Valor</span><span>{money(p.value)}</span>
-        {mine ? <><span className="dim">Físico</span><Cond v={p.cond} /><span className="dim">Moral</span><Cond v={p.morale} /></> : <><span className="dim">Conocimiento</span><span>{Math.round(k)} %</span></>}
+        {/* la moral y la conformidad con la escala del vestuario (mood.tsx); de un ajeno, la moral solo en palabras y con el informe completo (moraleShown) */}
+        {mine ? <><span className="dim">Físico</span><Cond v={p.cond} /><span className="dim">Moral</span><MoraleBar v={p.morale} size="sm" /><span className="dim">Conformidad</span><MoodBar v={p.happy ?? 70} size="sm" /></>
+          : <><span className="dim">Conocimiento</span><span>{Math.round(k)} %</span>{(() => { const mo = moraleShown(g, p); return mo ? <><span className="dim">Moral</span><span>{mo.word}</span></> : null })()}</>}
       </div>
-      <span className="dim" style={{ fontSize: '.72rem' }}>Clic para ver la ficha completa</span>
+      <span className="dim" style={{ fontSize: 'max(.76rem, 12px)' }}>Clic para ver la ficha completa</span>
     </>)
   } else {
     const c = g.clubs[hc.id]

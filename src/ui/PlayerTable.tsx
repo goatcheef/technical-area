@@ -4,12 +4,12 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as RKe
 import { askingPrice, bidBlock, canSell, committed, dealImpact, openDealFor } from '../engine/career'
 import { fmtDay } from '../engine/game'
 import { POS_LABEL, ageOn, bestRating } from '../engine/positions'
-import { STATUS, demandWage, fmtRange, knowOf, knownRating, minutesOf, moraleShown, persTraits, scout, setListed, setReserve, shown, talkState, toggleShortlist, wageShown, TRAIT_KEYS } from '../engine/squad'
+import { STATUS, demandWage, fmtRange, knowOf, knownRating, minutesOf, moodOf, moraleOf, moraleShown, persTraits, reserveOf, scout, setListed, setReserve, shown, talkState, toggleShortlist, wageShown, TRAIT_KEYS } from '../engine/squad'
 import { ATTRS, ATTR_LABEL, type Attr, type Game, type Player } from '../engine/types'
 import { useGame, useSticky } from '../store'
 import { Badge, Cond, Face, Modal, PosPill, Status, Val, avgRat, money, ratClass } from './common'
 import { MI, StateChip, wr } from './deal'
-import { MinsBar, MoodBar, MoraleBar } from './mood'
+import { MinsBar, MoodBar, MoraleBar, sdy } from './mood'
 
 // ---------- columnas ----------
 interface Col { l: string; n?: string; t?: string; w: number; r?: boolean; v: (p: Player, g: Game) => number | string; c: (p: Player, g: Game) => ReactNode }
@@ -66,13 +66,13 @@ const BASE: Record<string, Col> = {
   val: { l: 'Val', n: 'Valoración', t: 'Valoración en su mejor puesto (rango si no lo conocés bien)', w: 62, r: true, v: (p, g) => valSeen(g, p), c: p => <Val p={p} /> },
   pot: { l: 'Pot.', n: 'Potencial', t: 'Margen de mejora: lo sabés de tus jugadores y de los juveniles bien ojeados', w: 52, r: true, v: (p, g) => potGap(g, p), c: (p, g) => stars(potGap(g, p)) },
   cond: { l: 'Físico', w: 80, v: p => p.cond, c: p => <Cond v={p.cond} /> },
-  mor: { l: 'Moral', w: 96, v: (p, g) => morSort(g, p), c: (p, g) => { const m = moraleShown(g, p); return !m ? <span className="dim">–</span> : m.value != null ? <MoraleBar v={m.value} size="sm" /> : <span className="vt-scale-w">{m.word}</span> } },
-  happy: { l: 'Conform.', n: 'Conformidad', t: 'Conformidad con sus minutos y su rol (solo tu plantel)', w: 124, v: (p, g) => (p.clubId === g.userClubId ? p.happy ?? 60 : -1), c: (p, g) => (p.clubId === g.userClubId ? <MoodBar v={p.happy ?? 60} size="sm" /> : <span className="dim">–</span>) },
+  mor: { l: 'Moral', w: 80, v: (p, g) => morSort(g, p), c: (p, g) => { const m = moraleShown(g, p); return !m ? <span className="dim">–</span> : m.value != null ? <MoraleBar v={m.value} size="sm" /> : <span className="vt-scale-w">{m.word}</span> } },
+  happy: { l: 'Conform.', n: 'Conformidad', t: 'Conformidad con sus minutos y su rol (solo tu plantel)', w: 92, v: (p, g) => (p.clubId === g.userClubId ? p.happy ?? 70 : -1), c: (p, g) => (p.clubId === g.userClubId ? <MoodBar v={p.happy ?? 70} size="sm" /> : <span className="dim">–</span>) },
   mins: { l: 'Minutos', n: 'Minutos jugados y esperados', t: 'Minutos jugados contra los que espera su rol (solo tu plantel)', w: 96, v: (p, g) => (p.clubId === g.userClubId ? minutesOf(g, p).got : -1), c: (p, g) => (p.clubId === g.userClubId ? <MinsBar m={minutesOf(g, p)} size="sm" /> : <span className="dim">–</span>) },
   pers: { l: 'Personalidad', w: 150, v: (p, g) => persSort(g, p), c: (p, g) => persCell(g, p) },
   res: { l: 'Reserva', n: 'Reserva', t: 'Anotado para el partido de reserva del miércoles', w: 100, v: (p, g) => `${p.clubId === g.userClubId && p.reserve ? 0 : 1}|${LINE_ORDER[p.line]}|${p.name}`, c: () => null },
   talk: { l: 'Charla', n: 'Charla', t: 'Cuándo se puede volver a hablar con él', w: 104, v: (p, g) => (p.clubId === g.userClubId ? (talkState(g, p).can ? '' : talkState(g, p).next ?? '') : '~'), c: (p, g) => talkCell(g, p) },
-  role: { l: 'Rol', t: 'Rol acordado en el plantel', w: 92, v: p => (p.status ? Object.keys(STATUS).indexOf(p.status) : 9), c: p => <span className="dim ell">{p.status ? STATUS[p.status].name : '–'}</span> },
+  role: { l: 'Rol', t: 'Rol acordado en el plantel', w: 92, v: p => (p.status ? Object.keys(STATUS).indexOf(p.status) : 9), c: p => <span className="dim ell vt-role">{p.status ? STATUS[p.status].name : '–'}</span> },
   pj: { l: 'PJ', n: 'Partidos', t: 'Partidos jugados (entre paréntesis, entrando)', w: 54, r: true, v: pj, c: p => <span className="num">{p.stats.apps}{p.stats.subs ? <span className="dim"> ({p.stats.subs})</span> : ''}</span> },
   min: { l: 'Min', n: 'Minutos', t: 'Minutos jugados', w: 54, r: true, v: p => p.stats.mins, c: p => <span className="num dim">{p.stats.mins}</span> },
   gol: { l: 'G', n: 'Goles', t: 'Goles', w: 38, r: true, v: p => p.stats.goals, c: p => <span className="num">{p.stats.goals}</span> },
@@ -89,7 +89,7 @@ const BASE: Record<string, Col> = {
   con: { l: 'Contrato', w: 74, r: true, v: p => p.contractEnd, c: (p, g) => <span className={`num ${p.contractEnd <= g.season ? 'warn' : 'dim'}`}>{p.contractEnd}</span> },
   clause: { l: 'Cláusula US$', n: 'Cláusula', w: 92, r: true, v: p => p.clause ?? 0, c: p => (p.clause ? <span className="num dim">{m$(p.clause)}</span> : <span className="dim">–</span>) },
   know: { l: 'Conoc.', n: 'Conocimiento', t: 'Cuánto sabés del jugador', w: 64, r: true, v: (p, g) => knowOf(g, p), c: (p, g) => (g.scouting.includes(p.id) ? <span className="acc sm">Ojeando</span> : <span className="num dim">{Math.round(knowOf(g, p))}%</span>) },
-  st: { l: 'Estado', w: 120, v: p => (p.injury ? 3 : 0) + (p.susp ? 2 : 0) + (p.listed ? 1 : 0), c: p => <span className="row" style={{ gap: 4, flexWrap: 'nowrap', overflow: 'hidden' }}><Status p={p} />{p.reserve && <span className="chip">Reserva</span>}</span> },
+  st: { l: 'Estado', w: 120, v: p => (p.injury ? 3 : 0) + (p.susp ? 2 : 0) + (p.listed ? 1 : 0), c: p => <span className="row vt-st" style={{ gap: 4, flexWrap: 'nowrap', overflow: 'hidden' }}><Status p={p} />{p.reserve && <span className="chip vt-st-res">Reserva</span>}</span> },
 }
 // cada atributo también es una columna (con el rango que se conoce si es ajeno)
 const ATTR_COLS: Record<string, Col> = Object.fromEntries(ATTRS.map((a, i) => [`a_${a}`, {
@@ -105,19 +105,26 @@ const PRIO: Record<string, number> = { mins: 5, res: 4, pers: 2, talk: 2, deal: 
 const prio = (k: string) => PRIO[k] ?? 9
 
 // ---------- vistas ----------
-/** `prio` (opcional) pisa a `PRIO` solo en esa vista; `keep` (por defecto 3) es el mínimo de columnas visibles contando el nombre. */
-export const VIEWS: Record<string, { name: string; cols: string[]; prio?: Record<string, number>; keep?: number }> = {
+/**
+ * `prio` (opcional) pisa a `PRIO` solo en esa vista; `keep` (por defecto 3) es el mínimo de columnas visibles contando el nombre.
+ * `w` pisa el ancho de `COLS` solo en esa vista (así las vistas del Vestuario ensanchan sus escalas sin cambiar qué ocultan las demás tablas);
+ * `narrow`, los anchos cuando la tabla no llega a 270 px de presupuesto (celular angosto): la escala va compacta, sin cara y con el nombre corto.
+ */
+export const VIEWS: Record<string, { name: string; cols: string[]; prio?: Record<string, number>; keep?: number; w?: Record<string, number>; narrow?: Record<string, number> }> = {
   general: { name: 'General', cols: ['num', 'name', 'pos', 'age', 'val', 'cond', 'mor', 'pj', 'gol', 'ast', 'rat', 'value', 'wage', 'con', 'st'] },
   fisico: { name: 'Físico', cols: ['name', 'pos', 'age', 'cond', 'a_pac', 'a_acc', 'a_sta', 'a_str', 'a_jmp', 'min', 'st'] },
   contrato: { name: 'Contrato', cols: ['name', 'pos', 'age', 'val', 'role', 'happy', 'value', 'wage', 'con', 'clause', 'st'] },
   ojeo: { name: 'Ojeo', cols: ['name', 'pos', 'club', 'age', 'val', 'pot', 'know', 'value', 'ask', 'wage', 'con', 'deal'] },
   stats: { name: 'Estadísticas', cols: ['name', 'pos', 'club', 'pj', 'min', 'gol', 'ast', 'rat', 'motm', 'shots', 'yc'] },
   // Vestuario (design/ux/vestuario.md, 5.3): se ocultan primero la personalidad y la charla; la conformidad, la última
-  vestuario: { name: 'Vestuario', cols: ['name', 'pos', 'role', 'mins', 'happy', 'mor', 'pers', 'st', 'res', 'talk'], prio: { pers: 2, talk: 3, st: 4, res: 5, mor: 6, pos: 7, role: 12, mins: 13, happy: 14 }, keep: 2 },
+  vestuario: { name: 'Vestuario', cols: ['name', 'pos', 'role', 'mins', 'happy', 'mor', 'pers', 'st', 'res', 'talk'], prio: { pers: 2, talk: 3, st: 4, res: 5, mor: 6, pos: 7, role: 12, mins: 13, happy: 14 }, keep: 2,
+    w: { pos: 64, mins: 96, happy: 124, mor: 96, res: 100 }, narrow: { happy: 92 } },
   // la del modo "Armar la reserva": el alternable nunca se oculta
-  reserva: { name: 'Reserva', cols: ['name', 'res', 'pos', 'role', 'mins', 'st'], prio: { st: 3, mins: 4, role: 5, pos: 7, res: 14 }, keep: 2 },
+  reserva: { name: 'Reserva', cols: ['name', 'res', 'pos', 'role', 'mins', 'st'], prio: { st: 3, mins: 4, role: 5, pos: 7, res: 14 }, keep: 2, w: { pos: 64, mins: 96, res: 100 }, narrow: { res: 90 } },
 }
 const LINES: [string, string][] = [['', 'Todos'], ['GK', 'Arq'], ['DF', 'Def'], ['MF', 'Med'], ['FW', 'Del']]
+/** Nombre corto para la celda angosta ("S. Montiel"); el completo queda en el nombre de la fila y en el del botón. */
+const shortName = (n: string) => { const w = n.split(' '); return w.length < 2 ? n : `${w[0][0]}. ${w.slice(1).join(' ')}` }
 
 interface Prefs { view: string; mine: Record<string, string[]>; edit?: string[] }
 function usePrefs(id: string, def: string): [Prefs, (p: Prefs) => void] {
@@ -133,7 +140,7 @@ type Sort = { k: string; d: number }[]
  * `onPick`: la fila elige en vez de abrir la ficha (Mercado, ≥ 1180 px). Foco itinerante: una parada de Tab, ↑ ↓ Inicio Fin Re Pág Av Pág
  * mueven el foco, Enter elige, Espacio marca la casilla (no avanza el día), Mayús + ↑ ↓ extiende la selección. `picked`: la fila elegida.
  */
-export function PlayerTable({ id, players, views = ['general', 'fisico', 'contrato', 'stats'], def = 'general', bulk = [], limit = 200, empty = 'No hay jugadores.', filters = true, defSort, onPick, picked, onSel, onOffer, openTab, gridLabel, bar, head, mode, busy = false, onView }: {
+export function PlayerTable({ id, players, views = ['general', 'fisico', 'contrato', 'stats'], def = 'general', bulk = [], limit = 200, empty = 'No hay jugadores.', filters = true, defSort, onPick, picked, onSel, onOffer, openTab, gridLabel, bar, head, mode, busy = false, onView, countText }: {
   id: string; players: Player[]; views?: string[]; def?: string; bulk?: Bulk[]; limit?: number; empty?: ReactNode; filters?: boolean; defSort?: Sort
   onPick?: (p: Player, how: 'click' | 'key') => void; picked?: number | null
   /** los marcados con la casilla (el panel del Mercado los compara con el elegido) */ onSel?: (ids: number[]) => void
@@ -142,9 +149,10 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   /** nombre de la tabla con foco itinerante (`role="grid"`) */ gridLabel?: string
   /** controles propios de la pantalla en la barra de la tabla (los chips de filtro del Vestuario) */ bar?: ReactNode
   /** línea arriba de la tabla, dentro de su tarjeta (el modo "Armar la reserva") */ head?: ReactNode
-  /** la pantalla pone una vista y un orden (cada `n` nuevo los aplica una vez) */ mode?: { view: string; sort?: Sort; n: number }
+  /** la pantalla pone una vista y un orden (cada `n` nuevo los aplica una vez); `focus`: después, el foco va a la primera fila del orden nuevo */ mode?: { view: string; sort?: Sort; n: number; focus?: boolean }
   /** avance en curso: las acciones que escriben quedan deshabilitadas */ busy?: boolean
   /** la vista activa (`custom` si el jugador editó las columnas) */ onView?: (view: string) => void
+  /** el anuncio de la cuenta (por defecto "36 jugadores.") */ countText?: (n: number) => string
 }) {
   const { g, openPlayer, save, refresh, nav } = useGame()
   const open = (pid: number) => (openTab ? nav({ page: 'player', id: pid, tab: openTab }) : openPlayer(pid))
@@ -156,6 +164,9 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   const [menu, setMenu] = useState(false)
   const [cmp, setCmp] = useState<number[] | null>(null)
   const [note, setNote] = useState('')
+  const noteRef = useRef<HTMLSpanElement>(null)
+  // los cambios de reserva del alternable se anuncian (4.1.3): región viva propia de la tabla
+  const [resLive, setResLive] = useState('')
   const [more, setMore] = useState(1)
   const last = useRef<number | null>(null)
   const [cur, setCur] = useState<number | null>(null)
@@ -176,7 +187,13 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   useEffect(() => { onSel?.(sel) }, [sel])
   // la pantalla pide una vista y un orden ("Armar la reserva"): se aplican una vez por pedido
   const modeN = useRef(0)
-  useEffect(() => { if (mode && mode.n !== modeN.current) { modeN.current = mode.n; setPrefs({ ...prefs, view: mode.view, edit: undefined }); if (mode.sort) setSort(mode.sort) } }, [mode?.n])
+  // `mode.focus`: el foco espera a que la tabla se dibuje con la vista y el orden nuevos (si no, la fila enfocada se mueve después)
+  const modeFocus = useRef<{ view: string; sort: string } | null>(null)
+  useEffect(() => {
+    if (!mode || mode.n === modeN.current) return
+    modeN.current = mode.n; setPrefs({ ...prefs, view: mode.view, edit: undefined }); if (mode.sort) setSort(mode.sort)
+    if (mode.focus) modeFocus.current = { view: mode.view, sort: JSON.stringify(mode.sort ?? []) }
+  }, [mode?.n])
 
   const allViews = [...views.filter(v => VIEWS[v]).map(v => [v, VIEWS[v].name] as const), ...Object.keys(prefs.mine).map(v => [`mine:${v}`, v] as const)]
   const view = allViews.some(v => v[0] === prefs.view) ? prefs.view : def
@@ -189,7 +206,9 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   // las prioridades propias de la vista valen solo en la vista tal cual (no en una editada ni en las del jugador)
   const vdef = !prefs.edit && !view.startsWith('mine:') ? VIEWS[view] : undefined
   const pr = (k: string) => vdef?.prio?.[k] ?? prio(k), keep = vdef?.keep ?? 3
-  const fit = () => vis.reduce((s, k) => s + COLS[k].w * scale + 12, 0)
+  const narrow = !!vdef?.narrow && budget < 270 * scale
+  const colW = (k: string) => (narrow ? vdef?.narrow?.[k] : undefined) ?? vdef?.w?.[k] ?? COLS[k].w
+  const fit = () => vis.reduce((s, k) => s + colW(k) * scale + 12, 0)
   while (fit() > budget && vis.length > keep) {
     // se oculta la de menor prioridad; a igual prioridad, la que está más a la derecha
     let drop = -1
@@ -197,6 +216,14 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
     vis.splice(drop, 1)
   }
   const hiddenN = want.length - vis.length
+  // ya con la vista y el orden del modo: la primera fila del orden nuevo, en el centro de la ventana
+  useEffect(() => {
+    const f = modeFocus.current
+    if (!f || view !== f.view || prefs.edit || (f.sort !== '[]' && JSON.stringify(sort) !== f.sort)) return
+    modeFocus.current = null
+    const el = tbody.current?.querySelector<HTMLElement>('tr[data-pid]')
+    if (el) { setCur(Number(el.dataset.pid)); el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'center' }) }
+  })
   useEffect(() => { onView?.(prefs.edit ? 'custom' : view) }, [view, !!prefs.edit])
 
   const ql = q.trim().toLowerCase()
@@ -221,7 +248,15 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
     last.current = pid
     setSel(sel.includes(pid) ? sel.filter(x => x !== pid) : [...sel, pid])
   }
-  const runBulk = (b: Bulk) => { const m = b.run(chosen); setNote(m || `${b.label}: ${chosen.length} jugador${chosen.length > 1 ? 'es' : ''}.`); save(); refresh() }
+  // el botón puede dejar de dibujarse (su `show` ya no se cumple): el foco va a la nota, nunca a `body`
+  const runBulk = (b: Bulk) => {
+    const m = b.run(chosen); setNote(m || `${b.label}: ${chosen.length} jugador${chosen.length > 1 ? 'es' : ''}.`); save(); refresh()
+    setTimeout(() => { const n = noteRef.current; if (n) { n.focus({ preventScroll: true }); n.scrollIntoView({ block: 'nearest' }) } }, 30)
+  }
+  const saidRes = (p: Player, on: boolean) => {
+    const r = reserveOf(g), d = sdy(r.day, g.date)
+    setResLive(`${on ? `Anotaste a ${p.name} en la reserva` : `Sacaste a ${p.name} de la reserva`}: ${r.fit} ${r.fit === 1 ? 'anotado y sano' : 'anotados y sanos'}${r.fit < r.min ? `, faltan ${r.min - r.fit} para el ${d}` : `, juega el ${d}`}.`)
+  }
   const setCols = (cols: string[]) => setPrefs({ ...prefs, edit: cols })
   const saveView = (raw: string) => {
     const name = raw.trim()
@@ -231,8 +266,15 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
   }
   const allSel = list.length > 0 && list.every(p => sel.includes(p.id))
   // nombre de la fila para el lector de pantalla: lo que se ve, con la valoración como la muestra el ojeo y el pedido
+  // en el Vestuario suma lo que la vista muestra de los propios: conformidad, minutos, moral y si está anotado en la reserva
+  const lockerName = (p: Player) => {
+    if (id !== 'locker' || p.clubId !== g.userClubId) return []
+    const h = p.happy ?? 70, m = minutesOf(g, p), pc = (v: number) => Math.round(v * 100)
+    return [`conformidad ${Math.floor(h)} ${moodOf(h).word.toLowerCase()}`, m.recent.length < 2 ? 'sus minutos todavía no cuentan' : `juega ${pc(m.got)} % y espera ${pc(m.expected)} %`,
+      `moral ${Math.floor(p.morale)} ${moraleOf(p.morale).word.toLowerCase()}`, p.reserve ? 'anotado en la reserva' : '']
+  }
   const rowName = (p: Player) => { const c = g.clubs[p.clubId], r = shown(g, p, Math.round(bestRating(p)), 9, 99, 1, 99)
-    return [p.name, POS_LABEL[p.positions[0]], c?.short, `${ageOn(p.birth, g.date)} años`, `valoración ${fmtRange(r)}`, p.clubId !== g.userClubId ? `pedido ${money(askingPrice(g, p))}` : '', sel.includes(p.id) ? 'marcado' : ''].filter(Boolean).join(', ') }
+    return [p.name, POS_LABEL[p.positions[0]], c?.short, `${ageOn(p.birth, g.date)} años`, `valoración ${fmtRange(r)}`, ...lockerName(p), p.clubId !== g.userClubId ? `pedido ${money(askingPrice(g, p))}` : '', sel.includes(p.id) ? 'marcado' : ''].filter(Boolean).join(', ') }
   // foco itinerante (solo con `onPick`): la fila con foco, la elegida o la primera
   const stop = onPick ? (list.find(p => p.id === cur) ?? list.find(p => p.id === picked) ?? list[0])?.id : undefined
   const onRowKey = (e: RKeyEvent<HTMLTableSectionElement>) => {
@@ -269,7 +311,8 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
           <input type="search" placeholder="Filtrar por nombre" aria-label="Filtrar por nombre" value={q} onChange={e => setQ(e.target.value)} style={{ width: 170, padding: '5px 10px' }} /></>}
         <span className="grow" />
         {keys.length > 1 && <span className="dim sm">Orden: {keys.map(s => COLS[s.k]?.l).join(' › ')} <button className="btn sm" onClick={() => setSort([])}>Quitar</button></span>}
-        <span className="dim sm" aria-live="polite">{total} jugador{total === 1 ? '' : 'es'}.</span>
+        <span className="dim sm" aria-live="polite">{countText ? countText(total) : `${total} jugador${total === 1 ? '' : 'es'}.`}</span>
+        <span className="vh" role="status">{resLive}</span>
       </div>
       {sel.length === 0 && bulk.length > 0 && <div className="bulkbar row wrap idle"><span className="dim">Marcá jugadores con la casilla para compararlos{bulk.length ? ' o aplicarles una acción' : ''}.</span></div>}
       {sel.length > 0 && <div className="bulkbar row wrap">
@@ -277,15 +320,15 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
         <button className="btn sm primary" disabled={sel.length < 2 || sel.length > 3} title="Elegí 2 o 3 jugadores" onClick={() => setCmp(sel)}>Comparar</button>
         {bulk.filter(b => !b.show || b.show(chosen)).map(b => <button key={b.label} className={`btn sm ${b.danger ? 'danger' : ''}`} disabled={busy} onClick={() => runBulk(b)}>{b.label}</button>)}
         <button className="btn sm" onClick={() => { setSel([]); setNote('') }}>Limpiar</button>
-        {note && <span className="acc sm" role="status">{note}</span>}
+        {note && <span className="acc sm bulk-note" role="status" tabIndex={-1} ref={noteRef}>{note}</span>}
         {busy && <span className="ib-help">Frená el avance para cambiar el plantel.</span>}
       </div>}
-      <div className="card ptable" ref={wrap}>
+      <div className="card ptable" ref={wrap} data-view={prefs.edit ? 'custom' : view} data-narrow={narrow || undefined}>
         {head}
         <table {...(onPick ? { role: 'grid', 'aria-label': gridLabel ?? 'Jugadores', 'aria-rowcount': total + 1 } : {})}>
-          <colgroup><col style={{ width: 34 }} />{vis.map(k => <col key={k} style={k === 'name' ? undefined : { width: Math.round(COLS[k].w * scale) }} />)}</colgroup>
+          <colgroup><col style={{ width: 34 }} />{vis.map(k => <col key={k} style={k === 'name' ? undefined : { width: Math.round(colW(k) * scale) }} />)}</colgroup>
           <thead><tr>
-            <th><input type="checkbox" aria-label="Seleccionar todos" checked={allSel} onChange={() => setSel(allSel ? [] : list.map(p => p.id))} /></th>
+            <th className="th-all"><label className="th-all-l"><input type="checkbox" aria-label="Seleccionar todos" checked={allSel} onChange={() => setSel(allSel ? [] : list.map(p => p.id))} /></label></th>
             {vis.map(k => { const c = COLS[k], i = keys.findIndex(s => s.k === k), on = i >= 0 && sort.length > 0; return (
               <th key={k} className={`sortable ${c.r ? 'r' : ''}`} aria-sort={i === 0 ? (keys[0].d > 0 ? 'ascending' : 'descending') : undefined}>
                 <button className="th-sort" title={`${c.t ?? c.l}. Ordenar; Mayús + clic (o Mayús + Enter) suma un criterio.`} onClick={e => clickHead(k, e.shiftKey)}>
@@ -297,8 +340,8 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
               onClick={() => (onPick ? onPick(p, 'click') : open(p.id))}>
               <td onClick={e => { e.stopPropagation(); toggle(p.id, e.shiftKey) }}><input type="checkbox" aria-label={`Seleccionar a ${p.name}`} checked={sel.includes(p.id)} readOnly tabIndex={onPick ? -1 : undefined} /></td>
               {vis.map(k => <td key={k} className={COLS[k].r ? 'r' : ''}>{k === 'name' && onPick
-                ? <span className="row" style={{ gap: 8, minWidth: 0 }}><Face p={p} club={g.clubs[p.clubId]} size={26} /><button className="linkish ell mk-name" tabIndex={-1} onClick={e => { e.stopPropagation(); openPlayer(p.id) }}>{p.name}</button></span>
-                : k === 'res' ? <ResToggle p={p} grid={!!onPick} busy={busy} />
+                ? <span className="row" style={{ gap: 8, minWidth: 0 }}>{!narrow && <Face p={p} club={g.clubs[p.clubId]} size={26} />}<button className="linkish ell mk-name" tabIndex={-1} aria-label={narrow ? p.name : undefined} onClick={e => { e.stopPropagation(); openPlayer(p.id) }}>{narrow ? shortName(p.name) : p.name}</button></span>
+                : k === 'res' ? <ResToggle p={p} grid={!!onPick} busy={busy} onDone={saidRes} />
                 : COLS[k].c(p, g)}</td>)}
             </tr>))}</tbody>
         </table>
@@ -311,13 +354,13 @@ export function PlayerTable({ id, players, views = ['general', 'fisico', 'contra
 }
 
 /** Alternable de la reserva (columna `res`): escribe con `setReserve`; en la grilla no es una parada de Tab (con teclado, Espacio + "A la reserva"). */
-function ResToggle({ p, grid, busy }: { p: Player; grid: boolean; busy: boolean }) {
+function ResToggle({ p, grid, busy, onDone }: { p: Player; grid: boolean; busy: boolean; onDone: (p: Player, on: boolean) => void }) {
   const { g, save, refresh } = useGame()
   if (p.clubId !== g.userClubId) return <span className="dim">–</span>
   const on = !!p.reserve
   return <span className="vt-res-cell">
     <button className={`btn sm vt-res ${on ? 'on' : ''}`} aria-pressed={on} tabIndex={grid ? -1 : undefined} disabled={busy}
-      onClick={e => { e.stopPropagation(); setReserve(g, [p.id], !on); save(); refresh() }}>{on ? <>✓ Anotado<span className="vh">: {p.name} en la reserva</span></> : <>Anotar<span className="vh"> a {p.name} en la reserva</span></>}</button>
+      onClick={e => { e.stopPropagation(); setReserve(g, [p.id], !on); onDone(p, !on); save(); refresh() }}>{on ? <>✓ Anotado<span className="vh">: {p.name} en la reserva</span></> : <>Anotar<span className="vh"> a {p.name} en la reserva</span></>}</button>
     {(p.injury || p.susp > 0) && <span className="vt-res-sub">{p.injury ? 'Lesionado' : 'Suspendido'}</span>}
   </span>
 }

@@ -16,8 +16,8 @@ import { useGame, useSticky, type Route } from '../store'
 import { Badge, Face, Gauge, Modal, PosPill, Seg, Val, dec, money } from './common'
 import { Amount, ImpactBox, MI, Note, between, patiencePhrase, wm } from './deal'
 import { PageTip } from './Guide'
-import { TAG_ICON, shortDay } from './msg'
-import { LetGo, MinsBar, MoodBar, MoraleBar, TalkSt, Traits, Trend, VI, harmonyTone, listedNote } from './mood'
+import { TAG_ICON } from './msg'
+import { LetGo, MinsBar, MoodBar, MoraleBar, TalkSt, Traits, Trend, VI, fdy, harmonyTone, listedNote, sdy } from './mood'
 import { PlayerTable, ownBulk } from './PlayerTable'
 
 /** Nota de resultado (F7) de una fila, de la `LockerCard` o de la banda de la ficha. */
@@ -48,7 +48,7 @@ function useMedia(q: string) {
 const pc = (v: number) => dec(Math.round(v * 100))
 const sgn = (v: number) => (v > 0 ? `+${v}` : v < 0 ? `−${Math.abs(v)}` : '0')
 /** Las cifras de un texto del motor en 700 ("juega 20 % y espera 62 %"). */
-const bnum = (t: string) => t.replace(/ %/g, '\u00a0%').split(/(\d+(?:,\d+)?[ \u00a0]?%|\d+ minutos|\d{1,2} [a-z]{3}\b)/).map((s, i) => (i % 2 ? <b key={i}>{s}</b> : s))
+const bnum = (t: string) => t.replace(/ %/g, '\u00a0%').replace(/(\d{1,2}) ([a-z]{3})\b/g, '$1\u00a0$2').split(/(\d+(?:,\d+)?[ \u00a0]?%|\d+ minutos|\d{1,2}\u00a0[a-z]{3}\b)/).map((s, i) => (i % 2 ? <b key={i}>{s}</b> : s))
 const roleOf = (p: Player) => STATUS[p.status ?? 'sub'].name
 const KIND_NAME: Record<TalkKind, string> = { stay: 'Decirle que no se va', promise: 'Prometerle más minutos', patience: 'Pedirle paciencia', status: 'Cambiarle el rol', free: 'Decirle que puede buscar club', praise: 'Felicitarlo', demand: 'Exigirle más' }
 const FILTERS: [string, string][] = [['todo', 'Todo el plantel'], ['reserva', 'En la reserva'], ['juveniles', 'Juveniles']]
@@ -74,29 +74,31 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
   const tab = isFilter(route.tab) ? route.tab! : isFilter(stTab) ? stTab : 'todo'
   const sq = squadOf(g, g.userClubId)
   const hm = harmony(g), att = attentionOf(g), res = reserveOf(g)
-  const [mode, setMode] = useState<{ view: string; sort?: { k: string; d: number }[]; n: number } | undefined>(undefined)
+  const [mode, setMode] = useState<{ view: string; sort?: { k: string; d: number }[]; n: number; focus?: boolean } | undefined>(undefined)
   const [view, setView] = useState('vestuario')
   const [talk, setTalk] = useState<{ pid: number; origin: 'att' | 'card' } | null>(null)
   const [attNote, setAttNote] = useState<{ pid: number; r: LRes } | null>(null)
   const [pageNote, setPageNote] = useState<LRes | null>(null)
   const [cardNote, setCardNote] = useState<LRes | null>(null)
-  const seen = useRef(new Set<number>())
+  // los que ya se eligieron, con su nombre: si el jugador sale del juego (venta al exterior), el panel todavía puede decir quién era
+  const seen = useRef(new Map<number, string>())
   const root = useRef<HTMLDivElement>(null)
 
   // elegido: el de la ruta si sigue en el plantel; si no, el primero de "Para atender"; si no, nadie (solo con panel)
   const want = route.sel?.[0] === 'p' ? Number(route.sel.slice(1)) : null
   const inSquad = (id: number | null) => id != null && sq.some(p => p.id === id)
-  const gone = want != null && !inSquad(want) && seen.current.has(want) ? g.players[want] ?? null : null
+  const gone = want != null && !inSquad(want) && seen.current.has(want) ? { id: want, name: g.players[want]?.name ?? seen.current.get(want)!, here: !!g.players[want] } : null
   const picked = !wide ? null : inSquad(want) ? want : gone ? null : att[0]?.pid ?? null
-  if (picked != null) seen.current.add(picked)
+  if (picked != null) seen.current.set(picked, g.players[picked].name)
   useEffect(() => { setCardNote(null) }, [picked])
 
   const setTab = (t: string) => { setStTab(t); nav({ page: 'locker', tab: t, sel: route.sel }) }
   const pick = (pid: number, from: string) => {
     if (wide) { if (route.sel !== `p${pid}`) nav({ page: 'locker', tab, sel: `p${pid}` }) } else { FROM.set(route, from); nav({ page: 'player', id: pid, tab: 'personal' }) }
   }
-  // "Armar la reserva": todo el plantel, vista Reserva, orden por la columna Reserva y el foco en la tabla
-  const enterArmar = () => { setStTab('todo'); setMode(m => ({ view: 'reserva', sort: [{ k: 'res', d: 1 }], n: (m?.n ?? 0) + 1 })); nav({ page: 'locker', tab: 'todo', sel: route.sel }); focusLater('.vt .ptable tbody tr[tabindex="0"]') }
+  // "Armar la reserva": todo el plantel, vista Reserva, orden por la columna Reserva y el foco en la primera fila del orden nuevo
+  // (lo pone la tabla cuando ya aplicó la vista y el orden: `mode.focus`)
+  const enterArmar = () => { setStTab('todo'); setMode(m => ({ view: 'reserva', sort: [{ k: 'res', d: 1 }], n: (m?.n ?? 0) + 1, focus: true })); nav({ page: 'locker', tab: 'todo', sel: route.sel }) }
   useEffect(() => { if (armar) enterArmar() }, [armar])
 
   // foco al entrar (sección 4, "Selección al entrar") y al volver de una ficha
@@ -109,10 +111,11 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
     else if (att.length) focusLater('.vt-att-row .vt-att-pick')
     else focusLater('.vt-filters button[aria-pressed=true]')
   }, [])
-  // alto de la barra masiva (sticky): las filas con foco no quedan debajo de ella
+  // alto de la barra masiva cuando es fija (sticky; con poca altura no lo es): las filas con foco no quedan debajo de ella
   useLayoutEffect(() => {
     const el = root.current, bb = el?.querySelector<HTMLElement>('.bulkbar:not(.idle)')
-    el?.style.setProperty('--bulkbar-h', `${bb ? Math.round(bb.getBoundingClientRect().height) + 8 : 0}px`)
+    const fixed = !!bb && getComputedStyle(bb).position === 'sticky'
+    el?.style.setProperty('--bulkbar-h', `${fixed ? Math.round(bb!.getBoundingClientRect().height) + 8 : 0}px`)
   })
   // alto de lo fijo de arriba: el panel no pasa del alto visible
   useEffect(() => {
@@ -124,7 +127,7 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
   }, [])
 
   const openTalk = (pid: number, origin: 'att' | 'card') => setTalk({ pid, origin })
-  const closeTalk = (r?: { kind: 'talked' | 'listed'; note?: LRes }) => {
+  const closeTalk = (r?: TalkClose) => {
     const t = talk
     setTalk(null)
     refresh()
@@ -133,11 +136,14 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
     if (t.origin === 'att') {
       if (!r) focusLater(`${row} .vt-att-talk`, `${row} .vt-att-pick`, '#vt-att-t')
       else if (r.kind === 'talked') focusLater(`${row} .vt-att-pick`, '#vt-att-t')
-      else { setAttNote({ pid: t.pid, r: r.note! }); setPageNote(r.note!); focusLater(`${row} .vt-att-note .ib-result`, '#vt-att-t') }
+      else {
+        setAttNote({ pid: t.pid, r: r.note! }); setPageNote(r.note!); focusLater(`${row} .vt-att-note .ib-result`, '#vt-att-t')
+        r.saved?.then(ok => { if (!ok) { setAttNote(a => (a ? { ...a, r: { ...a.r, saveErr: true } } : a)); setPageNote(n => (n ? { ...n, saveErr: true } : n)) } })
+      }
     } else {
       if (!r) focusLater('.vt-card .vt-card-talk', '.vt-card #vt-card-h-talk')
       else if (r.kind === 'talked') focusLater('.vt-card #vt-card-h-talk')
-      else { setCardNote(r.note!); focusLater('.vt-card .vt-card-note .ib-result', '.vt-card #vt-card-h-talk') }
+      else { setCardNote(r.note!); focusLater('.vt-card .vt-card-note .ib-result', '.vt-card #vt-card-h-talk'); r.saved?.then(ok => { if (!ok) setCardNote(n => (n ? { ...n, saveErr: true } : n)) }) }
     }
   }
   // "Declararlo transferible" en una fila de "Para atender" (charla usada): nota en la fila; si la fila se fue, en la pantalla
@@ -157,13 +163,16 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
     cnt={counts.map((n, i) => ({ n, vh: i === 0 ? 'jugadores' : i === 1 ? 'anotados' : 'con rol Promesa' }))} onChange={i => setTab(FILTERS[i][0])} /></div>
   const empty = tab === 'reserva' ? <div className="mk-empty vt-empty">Nadie anotado en la reserva: juega los miércoles con al menos siete sanos. <button className="btn sm" onClick={enterArmar}>Armar la reserva</button></div>
     : tab === 'juveniles' ? <div className="mk-empty vt-empty">No tenés jugadores con rol Promesa. Los juveniles de inferiores suben al empezar cada temporada.</div> : 'No hay jugadores.'
-  const day = shortDay(res.day, g.date)
+  const day = sdy(res.day, g.date)
   const resmode = view === 'reserva' && <div className="vt-resmode">
     <span className="vt-resmode-t">{phone ? <>Tocá «Anotar» en cada jugador. Hacen falta al menos 7 sanos: juega el <b>{day}</b>.</>
       : <>Anotá al menos 7 sanos: juega el <b>{day}</b>. Con el teclado, <kbd>Espacio</kbd> marca la fila y «A la reserva» anota a los marcados.</>}</span>
-    <span className={`vt-resmode-n ${res.fit < res.min ? 'short' : ''}`}>{res.fit < res.min && MI.bang}<span><b>{res.marked}</b> {res.marked === 1 ? 'anotado' : 'anotados'} · <b>{res.min}</b> sanos como mínimo</span></span>
+    {/* la misma cuenta que el encabezado: anotados y, de ellos, sanos (los lesionados y suspendidos no suman) */}
+    <span className={`vt-resmode-n ${res.fit < res.min ? 'short' : ''}`}>{res.fit < res.min && MI.bang}<span><b>{res.marked}</b> {res.marked === 1 ? 'anotado' : 'anotados'}{res.marked !== res.fit && <>, <b>{res.fit}</b> {res.fit === 1 ? 'sano' : 'sanos'}</>}{' · '}{res.fit < res.min ? <>faltan <b>{res.min - res.fit}</b></> : <>mínimo <b>{res.min}</b> sanos</>}</span></span>
   </div>
   const onPick = (p: Player) => pick(p.id, `.vt .ptable tr[data-pid="${p.id}"]`)
+  // el anuncio del filtro nombra el filtro (sección 12)
+  const countText = (n: number) => `Plantel: ${n} ${tab === 'reserva' ? (n === 1 ? 'jugador en la reserva' : 'jugadores en la reserva') : tab === 'juveniles' ? (n === 1 ? 'juvenil con rol Promesa' : 'juveniles con rol Promesa') : n === 1 ? 'jugador' : 'jugadores'}.`
   const tp = talk ? g.players[talk.pid] : undefined
   return (
     <div className="page vt" ref={root}>
@@ -183,11 +192,11 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
           </section>
           <section className="card vt-table" aria-label="Plantel">
             <PlayerTable id="locker" players={list} views={['vestuario', 'reserva', 'general', 'contrato']} def="vestuario" bulk={ownBulk(g)} filters={false} limit={60}
-              onPick={onPick} picked={picked} gridLabel="Plantel" bar={chips} head={resmode} mode={mode} busy={busy} empty={empty} onView={setView} openTab="personal" />
+              onPick={onPick} picked={picked} gridLabel="Plantel" bar={chips} head={resmode} mode={mode} busy={busy} empty={empty} onView={setView} openTab="personal" countText={countText} />
           </section>
         </div>
         {wide && <aside className={`card vt-panel ${picked == null && !gone ? 'none' : ''}`} aria-label="Detalle del jugador">
-          {gone ? <div className="ib-who gone"><span className="grow">{gone.name} ya no está en el plantel.</span><button className="btn sm" onClick={() => openPlayer(gone.id)}>Ver la ficha</button></div>
+          {gone ? <div className="ib-who gone"><span className="grow">{gone.name} ya no está en el plantel.</span>{gone.here && <button className="btn sm" onClick={() => openPlayer(gone.id)}>Ver la ficha</button>}</div>
             : picked != null ? <LockerCard key={picked} p={g.players[picked]} where="panel" busy={busy} onTalk={() => openTalk(picked, 'card')} note={cardNote} setNote={setCardNote} />
             : <Summary />}
         </aside>}
@@ -232,7 +241,7 @@ function Head({ g, hm, res, day, busy, onArmar, openPlayer }: { g: ReturnType<ty
       <div className="vt-head-s">
         <div className="vt-hstate">{word}</div>
         <div className="vt-hsub">Armonía <b>{v}</b> de 100</div>
-        <div className="vt-hsub">En la cancha: {fxWord} (<b>{fx > 0 ? '+' : fx < 0 ? '−' : ''}{dec(Math.abs(fx), 1)} %</b>)</div>
+        <div className="vt-hsub">En la cancha: {fxWord} (<b>{fx > 0 ? '+' : fx < 0 ? '−' : ''}{dec(Math.abs(fx), 1)}&nbsp;%</b>)</div>
         {start && <div className="mk-note">{MI.info}<span>La conformidad empieza a moverse en el tercer partido de cada jugador.</span></div>}
       </div>
     </div>
@@ -248,7 +257,7 @@ function Head({ g, hm, res, day, busy, onArmar, openPlayer }: { g: ReturnType<ty
         : res.fit < res.min ? <>{MI.bang}<span>Reserva: <b>{res.fit} {res.fit === 1 ? 'anotado y sano' : 'anotados y sanos'}</b>, faltan {res.min - res.fit} para el <b>{day}</b></span></>
         : <span>Reserva: <b>{res.marked} anotados</b> (mínimo {res.min}) · juega el <b>{day}</b></span>}</span>
       <button className="btn sm vt-res-go" onClick={onArmar}>Armar la reserva</button>
-      {busy && <span className="ib-help">Frená el avance para hablar con el plantel.</span>}
+      {busy && <span className="ib-help" id="vt-busy">Frená el avance para hablar con el plantel.</span>}
     </div>
   </section>
 }
@@ -263,8 +272,9 @@ function AttRow({ a, p, picked, wide, busy, note, onPick, onTalk, onList, onSeeL
   const usedOut = out && !ts.can
   const lgId = `vt-lg-${p.id}`
   let act: ReactNode = null
-  if (out && !ts.can) act = oa.list.ok ? <button className="btn sm vt-att-lst" disabled={busy} aria-describedby={lgId} onClick={onList}>Declararlo transferible</button> : null
-  else if (ts.can) act = <button className="btn sm vt-att-talk" disabled={busy} onClick={onTalk}>Hablar</button>
+  const busyId = `vt-busy-${p.id}`
+  if (out && !ts.can) act = oa.list.ok ? <button className="btn sm vt-att-lst" disabled={busy} aria-describedby={busy ? `${busyId} ${lgId}` : lgId} onClick={onList}>Declararlo transferible</button> : null
+  else if (ts.can) act = <button className="btn sm vt-att-talk" disabled={busy} aria-describedby={busy ? busyId : undefined} onClick={onTalk}>Hablar</button>
   else act = <TalkSt text={ts.long} />
   return <li className={`vt-att-row ${r0.decide ? 'dec' : ''}`} data-pid={p.id}>
     <button className="vt-att-pick" aria-current={picked || undefined} onClick={onPick}>
@@ -272,12 +282,12 @@ function AttRow({ a, p, picked, wide, busy, note, onPick, onTalk, onList, onSeeL
       <span className="vt-att-txt">
         <span className="vt-att-l1"><span className="vt-att-who"><span className="vt-att-n">{p.name}</span><span className="vt-att-r"> · {roleOf(p)}</span></span><ReasonChip r={r0} />{!wide && <span className="vt-att-chev" aria-hidden="true">{MI.next}</span>}</span>
         <span className="vt-att-c">{bnum(r0.cause)}</span>
-        <span className="vt-att-k">{r0.then}{r0.due && <span className="ib-due">No vence</span>}</span>
+        <span className="vt-att-k">{r0.then}{r0.due && <> · <span className="ib-due">No vence</span></>}</span>
         {more.length > 0 && <span className="vt-att-more">{more.map(r => <ReasonChip key={r.k} r={r} />)}</span>}
       </span>
     </button>
     <div className="vt-att-act">{act}{outL && <button className="btn sm vt-att-see" onClick={onSeeListed}>Ver transferibles en Plantel{MI.next}</button>}
-      {busy && (ts.can || usedOut) && <span className="ib-help">Frená el avance para hablar con el plantel.</span>}</div>
+      {busy && (ts.can || usedOut) && <span className="ib-help" id={busyId}>Frená el avance para hablar con el plantel.</span>}</div>
     {usedOut && <div className="vt-att-x">
       <p className="vt-att-on">{bnum(oa.note)}</p>
       {oa.list.ok && <LetGo info={letGoInfo(g, p)} id={lgId} />}
@@ -294,7 +304,7 @@ function Summary() {
     <span className="msg-ico">{TAG_ICON.club}</span>
     <p>Elegí un jugador de la lista o de la tabla para ver por qué está así y hablar con él.</p>
     <h3 className="vt-card-h">Promesas vigentes</h3>
-    {prom.length ? <div className="vt-proms">{prom.map(({ p, s }) => <div key={p.id} className="vt-prom"><button className="linkish" data-pid={p.id} onClick={() => openPlayer(p.id)}>{p.name}</button><span className="vt-prom-d">hasta el {fmtDay(s.until)}</span><Verdict s={s} /></div>)}</div>
+    {prom.length ? <div className="vt-proms">{prom.map(({ p, s }) => <div key={p.id} className="vt-prom"><button className="linkish" data-pid={p.id} onClick={() => openPlayer(p.id)}>{p.name}</button><span className="vt-prom-d">hasta el {fdy(s.until)}</span><Verdict s={s} /></div>)}</div>
       : <p className="vt-prom-d">No hay promesas en curso.</p>}
   </div>
 }
@@ -308,6 +318,8 @@ function Verdict({ s, long }: { s: NonNullable<ReturnType<typeof promiseStatus>>
 // ---------- detalle de vestuario de un jugador (panel y ficha › Vestuario) ----------
 export function LockerCard({ p, where, busy, onTalk, note, setNote }: { p: Player; where: 'panel' | 'page'; busy: boolean; onTalk: () => void; note: LRes | null; setNote: Dispatch<SetStateAction<LRes | null>> }) {
   const { g, save, refresh, nav, openPlayer } = useGame()
+  // la reserva cambiada se anuncia con la nota F7 (sección 12), con la cuenta de anotados y sanos que queda
+  const [resNote, setResNote] = useState<LRes | null>(null)
   if (p.clubId !== g.userClubId) return <div className="vt-card"><div className="ib-who gone"><span className="grow">{p.name} ya no está en el plantel.</span><button className="btn sm" onClick={() => openPlayer(p.id)}>Ver la ficha</button></div></div>
   const m = minutesOf(g, p), mo = moodOutlook(g, p, m), md = moodOf(p.happy), cause = moodCause(g, p), ps = promiseStatus(g, p)
   const ts = talkState(g, p), oa = outActions(g, p), lg = letGoInfo(g, p), res = reserveOf(g), tr = persTraits(g, p)
@@ -318,9 +330,17 @@ export function LockerCard({ p, where, busy, onTalk, note, setNote }: { p: Playe
     setNote({ text: listedNote(p.name, lg, out) }); saveNote(save, setNote); refresh()
     focusLater('.vt-card .vt-card-note .ib-result')
   }
-  const toggleRes = () => { setReserve(g, [p.id], !p.reserve); save(); refresh() }
+  const toggleRes = () => {
+    const on = !p.reserve
+    setReserve(g, [p.id], on)
+    const r = reserveOf(g), d = sdy(r.day, g.date)
+    const tail = r.fit < r.min ? `${r.fit} ${r.fit === 1 ? 'anotado y sano' : 'anotados y sanos'}, faltan ${r.min - r.fit} para el ${d}.` : `${r.fit} anotados y sanos, juega el ${d}.`
+    setResNote({ text: `${on ? `Anotaste a ${p.name} en la reserva` : `Sacaste a ${p.name} de la reserva`}: ${tail}` }); saveNote(save, setResNote); refresh()
+  }
   const since = outDateOf(g, p)
-  const wait = busy && <span className="ib-help">Frená el avance para hablar con el plantel.</span>
+  const busyId = `vt-busy-card-${p.id}`
+  const wait = busy && <span className="ib-help" id={busyId}>Frená el avance para hablar con el plantel.</span>
+  const bd = (...ids: string[]) => [busy ? busyId : '', ...ids].filter(Boolean).join(' ') || undefined
   const why = <section className="vt-card-sec">
     <h3 className="vt-card-h">Por qué está así</h3>
     <dl className="vt-dl">
@@ -336,46 +356,48 @@ export function LockerCard({ p, where, busy, onTalk, note, setNote }: { p: Playe
   const pers = <section className="vt-card-sec"><h3 className="vt-card-h">Personalidad</h3><Traits traits={tr.traits} /></section>
   const prom = ps && <section className="vt-card-sec">
     <h3 className="vt-card-h">Promesa</h3>
-    <p className="vt-p">Le prometiste jugar alrededor del <b>{pc(ps.target)} %</b> hasta el <b>{fmtDay(ps.until)}</b>. Cumplís si juega al menos el <b>{pc(ps.pass)} %</b>.{' '}
-      {ps.played ? <>Lleva <b>{pc(ps.got)} %</b> en {ps.played} {ps.played === 1 ? 'partido' : 'partidos'}; {ps.reachable ? <>le faltan <b>{ps.minutesNeeded} minutos</b> en {ps.matchesLeft === 1 ? 'el partido que queda' : `los ${ps.matchesLeft} partidos que quedan`}.</> : 'aunque juegue todo, ya no llega.'}</> : 'Todavía no jugó desde que se lo prometiste.'}</p>
+    <p className="vt-p">Le prometiste jugar alrededor del <b>{pc(ps.target)}&nbsp;%</b> hasta el <b>{fdy(ps.until)}</b>. Cumplís si juega al menos el <b>{pc(ps.pass)}&nbsp;%</b>.{' '}
+      {ps.played ? <>Lleva <b>{pc(ps.got)}&nbsp;%</b> en {ps.played} {ps.played === 1 ? 'partido' : 'partidos'}; {ps.reachable ? <>le faltan <b>{ps.minutesNeeded} minutos</b> en {ps.matchesLeft === 1 ? 'el partido que queda' : `los ${ps.matchesLeft} partidos que quedan`}.</> : 'aunque juegue todo, ya no llega.'}</> : 'Todavía no jugó desde que se lo prometiste.'}</p>
     {ps.played > 0 && <MinsBar m={m} promise={{ got: ps.got, pass: ps.pass, bad: ps.played >= 2 && !ps.onTrack }} />}
     <Verdict s={ps} long />
-    {ps.extended ? <div className="mk-note">{MI.info}<span>El plazo se corrió al <b>{fmtDay(ps.until)}</b>: jugó menos de 2 partidos.</span></div>
-      : <div className="mk-note">{MI.info}<span>Si para el {fmtDay(ps.until)} jugó menos de 2 partidos, el plazo se corre 14 días.</span></div>}
+    {ps.extended ? <div className="mk-note">{MI.info}<span>El plazo se corrió al <b>{fdy(ps.until)}</b>: jugó menos de 2 partidos.</span></div>
+      : <div className="mk-note">{MI.info}<span>Si para el {fdy(ps.until)} jugó menos de 2 partidos, el plazo se corre 14 días.</span></div>}
   </section>
   const outSec = out && <section className="vt-card-sec">
     <h3 className="vt-card-h">Pedido de salida</h3>
-    <p className="vt-p">Quiere irse{since ? <> desde el <b>{fmtDay(since)}</b></> : ''} ({cause.kind === 'freed' ? 'desde que le dijiste que podía buscar club' : `juega ${pc(m.got)} % y espera ${pc(m.expected)} %`}). No vence.</p>
+    <p className="vt-p">Quiere irse{since ? <> desde el <b>{fdy(since)}</b></> : ''} ({cause.kind === 'freed' ? 'desde que le dijiste que podía buscar club' : `juega ${pc(m.got)}\u00a0% y espera ${pc(m.expected)}\u00a0%`}). No vence.</p>
     {p.listed && <p className="vt-p vt-listed">{MI.swap}Está declarado transferible.</p>}
   </section>
   const talkSec = <section className="vt-card-sec">
     <h3 className="vt-card-h" id="vt-card-h-talk" tabIndex={-1} aria-describedby={ts.can ? undefined : 'vt-card-ts'}>Charla</h3>
     {ts.can ? <>
-      <div className="ib-acts"><button className="btn primary vt-card-talk" disabled={busy} onClick={onTalk}>Hablar con él</button>
-        {canList && <button className="btn vt-card-list" disabled={busy} aria-describedby={lgId} onClick={list}>Declararlo transferible</button>}</div>
+      <div className="ib-acts"><button className="btn primary vt-card-talk" disabled={busy} aria-describedby={bd()} onClick={onTalk}>Hablar con él</button>
+        {canList && <button className="btn vt-card-list" disabled={busy} aria-describedby={bd(lgId)} onClick={list}>Declararlo transferible</button>}</div>
       {wait}
       {canList && <LetGo info={lg} id={lgId} />}
     </> : <>
       <TalkSt text={ts.withReply} big id="vt-card-ts" />
-      {canList && <><div className="ib-acts"><button className="btn primary vt-card-list" disabled={busy} aria-describedby={lgId} onClick={list}>Declararlo transferible</button></div>{wait}<LetGo info={lg} id={lgId} /></>}
+      {canList && <><div className="ib-acts"><button className="btn primary vt-card-list" disabled={busy} aria-describedby={bd(lgId)} onClick={list}>Declararlo transferible</button></div>{wait}<LetGo info={lg} id={lgId} /></>}
       {out && !canSell(p) && <p className="vt-p dim">{oa.note}</p>}
     </>}
     {out && ts.can && !canSell(p) && <p className="vt-p dim">{oa.note}</p>}
     <F7 r={note} cls="vt-card-note" />
-    <div><button className="btn sm" onClick={() => nav({ page: 'player', id: p.id, tab: 'contrato' })}>Contrato y renovación{MI.next}</button></div>
   </section>
   const resSec = <section className="vt-card-sec">
     <h3 className="vt-card-h">Reserva</h3>
-    <div className="vt-res-row"><button className={`btn sm vt-res ${p.reserve ? 'on' : ''}`} aria-pressed={!!p.reserve} disabled={busy} onClick={toggleRes}>{p.reserve ? '✓ Anotado en la reserva' : 'Anotar en la reserva'}</button>
-      <span className="vt-res-side">{res.fit < res.min ? <>{MI.bang}La reserva no se juega con menos de {res.min} anotados y sanos (hoy {res.fit})</> : <>Juega el {shortDay(res.day, g.date)}</>}</span></div>
+    <div className="vt-res-row"><button className={`btn sm vt-res ${p.reserve ? 'on' : ''}`} aria-pressed={!!p.reserve} disabled={busy} aria-describedby={bd()} onClick={toggleRes}>{p.reserve ? '✓ Anotado en la reserva' : 'Anotar en la reserva'}</button>
+      <span className="vt-res-side">{res.fit < res.min ? <>{MI.bang}La reserva no se juega con menos de {res.min} anotados y sanos (hoy {res.fit})</> : <>Juega el {sdy(res.day, g.date)}</>}</span></div>
+    <F7 r={resNote} cls="vt-card-note vt-res-note" />
   </section>
+  // "Contrato y renovación" después de la reserva: el orden de Tab de la sección 12 (charla, reserva, contrato, ficha)
+  const contract = <div><button className="btn sm vt-card-contract" onClick={() => nav({ page: 'player', id: p.id, tab: 'contrato' })}>Contrato y renovación{MI.next}</button></div>
   const log = where === 'page' && <section className="vt-card-sec vt-card-log">
     <h3 className="vt-card-h">Charlas y promesas</h3>
     {(p.talks?.length ?? 0) === 0 && <p className="vt-p dim">Todavía no hablaste con él.</p>}
     {((p.talks?.length ?? 0) > 0 || (p.promiseLog?.length ?? 0) > 0) && <div className="mk-hist vt-hist">
-      {[...(p.talks ?? [])].reverse().map((t, i) => <div key={`t${i}`} className="mk-hist-row"><span className="mk-hist-d">{fmtDay(t.date)}</span><span className="mk-hist-t">{KIND_NAME[t.kind]} · <span className={`vt-reply-w ${t.reply === 'Le convenció' ? 'ok' : t.reply === 'Lo tomó mal' ? 'x' : ''}`}>{t.reply === 'Le convenció' ? MI.ok : t.reply === 'Lo tomó mal' ? MI.x : VI.flat}{t.reply}</span></span></div>)}
-      {[...(p.promiseLog ?? [])].reverse().map((e, i) => <div key={`p${i}`} className="mk-hist-row"><span className="mk-hist-d">{fmtDay(e.made)}</span><span className="mk-hist-t">{e.result === 'extended' ? <span className="vt-reply-w">{MI.clock}El plazo se corrió al {fmtDay(e.until)}</span>
-        : <>Prometiste {pc(e.target)} % hasta el {fmtDay(e.until)}{e.result ? <>: jugó {pc(e.got ?? 0)} %, <span className={`vt-reply-w ${e.result === 'kept' ? 'ok' : 'x'}`}>{e.result === 'kept' ? MI.ok : MI.x}{e.result === 'kept' ? 'cumpliste' : 'no cumpliste'}</span></> : ' (vigente)'}</>}</span></div>)}
+      {[...(p.talks ?? [])].reverse().map((t, i) => <div key={`t${i}`} className="mk-hist-row"><span className="mk-hist-d">{fdy(t.date)}</span><span className="mk-hist-t">{KIND_NAME[t.kind]} · <span className={`vt-reply-w ${t.reply === 'Le convenció' ? 'ok' : t.reply === 'Lo tomó mal' ? 'x' : ''}`}>{t.reply === 'Le convenció' ? MI.ok : t.reply === 'Lo tomó mal' ? MI.x : VI.flat}{t.reply}</span></span></div>)}
+      {[...(p.promiseLog ?? [])].reverse().map((e, i) => <div key={`p${i}`} className="mk-hist-row"><span className="mk-hist-d">{fdy(e.made)}</span><span className="mk-hist-t">{e.result === 'extended' ? <span className="vt-reply-w">{MI.clock}El plazo se corrió al {fdy(e.until)}</span>
+        : <>Prometiste {pc(e.target)}&nbsp;% hasta el {fdy(e.until)}{e.result ? <>: jugó {pc(e.got ?? 0)}&nbsp;%, <span className={`vt-reply-w ${e.result === 'kept' ? 'ok' : 'x'}`}>{e.result === 'kept' ? MI.ok : MI.x}{e.result === 'kept' ? 'cumpliste' : 'no cumpliste'}</span></> : ' (vigente)'}</>}</span></div>)}
     </div>}
   </section>
   return <div className={`vt-card ${where}`}>
@@ -386,7 +408,7 @@ export function LockerCard({ p, where, busy, onTalk, note, setNote }: { p: Playe
       </div></div>}
     <div className="vt-card-cols">
       <div className="vt-card-c">{why}{pers}</div>
-      <div className="vt-card-c">{prom}{outSec}{talkSec}{resSec}</div>
+      <div className="vt-card-c">{prom}{outSec}{talkSec}{resSec}{contract}</div>
     </div>
     {log}
     {where === 'panel' && <div><button className="btn sm" onClick={() => openPlayer(p.id)}>Ver la ficha{MI.next}</button></div>}
@@ -395,12 +417,14 @@ export function LockerCard({ p, where, busy, onTalk, note, setNote }: { p: Playe
 
 // ---------- charla individual (F5) ----------
 type Stage = 'pick' | 'confirm' | 'reply'
+/** Cómo se cerró la charla. `saved`: el guardado de "Declararlo transferible" (la nota suma el aviso si falla, después de cerrar). */
+export type TalkClose = { kind: 'talked' | 'listed'; note?: LRes; saved?: Promise<boolean> }
 /**
  * La charla: opciones, reglas y rasgos de `talkOptions` (sin veredicto), confirmación en el lugar para lo que deja una obligación (F6),
  * y la respuesta con antes → después de `talkResult`. Esc o "Cancelar" cierran sin gastar la charla mientras no se haya elegido.
  * `onClose()`: sin hablar; `{ kind: 'talked' }`: después de hablar; `{ kind: 'listed', note }`: lo declaró transferible desde "Ya hablaron".
  */
-export function TalkModal({ p, onClose }: { p: Player; onClose: (r?: { kind: 'talked' | 'listed'; note?: LRes }) => void }) {
+export function TalkModal({ p, onClose }: { p: Player; onClose: (r?: TalkClose) => void }) {
   const { g, save, refresh } = useGame()
   const [can] = useState(() => talkState(g, p).can)
   const [opts] = useState<TalkOption[]>(() => talkOptions(g, p).filter(o => o.shown))
@@ -411,14 +435,16 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: (r?: { kind: 'ta
   const [stage, setStage] = useState<Stage>('pick')
   const [res, setRes] = useState<TalkResult | null>(null)
   const [saveErr, setSaveErr] = useState(false)
-  const replyRef = useRef<HTMLDivElement>(null), confRef = useRef<HTMLButtonElement>(null), optsRef = useRef<HTMLDivElement>(null)
+  const replyRef = useRef<HTMLDivElement>(null), confRef = useRef<HTMLButtonElement>(null), optsRef = useRef<HTMLDivElement>(null), goneRef = useRef<HTMLButtonElement>(null)
   const mine = p.clubId === g.userClubId
+  // si se va del plantel con la ventana abierta, el control que tenía el foco desaparece: el foco va a "Listo", nunca a `body`
+  useEffect(() => { if (!mine) goneRef.current?.focus() }, [mine])
   const h = p.happy ?? 70, md = moodOf(h), m = minutesOf(g, p), tr = persTraits(g, p), ctx = talkContext(g, p), ps = promiseStatus(g, p)
   const opt = opts.find(o => o.kind === sel)
   const sameRole = sel === 'status' && ns === (p.status ?? 'sub')
   const ready = !!opt && !opt.disabled && !sameRole
   const talked = !!res?.after
-  const done = (r?: { kind: 'talked' | 'listed'; note?: LRes }) => onClose(r ?? (talked ? { kind: 'talked' } : undefined))
+  const done = (r?: TalkClose) => onClose(r ?? (talked ? { kind: 'talked' } : undefined))
   useEffect(() => { if (stage === 'reply') replyRef.current?.focus(); else if (stage === 'confirm') confRef.current?.focus() }, [stage])
   const speak = () => {
     if (!opt) return
@@ -444,26 +470,28 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: (r?: { kind: 'ta
   const who = (o: TalkOption) => o.kind === 'praise' ? <>Viene con promedio <b>{dec(ctx.form, 1)}</b>{ctx.goals ? <> y <b>{ctx.goals}</b> {ctx.goals === 1 ? 'gol' : 'goles'}</> : null}.</>
     : o.traits.length ? <>Él: {o.traits.map((t, i) => <span key={t.key}>{i > 0 && ', '}<b>{t.text.toLowerCase()}</b></span>)}.</> : null
   const rule = (o: TalkOption) => {
-    if (o.kind === 'promise' && o.extra) return <>Hasta el <b>{fmtDay(o.extra.until!)}</b>, jugar alrededor del <b>{pc(o.extra.target!)} %</b>: cumplís si juega al menos el <b>{pc(o.extra.pass!)} %</b>. {o.extra.matches === 1 ? 'Queda 1 partido' : `Quedan ${o.extra.matches} partidos`} en ese plazo. {o.rule}</>
+    if (o.kind === 'promise' && o.extra) return <>Hasta el <b>{fdy(o.extra.until!)}</b>, jugar alrededor del <b>{pc(o.extra.target!)}&nbsp;%</b>: cumplís si juega al menos el <b>{pc(o.extra.pass!)}&nbsp;%</b>. {o.extra.matches === 1 ? 'Queda 1 partido' : `Quedan ${o.extra.matches} partidos`} en ese plazo. {o.rule}</>
     return o.rule
   }
   const stName = (k: SquadStatus) => STATUS[k].name
   const off = opts.filter(o => o.disabled)
-  const confirmText = !opt ? null : opt.kind === 'promise' ? <>Le vas a prometer jugar el <b>{pc(opt.extra!.target!)} %</b> hasta el <b>{fmtDay(opt.extra!.until!)}</b>. Si no cumplís, se va a sentir engañado y el plantel lo nota.</>
-    : opt.kind === 'status' ? <>Pasa a ser <b>{stName(ns).toLowerCase()}</b>: va a esperar jugar el <b>{pc(STATUS[ns].share)} %</b> (hoy juega el {pc(m.got)} %). {STATUS[ns].lvl > STATUS[p.status ?? 'sub'].lvl ? 'Si no le das esos minutos, se va a molestar más rápido.' : 'Bajarle el rol lo molesta: más si es ambicioso o temperamental.'}</>
+  const confirmText = !opt ? null : opt.kind === 'promise' ? <>Le vas a prometer jugar el <b>{pc(opt.extra!.target!)}&nbsp;%</b> hasta el <b>{fdy(opt.extra!.until!)}</b>. Si no cumplís, se va a sentir engañado y el plantel lo nota.</>
+    : opt.kind === 'status' ? <>Pasa a ser <b>{stName(ns).toLowerCase()}</b>: va a esperar jugar el <b>{pc(STATUS[ns].share)}&nbsp;%</b> (hoy juega el {pc(m.got)}&nbsp;%). {STATUS[ns].lvl > STATUS[p.status ?? 'sub'].lvl ? 'Si no le das esos minutos, se va a molestar más rápido.' : 'Bajarle el rol lo molesta: más si es ambicioso o temperamental.'}</>
     : opt.kind === 'free' && opt.letGo ? <>Queda declarado transferible. {opt.letGo.talk.becomesOut ? <>Como no lo pidió, conformidad <b>{sgn(opt.letGo.talk.happy)}</b> y moral <b>{sgn(opt.letGo.talk.morale)}</b>, y pasa a querer irse.</> : <>Como lo pidió, conformidad <b>{sgn(opt.letGo.talk.happy)}</b> y moral <b>{sgn(opt.letGo.talk.morale)}</b>.</>}</> : null
   const confirmLabel = !opt ? '' : opt.kind === 'promise' ? 'Confirmar: prometerle minutos' : opt.kind === 'status' ? `Confirmar: cambiarle el rol a ${stName(ns).toLowerCase()}` : 'Confirmar: decirle que puede buscar club'
   const lg = letGoInfo(g, p), oa = outActions(g, p)
-  const listNow = () => { setListed(g, p.id, true); const note: LRes = { text: listedNote(p.name, lg, !!p.wantsOut) }; save().then(ok => { if (!ok) note.saveErr = true }); refresh(); onClose({ kind: 'listed', note }) }
+  const listNow = () => { setListed(g, p.id, true); const note: LRes = { text: listedNote(p.name, lg, !!p.wantsOut) }; const saved = save(); refresh(); onClose({ kind: 'listed', note, saved }) }
+  // la cita del jugador con comillas latinas (5.8): el motor escribe "…"
+  const quote = (t: string) => t.replace(/"([^"]+)"/g, '«$1»')
   return (
     <Modal onClose={() => { if (stage === 'confirm') back(); else done() }}>
       <div className="vt-talk">
         <div className="vt-talk-h"><Face p={p} size={52} /><div className="grow" style={{ minWidth: 0 }}><h2>Charla con {p.name}</h2>
-          <div className="vt-talk-m">{POS_LABEL[p.positions[0]]} · {roleOf(p)} · <b>{md.word}</b> ({md.n}) · moral {Math.floor(p.morale)}{p.wantsOut && <> · <b>Quiere irse</b></>}</div></div>
+          {mine && <div className="vt-talk-m">{POS_LABEL[p.positions[0]]} · {roleOf(p)} · <b>{md.word}</b> ({md.n}) · moral {Math.floor(p.morale)}{p.wantsOut && <> · <b>Quiere irse</b></>}</div>}</div>
           <button className="btn sm icon" aria-label="Cerrar la charla" title="Cerrar (Esc)" onClick={() => done()}>{MI.x}</button></div>
-        {!mine ? <><p className="vt-p dim">Ya no está en el plantel.</p><div className="vt-talk-foot"><span className="grow" /><button className="btn primary" data-autofocus onClick={() => done()}>Listo</button></div></>
+        {!mine ? <><p className="vt-p dim">Ya no está en el plantel.</p><div className="vt-talk-foot"><span className="grow" /><button className="btn primary" data-autofocus ref={goneRef} onClick={() => done()}>Listo</button></div></>
         : stage === 'reply' && res ? <div className="vt-reply" role="status" tabIndex={-1} ref={replyRef}>
-            <blockquote className="mk-ask">{res.text}</blockquote>
+            <blockquote className="mk-ask">{quote(res.text)}</blockquote>
             {res.before && res.after && <table className="mk-impact"><tbody>
               <tr><th scope="row">Conformidad</th><td><span className="b4">{Math.floor(res.before.happy)}</span><span className="mk-arr">{MI.arrow}<span className="vh"> pasa a </span></span><b>{Math.floor(res.after.happy)}</b></td><td><span className="vt-impw">{moodOf(res.after.happy).word}</span></td></tr>
               <tr><th scope="row">Moral</th><td><span className="b4">{Math.floor(res.before.morale)}</span><span className="mk-arr">{MI.arrow}<span className="vh"> pasa a </span></span><b>{Math.floor(res.after.morale)}</b></td><td><span className="vt-impw">{moraleOf(res.after.morale).word}</span></td></tr>
@@ -479,26 +507,29 @@ export function TalkModal({ p, onClose }: { p: Player; onClose: (r?: { kind: 'ta
           </>
         : <>
           <div className="vt-how">
-            <div className="vt-how-l"><span className="vt-how-k">Minutos</span><MinsBar m={m} size="sm" /><span>{m.recent.length >= 2 ? <>Juega el <b>{pc(m.got)} %</b> de los minutos; su rol espera el <b>{pc(m.expected)} %</b>.</> : 'Sus minutos todavía no cuentan.'}</span></div>
+            <div className="vt-how-l"><span className="vt-how-k">Minutos</span><MinsBar m={m} size="sm" /><span>{m.recent.length >= 2 ? <>Juega el <b>{pc(m.got)}&nbsp;%</b> de los minutos; su rol espera el <b>{pc(m.expected)}&nbsp;%</b>.</> : 'Sus minutos todavía no cuentan.'}</span></div>
             <div><Traits traits={tr.traits} inline />.{' '}{p.form.length ? <>Viene con promedio <b>{dec(ctx.form, 1)}</b> (últimos {p.form.length}).</> : 'Todavía no jugó.'}</div>
-            {ps && <div className="vt-how-l">Promesa: {pc(ps.target)} % hasta el {fmtDay(ps.until)} · <Verdict s={ps} /></div>}
+            {ps && <div className="vt-how-l">Promesa: {pc(ps.target)}&nbsp;% hasta el {fdy(ps.until)} · <Verdict s={ps} /></div>}
           </div>
           <div className="vt-opts-l" id="vt-opts-l">Qué le decís</div>
           <div className="vt-opts" role="radiogroup" aria-labelledby="vt-opts-l" ref={optsRef} onKeyDown={onOptsKey}>
+            {/* el radio no contiene controles (4.1.2, nested-interactive): lo que se abre al marcarlo es su hermano, dentro de la misma caja */}
             {opts.map(o => { const on = sel === o.kind, dis = !!o.disabled, ruleId = `vt-or-${o.kind}`, whoId = `vt-ow-${o.kind}`, w = who(o)
-              return <div key={o.kind} data-k={o.kind} className="vt-opt" role="radio" aria-checked={on} aria-disabled={dis || undefined} tabIndex={dis ? -1 : o.kind === (sel ?? focusK) ? 0 : -1}
-                data-autofocus={o.kind === first || undefined} aria-describedby={[ruleId, w ? whoId : '', o.kind === 'free' && on ? 'vt-lg-opt' : ''].filter(Boolean).join(' ')} onClick={() => !dis && choose(o.kind)}>
-                <span className="vt-radio" aria-hidden="true" />
-                <span className="vt-opt-b">
-                  <span className="vt-opt-th"><span className="vt-opt-t">{o.title}</span>{o.cost && <span className="mk-st vt-cost">tiene costo</span>}</span>
-                  {dis ? <span className="vt-opt-why" id={ruleId}>{MI.lock}{o.disabled}</span> : <span className="vt-opt-r" id={ruleId}>{rule(o)}</span>}
-                  {w && !dis && <span className="vt-opt-who" id={whoId}>{w}</span>}
-                  {on && o.kind === 'status' && <span className="vt-opt-extra" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-                    <Seg label="Nuevo rol" value={STATUS_KEYS.indexOf(ns)} options={STATUS_KEYS.map(stName)} onChange={v => setNs(STATUS_KEYS[v])} />
-                    <span>Va a esperar jugar el <b>{pc(STATUS[ns].share)} %</b> (hoy juega el {pc(m.got)} %).</span>
-                  </span>}
-                  {on && o.kind === 'free' && o.letGo && <span className="vt-opt-extra"><LetGo info={o.letGo} id="vt-lg-opt" /></span>}
-                </span>
+              return <div key={o.kind} className="vt-opt-wrap" data-kw={o.kind}>
+                <div data-k={o.kind} className="vt-opt" role="radio" aria-checked={on} aria-disabled={dis || undefined} tabIndex={dis ? -1 : o.kind === (sel ?? focusK) ? 0 : -1}
+                  data-autofocus={o.kind === first || undefined} aria-describedby={[ruleId, w ? whoId : '', o.kind === 'free' && on ? 'vt-lg-opt' : ''].filter(Boolean).join(' ')} onClick={() => !dis && choose(o.kind)}>
+                  <span className="vt-radio" aria-hidden="true" />
+                  <span className="vt-opt-b">
+                    <span className="vt-opt-th"><span className="vt-opt-t">{o.title}</span>{o.cost && <span className="mk-st vt-cost">tiene costo</span>}</span>
+                    {dis ? <span className="vt-opt-why" id={ruleId}>{MI.lock}{o.disabled}</span> : <span className="vt-opt-r" id={ruleId}>{rule(o)}</span>}
+                    {w && !dis && <span className="vt-opt-who" id={whoId}>{w}</span>}
+                  </span>
+                </div>
+                {on && o.kind === 'status' && <div className="vt-opt-extra">
+                  <Seg label="Nuevo rol" value={STATUS_KEYS.indexOf(ns)} options={STATUS_KEYS.map(stName)} onChange={v => setNs(STATUS_KEYS[v])} />
+                  <span>Va a esperar jugar el <b>{pc(STATUS[ns].share)}&nbsp;%</b> (hoy juega el {pc(m.got)}&nbsp;%).</span>
+                </div>}
+                {on && o.kind === 'free' && o.letGo && <div className="vt-opt-extra"><LetGo info={o.letGo} id="vt-lg-opt" /></div>}
               </div> })}
           </div>
           {off.length > 0 && <div className="vt-opts-off">{MI.lock}<span>No disponibles ahora: {off.map(o => `${o.title} (${o.disabled!.replace(/\.$/, '').replace(/^./, c => c.toLowerCase())})`).join('; ')}.</span></div>}

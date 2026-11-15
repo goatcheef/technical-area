@@ -186,9 +186,9 @@ Otra forma para otro dato: una proporción con una línea, no una escala de pala
 | Relleno | Ancho = lo que juega (`minutesOf.got`). `--bad` si al ritmo de hoy le baja la conformidad (`nextDelta < 0`); si no, `--dim` |
 | Marca de umbral `.vt-mins-mark` | En `threshold` (85 % de lo esperado): 2 px de ancho, 6 px más alta que la pista (3 arriba y 3 abajo), `--text`, con un halo de 1 px `--panel` (`box-shadow: 0 0 0 1px var(--panel)`) para que se vea también sobre el relleno (sin halo, blanco sobre `--dim` da 2,09). Es la forma la que dice "acá empieza a molestarse" |
 | Texto | Tabla (`sm`, apilada como las escalas: texto arriba, pista de 64 × 4 debajo, marca de 10 px): "20/62 %", lo jugado en 700 `--text`, "/62 %" en 500 `--dim`, espacio duro antes de "%". Panel y ventana (`md`, en fila): "20 % de 62 %" (700 / 500) y debajo, en 12 px `--dim`, "se molesta por debajo de 53 %" |
-| Rol que no se molesta (`tol` 0) | Sin marca; relleno `--dim`; texto "20 % · no le pesa" (tabla) / "Con su rol no se molesta por los minutos." (panel) |
+| Rol que no se molesta (`tol` 0) | Tabla: "20 %" y, en lugar de la pista, "no le pesa" en un renglón (12 px `--dim`, sin cortar): la celda no pasa de dos renglones (fase 5). Panel: sin marca, relleno `--dim` y "Con su rol no se molesta por los minutos." |
 | `tol` 0,5 | Marca como siempre; texto "…pero la mitad de rápido que un titular" |
-| Todavía no cuenta (0 o 1 partido) | Sin pista: "—" en `--dim` y el texto de la especificación (sección 6 y `LockerCard` punto 2) en 12 px `--dim`. Con 2 partidos ("cuenta desde el próximo partido"), la pista se dibuja normal y esa frase va debajo en 12 px `--dim` |
+| Todavía no cuenta (0 o 1 partido) | Tabla: solo "—" en `--dim`, con un `.vh` "Todavía no cuenta (jugó 1)"; la explicación queda en la nota del encabezado (fase 5, revisión B2: con el texto en cada celda, al empezar la temporada las 36 filas medían 85 px). Panel y ventana: "—" y el texto de la especificación (sección 6 y `LockerCard` punto 2) en 12 px `--dim`. Con 2 partidos, la pista se dibuja normal; "cuenta desde el próximo partido" va en el `.vh` de la celda y a la vista en la `LockerCard`. Objetivo en todos los estados: filas de 40 a 48 px |
 
 ### 4.4 Promesa (`.vt-promise`)
 
@@ -826,3 +826,19 @@ Todo en una sección `/* portal: vestuario (production/ui/vestuario/visual-desig
 - **La pista de las escalas contra el panel** no llega a 3:1 (como en el Mercado); lo compensan los tramos y el número.
 - **Clubes rojos**: el relleno `--bad` y el riel `--sel` tienen casi el mismo matiz en 24 clubes. No se confunden porque son formas distintas en lugares distintos (barra dentro de la celda contra riel en el borde de la fila) y la elegida lleva además fondo y 800; queda anotado para la verificación de la fase 4 con Independiente.
 - **Las capturas de la fase 3** tienen que repetir el estado de `ref/` (pedido de salida, promesa, charla usada, referente que resta, reserva) más una promesa en riesgo, un "En baja", el modo "Armar la reserva", la ventana en sus cinco estados y Defensa y Justicia, y medir con `elementFromPoint` como `tests/ui/mercado.cjs`.
+
+## 15. Cambios de la fase 5 (pulido, 2026-11-15)
+
+Lo que cambió respecto de este contrato tras las revisiones de la fase 4 (`review-art-director.md`, `review-ux-designer.md`, `review-accessibility-specialist.md`):
+
+- **"Quiere irse" (`.chip.bad`)**: texto `--text` sobre el tinte rojo en todo el juego (regla global, no solo dentro de `.vt`); `.chip` mide 12 px como mínimo y 12,04 px (`max(.86rem, 12px)`) en la banda de la ficha. Pares 33, 34 y 54 de `contraste.mjs`.
+- **Celda de Minutos** (4.3, arriba): "—" con `.vh` al empezar la temporada; "no le pesa" en lugar de la pista; rol en dos renglones con `line-height: 1.15`; filas de 41 a 48 px.
+- **Anchos por vista**: los anchos grandes de las escalas (`happy` 124, `mor` 96, `mins` 96, `res` 100, `pos` 64) valen solo en las vistas Vestuario y Reserva (`VIEWS[v].w`). En las demás tablas, `happy` 92 y `mor` 80 con la escala compacta (número y pista de 40 px arriba, la palabra en 12 px debajo).
+- **Tabla angosta** (presupuesto menor a 270 px, unos 360 px de pantalla o 390 con el texto al 120 %): escala compacta, sin cara y con el nombre corto ("S. Montiel"); en el celular el nombre pasa a dos renglones antes que cortarse.
+- **Opciones de la charla**: la caja es `.vt-opt-wrap` (el radio y sus controles son hermanos); el estado marcado gana al hover. En el celular la ventana ocupa toda la pantalla (7.2).
+- **Para atender**: las filas comparten la columna de la acción (`subgrid`); "No vence" va en la misma línea con " · ".
+- **Banda de la ficha**: `.pband .dim` = `--dim` 30 % + `--text` (4,89:1 como mínimo en los 86 clubes; par 52).
+- **Indicadores de foco** en los destinos por programa (título "Para atender", título "Charla", respuesta, nota de la barra masiva): contorno de 2 px `--sel` con `:focus-visible`.
+- **Encabezado** (5.2): "Qué la mueve" con `max-width: 22rem` (la cifra queda cerca de su término). El alto sigue en unos 224 px a 1440: se acepta.
+- **Fechas y "%"** con espacio duro (`fdy`, `sdy` en `mood.tsx`).
+

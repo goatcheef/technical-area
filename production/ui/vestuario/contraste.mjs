@@ -70,6 +70,10 @@ const fixed = [
   ['30 kbd --text / panel2', text, panel2, 4.5],
   ['31 descripción de grupo / línea del modo Reserva --dim / fondo de página #0a0c1b', dim, page, 4.5],
   ['32 --faint / panel3 (prohibido)', faint, panel3, 4.5, false],
+  // "Quiere irse" (.chip.bad): el texto va en --text en todo el juego (fase 5); antes, rojo sobre rojo
+  ['33 "Quiere irse" .chip.bad --text / tinte --bad 13 % sobre panel2 (ficha breve)', text, over(bad, .13, panel2), 4.5],
+  ['34 ídem sobre la tarjeta del jugador de la bandeja (#473659, medido)', text, over(bad, .13, H('#473659')), 4.5],
+  ['34b antes: --bad / tinte sobre la tarjeta de la bandeja', bad, over(bad, .13, H('#473659')), 4.5, false],
 ]
 const v = process.argv.includes('-v')
 let fails = 0
@@ -94,8 +98,12 @@ const per = [
   ['49 título de sección de la tarjeta (acento 62 % + blanco) / panel', 4.5, c => cr(wmix(c.a, .62), panel)],
   ['50 talkState de la banda --text / fila de pestañas de la banda', 4.5, c => cr(text, bandTabs(c.band))],
   ['51 --text / banda (extremo izquierdo, 34 %)', 4.5, c => cr(text, bandBg(c.band))],
-  ['52 --dim / banda (34 %): no se usa para texto chico en la banda', 4.5, c => cr(dim, bandBg(c.band)), false],
+  // corrección de la fase 5: --dim sí se usa en la banda (fecha de nacimiento, pie, rótulos); ahí va .pband .dim = --dim 30 % + --text
+  ['52 .pband .dim (--dim 30 % + --text) / banda (34 %)', 4.5, c => cr(over(dim, .3, text), bandBg(c.band))],
+  ['52b antes: --dim / banda (34 %)', 4.5, c => cr(dim, bandBg(c.band)), false],
   ['53 ícono reloj de talkState --text / fila de pestañas [3]', 3, c => cr(text, bandTabs(c.band))],
+  ['54 "Quiere irse" .chip.bad --text / tinte --bad 13 % sobre la banda (34 %)', 4.5, c => cr(text, over(bad, .13, bandBg(c.band)))],
+  ['54b antes: --bad / tinte sobre la banda', 4.5, c => cr(bad, over(bad, .13, bandBg(c.band))), false],
 ]
 console.log('\n— Pares por club (86 clubes con economía)')
 for (const [k, need, fn, used = true] of per) {

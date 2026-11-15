@@ -78,7 +78,8 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
           <FavButton k="p" id={p.id} />
           {!mine && <button className={`btn sm ${starred ? 'on' : ''}`} aria-pressed={starred} onClick={() => { toggleShortlist(g, p.id); done() }}>{starred ? '✓ En seguimiento' : 'Seguir'}</button>}
           {!mine && !known && <button className={`btn sm ${g.scouting.includes(p.id) ? 'on' : ''}`} disabled={g.scouting.includes(p.id)} title="El scouting lo sigue unos días hasta conocerlo por completo" onClick={() => { scout(g, p); done() }}>{g.scouting.includes(p.id) ? 'Ojeándolo…' : 'Mandar a ojear'}</button>}
-          {ts && (ts.can ? <button className="btn sm vt-band-hablar" disabled={busy} onClick={() => setTalkOpen('band')}>Hablar</button> : <span className="vt-band-talk"><TalkSt text={ts.long} /></span>)}
+          {ts && (ts.can ? <button className="btn sm vt-band-hablar" disabled={busy} aria-describedby={busy ? 'vt-band-busy' : undefined} onClick={() => setTalkOpen('band')}>Hablar</button> : <span className="vt-band-talk"><TalkSt text={ts.long} /></span>)}
+          {ts?.can && busy && <span className="ib-help vt-band-busy" id="vt-band-busy">Frená el avance para hablar con él.</span>}
           <button className="btn sm" onClick={() => setTab('contrato')}>{mine ? 'Contrato' : 'Ofertar'} ▸</button>
         </div>
         {mine && <F7 r={bandNote} cls="vt-band-note" />}
@@ -174,11 +175,11 @@ export function PlayerPage({ id, tab = 'resumen', busy = false }: { id: number; 
         if (from === 'band') {
           if (!r) focusLater('.vt-band-hablar', '.pband-tabs button.on')
           else if (r.kind === 'talked') focusLater('.vt-band-talk .vt-talkst', '.pband-tabs button.on')
-          else { setBandNote(r.note!); focusLater('.vt-band-note .ib-result', '.vt-band-talk .vt-talkst') }
+          else { setBandNote(r.note!); focusLater('.vt-band-note .ib-result', '.vt-band-talk .vt-talkst'); r.saved?.then(ok => { if (!ok) setBandNote(n => (n ? { ...n, saveErr: true } : n)) }) }
         } else {
           if (!r) focusLater('.vt-scope .vt-card-talk', '.vt-scope #vt-card-h-talk')
           else if (r.kind === 'talked') focusLater('.vt-scope #vt-card-h-talk')
-          else { setCardNote(r.note!); focusLater('.vt-scope .vt-card-note .ib-result', '.vt-scope #vt-card-h-talk') }
+          else { setCardNote(r.note!); focusLater('.vt-scope .vt-card-note .ib-result', '.vt-scope #vt-card-h-talk'); r.saved?.then(ok => { if (!ok) setCardNote(n => (n ? { ...n, saveErr: true } : n)) }) }
         }
       }} />}
     </div>
