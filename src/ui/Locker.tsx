@@ -55,6 +55,9 @@ const FILTERS: [string, string][] = [['todo', 'Todo el plantel'], ['reserva', 'E
 const isFilter = (t?: string) => FILTERS.some(f => f[0] === t)
 /** Al volver de una ficha (Atrás), el foco va a la fila de la que se salió: la entrada del historial es la misma (el mismo objeto). */
 const FROM = new WeakMap<Route, string>()
+// Entradas del historial en las que el DT estaba con la vista Reserva (armando la reserva). Al volver con Atrás a una de ellas,
+// la vista sigue; al entrar de nuevo al Vestuario (entrada nueva), abre siempre en la vista Vestuario (pedido del usuario).
+const RESERVA = new WeakSet<Route>()
 
 /** Ícono de un motivo de "Para atender" (forma distinta por motivo: la lista se recorre sin color). */
 const reasonIcon = (k: Reason['k']) => (k === 'outListed' ? MI.swap : k === 'promiseRisk' || k === 'upset' ? MI.bang : k === 'falling' ? VI.trendDown : k === 'leader' ? VI.minus : k === 'promiseOk' ? MI.ok : null)
@@ -100,6 +103,14 @@ export function LockerPage({ busy = false }: { busy?: boolean }) {
   // (lo pone la tabla cuando ya aplicó la vista y el orden: `mode.focus`)
   const enterArmar = () => { setStTab('todo'); setMode(m => ({ view: 'reserva', sort: [{ k: 'res', d: 1 }], n: (m?.n ?? 0) + 1, focus: true })); nav({ page: 'locker', tab: 'todo', sel: route.sel }) }
   useEffect(() => { if (armar) enterArmar() }, [armar])
+  // la vista Reserva solo se recuerda mientras se arma: una entrada nueva al Vestuario vuelve a la vista Vestuario
+  useEffect(() => {
+    if (armar || RESERVA.has(route)) return
+    let saved = ''
+    try { saved = JSON.parse(localStorage.getItem('ta-table-locker') ?? '{}').view ?? '' } catch { /* sin almacenamiento: nada que restaurar */ }
+    if (saved === 'reserva') setMode(m => ({ view: 'vestuario', n: (m?.n ?? 0) + 1 }))
+  }, [])
+  useEffect(() => { if (view === 'reserva') RESERVA.add(route); else RESERVA.delete(route) }, [view, route])
 
   // foco al entrar (sección 4, "Selección al entrar") y al volver de una ficha
   useEffect(() => {

@@ -560,6 +560,29 @@ async function runShort(browser) {
 }
 
 /** Las vistas del Plantel conservan sus columnas: los anchos más grandes de las escalas valen solo en las vistas del Vestuario. */
+/** La vista Reserva solo se recuerda mientras se arma: Atrás desde una ficha la conserva; entrar de nuevo al Vestuario abre en la vista Vestuario. */
+async function runResView(browser) {
+  const { ok, res } = H.reporter('Vista Reserva · ')
+  const { page, errs } = await H.newGame(browser, { w: 1440, h: 900 })
+  const viewOf = () => page.evaluate(() => document.querySelector('.vt .ptable-bar .seg[aria-label="Vista"] button[aria-pressed=true]')?.textContent)
+  await go(page, { page: 'locker' }); await sleep(250)
+  await page.click('.vt-res-go'); await sleep(450)
+  ok('"Armar la reserva" pone la vista Reserva', (await viewOf()) === 'Reserva', await viewOf())
+  const pid = await page.evaluate(() => Number(document.querySelector('.vt .ptable tbody tr[data-pid]')?.getAttribute('data-pid')))
+  await go(page, { page: 'player', id: pid, tab: 'personal' })
+  await page.evaluate(() => window.__ctx().back()); await sleep(450)
+  ok('Atrás desde la ficha: sigue en la vista Reserva', (await viewOf()) === 'Reserva', await viewOf())
+  await go(page, { page: 'home' }); await sleep(200)
+  await go(page, { page: 'locker' }); await sleep(450)
+  ok('Entrar de nuevo al Vestuario: abre en la vista Vestuario', (await viewOf()) === 'Vestuario', await viewOf())
+  await page.reload(); await page.click('button:has-text("Continuar")'); await page.waitForSelector('.shell'); await H.installCtx(page); await sleep(300)
+  await go(page, { page: 'locker' }); await sleep(450)
+  ok('Después de recargar el juego: abre en la vista Vestuario', (await viewOf()) === 'Vestuario', await viewOf())
+  ok('Sin errores en la consola', !errs.length, errs.join(' | '))
+  await page.close()
+  return res
+}
+
 async function runSquadCols(browser) {
   const { ok, res } = H.reporter('Plantel › columnas · ')
   // 1330 px: presupuesto de 1246 px, donde la moral de 96 px de la fase 3 escondía Sueldo (con 80 px, como antes del Vestuario, entra)
@@ -604,6 +627,7 @@ function codeChecks() {
   const all = [...codeChecks()]
   if (process.argv.includes('--out')) { all.push(...await runOut(browser)); await browser.close(); const bad = all.filter(r => r.status === 'FALLA'); console.log(`\n${all.length - bad.length} de ${all.length} comprobaciones pasan.`); process.exit(bad.length ? 1 : 0) }
   for (const s of SIZES) all.push(...await run(browser, s))
+  all.push(...await runResView(browser))
   if (EXTRA) {
     all.push(...await runShort(browser))
     all.push(...await runSquadCols(browser))
