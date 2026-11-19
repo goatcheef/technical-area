@@ -15,3 +15,22 @@ platform:
   primary_input: Keyboard & Mouse
   gamepad_support: None
   touch_support: Partial
+
+# Presupuestos de rendimiento (propuestos para la base técnica; celulares Android de gama media como referencia).
+# La cancha 2D y las animaciones a 60 cuadros; memoria del navegador con la partida cargada.
+# Lo que estos cuatro campos no cubren (peso de descarga y tiempo hasta poder jugar) está en
+# .claude/docs/technical-preferences.md, sección Performance Budgets.
+performance:
+  enforce: warn
+  target_framerate: 60
+  frame_budget_ms: 16.67
+  memory_ceiling_mb: 250
+
+testing:
+  framework: "Scripts de Node con tsx para el motor (tests/engine) y Playwright para la interfaz (tests/ui)"
+
+commands:
+  run: npm run dev
+  build: npm run build
+  test: npm run test:engine
+  smoke: npm run build && npm run test:engine

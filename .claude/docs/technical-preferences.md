@@ -10,10 +10,10 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Web (sin motor de juego): React 19 + Vite
+- **Language**: TypeScript (motor puro en `src/engine/`, interfaz en `src/ui/`)
+- **Rendering**: DOM y SVG; la cancha 2D en canvas (`Pitch2D.tsx`)
+- **Physics**: no aplica (el partido es un motor por jugadas, `match.ts`)
 
 ## Input & Platform
 
@@ -38,15 +38,19 @@
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 (cancha 2D y animaciones)
+- **Frame Budget**: 16,67 ms
+- **Draw Calls**: no aplica (DOM y SVG)
+- **Memory Ceiling**: 250 MB con la partida cargada
+- **Descarga inicial** (propuesto): 1,5 MB comprimido como máximo antes de la primera pantalla; los escudos y los datos se cargan aparte
+- **Tiempo hasta poder jugar** (propuesto): 3 s como máximo en un Android de gama media con 4G
+- **Guardado** (propuesto): un día de avance no tarda más de 50 ms en guardar
+- **Un día de avance**: 1 ms de mediana (medido, `CLAUDE.md`)
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
+- **Framework**: scripts de Node con tsx (`npm run test:engine`) y Playwright para la interfaz (`tests/ui/*.cjs`, con `npm run dev` corriendo)
+- **Minimum Coverage**: sin porcentaje; cada sistema del motor con reglas tiene su suite y cada pantalla rediseñada su prueba de aceptación
 - **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
 
 ## Forbidden Patterns
