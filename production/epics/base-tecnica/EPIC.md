@@ -4,7 +4,7 @@
 > **GDD**: N/A — épico técnico. Requisitos de `.claude/docs/technical-preferences.md` (Performance Budgets) y del perfil `production/polish/full-report-2026-11-19.md`; reglas de juego afectadas en `design/gdd/base-de-datos.md`, `temporada-y-ligas.md`, `comunicacion-y-bandeja.md` y `game-concept.md` (ya sincronizados con las ADR).
 > **Architecture Module**: carga de recursos (`src/ui/crests.ts`, `src/ui/pages.ts`, `src/engine/db.ts`), guardado (`src/save/`, `src/engine/migrate.ts`), errores (`src/errors.ts`), rendimiento del motor y de la interfaz
 > **Status**: Ready
-> **Stories**: Not yet created — run `/create-stories base-tecnica`
+> **Stories**: 10
 > **Tier**: standard (`workflow_overrides.system_overrides.base-tecnica`, pedido del usuario); el resto del proyecto en minimal
 
 ## Overview
@@ -42,3 +42,18 @@ Que el juego abra rápido en un celular de gama media, no pierda partidas y no m
 - Logic and Integration stories have passing tests in the test root
 - Visual/Feel and UI stories have retained screenshots in `production/qa/evidence/`
 - `npm run build`, `npm run test:engine`, `tests/ui/*.cjs` y `npm run sim -- 3` (tres semillas) pasan
+
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | La cancha 2D no dibuja en pausa | Visual/Feel | Ready | N/A |
+| 002 | Fronteras de error y registro local | Integration | Ready | ADR-0003 |
+| 003 | Escudos como archivos | Integration | Ready | ADR-0001 |
+| 004 | Páginas por pantalla, datos aparte y fuentes propias | Integration | Ready | ADR-0001 |
+| 005 | Formato de partida 7 con tope del historial | Logic | Ready | ADR-0002 |
+| 006 | Guardado en segundo plano con tres copias | Integration | Ready | ADR-0002 |
+| 007 | Exportar e importar la partida | Integration | Ready | ADR-0002 |
+| 008 | Recuperación completa después de un error | UI | Ready | ADR-0003 |
+| 009 | IA rival más liviana con resultados idénticos | Logic | Ready | N/A |
+| 010 | Redibujar solo lo que cambia | Integration | Ready | N/A |
