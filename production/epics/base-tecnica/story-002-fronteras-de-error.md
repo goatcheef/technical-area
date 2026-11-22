@@ -109,3 +109,5 @@
 
 - Depends on: None
 - Unlocks: `production/epics/base-tecnica/story-004-paginas-datos-fuentes.md`, `production/epics/base-tecnica/story-008-recuperacion-completa.md`
+
+> **Decidido por el usuario (2026-11-22)**: hasta que entre la historia 006, después de un error grave la pantalla de recuperación ofrece solo "Recargar" y "Copiar el detalle" (exportar un estado que puede estar roto está prohibido por ADR-0003); al recargar vuelve la última partida guardada bien.

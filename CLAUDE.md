@@ -50,7 +50,7 @@ Manager de fútbol argentino (género "football manager") con clubes, planteles 
 
 ## Decisiones tomadas
 
-- Decisiones de arquitectura: `docs/architecture/` (ADR-0001 carga de recursos, ADR-0002 guardado, ADR-0003 errores; Proposed) y `docs/registry/architecture.yaml`.
+- Decisiones de arquitectura: `docs/architecture/` (ADR-0001 carga de recursos, ADR-0002 guardado, ADR-0003 errores; aceptadas por el usuario el 2026-11-22) y `docs/registry/architecture.yaml`.
 - El usuario pidió nombres, clubes y escudos reales.
 - La interfaz es un diseño propio: moderna, del género, sin copiar la de Football Manager. El usuario mostró como referencia una recreación de FM26 y pidió sacar la barra lateral y un estilo más firme: se tomaron esas ideas (navegación arriba, íconos de trazo grueso, tarjetas con relieve y títulos marcados, botones sólidos, el principal con corte en diagonal) con diseño propio.
 - Foto de jugadores: la silueta genérica que eligió el usuario (`src/assets/player.webp`). El DT usa el avatar ilustrado. No usar fotos reales.

@@ -45,7 +45,7 @@
 - Empezar por Estadísticas (los 8 rankings salen de un solo recorrido + un `useMemo` por categoría y fecha) y por la Bandeja (limitar y paginar los mensajes renderizados); después `React.memo` en filas de `PlayerTable`.
 - No hace falta tocar `refresh()` global si cada pantalla cachea lo suyo.
 - Un `useMemo` con `g` como dependencia no se invalida solo: usar claves como `g.date`, `g.news.length`, `g.transfers.length`.
-- Si limitar la Bandeja cambia lo que el DT ve por defecto, confirmarlo con el usuario antes (el criterio de la historia es que no haya cambio visual).
+- Decidido por el usuario (2026-11-22): sin cambios visibles. No se limita la Bandeja a los mensajes recientes ni se agrega "Mostrar más"; la mejora es solo de redibujo.
 - `PlayerTable.tsx:143` usa `limit` 200 sin virtualizar; recortar nodos DOM sin cambiar columnas ni anchos de `COLS` (`CLAUDE.md`).
 
 ---
