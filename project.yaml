@@ -34,3 +34,8 @@ commands:
   build: npm run build
   test: npm run test:engine
   smoke: npm run build && npm run test:engine
+
+# El épico de la base técnica va a rigor estándar (pedido del usuario): sus historias llevan las reglas de ADR-0001 a 0003.
+workflow_overrides:
+  system_overrides:
+    base-tecnica: standard
