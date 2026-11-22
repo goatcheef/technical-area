@@ -1,7 +1,7 @@
 # ADR-0003: Errores sin pantalla en blanco
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-11-22

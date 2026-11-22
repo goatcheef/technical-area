@@ -1,7 +1,7 @@
 # ADR-0001: Carga de escudos y datos fuera del paquete principal
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-11-22

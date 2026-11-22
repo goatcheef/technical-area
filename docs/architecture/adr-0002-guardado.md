@@ -1,7 +1,7 @@
 # ADR-0002: Guardado en segundo plano, por momentos, con copias
 
 ## Status
-Proposed
+Accepted
 
 ## Date
 2026-11-22
