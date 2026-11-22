@@ -132,7 +132,7 @@ Supuesto sobre qué hace el jugador la mayor parte del tiempo, según el peso de
 
 ### Sesión (30 a 120 minutos)
 
-Supuesto: una sesión cubre varias fechas de un torneo (Apertura o Clausura) o un libro de pases completo. Paradas naturales: el final de un partido, el cierre del libro de pases (20 de febrero y 10 de agosto), el final de la fase de zonas o una final. La partida se guarda sola en IndexedDB después de cada avance.
+Supuesto: una sesión cubre varias fechas de un torneo (Apertura o Clausura) o un libro de pases completo. Paradas naturales: el final de un partido, el cierre del libro de pases (20 de febrero y 10 de agosto), el final de la fase de zonas o una final. La partida se guarda sola en IndexedDB después de cada avance. Propuesta (ADR-0002): se guarda sola, en segundo plano, en los momentos clave (al resolver una decisión o hacer una acción, al terminar un partido, al frenar "Ir al partido", al cerrar y empezar la temporada, al ocultar la pestaña) y cada 7 días de juego; quedan las 3 últimas copias automáticas de la única partida.
 
 ### Progresión a largo plazo
 
@@ -228,7 +228,7 @@ Datos del usuario según `CLAUDE.md` y el encargo; el resto es **supuesto**.
 | **Estilo de arte** | 2D plano: escudos reales, silueta genérica de jugador, avatar ilustrado del DT, cancha 2D en SVG, gráficos en SVG propios. |
 | **Complejidad del arte** | Baja. |
 | **Audio** | Ninguno. |
-| **Red** | Ninguna. Guardado local en IndexedDB; exportar e importar la partida como JSON. |
+| **Red** | Ninguna. Guardado local en IndexedDB; exportar e importar la partida como JSON (Propuesta (ADR-0002): archivo `.tasave`, JSON comprimido con gzip; importar acepta también el `.json` viejo y texto pegado). |
 | **Volumen de contenido** | 109 clubes (30 de Primera, 36 de Primera Nacional, 20 de tercera categoría, 23 del exterior), 3.208 jugadores, 9 dibujos, 24 roles. |
 | **Sistemas procedurales** | Juveniles y jugadores de clubes sin plantel conocido con nombres ficticios; árbitros ficticios; personalidad derivada del jugador; azar con semilla (`rng.ts`). |
 
@@ -262,8 +262,8 @@ El estado sale del código; lo planeado, de las secciones "Falta" y "Pendiente" 
 
 ### Riesgos técnicos
 
-- El estado completo se guarda en IndexedDB del navegador: borrar los datos del sitio borra la carrera (se mitiga con "Exportar partida").
-- Cambios de formato exigen subir `Game.version` (hoy 6); una partida de otra versión no carga.
+- El estado completo se guarda en IndexedDB del navegador: borrar los datos del sitio borra la carrera (se mitiga con "Exportar partida"; en Safari, el navegador borra los datos a los 7 días sin uso si el juego no está en la pantalla de inicio).
+- Cambios de formato exigen subir `Game.version` (hoy 6); una partida de otra versión no carga. Propuesta (ADR-0002): `Game.version` 7 y `migrateGame` migran las partidas viejas; solo una de versión más nueva que el juego no carga.
 
 ### Riesgos de mercado
 

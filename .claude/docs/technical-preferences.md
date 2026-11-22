@@ -44,7 +44,7 @@
 - **Memory Ceiling**: 250 MB con la partida cargada
 - **Descarga inicial** (propuesto): 1,5 MB comprimido como máximo antes de la primera pantalla; los escudos y los datos se cargan aparte
 - **Tiempo hasta poder jugar** (propuesto): 3 s como máximo en un Android de gama media con 4G
-- **Guardado** (propuesto): un día de avance no tarda más de 50 ms en guardar
+- **Guardado** (aceptado por el usuario el 2026-11-22, ADR-0002): en desktop, como máximo 50 ms de hilo principal por guardado; en celular (CPU 4×), como máximo 50 ms por día de avance en promedio y ninguna tarea de guardado de más de 150 ms; nunca entre el clic y el cuadro siguiente
 - **Un día de avance**: 1 ms de mediana (medido, `CLAUDE.md`)
 
 ## Testing

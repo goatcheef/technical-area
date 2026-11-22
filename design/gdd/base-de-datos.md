@@ -27,7 +27,7 @@ La base de datos arma el mundo inicial con el fútbol argentino real de 2026: lo
 
 ## Overview
 
-Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español las páginas de los campeonatos 2026 y de cada club y jugador, las guarda en caché (`data/raw/`) y extrae datos: zonas, puntos por partido, capacidad, DT, plantel (nombre, línea, nacimiento, nacionalidad, número, préstamo, capitán, inferiores), puesto de la ficha y de la primera frase, debut, partidos en la selección, paso por el exterior, largo del artículo, partidos de 2026 y convocatorias juveniles. `tools/build-db.ts` (`npm run db`) junta todo con las correcciones manuales de `data/overrides.json` y escribe `src/data/db.json`, que el juego importa al crear una partida. Si la base cambia después de empezar una carrera, durante la primera temporada el juego trae los atributos y puestos nuevos a la partida guardada. El usuario corrige a mano lo que detecta con `data/overrides.json`.
+Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español las páginas de los campeonatos 2026 y de cada club y jugador, las guarda en caché (`data/raw/`) y extrae datos: zonas, puntos por partido, capacidad, DT, plantel (nombre, línea, nacimiento, nacionalidad, número, préstamo, capitán, inferiores), puesto de la ficha y de la primera frase, debut, partidos en la selección, paso por el exterior, largo del artículo, partidos de 2026 y convocatorias juveniles. `tools/build-db.ts` (`npm run db`) junta todo con las correcciones manuales de `data/overrides.json` y escribe `src/data/db.json`, que el juego importa al crear una partida (Propuesta (ADR-0001): como chunk propio con `loadDb()` al arrancar; el motor la lee con `getDb()`). Si la base cambia después de empezar una carrera, durante la primera temporada el juego trae los atributos y puestos nuevos a la partida guardada. El usuario corrige a mano lo que detecta con `data/overrides.json`.
 
 **Scope**: fuentes, orden de los scripts, reglas de puesto y valoración, tablas de puestos, valoración por puesto, formaciones y roles (`positions.ts`), potencial y juveniles con proyección, clubes sin plantel conocido, escudos, formato de `db.json`, carga en la partida y actualización (`refreshDb`). **Excluye**: la evolución posterior de los jugadores (`entrenamiento-y-cuerpo-tecnico`, `temporada-y-ligas`), la economía derivada del valor (`economia-y-dirigencia`) y la personalidad (`plantel`, se calcula en el juego).
 
@@ -41,11 +41,11 @@ Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español 
 
 **Fuentes y pasos** (en este orden; cada uno lee lo que dejó el anterior)
 1. `python3 tools/import_wiki.py [--offline]` → `data/raw/*.wiki` (caché) y `data/clubs_raw.json`. Lee "Campeonato de Primera División 2026 (Argentina)" y "Campeonato de Primera Nacional 2026": equipos, ciudad, estadio, capacidad, zona (A o B) y puntos por partido del año (`ppg2026`); después la página de cada club: plantel (plantilla "Jugador de fútbol" hasta "Equipo de fútbol fin"), entrenador y apodo (`import_wiki.py:189-228`). Con `--offline` solo usa la caché.
-2. `python3 tools/fetch_crests.py` → `data/crests/<id>.png` y `src/data/crests.json` (miniatura de 128 px del escudo de la ficha del club, como data URI; el id es la posición en `clubs_raw.json`).
+2. `python3 tools/fetch_crests.py` → `data/crests/<id>.png` y `src/data/crests.json` (miniatura de 128 px del escudo de la ficha del club, como data URI; el id es la posición en `clubs_raw.json`). Propuesta (ADR-0001): la salida pasa a `data/crests.json` (fuera de `src/`) y `tools/build-crests.ts` (`npm run crests`, en `predev`/`prebuild`) la convierte en `src/assets/crests/<id>-64.webp` y `<id>-128.webp`.
 3. `python3 tools/fetch_players.py` → `data/players_meta.json` por título de artículo: `ok`, `pos` (ficha), `debut`, `caps` (selección mayor), `youthcaps`, `clubs`, `foreign` (pasos por ligas o clubes grandes del exterior, tope 6), `len` (largo del artículo). Lotes de 20 por la API; segunda pasada con "(futbolista)" para homónimos.
 4. `python3 tools/fetch_stats.py` → `data/players_stats.json`: `upd` (año de actualización de la tabla), `a26`, `a25` (partidos), `g26` (goles 2026), `car` (partidos de carrera), `lead` (puesto en la primera frase). Se puede cortar y retomar.
 5. `python3 tools/prospects.py` → `data/prospects.json` cruzando planteles (nacidos desde 2003) con las listas de las selecciones juveniles guardadas en `data/raw/sel/` (sin red).
-6. `python3 tools/import_extra.py` → `data/clubs_extra.json` y escudos agregados a `crests.json`: los 10 clubes de mayor capacidad de la Primera B 2026 (zona A) y del Federal A 2026 (zona B) como división 3, y 23 clubes sudamericanos fijos (`FOREIGN`, `import_extra.py:17-41`) como división 0.
+6. `python3 tools/import_extra.py` → `data/clubs_extra.json` y escudos agregados a `crests.json` (Propuesta (ADR-0001): `data/crests.json`): los 10 clubes de mayor capacidad de la Primera B 2026 (zona A) y del Federal A 2026 (zona B) como división 3, y 23 clubes sudamericanos fijos (`FOREIGN`, `import_extra.py:17-41`) como división 0.
 7. `data/overrides.json`: correcciones a mano, clave `Nombre corto del club|Nombre del jugador`, campos `ca` (30 a 93), `pos` (puesto natural) y `prospect` (1 a 6).
 8. `npm run db` (`tools/build-db.ts`) → `src/data/db.json` con `{ start: '2026-01-10', dbVersion, clubs, players }`. `dbVersion` es un hash FNV-1a del contenido (el mismo que `dbHash` en `game.ts`): reconstruir sin cambios no cambia el archivo. El azar es por jugador (`Stream` con clave `Club corto|Nombre`, o `gen|título wiki` en los planteles generados): primero consume sus tiradas guardadas en `data/rolls.json` (las de la base anterior) y después un azar propio sembrado con la clave; los atributos usan otro azar por jugador (`atributos|clave`).
 
@@ -79,7 +79,7 @@ Un conjunto de scripts fuera del juego (`tools/`) baja de Wikipedia en español 
 27. Tercera categoría: 26 jugadores; exterior: 23. Puestos de `GEN_POS` (siempre 3 arqueros), nombres ficticios en castellano o portugués (Brasil), 18 a 34 años, nacionalidad del país con 85 %, `ca` alrededor de `31 + rep × 0,5`, `gen: true`. Los colores de la tercera son los reales (`T3` en `import_extra.py`); la paleta `T3_COLORS` queda solo para un club nuevo que todavía no figure ahí.
 
 **Escudos y caras**
-28. Escudo: `Badge` (`common.tsx:31-36`) usa `crests.json[club.id]`; si no hay, un círculo con los colores del club y las tres primeras letras del código. Faltan 7: Aldosivi, Ciudad de Bolívar, Gimnasia y Tiro, Deportivo Armenio, Real Pilar, Corinthians y Colo-Colo.
+28. Escudo: `Badge` (`common.tsx:31-36`) usa `crests.json[club.id]` (Propuesta (ADR-0001): `crestSrc(club.id)`, un `<img loading="lazy">` WebP de 64/128 px; la API de `Badge` no cambia); si no hay, o si la imagen no carga, un círculo con los colores del club y las tres primeras letras del código. Faltan 7: Aldosivi, Ciudad de Bolívar, Gimnasia y Tiro, Deportivo Armenio, Real Pilar, Corinthians y Colo-Colo.
 29. Caras: todos los jugadores usan la misma silueta genérica (`PLAYER_PHOTO`, `src/data/playerPhoto.ts`, de `src/assets/player.webp`); el DT, el avatar ilustrado. Nunca fotos reales (decisión del usuario).
 
 **Puestos, valoración por puesto y roles** (`src/engine/positions.ts`: los datos de puesto que usan la base y el motor)
@@ -244,7 +244,7 @@ En `tools/build-db.ts` salvo indicación. Cambiar cualquiera exige `npm run db` 
 
 | Event | Visual Feedback | Audio Feedback | Priority |
 |-------|----------------|---------------|----------|
-| Club con escudo | Miniatura PNG/JPEG en `Badge`, en todo el juego | Ninguno (no hay sonido) | Alta |
+| Club con escudo | Miniatura PNG/JPEG en `Badge`, en todo el juego (Propuesta (ADR-0001): WebP de 64/128 px de `crestSrc`, cargado en diferido) | Ninguno (no hay sonido) | Alta |
 | Club sin escudo | Círculo con colores del club y sigla | — | Media |
 | Tema del club | `clubTheme` toma los colores del club para el acento (`common.tsx`); un color oscuro se aclara en OKLab conservando su matiz y su croma (desde el 2026-11-14: el acento de Gimnasia sigue siendo azul, no gris) | — | Media |
 | Jugador | Silueta genérica para todos | — | Alta (decisión del usuario) |
@@ -261,7 +261,7 @@ No aplica en tiempo real. El "feel" de la base es de **reconocimiento**: nombres
 
 | Information | Display Location | Update Frequency | Condition |
 |-------------|-----------------|-----------------|-----------|
-| Clubes por categoría, ordenados por reputación, con escudo y presupuesto | `Start.tsx:27-29`, `113-116` (desde `DB_CLUBS`) | Al crear partida | Siempre |
+| Clubes por categoría, ordenados por reputación, con escudo y presupuesto | `Start.tsx:27-29`, `113-116` (desde `DB_CLUBS`; Propuesta (ADR-0001): `dbClubs()`, después de `loadDb()`) | Al crear partida | Siempre |
 | Escudo del club | `Badge` en todas las pantallas (`data-cid` abre la ficha del club) | — | Fallback sin escudo |
 | Cara del jugador | `Face` con la silueta (`common.tsx:58-60`) | — | Siempre |
 | Nombre, nacionalidad, edad, dorsal, puestos, pie | Ficha, tablas, ficha breve | — | Siempre exactos (no pasan por el ojeo) |
@@ -330,3 +330,4 @@ La noticia lleva `me: true` y llega a "Para vos" (resuelto el 2026-11-14); falta
 |------|--------|---------|
 | 2026-11-14 | Claude (reverse-doc) | Documentación inicial desde `tools/`, `data/` y `game.ts` en `d9b251a` |
 | 2026-11-14 | Claude | Resueltos: códigos de club únicos (y corregidos en partidas viejas por `refreshDb`), semilla por jugador con `data/rolls.json`, nacionalidades, colores reales de la tercera, `dbVersion` por contenido, sueldos negociados en `refreshDb` y chip "Inferiores" |
+| 2026-11-22 | technical-director | Sincronización con ADR-0001 (Proposed): `crestSrc`, `data/crests.json`, `tools/build-crests.ts`, `dbClubs()` y `loadDb()` |
